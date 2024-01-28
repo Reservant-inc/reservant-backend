@@ -1,32 +1,40 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 
 namespace Reservant.Api.Controllers;
 
 /// <inheritdoc />
 [ApiController, Route("/weatherforecast")]
-public class WeatherForecastController : Controller
+public class WeatherForecastController(ApiDbContext context) : Controller
 {
     private static readonly string[] Summaries =
     [
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     ];
 
+    private static int ToFahrenheit(int celsius)
+    {
+        return 32 + (int)(celsius / 0.5556);
+    }
+
     /// <summary>
-    /// Generate five random weather forecasts.
+    /// Return all the forecasts.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(WeatherForecast[]), 200)]
-    public IActionResult Index()
+    [ProducesResponseType(typeof(List<WeatherForecast>), 200)]
+    public async Task<IActionResult> GetAll()
     {
-        return Ok(Enumerable.Range(1, 5)
-            .Select(index =>
-                new WeatherForecast
-                {
-                    Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    TemperatureC = Random.Shared.Next(-20, 55),
-                    Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-                })
-            .ToArray());
+        return Ok(await context.WeatherForecasts
+            .Select(f => new WeatherForecastVM
+            {
+                Date = f.Date,
+                TemperatureC = f.TemperatureC,
+                Summary = f.Summary,
+                TemperatureF = ToFahrenheit(f.TemperatureC)
+            })
+            .ToListAsync());
     }
 }
