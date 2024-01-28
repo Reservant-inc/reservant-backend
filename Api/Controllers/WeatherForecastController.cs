@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
@@ -25,6 +26,7 @@ public class WeatherForecastController(ApiDbContext context) : Controller
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(List<WeatherForecast>), 200)]
+    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         return Ok(await context.WeatherForecasts
