@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Controllers;
 
+/// <inheritdoc />
 [ApiController, Route("/weatherforecast")]
 public class WeatherForecastController : Controller
 {
@@ -15,7 +16,11 @@ public class WeatherForecastController : Controller
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 
+    /// <summary>
+    /// Generate five random weather forecasts.
+    /// </summary>
     [HttpGet]
+    [ProducesResponseType(typeof(WeatherForecast[]), 200)]
     public IActionResult Index()
     {
         return Ok(Enumerable.Range(1, 5)
