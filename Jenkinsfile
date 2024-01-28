@@ -13,7 +13,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh "docker run reservant-api:${env.BRANCH_NAME} --name reservant-api -p 80:8080 --rm"
+                sh "docker --detach run reservant-api:${env.BRANCH_NAME} --rm --name reservant-api -p 80:8080"
             }
         }
     }
