@@ -1,6 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var filePath = Path.Combine(AppContext.BaseDirectory, "Api.xml");
+    options.IncludeXmlComments(filePath);
+});
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
