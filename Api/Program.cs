@@ -58,11 +58,8 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedDataAsync(context, roleManager);
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthentication();
 app.UseAuthorization();
