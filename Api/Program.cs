@@ -50,7 +50,9 @@ using (var scope = app.Services.CreateScope())
 
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     await context.Database.EnsureCreatedAsync();
-    await DbSeeder.SeedDataAsync(context);
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await DbSeeder.SeedDataAsync(context, roleManager);
 }
 
 if (app.Environment.IsDevelopment())

@@ -1,16 +1,20 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 
 namespace Reservant.Api.Data;
 
 internal static class DbSeeder
 {
-    public static async Task SeedDataAsync(ApiDbContext context)
+    public static async Task SeedDataAsync(ApiDbContext context, RoleManager<IdentityRole> roleManager)
     {
-        if (await context.WeatherForecasts.AnyAsync())
-        {
-            return;
-        }
+        await roleManager.CreateAsync(new IdentityRole(Roles.Customer));
+        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantOwner));
+        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantEmployee));
+        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantBackdoorsEmployee));
+        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantHallEmployee));
+        await roleManager.CreateAsync(new IdentityRole(Roles.CustomerSupportAgent));
+        await roleManager.CreateAsync(new IdentityRole(Roles.CustomerSupportManager));
 
         context.AddRange(
             new WeatherForecast
