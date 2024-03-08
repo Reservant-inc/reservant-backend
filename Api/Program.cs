@@ -25,14 +25,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-    if (app.Environment.IsDevelopment())
-    {
-        await context.Database.EnsureCreatedAsync();
-    }
-    else
-    {
-        await context.Database.MigrateAsync();
-    }
+    await context.Database.EnsureCreatedAsync();
     await DbSeeder.SeedDataAsync(context);
 }
 
