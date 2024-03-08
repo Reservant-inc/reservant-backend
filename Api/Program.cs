@@ -24,6 +24,8 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    File.Delete("./app.db");
+
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     await context.Database.EnsureCreatedAsync();
     await DbSeeder.SeedDataAsync(context);
