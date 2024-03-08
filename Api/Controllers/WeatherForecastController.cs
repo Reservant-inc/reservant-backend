@@ -25,9 +25,9 @@ public class WeatherForecastController(ApiDbContext context) : Controller
     /// Return all the forecasts.
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(List<WeatherForecast>), 200)]
+    [ProducesResponseType(200)]
     [Authorize]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<List<WeatherForecast>>> GetAll()
     {
         return Ok(await context.WeatherForecasts
             .Select(f => new WeatherForecastVM
