@@ -32,7 +32,7 @@ public class UserService(UserManager<User> userManager)
             return errors;
         }
 
-        var result = await userManager.CreateAsync(user);
+        var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
             return ValidationUtils.AsValidationErrors("", result);
