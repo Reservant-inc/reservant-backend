@@ -9,7 +9,12 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlite("Data Source=app.db"));
 
 builder.Services.AddAuthorization();
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services
+    .AddIdentity<User, IdentityRole>(o =>
+    {
+        o.SignIn.RequireConfirmedEmail = false;
+        o.SignIn.RequireConfirmedPhoneNumber = false;
+    })
     .AddEntityFrameworkStores<ApiDbContext>()
     .AddDefaultTokenProviders();
 
