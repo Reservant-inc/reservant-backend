@@ -13,7 +13,7 @@ namespace Reservant.Api.Controllers;
 /// Registration and signing in and out.
 /// </summary>
 [ApiController, Route("/auth")]
-public class AuthController(UserService userService, SignInManager<User> signInManager) : Controller
+public class AuthController(UserService userService, SignInManager<User> signInManager, UserManager<User> userManager) : Controller
 {
     /// <summary>
     /// Register a restaurant owner.
@@ -41,22 +41,19 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     {
         var email = request.Email;
         var password = request.Password;
+        
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null) return Unauthorized("Incorrect login or password.");
+        
         var result = await signInManager.PasswordSignInAsync(email, password, false, false);
 
-        if (result.Succeeded)
+        var roles = await userManager.GetRolesAsync(user);
+        
+        return result.Succeeded switch
         {
-            // TODO: Poprawić rolę
-            return Ok(new UserInfo
-            {
-                Username = email,
-                Roles = new List<string> { Roles.Customer }
-            });
-        }
-        if(!result.Succeeded)
-        {
-            return Unauthorized("Błędny login lub hasło");
-        }
-        return BadRequest();
+            true => Ok(new UserInfo { Username = email, Roles = roles.ToList() }),
+            false => Unauthorized("Incorrect login or password.")
+        };
     }
 
     /// <summary>
