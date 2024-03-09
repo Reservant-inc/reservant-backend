@@ -1,10 +1,12 @@
+imageTag = "reservant-api:${env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9]', '_')}"
+
 pipeline {
     agent any
 
     stages {
         stage('Build') {
             steps {
-                sh "docker build -t reservant-api:${env.BRANCH_NAME} -f Api/Dockerfile ."
+                sh "docker build -t ${imageTag} -f Api/Dockerfile ."
             }
         }
 
@@ -14,7 +16,7 @@ pipeline {
             }
             steps {
                 sh "docker stop reservant-api || true"
-                sh "docker run --detach --rm --name reservant-api -p 80:8080 reservant-api:${env.BRANCH_NAME}"
+                sh "docker run --detach --rm --name reservant-api -p 80:8080 ${imageTag}"
             }
         }
     }
