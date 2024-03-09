@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
@@ -43,13 +44,18 @@ public class AuthController(UserService userService, SignInManager<User> signInM
 
         if (result.Succeeded)
         {
-            // TODO: zwracac userinfo
-            return Ok("Zalogowano");
+            // TODO: Poprawić rolę
+            return Ok(new UserInfo
+            {
+                Username = email,
+                Roles = new List<string> { Roles.Customer }
+            });
         }
-        else
+        if(!result.Succeeded)
         {
             return Unauthorized("Błędny login lub hasło");
         }
+        return BadRequest();
     }
     
 }
