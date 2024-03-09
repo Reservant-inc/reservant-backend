@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
@@ -38,6 +39,7 @@ public class UserService(UserManager<User> userManager)
             return ValidationUtils.AsValidationErrors("", result);
         }
 
+        await userManager.AddToRolesAsync(user, [Roles.RestaurantOwner]);
         return user;
     }
 }
