@@ -40,7 +40,11 @@ public class UserService(UserManager<User> userManager)
 
         return user;
     }
-
+    /// <summary>
+    /// Service used for restaurant employee registration
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(RegisterRestaurantEmployeeRequest request) { 
         var user = new User { 
             UserName = request.Email, 
