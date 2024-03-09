@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
@@ -57,5 +58,19 @@ public class AuthController(UserService userService, SignInManager<User> signInM
         }
         return BadRequest();
     }
+
+    /// <summary>
+    /// Logging User out
+    /// </summary>
+    [HttpPost("logout"), Authorize]
+    [ProducesResponseType(401)]
+    public async Task<ActionResult> LogoutUser()
+    {
+        await signInManager.SignOutAsync();
+
+        // Czy Unauthorized? -- Ok()
+        return Unauthorized();
+    }
+    
     
 }
