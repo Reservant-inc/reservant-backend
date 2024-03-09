@@ -27,17 +27,7 @@ public class AuthController(UserService userService) : Controller
 
         return Ok();
     }
-}
 
-
-
-
-/// <summary>
-/// Registration and signing in and out.
-/// </summary>
-[ApiController, Route("/auth")]
-public class AuthController(UserService userService) : Controller
-{
     /// <summary>
     /// Register a CustomerSupportAgent.
     /// </summary>
@@ -45,7 +35,7 @@ public class AuthController(UserService userService) : Controller
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult> RegisterCustomerSupportAgent(RegisterCustomerSupportAgentRequest request)
     {
-        var result = await userService.RegisterCustomerSupportAgentAsunc(request);
+        var result = await userService.RegisterCustomerSupportAgentAsync(request);
         if (result.IsError)
         {
             ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
