@@ -64,9 +64,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     public async Task<ActionResult> LogoutUser()
     {
         await signInManager.SignOutAsync();
-
-        // Czy Unauthorized? -- Ok()
-        return Unauthorized();
+        return Ok("Logged out.");
     }
     
     
