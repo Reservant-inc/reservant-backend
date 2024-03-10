@@ -35,17 +35,20 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     /// <summary>
     /// Login authorization
     /// </summary>
+    /// <param name="request"> Login request DTO</param>
+    /// <returns>User cookie</returns>
     [HttpPost("login")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult> LoginUser(LoginRequest request)
     {
         var email = request.Email;
         var password = request.Password;
+        var rememberPassword = request.RememberMe;
         
         var user = await userManager.FindByEmailAsync(email);
         if (user == null) return Unauthorized("Incorrect login or password.");
         
-        var result = await signInManager.PasswordSignInAsync(email, password, false, false);
+        var result = await signInManager.PasswordSignInAsync(email, password, rememberPassword, false);
 
         var roles = await userManager.GetRolesAsync(user);
         
@@ -57,7 +60,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     }
 
     /// <summary>
-    /// Logging User out
+    /// Logging User out - deletes Cookie
     /// </summary>
     [HttpPost("logout"), Authorize]
     [ProducesResponseType(401)]
