@@ -27,4 +27,21 @@ public class AuthController(UserService userService) : Controller
 
         return Ok();
     }
+
+    /// <summary>
+    /// Register a CustomerSupportAgent.
+    /// </summary>
+    [HttpPost("register-customer-support-agent")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult> RegisterCustomerSupportAgent(RegisterCustomerSupportAgentRequest request)
+    {
+        var result = await userService.RegisterCustomerSupportAgentAsync(request);
+        if (result.IsError)
+        {
+            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+            return BadRequest(ModelState);
+        }
+
+        return Ok();
+    }
 }
