@@ -71,6 +71,12 @@ public class UserService(UserManager<User> userManager)
             return ValidationUtils.AsValidationErrors("", result);
         }
 
+        if(request.IsManager)
+        {
+        await userManager.AddToRolesAsync(user, [Roles.CustomerSupportManager]);
+        }
+        await userManager.AddToRolesAsync(user, [Roles.CustomerSupportAgent]);
+
         return user;
     }
 }
