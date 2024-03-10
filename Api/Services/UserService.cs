@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
@@ -24,6 +26,7 @@ public class UserService(UserManager<User> userManager)
             FirstName = request.FirstName,
             LastName = request.LastName,
             RegisteredAt = DateTime.UtcNow
+            
         };
 
         var errors = new List<ValidationResult>();
@@ -56,6 +59,11 @@ public class UserService(UserManager<User> userManager)
         };
 
         var errors = new List<ValidationResult>();
+        if (!request.IsBackdoorEmployee && !request.IsHallEmployee) { 
+            errors.Add(new ValidationResult("At least one role must be selected", ["RestaurantBackdoorsEmployee", "RestaurantHallEmployee"]));
+            return errors;
+        }
+
         if (!ValidationUtils.TryValidate(user, errors))
         {
             return errors;
@@ -66,7 +74,12 @@ public class UserService(UserManager<User> userManager)
         {
             return ValidationUtils.AsValidationErrors("", result);
         }
-
+        if(request.IsHallEmployee && request.IsBackdoorEmployee)
+            await userManager.AddToRolesAsync(user, [Roles.RestaurantBackdoorsEmployee, Roles.RestaurantHallEmployee]);
+        else if(request.IsHallEmployee)
+            await userManager.AddToRolesAsync(user, [Roles.RestaurantHallEmployee]);
+        else
+            await userManager.AddToRolesAsync(user, [Roles.RestaurantBackdoorsEmployee]);
         return user;
     }
 }

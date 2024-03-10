@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Models.Dtos;
 
+
 public class RegisterRestaurantEmployeeRequest
 {
     [Required, StringLength(30)]
@@ -19,5 +20,10 @@ public class RegisterRestaurantEmployeeRequest
 
     [Required, StringLength(50)]
     public required string Password { get; init; }
+
+    [Required]
+    public required  Boolean IsBackdoorEmployee { get; init; }
+    [Required]
+    public required  Boolean IsHallEmployee { get; init; }
 
 }
