@@ -33,10 +33,11 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     }
 
     /// <summary>
-    /// Login authorization
+    /// Login authorization - Sets Cookie
     /// </summary>
     /// <param name="request"> Login request DTO</param>
-    /// <returns>User cookie</returns>
+    /// <request code="400"> Validation errors </request>
+    /// <request code="401"> Unauthorized </request>
     [HttpPost("login")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult> LoginUser(LoginRequest request)
