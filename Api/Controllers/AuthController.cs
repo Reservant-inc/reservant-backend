@@ -64,7 +64,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     /// Logging User out - deletes Cookie
     /// </summary>
     [HttpPost("logout"), Authorize]
-    [ProducesResponseType(401)]
+    [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult> LogoutUser()
     {
         await signInManager.SignOutAsync();
