@@ -60,7 +60,7 @@ public class UserService(UserManager<User> userManager)
 
         var errors = new List<ValidationResult>();
         if (!request.IsBackdoorEmployee && !request.IsHallEmployee) { 
-            errors.Add(new ValidationResult("At least one role must be selected", ["RestaurantBackdoorsEmployee", "RestaurantHallEmployee"]));
+            errors.Add(new ValidationResult("At least one role must be set as true", ["IsBackdoorEmployee", "IsHallEmployee"]));
             return errors;
         }
 
@@ -75,11 +75,11 @@ public class UserService(UserManager<User> userManager)
             return ValidationUtils.AsValidationErrors("", result);
         }
         if(request.IsHallEmployee && request.IsBackdoorEmployee)
-            await userManager.AddToRolesAsync(user, [Roles.RestaurantBackdoorsEmployee, Roles.RestaurantHallEmployee]);
+            await userManager.AddToRolesAsync(user, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee, Roles.RestaurantHallEmployee]);
         else if(request.IsHallEmployee)
-            await userManager.AddToRolesAsync(user, [Roles.RestaurantHallEmployee]);
+            await userManager.AddToRolesAsync(user, [Roles.RestaurantEmployee, Roles.RestaurantHallEmployee]);
         else
-            await userManager.AddToRolesAsync(user, [Roles.RestaurantBackdoorsEmployee]);
+            await userManager.AddToRolesAsync(user, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee]);
         return user;
     }
 }
