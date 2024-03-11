@@ -33,6 +33,23 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     }
 
     /// <summary>
+    /// Register a CustomerSupportAgent.
+    /// </summary>
+    [HttpPost("register-customer-support-agent")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult> RegisterCustomerSupportAgent(RegisterCustomerSupportAgentRequest request)
+    {
+        var result = await userService.RegisterCustomerSupportAgentAsync(request);
+        if (result.IsError)
+        {
+            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+            return BadRequest(ModelState);
+        }
+
+        return Ok();
+    }
+
+    /// <summary>
     /// Login authorization - Sets Cookie
     /// </summary>
     /// <param name="request"> Login request DTO</param>
@@ -70,6 +87,4 @@ public class AuthController(UserService userService, SignInManager<User> signInM
         await signInManager.SignOutAsync();
         return Ok("Logged out.");
     }
-    
-    
 }

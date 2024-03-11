@@ -59,9 +59,4 @@ public class User : IdentityUser
             return age;
         }
     }
-
-    /// <summary>
-    /// Stan portfela. For Customers.
-    /// </summary>
-    public decimal? WalletBalance => throw new NotImplementedException();
 }
