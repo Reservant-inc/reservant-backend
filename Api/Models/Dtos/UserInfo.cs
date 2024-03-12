@@ -8,6 +8,12 @@ public class UserInfo
     [Required, StringLength(50), EmailAddress]
     public required string Username { get; init; }
 
+    [Required, StringLength(30)]
+    public required string FirstName { get; init; }
+
+    [Required, StringLength(30)]
+    public required string LastName { get; init; }
+
     [Required]
     public required List<string> Roles { get; init; }
 }

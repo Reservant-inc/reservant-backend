@@ -80,17 +80,23 @@ public class AuthController(UserService userService, SignInManager<User> signInM
         var email = request.Email;
         var password = request.Password;
         var rememberPassword = request.RememberMe;
-        
+
         var user = await userManager.FindByEmailAsync(email);
         if (user == null) return Unauthorized("Incorrect login or password.");
-        
+
         var result = await signInManager.PasswordSignInAsync(email, password, rememberPassword, false);
 
         var roles = await userManager.GetRolesAsync(user);
-        
+
         return result.Succeeded switch
         {
-            true => Ok(new UserInfo { Username = email, Roles = roles.ToList() }),
+            true => Ok(new UserInfo
+            {
+                Username = email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Roles = roles.ToList()
+            }),
             false => Unauthorized("Incorrect login or password.")
         };
     }
