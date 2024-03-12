@@ -22,8 +22,8 @@ public class RegisterRestaurantEmployeeRequest
     public required string Password { get; init; }
 
     [Required]
-    public required  Boolean IsBackdoorEmployee { get; init; }
+    public required  bool IsBackdoorEmployee { get; init; }
     [Required]
-    public required  Boolean IsHallEmployee { get; init; }
+    public required  bool IsHallEmployee { get; init; }
 
 }
