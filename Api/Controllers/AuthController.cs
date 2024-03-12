@@ -105,4 +105,21 @@ public class AuthController(UserService userService, SignInManager<User> signInM
         await signInManager.SignOutAsync();
         return Ok("Logged out.");
     }
+
+    /// <summary>
+    /// Register a customer.
+    /// </summary>
+    [HttpPost("register-customer")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult> RegisterCustomer(RegisterCustomerRequest request)
+    {
+        var result = await userService.RegisterCustomerAsync(request);
+        if (result.IsError)
+        {
+            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+            return BadRequest(ModelState);
+        }
+
+        return Ok();
+    }
 }
