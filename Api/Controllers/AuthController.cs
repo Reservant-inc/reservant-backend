@@ -33,6 +33,24 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     }
 
     /// <summary>
+    /// Controller for registering new employees in a restaurant
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("register-restaurant-employee")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult> RegisterRestaurantEmployee(RegisterRestaurantEmployeeRequest request)
+    {
+        var result = await userService.RegisterRestaurantEmployeeAsync(request);
+        if (result.IsError) {
+            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+            return BadRequest(ModelState);
+        }
+
+        return Ok();
+    }
+
+    /// <summary>
     /// Register a CustomerSupportAgent.
     /// </summary>
     [HttpPost("register-customer-support-agent")]
