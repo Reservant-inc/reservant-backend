@@ -26,7 +26,7 @@ public class UserService(UserManager<User> userManager)
             FirstName = request.FirstName,
             LastName = request.LastName,
             RegisteredAt = DateTime.UtcNow
-            
+
         };
 
         var errors = new List<ValidationResult>();
@@ -86,18 +86,18 @@ public class UserService(UserManager<User> userManager)
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    public async Task<Result<User>> RegisterRestaurantEmployeeAsync(RegisterRestaurantEmployeeRequest request) { 
-        var user = new User { 
-            UserName = request.Email, 
-            Email = request.Email, 
-            PhoneNumber = request.PhoneNumber, 
-            FirstName = request.FirstName, 
-            LastName = request.LastName, 
-            RegisteredAt = DateTime.UtcNow 
+    public async Task<Result<User>> RegisterRestaurantEmployeeAsync(RegisterRestaurantEmployeeRequest request) {
+        var user = new User {
+            UserName = request.Email,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            RegisteredAt = DateTime.UtcNow
         };
 
         var errors = new List<ValidationResult>();
-        if (!request.IsBackdoorEmployee && !request.IsHallEmployee) { 
+        if (!request.IsBackdoorEmployee && !request.IsHallEmployee) {
             errors.Add(new ValidationResult("At least one role must be set as true", ["IsBackdoorEmployee", "IsHallEmployee"]));
             return errors;
         }
@@ -130,7 +130,7 @@ public class UserService(UserManager<User> userManager)
             PhoneNumber = request.PhoneNumber,
             FirstName = request.FirstName,
             LastName = request.LastName,
-            BirthDate = request.BirthDate,
+            BirthDate = DateOnly.FromDateTime(request.BirthDate),
             RegisteredAt = DateTime.UtcNow
         };
 
