@@ -6,6 +6,17 @@ using Reservant.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(o =>
+{
+    o.AddDefaultPolicy(p =>
+    {
+        p.SetIsOriginAllowed(_ => true);
+        p.AllowAnyHeader();
+        p.AllowCredentials();
+        p.AllowAnyMethod();
+    });
+});
+
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlite("Data Source=app.db"));
 
@@ -57,6 +68,8 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await DbSeeder.SeedDataAsync(context, roleManager);
 }
+
+app.UseCors();
 
 app.UseSwagger();
 app.UseSwaggerUI();
