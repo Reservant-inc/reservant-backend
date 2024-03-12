@@ -16,7 +16,7 @@ pipeline {
             }
             steps {
                 sh "docker stop reservant-api || true"
-                sh "docker run --detach --rm --name reservant-api -p 80:8080 ${imageTag}"
+                sh "docker run --detach --rm --name reservant-api -p 12038:8080 ${imageTag}"
             }
         }
     }
