@@ -16,4 +16,7 @@ public class RegisterRestaurantOwnerRequest
 
     [Required, StringLength(15), Phone]
     public required string PhoneNumber { get; init; }
+
+    [Required, StringLength(50)]
+    public required string Password { get; init; }
 }
