@@ -143,7 +143,7 @@ public class UserService(UserManager<User> userManager)
         var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
-            return ValidationUtils.AsValidationErrors("Error occurred during user registration.", result);
+            return ValidationUtils.AsValidationErrors("", result);
         }
 
         await userManager.AddToRoleAsync(user, Roles.Customer);
