@@ -120,4 +120,34 @@ public class UserService(UserManager<User> userManager)
             await userManager.AddToRolesAsync(user, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee]);
         return user;
     }
+
+    public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request)
+    {
+        var user = new User
+        {
+            UserName = request.Email,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            FirstName = request.FirstName,
+            LastName = request.LastName,
+            BirthDate = request.BirthDate,
+            RegisteredAt = DateTime.UtcNow
+        };
+
+        var errors = new List<ValidationResult>();
+        if (!ValidationUtils.TryValidate(user, errors))
+        {
+            return errors;
+        }
+
+        var result = await userManager.CreateAsync(user, request.Password);
+        if (!result.Succeeded)
+        {
+            return ValidationUtils.AsValidationErrors("Error occurred during user registration.", result);
+        }
+
+        await userManager.AddToRoleAsync(user, Roles.Customer);
+
+        return user;
+    }
 }
