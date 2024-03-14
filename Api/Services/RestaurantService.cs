@@ -19,17 +19,30 @@ namespace Reservant.Api.Services
                 Name = request.Name,
                 Address = request.Address,
                 OwnerId = user.Id,
-                Owner = user,
-                Tables = new List<Table>()
+                Owner = user
             };
+
 
             var errors = new List<ValidationResult>();
             if (!ValidationUtils.TryValidate(restaurant, errors))
             {
                 return errors;
             }
-
+            
             context.Add(restaurant);
+            
+            if (request.Tables.Count > 0)
+            {
+                var restaurantId = context.Restaurants.LastAsync().Result.Id;
+                var tables = request.Tables.Select(t => new Table
+                {
+                    RestaurantId = restaurantId,
+                    Capacity = t.Capacity,
+                    Id = t.Id
+                });
+            }
+                
+            
             await context.SaveChangesAsync();
 
             return restaurant;
@@ -56,7 +69,7 @@ namespace Reservant.Api.Services
         public async Task<Result<RestaurantVM>> GetMyRestaurantByIdAsync(User user, int id)
         {
             var userId = user.Id;
-            var restaurant = await context.Restaurants.Where(r => r.Id == id)
+/*            var restaurant = await context.Restaurants.Where(r => r.Id == id)
                                                     .Where(r => r.OwnerId == userId)
                                                     .FirstOrDefaultAsync();
             var errors = new List<ValidationResult>();
@@ -64,6 +77,15 @@ namespace Reservant.Api.Services
             {
                 return errors;
             }
+            List<Table> tables;
+            if (restaurant.Tables == null) 
+            { 
+                tables = new List<Table>();
+            } else
+            {
+                tables = restaurant.Tables;
+            }
+            
 
             var tablesVM = new List<TableVM>();
             foreach(var table in restaurant.Tables)
@@ -74,7 +96,7 @@ namespace Reservant.Api.Services
                         Id = table.Id,
                         Capacity = table.Capacity
                     });
-            }
+            }*/
 
 
             var result = await context.Restaurants.Where(r => r.OwnerId == userId)
@@ -83,10 +105,12 @@ namespace Reservant.Api.Services
                                                     Id = r.Id,
                                                     Name = r.Name,
                                                     Address = r.Address,
-                                                    Tables = tablesVM
+                                                    Tables = r.Tables.Select(t => new TableVM { 
+                                                                            Id = t.Id,
+                                                                            Capacity = t.Capacity})
                                                   })
                                                   .FirstOrDefaultAsync();
-
+            var errors = new List<ValidationResult>();
             if (!ValidationUtils.TryValidate(result, errors))
             {
                 return errors;

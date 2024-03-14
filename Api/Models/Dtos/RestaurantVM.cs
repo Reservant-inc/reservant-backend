@@ -15,6 +15,6 @@ namespace Reservant.Api.Models.Dtos
         public required string Address { get; init; }
 
         [Required]
-        public required List<TableVM> Tables { get; init; }
+        public required IEnumerable<TableVM> Tables { get; init; }
     }
 }

@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
-    //[Authorize(Roles = Roles.RestaurantOwner)]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     public class MyRestaurantsController(RestaurantService restaurantService, SignInManager<User> signInManager, UserManager<User> userManager) : Controller
     {
         /// <summary>
