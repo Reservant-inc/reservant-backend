@@ -15,8 +15,8 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh "docker stop reservant-api || true"
-                sh "docker run --detach --rm --name reservant-api -p 12038:8080 ${imageTag}"
+                sh "docker stop kuchnia || true"
+                sh "docker run --detach --rm --name kuchnia -p 12038:8080 ${imageTag}"
             }
         }
     }
