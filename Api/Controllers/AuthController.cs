@@ -75,7 +75,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     /// <request code="401"> Unauthorized </request>
     [HttpPost("login")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult> LoginUser(LoginRequest request)
+    public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
         var email = request.Email;
         var password = request.Password;
