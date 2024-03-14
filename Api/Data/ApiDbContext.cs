@@ -8,4 +8,15 @@ namespace Reservant.Api.Data;
 public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbContext<User>(options)
 {
     public required DbSet<WeatherForecast> WeatherForecasts { get; init; }
+
+    public DbSet<Restaurant> Restaurants { get; init; } = null!;
+
+    public DbSet<Table> Tables { get; init; } = null!;
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<Table>().HasKey(t => new { t.RestaurantId, t.Id });
+    }
 }
