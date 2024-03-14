@@ -20,6 +20,8 @@ builder.Services.AddCors(o =>
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlite("Data Source=app.db"));
 
+builder.Services.AddScoped<DbSeeder>();
+
 builder.Services.AddAuthorization();
 builder.Services
     .AddIdentity<User, IdentityRole>(o =>
@@ -65,8 +67,8 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     await context.Database.EnsureCreatedAsync();
 
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    await DbSeeder.SeedDataAsync(context, roleManager);
+    var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
+    await seeder.SeedDataAsync();
 }
 
 app.UseCors();

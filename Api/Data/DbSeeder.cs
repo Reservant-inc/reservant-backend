@@ -4,9 +4,11 @@ using Reservant.Api.Models;
 
 namespace Reservant.Api.Data;
 
-internal static class DbSeeder
+internal class DbSeeder(
+    ApiDbContext context,
+    RoleManager<IdentityRole> roleManager)
 {
-    public static async Task SeedDataAsync(ApiDbContext context, RoleManager<IdentityRole> roleManager)
+    public async Task SeedDataAsync()
     {
         await roleManager.CreateAsync(new IdentityRole(Roles.Customer));
         await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantOwner));
