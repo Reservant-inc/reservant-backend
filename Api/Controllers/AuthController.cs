@@ -68,8 +68,11 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     }
 
     /// <summary>
-    /// Login authorization - Sets Cookie
+    /// Login authorization
     /// </summary>
+    /// <remarks>
+    /// Sets cookie named ".AspNetCore.Identity.Application".
+    /// </remarks>
     /// <param name="request"> Login request DTO</param>
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Unauthorized </request>
@@ -102,8 +105,11 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     }
 
     /// <summary>
-    /// Logging User out - deletes Cookie
+    /// Logging User out
     /// </summary>
+    /// <remarks>
+    /// Deletes cookie named ".AspNetCore.Identity.Application".
+    /// </remarks>
     [HttpPost("logout"), Authorize]
     [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult> LogoutUser()
