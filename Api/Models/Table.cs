@@ -22,4 +22,9 @@ public class Table
     /// </summary>
     [Range(1, 10)]
     public required int Capacity { get; set; }
+
+    /// <summary>
+    /// Restaurant
+    /// </summary>
+    public Restaurant? Restaurant { get; set; }
 }

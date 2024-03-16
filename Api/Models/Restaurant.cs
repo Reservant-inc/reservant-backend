@@ -34,7 +34,7 @@ public class Restaurant
     /// <summary>
     /// Navigation collection for the tables
     /// </summary>
-    public ICollection<Table>? Tables { get; set; }
+    public IEnumerable<Table>? Tables { get; set; }
 
     /// <summary>
     /// Navigation property for the owner

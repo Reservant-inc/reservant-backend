@@ -37,7 +37,10 @@ namespace Reservant.Api.Controllers
 
             return Ok();
         }
-
+        /// <summary>
+        /// Get restaurants owned by the user.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult> GetMyRestaurants() {
@@ -50,7 +53,11 @@ namespace Reservant.Api.Controllers
             }
             return Ok(result);
         }
-
+        /// <summary>
+        /// Get a specific restaurant owned by the user.
+        /// </summary>
+        /// <param name="id">Id of the restaurant.</param>
+        /// <returns></returns>
         [HttpGet("{id:int}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult> GetMyRestaurantById(int id) {
