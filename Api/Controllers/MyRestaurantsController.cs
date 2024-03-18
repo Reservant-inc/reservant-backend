@@ -46,10 +46,9 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult> GetMyRestaurants() {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantsAsync(user);
-            if (result.IsError)
+            if (result == null)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-                return BadRequest(ModelState);
+                return NotFound();
             }
             return Ok(result);
         }
@@ -60,15 +59,14 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet("{id:int}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult> GetMyRestaurantById(int id) {
+        public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int id) {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantByIdAsync(user, id);
-            if (result.IsError)
+            if (result.Value == null)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-                return BadRequest(ModelState);
+                return NotFound();
             }
-            return Ok(result);
+            return Ok(result.Value);
         }
     }
 }

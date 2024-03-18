@@ -64,12 +64,8 @@ namespace Reservant.Api.Services
                                                     Address = r.Address
                                                   })
                                                   .ToListAsync();
-            var errors = new List<ValidationResult>();
-            if (!ValidationUtils.TryValidate(result, errors))
-            {
-                return errors;
-            }
-
+            if (result.Count == 0)
+                return null;
             return result;
         }
         /// <summary>
@@ -92,12 +88,6 @@ namespace Reservant.Api.Services
                                                                             Capacity = t.Capacity})
                                                   })
                                                   .FirstOrDefaultAsync();
-            var errors = new List<ValidationResult>();
-            if (!ValidationUtils.TryValidate(result, errors))
-            {
-                return errors;
-            }
-
             return result;
         }
     }
