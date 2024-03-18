@@ -97,6 +97,40 @@ internal class DbSeeder(
             ]
         });
 
+        context.Restaurants.Add(new Restaurant
+        {
+            Id = 2,
+            Name = "John Doe's 2",
+            Address = "Warszawa, ul. Koszykowa 10",
+            OwnerId = johnDoe.Id,
+            Tables = [
+                new Table
+                {
+                    RestaurantId = 2,
+                    Id = 1,
+                    Capacity = 2
+                },
+                new Table
+                {
+                    RestaurantId = 2,
+                    Id = 2,
+                    Capacity = 2
+                },
+                new Table
+                {
+                    RestaurantId = 2,
+                    Id = 3,
+                    Capacity = 4
+                },
+                new Table
+                {
+                    RestaurantId = 2,
+                    Id = 4,
+                    Capacity = 4
+                }
+            ]
+        });
+
         await context.SaveChangesAsync();
     }
 }
