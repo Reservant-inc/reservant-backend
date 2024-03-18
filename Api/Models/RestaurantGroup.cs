@@ -2,10 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Models;
 
-/// <summary>
-/// Lokal
-/// </summary>
-public class Restaurant
+public class RestaurantGroup
 {
     /// <summary>
     /// Unique ID
@@ -20,26 +17,10 @@ public class Restaurant
     public required string Name { get; set; }
 
     /// <summary>
-    /// Adres
-    /// </summary>
-    [Required, StringLength(70)]
-    public required string Address { get; set; }
-
-    /// <summary>
     /// Owner ID
     /// </summary>
     [Required, StringLength(36)]
     public required string OwnerId { get; set; }
-
-    /// <summary>
-    /// Restaurant group ID
-    /// </summary>
-    public int? GroupId { get; set; }
-
-    /// <summary>
-    /// Navigation collection for the tables
-    /// </summary>
-    public ICollection<Table>? Tables { get; set; }
 
     /// <summary>
     /// Navigation property for the owner
@@ -47,7 +28,7 @@ public class Restaurant
     public User? Owner { get; set; }
 
     /// <summary>
-    /// Navigation property for the restaurant group
+    /// Navigation collection for the restaurants
     /// </summary>
-    public RestaurantGroup? Group { get; set; }
+    public ICollection<Restaurant>? Restaurants { get; set; }
 }
