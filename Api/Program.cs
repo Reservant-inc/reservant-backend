@@ -57,6 +57,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<RestaurantGroupService>();
 
 var app = builder.Build();
 

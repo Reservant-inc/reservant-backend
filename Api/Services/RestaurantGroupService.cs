@@ -48,8 +48,8 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetRestaurantGroupSummary(User user) {
-            // var userId = user.Id;
+     
+
             // var result = await context.Restaurants.Where(r => r.OwnerId == userId)
             //                                       .Select(r=> new RestaurantSummaryVM{
             //                                         Id = r.Id,
@@ -61,26 +61,57 @@ namespace Reservant.Api.Services
             //     return null;
             // return result;
 
-                try
-                {
-                    // I want to replace with accesing database and retriving group based ownerID
-                    var summaryVM = new RestaurantGroupSummaryVM
-                    {
-                        Id = 0, 
-                        Name = "aaa", 
-                        RestaurantCount = 0 
-                    };
+        public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetRestaurantGroupSummary(string ID) {
+            // var userId = user.Id;
 
-                    var resultList = new List<RestaurantGroupSummaryVM> { summaryVM };
-                    var result = new Result<IEnumerable<RestaurantGroupSummaryVM>>(resultList);
-                    return result;
 
-                }
-                catch (Exception ex)
-                {
-                    return null;
-                }
+            var result = await context
+                .RestaurantGroups
+                .Where(r => r.OwnerId == ID)//r=>true
+                .Select(r => new RestaurantGroupSummaryVM {
+                    Id = r.Id,
+                    Name = r.Name,
+                    RestaurantCount = r.Restaurants != null ? r.Restaurants.Count() : 0                
+            })
+                .ToListAsync();
+
+            return result;
+
+            //   var users = await context.Users.ToListAsync();
+
+
+            //     string aaaa = "";
+
+            //     foreach (var user in users)
+            //     {
+            //         aaaa += $"User ID: {user.Id}, First Name: {user.FirstName}, Last Name: {user.LastName}, Email: {user.Email}, Phone Number: {user.PhoneNumber}\n";
+            //     }
+
+
+
+            // try
+            //     {
+            //         var summaryVM = new RestaurantGroupSummaryVM
+            //         {
+            //             Id = 0, 
+            //             Name = "aaa"+aaaa, 
+            //             RestaurantCount = 0 
+            //         };
+
+            //         var resultList = new List<RestaurantGroupSummaryVM> { summaryVM };
+            //         var result = new Result<IEnumerable<RestaurantGroupSummaryVM>>(resultList);
+            //         return result;
+
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //         return null;
+            //     }
+        
         }
+
+
+                
         
 
     }

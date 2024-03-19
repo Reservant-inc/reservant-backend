@@ -18,14 +18,14 @@ namespace Reservant.Api.Controllers
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants-Groups")]
     //[Authorize(Roles = Roles.RestaurantOwner)]
-    public class MyRestaurantGroupsController(RestaurantGroupService restaurantGroupService, UserManager<User> userManager) : Controller
+    public class MyRestaurantGroupsController(RestaurantGroupService restaurantGroupService, SignInManager<User> signInManager, UserManager<User> userManager) : Controller
     {
-        [HttpGet("{id:int}")]
+        [HttpGet()]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantById(int id) 
+        public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantById(string id) //2f77d023-b24a-40d5-9b34-200c41bcb4b5
         {
             var user = await userManager.GetUserAsync(User);
-            var result = await restaurantGroupService.GetRestaurantGroupSummary(user);
+            var result = await restaurantGroupService.GetRestaurantGroupSummary(id);
             if (result.Value == null)
             {
                 return NotFound();
