@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -129,6 +130,14 @@ internal class DbSeeder(
                     Capacity = 4
                 }
             ]
+        });
+        
+        context.RestaurantGroups.Add(new RestaurantGroup
+        {
+            Id = 1,
+            Name = "Group One",
+            OwnerId = johnDoe.Id,
+            Restaurants = await context.Restaurants.ToListAsync()
         });
 
         await context.SaveChangesAsync();
