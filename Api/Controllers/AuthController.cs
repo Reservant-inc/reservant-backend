@@ -80,14 +80,14 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
-        var email = request.Email;
+        var username = request.Username;
         var password = request.Password;
         var rememberPassword = request.RememberMe;
 
-        var user = await userManager.FindByEmailAsync(email);
-        if (user == null) return Unauthorized("Incorrect login or password.");
+        var user = await userManager.FindByNameAsync(username);
+        if (user == null) return Unauthorized("Incorrect username or password.");
 
-        var result = await signInManager.PasswordSignInAsync(email, password, rememberPassword, false);
+        var result = await signInManager.PasswordSignInAsync(username, password, rememberPassword, false);
 
         var roles = await userManager.GetRolesAsync(user);
 
@@ -95,12 +95,12 @@ public class AuthController(UserService userService, SignInManager<User> signInM
         {
             true => Ok(new UserInfo
             {
-                Username = email,
+                Username = username,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Roles = roles.ToList()
             }),
-            false => Unauthorized("Incorrect login or password.")
+            false => Unauthorized("Incorrect username or password.")
         };
     }
 
