@@ -134,4 +134,22 @@ public class AuthController(UserService userService, SignInManager<User> signInM
 
         return Ok();
     }
+
+    // /// <summary>
+    // /// Register a customer.
+    // /// </summary>
+    // [HttpGet("my-restaurant-groups")]
+    // //[Authorize(Roles = "RestaurantOwner")]
+    // [ProducesResponseType(200), ProducesResponseType(400)]
+    // public async Task<ActionResult> getMyRestaurantGroup(int id)
+    // {
+    //     var result = await RestaurantGroupServices.GetRestaurantGroupSummary(id);
+    //     // if (result.IsError)
+    //     // {
+    //     //     ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+    //     //     return BadRequest(ModelState);
+    //     // }
+
+    //     return Ok(result);
+    // }
 }
