@@ -17,7 +17,7 @@ namespace Reservant.Api.Controllers
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    public class MyRestaurantsController(RestaurantService restaurantService, SignInManager<User> signInManager, UserManager<User> userManager) : Controller
+    public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager) : Controller
     {
         /// <summary>
         /// Create a new restaurant and add it to the database
