@@ -6,7 +6,7 @@ namespace Reservant.Api.Validation;
 /// Used to return a value in case of success OR validation errors if any.
 /// </summary>
 /// <typeparam name="TValue">The value type in case of success.</typeparam>
-public class Result<TValue>
+public readonly struct Result<TValue>
 {
     /// <summary>
     /// Whether there are validation errors or not.
