@@ -48,26 +48,13 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-     
-
-            // var result = await context.Restaurants.Where(r => r.OwnerId == userId)
-            //                                       .Select(r=> new RestaurantSummaryVM{
-            //                                         Id = r.Id,
-            //                                         Name = r.Name,
-            //                                         Address = r.Address
-            //                                       })
-            //                                       .ToListAsync();
-            // if (result.Count == 0)
-            //     return null;
-            // return result;
-
-        public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetRestaurantGroupSummary(string ID) {
-            // var userId = user.Id;
+        public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetRestaurantGroupSummary(User user) {
+             var userId = user.Id;
 
 
             var result = await context
                 .RestaurantGroups
-                .Where(r => r.OwnerId == ID)//r=>true
+                .Where(r => r.OwnerId == userId)//r=>true
                 .Select(r => new RestaurantGroupSummaryVM {
                     Id = r.Id,
                     Name = r.Name,
@@ -75,44 +62,7 @@ namespace Reservant.Api.Services
             })
                 .ToListAsync();
 
-            return result;
-
-            //   var users = await context.Users.ToListAsync();
-
-
-            //     string aaaa = "";
-
-            //     foreach (var user in users)
-            //     {
-            //         aaaa += $"User ID: {user.Id}, First Name: {user.FirstName}, Last Name: {user.LastName}, Email: {user.Email}, Phone Number: {user.PhoneNumber}\n";
-            //     }
-
-
-
-            // try
-            //     {
-            //         var summaryVM = new RestaurantGroupSummaryVM
-            //         {
-            //             Id = 0, 
-            //             Name = "aaa"+aaaa, 
-            //             RestaurantCount = 0 
-            //         };
-
-            //         var resultList = new List<RestaurantGroupSummaryVM> { summaryVM };
-            //         var result = new Result<IEnumerable<RestaurantGroupSummaryVM>>(resultList);
-            //         return result;
-
-            //     }
-            //     catch (Exception ex)
-            //     {
-            //         return null;
-            //     }
-        
+            return result;       
         }
-
-
-                
-        
-
     }
 }    

@@ -11,21 +11,31 @@ using Reservant.Api.Validation;
 namespace Reservant.Api.Controllers
 {
     /// <summary>
-    /// Controller resposnible for registration of a new restaurant, listing owned restaurants and accessing restaurant data
+    /// Controler for getting restaurantGroups of restaurant owner
     /// Only RestaurantOwner can use this controller
     /// </summary>
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants-Groups")]
-    //[Authorize(Roles = Roles.RestaurantOwner)]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     public class MyRestaurantGroupsController(RestaurantGroupService restaurantGroupService, SignInManager<User> signInManager, UserManager<User> userManager) : Controller
     {
+
+        /// <summary>
+        /// Get a group of restaurants asociated with logged in restaurant owner
+        /// </summary>
+        /// <returns>RestaurantGroupSummaryVM</returns>
         [HttpGet()]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantById(string id) //2f77d023-b24a-40d5-9b34-200c41bcb4b5
+        public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantById() 
         {
             var user = await userManager.GetUserAsync(User);
-            var result = await restaurantGroupService.GetRestaurantGroupSummary(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var result = await restaurantGroupService.GetRestaurantGroupSummary(user);
             if (result.Value == null)
             {
                 return NotFound();
