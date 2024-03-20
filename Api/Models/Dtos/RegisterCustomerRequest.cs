@@ -11,6 +11,9 @@ public class RegisterCustomerRequest
     [Required, StringLength(30)]
     public required string LastName { get; init; }
 
+    [Required, StringLength(50)]
+    public required string Login { get; init; }
+
     [Required, StringLength(50), EmailAddress]
     public required string Email { get; init; }
 

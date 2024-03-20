@@ -125,7 +125,7 @@ public class UserService(UserManager<User> userManager)
     {
         var user = new User
         {
-            UserName = request.Email,
+            UserName = request.Login,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber,
             FirstName = request.FirstName,
