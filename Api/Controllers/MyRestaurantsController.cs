@@ -42,7 +42,7 @@ namespace Reservant.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(200)]
         public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants() {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantsAsync(user);
@@ -54,7 +54,7 @@ namespace Reservant.Api.Controllers
         /// <param name="id">Id of the restaurant.</param>
         /// <returns></returns>
         [HttpGet("{id:int}")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(200), ProducesResponseType(404)]
         public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int id) {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantByIdAsync(user, id);
