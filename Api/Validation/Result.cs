@@ -6,22 +6,27 @@ namespace Reservant.Api.Validation;
 /// Used to return a value in case of success OR validation errors if any.
 /// </summary>
 /// <typeparam name="TValue">The value type in case of success.</typeparam>
-public class Result<TValue>
+public readonly struct Result<TValue>
 {
     /// <summary>
     /// Whether there are validation errors or not.
     /// </summary>
     public bool IsError { get; }
 
+    private readonly TValue? _value;
+    private readonly List<ValidationResult>? _errors;
+
     /// <summary>
     /// Returned value or null if there are validation errors.
     /// </summary>
-    public TValue? Value { get; }
+    public TValue Value =>
+        _value ?? throw new InvalidOperationException("Attempt to access the value of an erroneous Result");
 
     /// <summary>
     /// Validation errors or null if successful.
     /// </summary>
-    public List<ValidationResult>? Errors { get; }
+    public List<ValidationResult> Errors =>
+        _errors ?? throw new InvalidOperationException("Attempt to access the error list of a successful Result");
 
     /// <summary>
     /// Constructs a successful Result.
@@ -29,8 +34,8 @@ public class Result<TValue>
     public Result(TValue value)
     {
         IsError = false;
-        Value = value;
-        Errors = null;
+        _value = value;
+        _errors = null;
     }
 
     /// <summary>
@@ -39,8 +44,8 @@ public class Result<TValue>
     public Result(List<ValidationResult> errors)
     {
         IsError = true;
-        Value = default;
-        Errors = errors;
+        _value = default;
+        _errors = errors;
     }
 
     /// <summary>

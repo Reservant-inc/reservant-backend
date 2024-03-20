@@ -27,6 +27,12 @@ public static class ValidationUtils
     {
         foreach (var error in errors.Where(x => x.ErrorMessage is not null))
         {
+            if (!error.MemberNames.Any())
+            {
+                modelState.AddModelError("", error.ErrorMessage!);
+                continue;
+            }
+
             foreach (var name in error.MemberNames)
             {
                 modelState.AddModelError(name, error.ErrorMessage!);
