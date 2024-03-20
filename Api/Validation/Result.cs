@@ -20,13 +20,17 @@ public readonly struct Result<TValue>
     /// Returned value or null if there are validation errors.
     /// </summary>
     public TValue Value =>
-        _value ?? throw new InvalidOperationException("Attempt to access the value of an erroneous Result");
+        !IsError
+            ? _value!
+            : throw new InvalidOperationException("Attempt to access the value of an erroneous Result");
 
     /// <summary>
     /// Validation errors or null if successful.
     /// </summary>
     public List<ValidationResult> Errors =>
-        _errors ?? throw new InvalidOperationException("Attempt to access the error list of a successful Result");
+        IsError
+            ? _errors!
+            : throw new InvalidOperationException("Attempt to access the error list of a successful Result");
 
     /// <summary>
     /// Constructs a successful Result.
