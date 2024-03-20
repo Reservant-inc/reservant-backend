@@ -5,8 +5,8 @@ namespace Reservant.Api.Models.Dtos;
 
 public class UserInfo
 {
-    [Required, StringLength(50), EmailAddress]
-    public required string Username { get; init; }
+    [Required, StringLength(50)]
+    public required string Login { get; init; }
 
     [Required, StringLength(30)]
     public required string FirstName { get; init; }
