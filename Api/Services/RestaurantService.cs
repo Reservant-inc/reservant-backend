@@ -55,7 +55,7 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<IEnumerable<RestaurantSummaryVM>>> GetMyRestaurantsAsync(User user) {
+        public async Task<Result<List<RestaurantSummaryVM>>> GetMyRestaurantsAsync(User user) {
             var userId = user.Id;
             var result = await context.Restaurants.Where(r => r.OwnerId == userId)
                                                   .Select(r=> new RestaurantSummaryVM{
@@ -72,7 +72,7 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <param name="id"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<Result<RestaurantVM>> GetMyRestaurantByIdAsync(User user, int id)
+        public async Task<Result<RestaurantVM?>> GetMyRestaurantByIdAsync(User user, int id)
         {
             var userId = user.Id;
             var result = await context.Restaurants.Where(r => r.OwnerId == userId)
