@@ -46,10 +46,6 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants() {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantsAsync(user);
-            if (result == null)
-            {
-                return NotFound();
-            }
             return Ok(result);
         }
         /// <summary>

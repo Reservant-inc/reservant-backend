@@ -64,8 +64,6 @@ namespace Reservant.Api.Services
                                                     Address = r.Address
                                                   })
                                                   .ToListAsync();
-            if (result.Count == 0)
-                return null;
             return result;
         }
         /// <summary>
