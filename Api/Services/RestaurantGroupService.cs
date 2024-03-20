@@ -13,7 +13,7 @@ public class RestaurantGroupService(ApiDbContext context)
     /// <summary>
     /// Updates restaurant group information
     /// </summary>
-    public async Task<Result<RestaurantGroup>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
+    public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
     {
         var restaurantGroup = await context.RestaurantGroups
             .Include(rg => rg.Restaurants)
@@ -21,14 +21,14 @@ public class RestaurantGroupService(ApiDbContext context)
 
         if (restaurantGroup == null)
         {
-            return new Result<RestaurantGroup>([
+            return new Result<RestaurantGroupVM>([
                 new ValidationResult($"RestaurantGroup with ID {groupId} not found.")
             ]);
         }
 
         if (restaurantGroup.OwnerId != userId)
         {
-            return new Result<RestaurantGroup>([
+            return new Result<RestaurantGroupVM>([
                 new ValidationResult($"User with ID {userId} is not an Owner of group {groupId}.")
             ]);
         }
@@ -47,7 +47,7 @@ public class RestaurantGroupService(ApiDbContext context)
 
         if (notOwnedRestaurantIds.Any())
         {
-            return new Result<RestaurantGroup>([
+            return new Result<RestaurantGroupVM>([
                 new ValidationResult(
                     $"User with ID {userId} is not the Owner of restaurant(s) with IDs: {string.Join(", ", notOwnedRestaurantIds)}")
             ]);
@@ -84,11 +84,21 @@ public class RestaurantGroupService(ApiDbContext context)
             // Renaming
             restaurantGroup.Name = request.Name;
             await context.SaveChangesAsync();
-            return new Result<RestaurantGroup>(restaurantGroup);
+            return new Result<RestaurantGroupVM>(new RestaurantGroupVM
+            {
+                Id = restaurantGroup.Id,
+                Name = restaurantGroup.Name,
+                Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Address = r.Address
+                }).ToList()
+            });
         }
         catch (Exception ex)
         {
-            return new Result<RestaurantGroup>([
+            return new Result<RestaurantGroupVM>([
                 new ValidationResult("An error occurred while updating the restaurant group.")
             ]);
         }

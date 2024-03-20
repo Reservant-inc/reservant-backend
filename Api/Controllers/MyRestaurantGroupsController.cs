@@ -23,7 +23,7 @@ public class MyRestaurantGroupsController(RestaurantGroupService groupService, U
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult> UpdateRestaurantGroupInfo(int id, UpdateRestaurantGroupRequest request)
+    public async Task<ActionResult<RestaurantGroupVM>> UpdateRestaurantGroupInfo(int id, UpdateRestaurantGroupRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         var result = await groupService.UpdateRestaurantGroupAsync(id, request, user.Id);
