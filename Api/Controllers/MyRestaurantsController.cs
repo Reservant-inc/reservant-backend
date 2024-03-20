@@ -43,7 +43,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult> GetMyRestaurants() {
+        public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants() {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantsAsync(user);
             if (result == null)
