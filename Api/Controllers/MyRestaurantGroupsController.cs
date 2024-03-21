@@ -5,6 +5,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
@@ -23,7 +24,7 @@ public class MyRestaurantGroupsController(RestaurantGroupService groupService, U
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult> UpdateRestaurantGroupInfo(int id, UpdateRestaurantGroupRequest request)
+    public async Task<ActionResult<RestaurantGroupVM>> UpdateRestaurantGroupInfo(int id, UpdateRestaurantGroupRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         var result = await groupService.UpdateRestaurantGroupAsync(id, request, user.Id);
@@ -33,12 +34,8 @@ public class MyRestaurantGroupsController(RestaurantGroupService groupService, U
             return Ok(result.Value);
         }
 
-        if (result.Errors != null && result.Errors.Any())
-        {
-            return BadRequest(new { errors = result.Errors.Select(e => e.ErrorMessage) });
-        }
-        
-        return BadRequest("An unexpected error occurred.");
+        ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+        return BadRequest(ModelState);
     }
 
     
