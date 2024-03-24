@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers;
 /// <param name="userManager"></param>
 /// <param name="service"></param>
 [ApiController, Route("/my-restaurant-groups")]
-public class MyRestaurantGroupsController(UserManager<User> userManager, RestaurantGroupService service) : Controller
+public class MyRestaurantGroupsController(UserManager<User> userManager, IRestaurantGroupService service) : Controller
 {
 
     /// <summary>
@@ -25,6 +25,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <param name="req">Request dto</param>
     /// <returns></returns>
     [HttpPost, Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult> CreateRestaurantGroup(CreateRestaurantGroupRequest req)
     {
 
@@ -37,7 +38,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return BadRequest(ModelState);
         }
 
-        return Created();
+        return Created(result.Value.Id.ToString(), "");
 
     }
 }

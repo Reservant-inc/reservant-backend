@@ -8,10 +8,24 @@ using System.ComponentModel.DataAnnotations;
 namespace Reservant.Api.Services;
 
 /// <summary>
+/// Interface used by MyRestaurantGroupsController
+/// </summary>
+public interface IRestaurantGroupService
+{
+    /// <summary>
+    /// create a restaurant group and assign owner to the current user
+    /// </summary>
+    /// <param name="req">CreateRestaurantGroupRequest DTO</param>
+    /// <param name="user">current user, only restaurant owner</param>
+    /// <returns></returns>
+    public Task<Result<RestaurantGroup>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user);
+}
+
+/// <summary>
 /// Util class for managing RestaurantGroups
 /// </summary>
 /// <param name="_context">context</param>
-public class RestaurantGroupService(ApiDbContext _context)
+public class RestaurantGroupService(ApiDbContext _context) : IRestaurantGroupService
 {
 
     /// <summary>
@@ -37,14 +51,16 @@ public class RestaurantGroupService(ApiDbContext _context)
         }
 
 
-        //check if all restaurantIds from request belong to current user
         var restaurants = await _context.Restaurants
                 .Where(r => req.RestaurantIds.Contains(r.Id))
+                .Include(r => r.Group)
                 .ToListAsync();
 
-        var notOwnedRestaurants = restaurants.Where(r => r.OwnerId != user.Id);
 
-        if (notOwnedRestaurants != null)
+        //check if all restaurantIds from request belong to current user
+        var notOwnedRestaurants = restaurants.Where(r => r.Group.OwnerId != user.Id);
+
+        if (notOwnedRestaurants.Any())
         {
             errors.Add(new ValidationResult(
                 $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}"
