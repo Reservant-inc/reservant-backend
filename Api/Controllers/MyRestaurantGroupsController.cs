@@ -30,7 +30,13 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, IRestau
     {
 
         var user = await userManager.GetUserAsync(User);
-        var result = await service.CreateRestaurantGroup(req, user!);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.CreateRestaurantGroup(req, user);
 
         if (result.IsError)
         {

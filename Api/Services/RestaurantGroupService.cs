@@ -58,7 +58,7 @@ public class RestaurantGroupService(ApiDbContext _context) : IRestaurantGroupSer
 
 
         //check if all restaurantIds from request belong to current user
-        var notOwnedRestaurants = restaurants.Where(r => r.Group.OwnerId != user.Id);
+        var notOwnedRestaurants = restaurants.Where(r => r.Group!.OwnerId != user.Id);
 
         if (notOwnedRestaurants.Any())
         {
@@ -67,8 +67,6 @@ public class RestaurantGroupService(ApiDbContext _context) : IRestaurantGroupSer
             ));
             return errors;
         }
-
-
 
         var group = new RestaurantGroup
         {
