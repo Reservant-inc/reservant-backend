@@ -141,9 +141,10 @@ internal class DbSeeder(
         
         context.RestaurantGroups.Add(new RestaurantGroup
         {
-            Id = 1,
+            Id = 2, 
             Name = "Group One",
             OwnerId = johnDoe.Id,
+            Owner = johnDoe,
             Restaurants = await context.Restaurants.ToListAsync()
         });
 

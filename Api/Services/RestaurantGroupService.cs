@@ -15,84 +15,67 @@ public class RestaurantGroupService(ApiDbContext context)
     /// </summary>
     public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
     {
+        // Current group
         var restaurantGroup = await context.RestaurantGroups
             .Include(rg => rg.Restaurants)
             .FirstOrDefaultAsync(rg => rg.Id == groupId);
-
+        
+        Console.WriteLine("CURRENT GROUP: "+restaurantGroup);
+        
         if (restaurantGroup == null)
         {
             return new Result<RestaurantGroupVM>([
                 new ValidationResult($"RestaurantGroup with ID {groupId} not found.")
             ]);
         }
-
+        
+        // Checking ownership
         if (restaurantGroup.OwnerId != userId)
         {
             return new Result<RestaurantGroupVM>([
                 new ValidationResult($"User with ID {userId} is not an Owner of group {groupId}.")
             ]);
         }
+        Console.WriteLine("OWNERSHIP: "+ restaurantGroup.OwnerId == userId);
 
+        // Requested restaurants to be added/deleted
         var requestedRestaurantIds = new HashSet<int>(request.RestaurantIds);
-        var currentRestaurantIds = restaurantGroup.Restaurants.Select(r => r.Id).ToHashSet();
+        var currentRestaurantIds = new HashSet<int>(restaurantGroup.Restaurants.Select(r => r.Id));
 
-        var restaurantsToVerifyOwnership = await context.Restaurants
-            .Where(r => requestedRestaurantIds.Contains(r.Id))
-            .ToListAsync();
-
-        /*var notOwnedRestaurantIds = restaurantsToVerifyOwnership
-            .Where(r => r.OwnerId != userId)
-            .Select(r => r.Id)
+        // Deleting restaurants that aren't part of the group
+        var restaurantsToRemove = restaurantGroup.Restaurants
+            .Where(r => !requestedRestaurantIds.Contains(r.Id))
             .ToList();
 
-        if (notOwnedRestaurantIds.Any())
+        foreach (var restaurant in restaurantsToRemove)
         {
-            return new Result<RestaurantGroupVM>([
-                new ValidationResult(
-                    $"User with ID {userId} is not the Owner of restaurant(s) with IDs: {string.Join(", ", notOwnedRestaurantIds)}")
-            ]);
-        }*/
-
-        // Deleting old restaurants
-        foreach (var restaurantId in currentRestaurantIds)
-        {
-            if (!requestedRestaurantIds.Contains(restaurantId))
-            {
-                var restaurantToRemove = restaurantGroup.Restaurants.FirstOrDefault(r => r.Id == restaurantId);
-                if (restaurantToRemove != null)
-                {
-                    restaurantGroup.Restaurants.Remove(restaurantToRemove);
-                }
-            }
+            restaurantGroup.Restaurants.Remove(restaurant);
         }
 
-        // Adding new restaurants
-        foreach (var restaurantId in requestedRestaurantIds)
+        // Adding new restaurants to the group
+        foreach (var restaurantId in requestedRestaurantIds.Except(currentRestaurantIds))
         {
-            if (!currentRestaurantIds.Contains(restaurantId))
+            var restaurantToAdd = await context.Restaurants.FindAsync(restaurantId);
+            if (restaurantToAdd != null && restaurantToAdd.GroupId == groupId)
             {
-                var restaurantToAdd = restaurantsToVerifyOwnership.FirstOrDefault(r => r.Id == restaurantId);
-                if (restaurantToAdd != null)
-                {
-                    restaurantGroup.Restaurants.Add(restaurantToAdd);
-                }
+                restaurantGroup.Restaurants.Add(restaurantToAdd);
             }
         }
 
         try
         {
-            // Renaming
             restaurantGroup.Name = request.Name;
             await context.SaveChangesAsync();
+
             return new Result<RestaurantGroupVM>(new RestaurantGroupVM
             {
                 Id = restaurantGroup.Id,
                 Name = restaurantGroup.Name,
-                Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
+                Restaurants = restaurantGroup.Restaurants.Select(restaurant => new RestaurantSummaryVM
                 {
-                    Id = r.Id,
-                    Name = r.Name,
-                    Address = r.Address
+                    Id = restaurant.Id,
+                    Name = restaurant.Name,
+                    Address = restaurant.Address
                 }).ToList()
             });
         }
@@ -104,5 +87,5 @@ public class RestaurantGroupService(ApiDbContext context)
         }
     }
 
-
+    
 }
