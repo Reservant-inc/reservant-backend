@@ -33,7 +33,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     }
 
     /// <summary>
-    /// Controller for registering new employees in a restaurant
+    /// Endpoint for restaurant owners to register their employees.
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
