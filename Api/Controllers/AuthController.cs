@@ -80,7 +80,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
-        var login = request.Login;
+        var login = request.Login.Trim();
         var password = request.Password;
         var rememberPassword = request.RememberMe;
 
