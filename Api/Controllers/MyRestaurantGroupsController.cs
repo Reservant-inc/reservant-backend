@@ -42,7 +42,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         if (result.IsError)
         {
             ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return BadRequest(ModelState);
+            return ValidationProblem();
         }
 
         return Created(result.Value.Id.ToString(), "");

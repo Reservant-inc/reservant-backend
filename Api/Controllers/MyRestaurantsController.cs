@@ -32,7 +32,7 @@ namespace Reservant.Api.Controllers
             if (result.IsError)
             {
                 ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-                return BadRequest(ModelState);
+                return ValidationProblem();
             }
 
             return Ok();

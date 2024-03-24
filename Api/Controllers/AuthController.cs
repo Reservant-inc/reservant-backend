@@ -38,7 +38,7 @@ public class AuthController(
         if (result.IsError)
         {
             ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return BadRequest(ModelState);
+            return ValidationProblem();
         }
 
         return Ok();
@@ -59,7 +59,7 @@ public class AuthController(
         var result = await userService.RegisterRestaurantEmployeeAsync(request, user);
         if (result.IsError) {
             ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return BadRequest(ModelState);
+            return ValidationProblem();
         }
 
         return Ok();
@@ -76,7 +76,7 @@ public class AuthController(
         if (result.IsError)
         {
             ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return BadRequest(ModelState);
+            return ValidationProblem();
         }
 
         return Ok();
@@ -150,7 +150,7 @@ public class AuthController(
         if (result.IsError)
         {
             ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return BadRequest(ModelState);
+            return ValidationProblem();
         }
 
         return Ok();
