@@ -75,19 +75,19 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     /// </remarks>
     /// <param name="request"> Login request DTO</param>
     /// <request code="400"> Validation errors </request>
-    /// <request code="401"> Unauthorized </request>
+    /// <request code="401"> Incorrect login or password </request>
     [HttpPost("login")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
-        var email = request.Email;
+        var login = request.Login;
         var password = request.Password;
         var rememberPassword = request.RememberMe;
 
-        var user = await userManager.FindByEmailAsync(email);
+        var user = await userManager.FindByNameAsync(login);
         if (user == null) return Unauthorized("Incorrect login or password.");
 
-        var result = await signInManager.PasswordSignInAsync(email, password, rememberPassword, false);
+        var result = await signInManager.PasswordSignInAsync(login, password, rememberPassword, false);
 
         var roles = await userManager.GetRolesAsync(user);
 
@@ -95,7 +95,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
         {
             true => Ok(new UserInfo
             {
-                Username = email,
+                Login = login,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Roles = roles.ToList()

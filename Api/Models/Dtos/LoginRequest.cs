@@ -5,8 +5,8 @@ namespace Reservant.Api.Models.Dtos;
 
 public class LoginRequest
 {
-    [Required, StringLength(50), EmailAddress]
-    public required string Email { get; init; }
+    [Required, StringLength(50)]
+    public required string Login { get; init; }
 
     [Required, StringLength(50)]
     public required string Password { get; init; }

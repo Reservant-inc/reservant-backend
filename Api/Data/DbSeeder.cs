@@ -63,12 +63,19 @@ internal class DbSeeder(
             Password = "Pa$$w0rd"
         })).OrThrow();
 
+        context.RestaurantGroups.Add(new RestaurantGroup
+        {
+            Id = 1,
+            Name = "John Doe's Restaurant Group",
+            OwnerId = johnDoe.Id
+        });
+
         context.Restaurants.Add(new Restaurant
         {
             Id = 1,
             Name = "John Doe's",
             Address = "Warszawa, ul. Marszałkowska 2",
-            OwnerId = johnDoe.Id,
+            GroupId = 1,
             Tables = [
                 new Table
                 {
@@ -102,7 +109,7 @@ internal class DbSeeder(
             Id = 2,
             Name = "John Doe's 2",
             Address = "Warszawa, ul. Koszykowa 10",
-            OwnerId = johnDoe.Id,
+            GroupId = 1,
             Tables = [
                 new Table
                 {
