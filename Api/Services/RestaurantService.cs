@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Reservant.Api.Services
 {
@@ -19,15 +16,26 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <returns></returns>
         public async Task<Result<Restaurant>> CreateRestaurantAsync(CreateRestaurantRequest request, User user) {
+            var group = await context.RestaurantGroups
+                .Where(rg => rg.Owner == user)
+                .FirstOrDefaultAsync();
+            if (group is null)
+            {
+                group = new RestaurantGroup
+                {
+                    Name = request.Name,
+                    OwnerId = user.Id
+                };
+                context.RestaurantGroups.Add(group);
+            }
 
             var restaurant = new Restaurant
             {
                 Name = request.Name,
                 Address = request.Address,
-                OwnerId = user.Id,
-                Owner = user,
-                Tables = request.Tables.Count > 0 ? request.Tables.Select(t => new Table 
-                { 
+                Group = group,
+                Tables = request.Tables.Count > 0 ? request.Tables.Select(t => new Table
+                {
                     Capacity = t.Capacity
                 }).ToList() : new List<Table>(),
             };
@@ -57,7 +65,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<List<RestaurantSummaryVM>>> GetMyRestaurantsAsync(User user) {
             var userId = user.Id;
-            var result = await context.Restaurants.Where(r => r.OwnerId == userId)
+            var result = await context.Restaurants.Where(r => r.Group!.OwnerId == userId)
                                                   .Select(r=> new RestaurantSummaryVM{
                                                     Id = r.Id,
                                                     Name = r.Name,
@@ -75,7 +83,7 @@ namespace Reservant.Api.Services
         public async Task<Result<RestaurantVM?>> GetMyRestaurantByIdAsync(User user, int id)
         {
             var userId = user.Id;
-            var result = await context.Restaurants.Where(r => r.OwnerId == userId)
+            var result = await context.Restaurants.Where(r => r.Group!.OwnerId == userId)
                                                   .Where(r => r.Id == id)
                                                   .Select(r => new RestaurantVM { 
                                                     Id = r.Id,

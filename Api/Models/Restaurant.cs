@@ -26,25 +26,14 @@ public class Restaurant
     public required string Address { get; set; }
 
     /// <summary>
-    /// Owner ID
-    /// </summary>
-    [Required, StringLength(36)]
-    public required string OwnerId { get; set; }
-
-    /// <summary>
     /// Restaurant group ID
     /// </summary>
-    public int? GroupId { get; set; }
+    public int GroupId { get; set; }
 
     /// <summary>
     /// Navigation collection for the tables
     /// </summary>
-    public IEnumerable<Table>? Tables { get; set; }
-
-    /// <summary>
-    /// Navigation property for the owner
-    /// </summary>
-    public User? Owner { get; set; }
+    public ICollection<Table>? Tables { get; set; }
 
     /// <summary>
     /// Navigation property for the restaurant group
