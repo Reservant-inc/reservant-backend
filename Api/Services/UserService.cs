@@ -100,12 +100,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         if (restaurant == null)
         {
-            errors.Add(new ValidationResult($"Restaurant with id {request.RestaurantId} not found."));
+            errors.Add(new ValidationResult($"Restaurant with id {request.RestaurantId} not found.", [nameof(request.RestaurantId)]));
             return errors;
         }
         if (restaurant.Group.OwnerId != user.Id)
         {
-            errors.Add(new ValidationResult($"Not authorized to access restaurant with ID {request.RestaurantId}."));
+            errors.Add(new ValidationResult($"Not authorized to access restaurant with ID {request.RestaurantId}.", [nameof(request.RestaurantId)]));
             return errors;
         }
         
