@@ -40,7 +40,7 @@ public class RestaurantGroupService(ApiDbContext context)
             .Where(r => requestedRestaurantIds.Contains(r.Id))
             .ToListAsync();
 
-        var notOwnedRestaurantIds = restaurantsToVerifyOwnership
+        /*var notOwnedRestaurantIds = restaurantsToVerifyOwnership
             .Where(r => r.OwnerId != userId)
             .Select(r => r.Id)
             .ToList();
@@ -51,7 +51,7 @@ public class RestaurantGroupService(ApiDbContext context)
                 new ValidationResult(
                     $"User with ID {userId} is not the Owner of restaurant(s) with IDs: {string.Join(", ", notOwnedRestaurantIds)}")
             ]);
-        }
+        }*/
 
         // Deleting old restaurants
         foreach (var restaurantId in currentRestaurantIds)
