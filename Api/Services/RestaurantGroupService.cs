@@ -44,7 +44,7 @@ public class RestaurantGroupService(ApiDbContext _context) : IRestaurantGroupSer
         {
             if (!await _context.Restaurants.AnyAsync(x => x.Id == id))
             {
-                errors.Add(new ValidationResult($"Restaurant: {id} not found"));
+                errors.Add(new ValidationResult($"Restaurant: {id} not found", [nameof(req.RestaurantIds)]));
                 return errors;
             }
 
@@ -63,7 +63,8 @@ public class RestaurantGroupService(ApiDbContext _context) : IRestaurantGroupSer
         if (notOwnedRestaurants.Any())
         {
             errors.Add(new ValidationResult(
-                $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}"
+                $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}",
+                [nameof(req.RestaurantIds)]
             ));
             return errors;
         }
