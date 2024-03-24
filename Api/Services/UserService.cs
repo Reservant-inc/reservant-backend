@@ -124,7 +124,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             return errors;
         }
 
-        if (!ValidationUtils.TryValidate(user, errors))
+        if (!ValidationUtils.TryValidate(employee, errors))
         {
             return errors;
         }
@@ -135,12 +135,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             return ValidationUtils.AsValidationErrors("", result);
         }
         if(request.IsHallEmployee && request.IsBackdoorEmployee)
-            await userManager.AddToRolesAsync(user, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee, Roles.RestaurantHallEmployee]);
+            await userManager.AddToRolesAsync(employee, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee, Roles.RestaurantHallEmployee]);
         else if(request.IsHallEmployee)
-            await userManager.AddToRolesAsync(user, [Roles.RestaurantEmployee, Roles.RestaurantHallEmployee]);
+            await userManager.AddToRolesAsync(employee, [Roles.RestaurantEmployee, Roles.RestaurantHallEmployee]);
         else
-            await userManager.AddToRolesAsync(user, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee]);
-        return user;
+            await userManager.AddToRolesAsync(employee, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee]);
+        return employee;
     }
 
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request)
