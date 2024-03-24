@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices.JavaScript;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -11,7 +14,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Stuff for working with user records.
 /// </summary>
-public class UserService(UserManager<User> userManager)
+public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 {
     /// <summary>
     /// Register a new restaurant owner.
@@ -85,19 +88,39 @@ public class UserService(UserManager<User> userManager)
     /// Service used for restaurant employee registration
     /// </summary>
     /// <param name="request"></param>
+    /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<User>> RegisterRestaurantEmployeeAsync(RegisterRestaurantEmployeeRequest request) {
-        var user = new User {
-            UserName = request.Email,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            RegisteredAt = DateTime.UtcNow
-        };
-
+    public async Task<Result<User>> RegisterRestaurantEmployeeAsync(RegisterRestaurantEmployeeRequest request, User user) {
+        
         var errors = new List<ValidationResult>();
-        if (!request.IsBackdoorEmployee && !request.IsHallEmployee) {
+        
+        var restaurant = await dbContext.Restaurants
+            .Include(r => r.Group)
+            .FirstOrDefaultAsync(r => r.Id == request.RestaurantId);
+
+        if (restaurant == null)
+        {
+            errors.Add(new ValidationResult($"Restaurant with id {request.RestaurantId} not found."));
+            return errors;
+        }
+        if (restaurant.Group.OwnerId != user.Id) // Teraz możemy bezpośrednio odnieść się do Group.OwnerId
+        {
+            errors.Add(new ValidationResult($"Not authorized to access restaurant with ID {request.RestaurantId}."));
+            return errors;
+        }
+        
+        // Login jest generowany: {id restauracji}#{login podany przez klienta}
+        var username = restaurant.Id + "+" + request.Login;
+        
+        var employee = new User {
+            UserName = username, 
+            FirstName = request.FirstName, 
+            LastName = request.LastName, 
+            PhoneNumber = request.PhoneNumber, 
+            RegisteredAt = DateTime.UtcNow,
+        };
+        
+        if (!request.IsBackdoorEmployee && !request.IsHallEmployee) { 
             errors.Add(new ValidationResult("At least one role must be set as true", ["IsBackdoorEmployee", "IsHallEmployee"]));
             return errors;
         }
@@ -107,7 +130,7 @@ public class UserService(UserManager<User> userManager)
             return errors;
         }
 
-        var result = await userManager.CreateAsync(user, request.Password);
+        var result = await userManager.CreateAsync(employee, request.Password);
         if (!result.Succeeded)
         {
             return ValidationUtils.AsValidationErrors("", result);
@@ -123,6 +146,13 @@ public class UserService(UserManager<User> userManager)
 
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request)
     {
+        var errors = new List<ValidationResult>();
+        if(request.Login.Contains('+'))
+        {
+            errors.Add(new ValidationResult($"Login can't contain '+' sign."));
+            return errors;
+        }
+        
         var user = new User
         {
             UserName = request.Login,
@@ -134,7 +164,7 @@ public class UserService(UserManager<User> userManager)
             RegisteredAt = DateTime.UtcNow
         };
 
-        var errors = new List<ValidationResult>();
+        
         if (!ValidationUtils.TryValidate(user, errors))
         {
             return errors;

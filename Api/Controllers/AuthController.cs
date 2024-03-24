@@ -37,11 +37,14 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost("register-restaurant-employee")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [HttpPost("register-restaurant-employee"), Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(200), 
+     ProducesResponseType(400),
+     ProducesResponseType(401)]
     public async Task<ActionResult> RegisterRestaurantEmployee(RegisterRestaurantEmployeeRequest request)
     {
-        var result = await userService.RegisterRestaurantEmployeeAsync(request);
+        var user = await userManager.GetUserAsync(User);
+        var result = await userService.RegisterRestaurantEmployeeAsync(request, user);
         if (result.IsError) {
             ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
             return BadRequest(ModelState);
