@@ -103,13 +103,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             errors.Add(new ValidationResult($"Restaurant with id {request.RestaurantId} not found."));
             return errors;
         }
-        if (restaurant.Group.OwnerId != user.Id) // Teraz możemy bezpośrednio odnieść się do Group.OwnerId
+        if (restaurant.Group.OwnerId != user.Id)
         {
             errors.Add(new ValidationResult($"Not authorized to access restaurant with ID {request.RestaurantId}."));
             return errors;
         }
         
-        // Login jest generowany: {id restauracji}#{login podany przez klienta}
         var username = restaurant.Id + "+" + request.Login;
         
         var employee = new User {
@@ -149,7 +148,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         var errors = new List<ValidationResult>();
         if(request.Login.Contains('+'))
         {
-            errors.Add(new ValidationResult($"Login can't contain '+' sign."));
+            errors.Add(new ValidationResult($"Login can't contain '+' sign.", [nameof(request.Login)]));
             return errors;
         }
         
