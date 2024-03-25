@@ -5,6 +5,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers
 {
@@ -26,12 +27,22 @@ namespace Reservant.Api.Controllers
             var user = await userManager.GetUserAsync(User);
             var result = await groupService.GetRestaurantGroupAsync(id, user.Id);
 
-            if (!result.IsError)
+            try
             {
-                return Ok(result.Value);
+                return Ok(result.OrThrow());
+            }
+            catch (InvalidOperationException ex)
+            {
+                if (ex.Message.Contains("not found"))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return Forbid();
+                }
             }
 
-            return NotFound();
         }
         
         /// <summary>
@@ -46,12 +57,21 @@ namespace Reservant.Api.Controllers
             var user = await userManager.GetUserAsync(User);
             var result = await groupService.DeleteRestaurantGroupAsync(id, user.Id);
 
-            if (!result.IsError)
+            try
             {
-                return Ok(result.Value);
+                return Ok(result.OrThrow());
             }
-
-            return NotFound();
+            catch (InvalidOperationException ex)
+            {
+                if (ex.Message.Contains("not found"))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
         }
     }
 }

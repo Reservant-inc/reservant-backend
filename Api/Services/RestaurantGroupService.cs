@@ -30,14 +30,6 @@ namespace Reservant.Api.Services
                     new ValidationResult($"RestaurantGroup with ID {groupId} not found.")
                 ]);
             }
-            
-            
-            if (restaurantGroup.OwnerId != userId)
-            {
-                return new Result<RestaurantGroupVM>([
-                    new ValidationResult($"User with ID {userId} is not an Owner of group {groupId}.")
-                ]);
-            }
 
             return new Result<RestaurantGroupVM>(new RestaurantGroupVM
             {
@@ -66,13 +58,6 @@ namespace Reservant.Api.Services
             {
                 return new Result<bool>([
                     new ValidationResult($"RestaurantGroup with ID {groupId} not found.")
-                ]);
-            }
-            
-            if (restaurantGroup.OwnerId != userId)
-            {
-                return new Result<bool>([
-                    new ValidationResult($"User with ID {userId} is not an Owner of group {groupId}.")
                 ]);
             }
 
