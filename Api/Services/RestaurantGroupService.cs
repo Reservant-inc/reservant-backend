@@ -10,8 +10,8 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Util class for managing RestaurantGroups
 /// </summary>
-/// <param name="_context">context</param>
-public class RestaurantGroupService(ApiDbContext _context)
+/// <param name="context">context</param>
+public class RestaurantGroupService(ApiDbContext context)
 {
 
     /// <summary>
@@ -28,7 +28,7 @@ public class RestaurantGroupService(ApiDbContext _context)
         //check if all restaurantIds from request exist
         foreach (var id in req.RestaurantIds)
         {
-            if (!await _context.Restaurants.AnyAsync(x => x.Id == id))
+            if (!await context.Restaurants.AnyAsync(x => x.Id == id))
             {
                 errors.Add(new ValidationResult($"Restaurant: {id} not found", [nameof(req.RestaurantIds)]));
                 return errors;
@@ -37,7 +37,7 @@ public class RestaurantGroupService(ApiDbContext _context)
         }
 
 
-        var restaurants = await _context.Restaurants
+        var restaurants = await context.Restaurants
                 .Where(r => req.RestaurantIds.Contains(r.Id))
                 .Include(r => r.Group)
                 .ToListAsync();
@@ -68,8 +68,8 @@ public class RestaurantGroupService(ApiDbContext _context)
             return errors;
         }
 
-        await _context.RestaurantGroups.AddAsync(group);
-        await _context.SaveChangesAsync();
+        await context.RestaurantGroups.AddAsync(group);
+        await context.SaveChangesAsync();
         return group;
     }
 }
