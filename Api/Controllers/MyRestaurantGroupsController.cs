@@ -54,13 +54,13 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// </summary>
     /// <returns>RestaurantGroupSummaryVM</returns>
     [HttpGet]
-    [ProducesResponseType(200),ProducesResponseType(404)]
+    [ProducesResponseType(200),ProducesResponseType(401)]
     public async Task<ActionResult<List<RestaurantGroupSummaryVM>>> GetMyRestaurantGroupSummary()
     {
         var user = await userManager.GetUserAsync(User);
         if (user == null)
         {
-            return NotFound();
+            return Unauthorized();
         }
 
         var result = await service.GetUsersRestaurantGroupSummary(user);
