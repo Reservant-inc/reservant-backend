@@ -14,9 +14,8 @@ namespace Reservant.Api.Controllers
     /// Controler for getting restaurantGroups of restaurant owner
     /// Only RestaurantOwner can use this controller
     /// </summary>
-    /// <request code="400"> Validation errors </request>
-    /// <request code="401"> Unauthorized </request>
-    [ApiController, Route("/my-restaurants-Groups")]
+    /// <request code="404"> Not Found </request>
+    [ApiController, Route("/my-restaurants-groups")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     public class MyRestaurantGroupsController(RestaurantGroupService restaurantGroupService, SignInManager<User> signInManager, UserManager<User> userManager) : Controller
     {
@@ -26,7 +25,7 @@ namespace Reservant.Api.Controllers
         /// </summary>
         /// <returns>RestaurantGroupSummaryVM</returns>
         [HttpGet()]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(200)]
         public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantById() 
         {
             var user = await userManager.GetUserAsync(User);
