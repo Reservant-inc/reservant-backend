@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Vmodels;
+using Reservant.Api.Models.Dtos;
 
 
 namespace Reservant.Api.Services
