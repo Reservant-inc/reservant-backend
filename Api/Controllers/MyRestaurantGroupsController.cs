@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers;
 /// <param name="userManager"></param>
 /// <param name="service"></param>
 [ApiController, Route("/my-restaurant-groups")]
-public class MyRestaurantGroupsController(UserManager<User> userManager, IRestaurantGroupService service) : Controller
+public class MyRestaurantGroupsController(UserManager<User> userManager, RestaurantGroupService service) : Controller
 {
 
     /// <summary>

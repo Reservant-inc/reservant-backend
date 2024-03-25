@@ -60,7 +60,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RestaurantService>();
-builder.Services.AddScoped<IRestaurantGroupService, RestaurantGroupService>();
+builder.Services.AddScoped<RestaurantGroupService>();
 
 var app = builder.Build();
 

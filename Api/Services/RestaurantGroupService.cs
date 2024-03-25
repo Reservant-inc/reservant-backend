@@ -8,24 +8,10 @@ using System.ComponentModel.DataAnnotations;
 namespace Reservant.Api.Services;
 
 /// <summary>
-/// Interface used by MyRestaurantGroupsController
-/// </summary>
-public interface IRestaurantGroupService
-{
-    /// <summary>
-    /// create a restaurant group and assign owner to the current user
-    /// </summary>
-    /// <param name="req">CreateRestaurantGroupRequest DTO</param>
-    /// <param name="user">current user, only restaurant owner</param>
-    /// <returns></returns>
-    public Task<Result<RestaurantGroup>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user);
-}
-
-/// <summary>
 /// Util class for managing RestaurantGroups
 /// </summary>
 /// <param name="_context">context</param>
-public class RestaurantGroupService(ApiDbContext _context) : IRestaurantGroupService
+public class RestaurantGroupService(ApiDbContext _context)
 {
 
     /// <summary>
