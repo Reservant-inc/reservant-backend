@@ -9,6 +9,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 
+
 namespace Reservant.Api.Services;
 
 /// <summary>
@@ -179,4 +180,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         return user;
     }
+
+
+
+
+
+
 }

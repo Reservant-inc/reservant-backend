@@ -47,4 +47,26 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         return Created(result.Value.Id.ToString(), "");
 
     }
+
+    /// <summary>
+    /// Get a group of restaurants asociated with logged in restaurant owner
+    /// </summary>
+    /// <returns>RestaurantGroupSummaryVM</returns>
+    [HttpGet(), Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(200),ProducesResponseType(404)]
+    public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantGroupSummary()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var result = await service.GetUsersRestaurantGroupSummary(user);
+        if (result.Value == null)
+        {
+            return NotFound();
+        }
+        return Ok(result.Value);
+    }
 }

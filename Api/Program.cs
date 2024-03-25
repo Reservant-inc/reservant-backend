@@ -32,8 +32,6 @@ builder.Services
     .AddEntityFrameworkStores<ApiDbContext>()
     .AddDefaultTokenProviders();
 
-
-
 builder.Services.ConfigureApplicationCookie(o =>
 {
     o.Events.OnRedirectToLogin = ctx =>
@@ -60,6 +58,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RestaurantService>();
+builder.Services.AddScoped<RestaurantGroupService>();
 builder.Services.AddScoped<RestaurantGroupService>();
 
 var app = builder.Build();

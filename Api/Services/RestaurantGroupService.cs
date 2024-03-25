@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -71,5 +71,27 @@ public class RestaurantGroupService(ApiDbContext context)
         await context.RestaurantGroups.AddAsync(group);
         await context.SaveChangesAsync();
         return group;
+    }
+
+    /// <summary>
+    /// gets simplification of groups of restaurant based on owner
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetUsersRestaurantGroupSummary(User user) {
+         var userId = user.Id;
+
+
+        var result = await context
+            .RestaurantGroups
+            .Where(r => r.OwnerId == userId)
+            .Select(r => new RestaurantGroupSummaryVM {
+                Id = r.Id,
+                Name = r.Name,
+                RestaurantCount = r.Restaurants != null ? r.Restaurants.Count() : 0
+        })
+            .ToListAsync();
+
+        return result;
     }
 }
