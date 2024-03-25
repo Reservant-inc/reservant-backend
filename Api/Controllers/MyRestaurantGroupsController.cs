@@ -50,12 +50,12 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     }
 
     /// <summary>
-    /// Get a group of restaurants asociated with logged in restaurant owner
+    /// Get groups of restaurants asociated with logged in restaurant owner
     /// </summary>
     /// <returns>RestaurantGroupSummaryVM</returns>
     [HttpGet]
     [ProducesResponseType(200),ProducesResponseType(404)]
-    public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantGroupSummary()
+    public async Task<ActionResult<List<RestaurantGroupSummaryVM>>> GetMyRestaurantGroupSummary()
     {
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -64,10 +64,6 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         }
 
         var result = await service.GetUsersRestaurantGroupSummary(user);
-        if (result.Value == null)
-        {
-            return NotFound();
-        }
         return Ok(result.Value);
     }
 }

@@ -78,7 +78,7 @@ public class RestaurantGroupService(ApiDbContext context)
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetUsersRestaurantGroupSummary(User user) {
+    public async Task<Result<List<RestaurantGroupSummaryVM>>> GetUsersRestaurantGroupSummary(User user) {
          var userId = user.Id;
 
 
