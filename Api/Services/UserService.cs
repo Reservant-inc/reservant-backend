@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Vmodels;
 using Reservant.Api.Validation;
 
 
