@@ -25,8 +25,8 @@ namespace Reservant.Api.Controllers
         /// </summary>
         /// <returns>RestaurantGroupSummaryVM</returns>
         [HttpGet()]
-        [ProducesResponseType(200)]
-        public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantById() 
+        [ProducesResponseType(200),ProducesResponseType(404)]
+        public async Task<ActionResult<RestaurantGroupSummaryVM>> GetMyRestaurantGroupSummary() 
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
@@ -34,7 +34,7 @@ namespace Reservant.Api.Controllers
                 return NotFound();
             }
 
-            var result = await restaurantGroupService.GetRestaurantGroupSummary(user);
+            var result = await restaurantGroupService.GetUsersRestaurantGroupSummary(user);
             if (result.Value == null)
             {
                 return NotFound();

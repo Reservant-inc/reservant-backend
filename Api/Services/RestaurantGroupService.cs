@@ -16,7 +16,7 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetRestaurantGroupSummary(User user) {
+        public async Task<Result<IEnumerable<RestaurantGroupSummaryVM>>> GetUsersRestaurantGroupSummary(User user) {
              var userId = user.Id;
 
 
