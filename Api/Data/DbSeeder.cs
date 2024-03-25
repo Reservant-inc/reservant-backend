@@ -131,14 +131,6 @@ internal class DbSeeder(
             ]
         });
 
-
-        context.RestaurantGroups.Add(new RestaurantGroup
-        {
-            Id = 1,
-            Name = "Sample Restaurant Group",
-            OwnerId = johnDoe.Id
-        });
-
         await context.SaveChangesAsync();
     }
 }
