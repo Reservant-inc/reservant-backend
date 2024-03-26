@@ -23,7 +23,7 @@ namespace Reservant.Api.Services
             {
                 group = new RestaurantGroup
                 {
-                    Name = request.Name,
+                    Name = request.Name.Trim(),
                     OwnerId = user.Id
                 };
                 context.RestaurantGroups.Add(group);
@@ -31,8 +31,8 @@ namespace Reservant.Api.Services
 
             var restaurant = new Restaurant
             {
-                Name = request.Name,
-                Address = request.Address,
+                Name = request.Name.Trim(),
+                Address = request.Address.Trim(),
                 Group = group,
                 Tables = request.Tables.Count > 0 ? request.Tables.Select(t => new Table
                 {

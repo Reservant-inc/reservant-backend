@@ -24,11 +24,11 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     {
         var user = new User
         {
-            UserName = request.Email,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            UserName = request.Email.Trim(),
+            Email = request.Email.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
             RegisteredAt = DateTime.UtcNow
 
         };
