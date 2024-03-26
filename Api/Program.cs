@@ -58,18 +58,20 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RestaurantService>();
+builder.Services.AddScoped<RestaurantGroupService>();
+builder.Services.AddScoped<RestaurantGroupService>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    File.Delete("./app.db");
-
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-    await context.Database.EnsureCreatedAsync();
-
     var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
-    await seeder.SeedDataAsync();
+
+    if (await context.Database.EnsureCreatedAsync())
+    {
+        await seeder.SeedDataAsync();
+    }
 }
 
 app.UseCors();
