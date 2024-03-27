@@ -57,11 +57,11 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     {
         var user = new User
         {
-            UserName = request.Email,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            UserName = request.Email.Trim(),
+            Email = request.Email.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
             RegisteredAt = DateTime.UtcNow
         };
 
@@ -109,14 +109,14 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             errors.Add(new ValidationResult($"Not authorized to access restaurant with ID {request.RestaurantId}.", [nameof(request.RestaurantId)]));
             return errors;
         }
-        
-        var username = restaurant.Id + "+" + request.Login;
-        
+
+        var username = restaurant.Id + "+" + request.Login.Trim();
+
         var employee = new User {
-            UserName = username, 
-            FirstName = request.FirstName, 
-            LastName = request.LastName, 
-            PhoneNumber = request.PhoneNumber, 
+            UserName = username,
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
             RegisteredAt = DateTime.UtcNow,
         };
         
@@ -155,11 +155,11 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         
         var user = new User
         {
-            UserName = request.Login,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            UserName = request.Login.Trim(),
+            Email = request.Email.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
             BirthDate = DateOnly.FromDateTime(request.BirthDate),
             RegisteredAt = DateTime.UtcNow
         };
