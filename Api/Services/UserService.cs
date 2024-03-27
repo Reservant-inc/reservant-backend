@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.JavaScript;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
@@ -181,6 +182,19 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         return user;
     }
 
+    /// <summary>
+    /// returns whether mail provided is unique among registered users
+    /// </summary>
+    /// <returns>Task<bool></returns>
+    public async Task<bool> isUniqueAsync(string mail)
+    {
+        var result = await dbContext
+            .Users
+            .Where(r => r.Email == mail)
+            .CountAsync();
+        
+        return (result==0);     
+    }
 
 
 

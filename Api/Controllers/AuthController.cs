@@ -159,4 +159,16 @@ public class AuthController(
 
         return Ok();
     }
+
+    /// <summary>
+    /// check if mail is aviable
+    /// </summary>
+    [HttpGet("is-unique")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult> isUnique(String mail)
+    {
+        var result = await userService.isUniqueAsync(mail);
+
+        return Ok(result);
+    }
 }
