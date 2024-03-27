@@ -98,12 +98,16 @@ public class AuthController(
         var user = await userManager.FindByNameAsync(request.Login.Trim());
         if (user is null)
         {
-            return Unauthorized("Invalid login or password");
+            return Problem(
+                title: "Incorrect login or password",
+                statusCode: StatusCodes.Status401Unauthorized);
         }
 
         if (!await userManager.CheckPasswordAsync(user, request.Password))
         {
-            return Unauthorized("Invalid login or password");
+            return Problem(
+                title: "Incorrect login or password",
+                statusCode: StatusCodes.Status401Unauthorized);
         }
 
         var claims = new List<Claim>
