@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Options;
 using Reservant.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var config = builder.Configuration;
+builder.Services.Configure<JwtOptions>(config.GetSection(JwtOptions.ConfigSection));
 
 builder.Services.AddCors(o =>
 {
@@ -22,13 +28,30 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
 
 builder.Services.AddScoped<DbSeeder>();
 
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
+    {
+        var jwtOptions = config.GetSection(JwtOptions.ConfigSection)
+            .Get<JwtOptions>() ?? throw new InvalidOperationException("Failed to read JwtOptions");
+
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(jwtOptions.KeyBytes),
+            ValidateIssuerSigningKey = true
+        };
+    });
+
 builder.Services.AddAuthorization();
 builder.Services
-    .AddIdentity<User, IdentityRole>(o =>
+    .AddIdentityCore<User>(o =>
     {
         o.SignIn.RequireConfirmedEmail = false;
         o.SignIn.RequireConfirmedPhoneNumber = false;
     })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApiDbContext>()
     .AddDefaultTokenProviders();
 

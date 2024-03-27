@@ -5,6 +5,9 @@ namespace Reservant.Api.Models.Dtos;
 
 public class UserInfo
 {
+    [Required]
+    public required string Token { get; init; }
+
     [Required, StringLength(50)]
     public required string Login { get; init; }
 

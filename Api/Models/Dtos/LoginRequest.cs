@@ -10,9 +10,4 @@ public class LoginRequest
 
     [Required, StringLength(50)]
     public required string Password { get; init; }
-    
-    [Required]
-    public required bool RememberMe { get; init; }
-    
-    
 }

@@ -1,11 +1,17 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Options;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Reservant.Api.Controllers;
 
@@ -13,8 +19,14 @@ namespace Reservant.Api.Controllers;
 /// Registration and signing in and out.
 /// </summary>
 [ApiController, Route("/auth")]
-public class AuthController(UserService userService, SignInManager<User> signInManager, UserManager<User> userManager) : Controller
+public class AuthController(
+    UserService userService,
+    UserManager<User> userManager,
+    IOptions<JwtOptions> jwtOptions)
+    : Controller
 {
+    private readonly JwtSecurityTokenHandler _handler = new();
+
     /// <summary>
     /// Register a restaurant owner.
     /// </summary>
@@ -38,7 +50,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("register-restaurant-employee"), Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(200), 
+    [ProducesResponseType(200),
      ProducesResponseType(400),
      ProducesResponseType(401)]
     public async Task<ActionResult> RegisterRestaurantEmployee(RegisterRestaurantEmployeeRequest request)
@@ -74,7 +86,7 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     /// Login authorization
     /// </summary>
     /// <remarks>
-    /// Sets cookie named ".AspNetCore.Identity.Application".
+    /// Returns a JWT bearer token intended to be sent in the Authorization header.
     /// </remarks>
     /// <param name="request"> Login request DTO</param>
     /// <request code="400"> Validation errors </request>
@@ -83,42 +95,48 @@ public class AuthController(UserService userService, SignInManager<User> signInM
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
-        var login = request.Login;
-        var password = request.Password;
-        var rememberPassword = request.RememberMe;
+        var user = await userManager.FindByNameAsync(request.Login);
+        if (user is null)
+        {
+            return Unauthorized("Invalid login or password");
+        }
 
-        var user = await userManager.FindByNameAsync(login);
-        if (user == null) return Unauthorized("Incorrect login or password.");
+        if (!await userManager.CheckPasswordAsync(user, request.Password))
+        {
+            return Unauthorized("Invalid login or password");
+        }
 
-        var result = await signInManager.PasswordSignInAsync(login, password, rememberPassword, false);
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(ClaimTypes.Name, user.UserName!)
+        };
 
         var roles = await userManager.GetRolesAsync(user);
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        return result.Succeeded switch
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            true => Ok(new UserInfo
-            {
-                Login = login,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Roles = roles.ToList()
-            }),
-            false => Unauthorized("Incorrect login or password.")
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.Add(TimeSpan.FromHours(jwtOptions.Value.LifetimeHours)),
+            Issuer = jwtOptions.Value.Issuer,
+            Audience = jwtOptions.Value.Audience,
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(jwtOptions.Value.KeyBytes),
+                SecurityAlgorithms.HmacSha256)
         };
-    }
 
-    /// <summary>
-    /// Logging User out
-    /// </summary>
-    /// <remarks>
-    /// Deletes cookie named ".AspNetCore.Identity.Application".
-    /// </remarks>
-    [HttpPost("logout"), Authorize]
-    [ProducesResponseType(200), ProducesResponseType(401)]
-    public async Task<ActionResult> LogoutUser()
-    {
-        await signInManager.SignOutAsync();
-        return Ok("Logged out.");
+        var token = _handler.CreateToken(tokenDescriptor);
+        var jwt = _handler.WriteToken(token);
+        return Ok(new UserInfo
+        {
+            Token = jwt,
+            Login = request.Login,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Roles = roles.ToList()
+        });
     }
 
     /// <summary>
