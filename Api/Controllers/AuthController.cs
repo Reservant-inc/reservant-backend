@@ -95,7 +95,7 @@ public class AuthController(
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
-        var user = await userManager.FindByNameAsync(request.Login);
+        var user = await userManager.FindByNameAsync(request.Login.Trim());
         if (user is null)
         {
             return Unauthorized("Invalid login or password");
