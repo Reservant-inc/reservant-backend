@@ -163,11 +163,11 @@ public class AuthController(
     /// <summary>
     /// check if mail is aviable
     /// </summary>
-    [HttpGet("is-unique")]
+    [HttpGet("is-unique-mail")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult> IsUnique(String mail)
+    public async Task<ActionResult> IsUniqueMail(String mail)
     {
-        var result = await userService.IsUniqueAsync(mail);
+        var result = await userService.IsUniqueMailAsync(mail);
 
         return Ok(result);
     }
