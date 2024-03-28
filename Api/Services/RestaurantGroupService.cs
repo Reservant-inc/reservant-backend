@@ -57,7 +57,7 @@ public class RestaurantGroupService(ApiDbContext context)
 
         var group = new RestaurantGroup
         {
-            Name = req.Name,
+            Name = req.Name.Trim(),
             OwnerId = user.Id,
             Owner = user,
             Restaurants = restaurants
