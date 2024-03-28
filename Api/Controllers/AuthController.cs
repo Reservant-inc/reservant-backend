@@ -165,9 +165,9 @@ public class AuthController(
     /// </summary>
     [HttpGet("is-unique")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult> isUnique(String mail)
+    public async Task<ActionResult> IsUnique(String mail)
     {
-        var result = await userService.isUniqueAsync(mail);
+        var result = await userService.IsUniqueAsync(mail);
 
         return Ok(result);
     }

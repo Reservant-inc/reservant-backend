@@ -186,14 +186,14 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// returns whether mail provided is unique among registered users
     /// </summary>
     /// <returns>Task<bool></returns>
-    public async Task<bool> isUniqueAsync(string mail)
+    public async Task<bool> IsUniqueMailAsync(string mail)
     {
         var result = await dbContext
             .Users
             .Where(r => r.Email == mail)
-            .CountAsync();
+            .AnyAsync();
         
-        return (result==0);     
+        return (result);     
     }
 
 
