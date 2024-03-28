@@ -127,7 +127,7 @@ public class AuthController(
             Issuer = jwtOptions.Value.Issuer,
             Audience = jwtOptions.Value.Audience,
             SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(jwtOptions.Value.KeyBytes),
+                new SymmetricSecurityKey(jwtOptions.Value.GetKeyBytes()),
                 SecurityAlgorithms.HmacSha256)
         };
 

@@ -40,7 +40,7 @@ builder.Services
         {
             ValidIssuer = jwtOptions.Issuer,
             ValidAudience = jwtOptions.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(jwtOptions.KeyBytes),
+            IssuerSigningKey = new SymmetricSecurityKey(jwtOptions.GetKeyBytes()),
             ValidateIssuerSigningKey = true
         };
     });

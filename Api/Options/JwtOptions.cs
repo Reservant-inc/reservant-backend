@@ -35,5 +35,5 @@ public class JwtOptions
     /// <summary>
     /// Key as bytes.
     /// </summary>
-    public byte[] KeyBytes => Encoding.UTF8.GetBytes(Key);
+    public byte[] GetKeyBytes() => Encoding.UTF8.GetBytes(Key);
 }
