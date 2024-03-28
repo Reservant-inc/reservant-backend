@@ -7,6 +7,7 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>Reservant.Api</RootNamespace>
+        <UserSecretsId>71abd42b-36f0-4f9f-9166-bf4b4ee57b99</UserSecretsId>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
