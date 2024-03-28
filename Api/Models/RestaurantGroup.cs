@@ -20,7 +20,7 @@ public class RestaurantGroup : ISoftDeletable
     /// <summary>
     /// Owner ID
     /// </summary>
-    [Required, StringLength(36)]
+    [Required]
     public required string OwnerId { get; set; }
 
     /// <summary>
