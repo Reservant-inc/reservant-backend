@@ -10,8 +10,10 @@ using Reservant.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var config = builder.Configuration;
-builder.Services.Configure<JwtOptions>(config.GetSection(JwtOptions.ConfigSection));
+builder.Services.AddOptions<JwtOptions>()
+    .BindConfiguration(JwtOptions.ConfigSection)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 builder.Services.AddCors(o =>
 {
@@ -33,7 +35,7 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
-        var jwtOptions = config.GetSection(JwtOptions.ConfigSection)
+        var jwtOptions = builder.Configuration.GetSection(JwtOptions.ConfigSection)
             .Get<JwtOptions>() ?? throw new InvalidOperationException("Failed to read JwtOptions");
 
         o.TokenValidationParameters = new TokenValidationParameters
