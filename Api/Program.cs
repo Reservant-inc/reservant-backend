@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
@@ -75,6 +76,27 @@ builder.Services.AddSwaggerGen(options =>
 {
     var filePath = Path.Combine(AppContext.BaseDirectory, "Api.xml");
     options.IncludeXmlComments(filePath, includeControllerXmlComments: true);
+
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        Description = "Your JWT Token",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Id = "JWT Bearer",
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    options.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, new List<string>() }
+    });
 });
 
 builder.Services.AddControllers();
