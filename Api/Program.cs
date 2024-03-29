@@ -110,6 +110,7 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<FileUploadService>();
 builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<RestaurantGroupService>();
 builder.Services.AddScoped<RestaurantGroupService>();

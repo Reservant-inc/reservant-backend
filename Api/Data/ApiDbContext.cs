@@ -9,6 +9,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 {
     public required DbSet<WeatherForecast> WeatherForecasts { get; init; }
 
+    public DbSet<FileUpload> FileUploads { get; init; } = null!;
+
     public DbSet<Restaurant> Restaurants { get; init; } = null!;
 
     public DbSet<Table> Tables { get; init; } = null!;
