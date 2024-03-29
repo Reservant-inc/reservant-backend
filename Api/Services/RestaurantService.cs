@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
 
@@ -40,8 +41,8 @@ namespace Reservant.Api.Services
                 }).ToList() : new List<Table>(),
             };
 
-            foreach (var table in restaurant.Tables) 
-            { 
+            foreach (var table in restaurant.Tables)
+            {
                 table.Restaurant = restaurant;
             }
 
@@ -51,9 +52,9 @@ namespace Reservant.Api.Services
             {
                 return errors;
             }
-            
-            context.Add(restaurant);                
-            
+
+            context.Add(restaurant);
+
             await context.SaveChangesAsync();
 
             return restaurant;
@@ -85,11 +86,11 @@ namespace Reservant.Api.Services
             var userId = user.Id;
             var result = await context.Restaurants.Where(r => r.Group!.OwnerId == userId)
                                                   .Where(r => r.Id == id)
-                                                  .Select(r => new RestaurantVM { 
+                                                  .Select(r => new RestaurantVM {
                                                     Id = r.Id,
                                                     Name = r.Name,
                                                     Address = r.Address,
-                                                    Tables = r.Tables.Select(t => new TableVM { 
+                                                    Tables = r.Tables.Select(t => new TableVM {
                                                                             Id = t.Id,
                                                                             Capacity = t.Capacity})
                                                   })

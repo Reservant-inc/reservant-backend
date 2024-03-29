@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Dtos.Table;
 
-namespace Reservant.Api.Models.Dtos
+namespace Reservant.Api.Models.Dtos.Restaurant
 {
     public class CreateRestaurantRequest
     {

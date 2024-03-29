@@ -1,9 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Reservant.Api.Models.Dtos
+namespace Reservant.Api.Models.Dtos.Restaurant
 {
-    public class RestaurantVM
+    public class RestaurantSummaryVM
     {
         [Required]
         public required int Id { get; init; }
@@ -13,8 +12,5 @@ namespace Reservant.Api.Models.Dtos
 
         [Required, StringLength(70)]
         public required string Address { get; init; }
-
-        [Required]
-        public required IEnumerable<TableVM> Tables { get; init; }
     }
 }
