@@ -26,7 +26,8 @@ public class FileUploadService(IOptions<FileUploadsOptions> options)
             };
         }
 
-        var fileName = "testfile.png";
+        var fileName = Guid.NewGuid() + ".png";
+
         var filePath = Path.Combine(options.Value.SavePath, fileName);
         await using var disk = new FileStream(filePath, FileMode.Create);
         await request.File.CopyToAsync(disk);
