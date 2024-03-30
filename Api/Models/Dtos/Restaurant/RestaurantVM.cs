@@ -1,13 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Models.Dtos.Table;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Models.Dtos.Restaurant
 {
     public class RestaurantVM
     {
+        /// <summary>
+        /// Unique ID
+        /// </summary>
         [Required]
         public required int Id { get; init; }
 
+        /// <summary>
+        /// Nazwa
+        /// </summary>
+        /// <example>McJohn's</example>
         [Required, StringLength(50)]
         public required string Name { get; init; }
 
@@ -17,6 +25,11 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// <example>000-00-00-000</example>
         [Required, Nip]
         public required string Nip { get; init; }
+
+        /// <summary>
+        /// Adres
+        /// </summary>
+        /// <example>ul. Koszykowa 86</example>
         [Required, StringLength(70)]
         public required string Address { get; init; }
 
@@ -45,6 +58,9 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// <example>McJohn's Restaurant Group</example>
         public required string GroupName { get; set; }
 
+        /// <summary>
+        /// List of tables in the restaurant
+        /// </summary>
         [Required]
         public required IEnumerable<TableVM> Tables { get; init; }
     }
