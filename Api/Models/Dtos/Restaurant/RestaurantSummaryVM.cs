@@ -12,5 +12,12 @@ namespace Reservant.Api.Models.Dtos.Restaurant
 
         [Required, StringLength(70)]
         public required string Address { get; init; }
+
+        /// <summary>
+        /// City of the restaurant
+        /// </summary>
+        /// <example>Warszawa</example>
+        [Required, StringLength(15)]
+        public required string City { get; init; }
     }
 }

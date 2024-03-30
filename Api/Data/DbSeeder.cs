@@ -74,7 +74,10 @@ internal class DbSeeder(
         {
             Id = 1,
             Name = "John Doe's",
-            Address = "Warszawa, ul. Marszałkowska 2",
+            Nip = "000-00-00-000",
+            Address = "ul. Marszałkowska 2",
+            PostalIndex = "00-000",
+            City = "Warszawa",
             GroupId = 1,
             Tables =
             [
@@ -153,7 +156,10 @@ internal class DbSeeder(
         {
             Id = 2,
             Name = "John Doe's 2",
-            Address = "Warszawa, ul. Koszykowa 10",
+            Nip = "000-00-00-000",
+            Address = "ul. Koszykowa 10",
+            PostalIndex = "00-000",
+            City = "Warszawa",
             GroupId = 1,
             Tables =
             [

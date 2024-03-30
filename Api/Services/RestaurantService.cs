@@ -16,11 +16,12 @@ namespace Reservant.Api.Services
         /// <param name="request"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<Restaurant>> CreateRestaurantAsync(CreateRestaurantRequest request, User user) {
-            var group = await context.RestaurantGroups
-                .Where(rg => rg.Owner == user)
-                .FirstOrDefaultAsync();
-            if (group is null)
+        public async Task<Result<Restaurant>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
+        {
+            var errors = new List<ValidationResult>();
+
+            RestaurantGroup? group;
+            if (request.GroupId is null)
             {
                 group = new RestaurantGroup
                 {
@@ -29,25 +30,37 @@ namespace Reservant.Api.Services
                 };
                 context.RestaurantGroups.Add(group);
             }
+            else
+            {
+                group = await context.RestaurantGroups.FindAsync(request.GroupId);
+
+                if (group is null)
+                {
+                    errors.Add(new ValidationResult(
+                        $"Group with ID {request.GroupId} not found",
+                        [nameof(request.GroupId)]));
+                    return errors;
+                }
+
+                if (group.OwnerId != user.Id)
+                {
+                    errors.Add(new ValidationResult(
+                        $"Group with ID {request.GroupId} is not owned by the current user",
+                        [nameof(request.GroupId)]));
+                    return errors;
+                }
+            }
 
             var restaurant = new Restaurant
             {
                 Name = request.Name.Trim(),
                 Address = request.Address.Trim(),
-                Group = group,
-                Tables = request.Tables.Count > 0 ? request.Tables.Select(t => new Table
-                {
-                    Capacity = t.Capacity
-                }).ToList() : new List<Table>(),
+                Nip = request.Nip,
+                PostalIndex = request.PostalIndex,
+                City = request.City.Trim(),
+                Group = group
             };
 
-            foreach (var table in restaurant.Tables)
-            {
-                table.Restaurant = restaurant;
-            }
-
-
-            var errors = new List<ValidationResult>();
             if (!ValidationUtils.TryValidate(restaurant, errors))
             {
                 return errors;
@@ -70,7 +83,8 @@ namespace Reservant.Api.Services
                                                   .Select(r=> new RestaurantSummaryVM{
                                                     Id = r.Id,
                                                     Name = r.Name,
-                                                    Address = r.Address
+                                                    Address = r.Address,
+                                                    City = r.City
                                                   })
                                                   .ToListAsync();
             return result;
@@ -86,13 +100,21 @@ namespace Reservant.Api.Services
             var userId = user.Id;
             var result = await context.Restaurants.Where(r => r.Group!.OwnerId == userId)
                                                   .Where(r => r.Id == id)
-                                                  .Select(r => new RestaurantVM {
-                                                    Id = r.Id,
-                                                    Name = r.Name,
-                                                    Address = r.Address,
-                                                    Tables = r.Tables.Select(t => new TableVM {
-                                                                            Id = t.Id,
-                                                                            Capacity = t.Capacity})
+                                                  .Select(r => new RestaurantVM
+                                                  {
+                                                      Id = r.Id,
+                                                      Name = r.Name,
+                                                      Nip = r.Nip,
+                                                      Address = r.Address,
+                                                      PostalIndex = r.PostalIndex,
+                                                      City = r.City,
+                                                      GroupId = r.Group!.Id,
+                                                      GroupName = r.Group!.Name,
+                                                      Tables = r.Tables!.Select(t => new TableVM
+                                                      {
+                                                          Id = t.Id,
+                                                          Capacity = t.Capacity
+                                                      })
                                                   })
                                                   .FirstOrDefaultAsync();
             return result;
