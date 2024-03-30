@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.FileUpload;
 using Reservant.Api.Options;
 using Reservant.Api.Validation;
 
@@ -18,7 +18,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     /// Saves the given file to disk.
     /// </summary>
     /// <returns>Path to the saved file</returns>
-    public async Task<Result<string>> SaveFileAsync(UploadRequest request, string userId)
+    public async Task<Result<UploadVM>> SaveFileAsync(UploadRequest request, string userId)
     {
         var fileSizeKb = request.File.Length / 1024;
         if (fileSizeKb > options.Value.MaxSizeKb)
@@ -56,6 +56,9 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
             throw;
         }
 
-        return Path.Combine(options.Value.ServePath, fileName);
+        return new UploadVM
+        {
+            Path = Path.Combine(options.Value.ServePath, fileName)
+        };
     }
 }

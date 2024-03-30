@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Reservant.Api.Models.Dtos;
+namespace Reservant.Api.Models.Dtos.FileUpload;
 
 /// <summary>
 /// Request to upload a file to the server

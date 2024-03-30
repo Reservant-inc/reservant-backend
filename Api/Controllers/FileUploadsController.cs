@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.FileUpload;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -20,7 +20,7 @@ public class FileUploadsController(FileUploadService fileUploadService, UserMana
     [HttpPost]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<string?>> UploadFile([FromForm] UploadRequest request)
+    public async Task<ActionResult<UploadVM>> UploadFile([FromForm] UploadRequest request)
     {
         var userId = userManager.GetUserId(User);
         if (userId is null)
