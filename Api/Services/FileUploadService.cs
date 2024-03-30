@@ -26,9 +26,10 @@ public class FileUploadService(IOptions<FileUploadsOptions> options)
             };
         }
 
-        var filePath = Path.Combine(options.Value.Path, "testfile.png");
+        var fileName = "testfile.png";
+        var filePath = Path.Combine(options.Value.SavePath, fileName);
         await using var disk = new FileStream(filePath, FileMode.Create);
         await request.File.CopyToAsync(disk);
-        return filePath;
+        return Path.Combine(options.Value.ServePath, fileName);
     }
 }
