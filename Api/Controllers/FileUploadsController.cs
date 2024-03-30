@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
@@ -14,9 +15,16 @@ public class FileUploadsController(FileUploadService fileUploadService) : Contro
     /// Upload a file to the server
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<string>> UploadFile([FromForm] UploadRequest request)
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<string?>> UploadFile([FromForm] UploadRequest request)
     {
-        var path = await fileUploadService.SaveFileAsync(request);
-        return Ok(path);
+        var result = await fileUploadService.SaveFileAsync(request);
+        if (result.IsError)
+        {
+            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+            return ValidationProblem();
+        }
+
+        return Ok(result.Value);
     }
 }

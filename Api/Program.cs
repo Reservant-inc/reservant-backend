@@ -16,6 +16,14 @@ builder.Services.AddOptions<JwtOptions>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
+builder.Services.AddOptions<FileUploadsOptions>()
+    .BindConfiguration(FileUploadsOptions.ConfigSection)
+    .ValidateDataAnnotations()
+    .Validate(
+        o => Path.EndsInDirectorySeparator(o.SavePath) && Path.Exists(o.SavePath),
+        $"{nameof(FileUploadsOptions.SavePath)} must exist and end with /")
+    .ValidateOnStart();
+
 builder.Services.AddCors(o =>
 {
     o.AddDefaultPolicy(p =>
