@@ -8,15 +8,9 @@ namespace Reservant.Api.Models;
 public class FileUpload
 {
     /// <summary>
-    /// Unique ID
-    /// </summary>
-    [Key]
-    public int Id { get; set; }
-
-    /// <summary>
     /// Name of the file on disk
     /// </summary>
-    [Required]
+    [Key, StringLength(50)]
     public required string FileName { get; set; }
 
     /// <summary>
