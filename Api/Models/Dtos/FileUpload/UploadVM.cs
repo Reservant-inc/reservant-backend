@@ -12,4 +12,7 @@ public class UploadVM
     /// </summary>
     [Required]
     public required string Path { get; init; }
+
+    [Required]
+    public required string ContentType { get; init; }
 }

@@ -14,6 +14,13 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContext context)
 {
+    private static readonly Dictionary<string, string> FileExtensions = new()
+    {
+        { "image/png", ".png" },
+        { "image/jpeg", ".jpg" },
+        { "application/pdf", ".pdf" }
+    };
+
     /// <summary>
     /// Saves the given file to disk.
     /// </summary>
@@ -29,7 +36,16 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
             };
         }
 
-        var fileName = Guid.NewGuid() + ".png";
+        var contentType = request.File.ContentType;
+        if (!FileExtensions.TryGetValue(contentType, out var fileExtension))
+        {
+            return new List<ValidationResult>
+            {
+                new($"File content type not accepted: {contentType}", [nameof(request.File)])
+            };
+        }
+
+        var fileName = Guid.NewGuid() + fileExtension;
 
         var filePath = Path.Combine(options.Value.SavePath, fileName);
         await using var disk = new FileStream(filePath, FileMode.Create);
@@ -38,6 +54,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
         context.FileUploads.Add(new FileUpload
         {
             FileName = fileName,
+            ContentType = contentType,
             UserId = userId
         });
 
@@ -58,7 +75,8 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
 
         return new UploadVM
         {
-            Path = Path.Combine(options.Value.ServePath, fileName)
+            Path = Path.Combine(options.Value.ServePath, fileName),
+            ContentType = contentType
         };
     }
 }

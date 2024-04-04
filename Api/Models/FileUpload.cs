@@ -14,6 +14,12 @@ public class FileUpload
     public required string FileName { get; set; }
 
     /// <summary>
+    /// MIME type of the contents of the file
+    /// </summary>
+    [StringLength(20)]
+    public required string ContentType { get; set; }
+
+    /// <summary>
     /// ID of the user who uploaded the file
     /// </summary>
     [Required]
