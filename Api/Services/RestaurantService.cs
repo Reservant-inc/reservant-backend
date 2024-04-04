@@ -54,6 +54,7 @@ namespace Reservant.Api.Services
             var restaurant = new Restaurant
             {
                 Name = request.Name.Trim(),
+                RestaurantType = request.RestaurantType,
                 Address = request.Address.Trim(),
                 Nip = request.Nip,
                 PostalIndex = request.PostalIndex,
@@ -83,6 +84,7 @@ namespace Reservant.Api.Services
                                                   .Select(r=> new RestaurantSummaryVM{
                                                     Id = r.Id,
                                                     Name = r.Name,
+                                                    RestaurantType = r.RestaurantType,
                                                     Address = r.Address,
                                                     City = r.City
                                                   })
@@ -104,6 +106,7 @@ namespace Reservant.Api.Services
                                                   {
                                                       Id = r.Id,
                                                       Name = r.Name,
+                                                      RestaurantType = r.RestaurantType,
                                                       Nip = r.Nip,
                                                       Address = r.Address,
                                                       PostalIndex = r.PostalIndex,

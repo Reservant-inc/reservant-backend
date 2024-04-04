@@ -27,6 +27,11 @@ public class Restaurant
     public required string Nip { get; set; }
 
     /// <summary>
+    /// Type of the establishment
+    /// </summary>
+    public required RestaurantType RestaurantType { get; set; }
+
+    /// <summary>
     /// Adres
     /// </summary>
     [Required, StringLength(70)]

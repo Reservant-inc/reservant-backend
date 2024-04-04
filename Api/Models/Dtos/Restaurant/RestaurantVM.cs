@@ -20,6 +20,11 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         public required string Name { get; init; }
 
         /// <summary>
+        /// Type of the establishment
+        /// </summary>
+        public required RestaurantType RestaurantType { get; set; }
+
+        /// <summary>
         /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a> associated with the restaurant
         /// </summary>
         /// <example>000-00-00-000</example>

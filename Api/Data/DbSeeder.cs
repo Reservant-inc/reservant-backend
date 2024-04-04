@@ -74,6 +74,7 @@ internal class DbSeeder(
         {
             Id = 1,
             Name = "John Doe's",
+            RestaurantType = RestaurantType.Restaurant,
             Nip = "000-00-00-000",
             Address = "ul. Marszałkowska 2",
             PostalIndex = "00-000",
@@ -156,6 +157,7 @@ internal class DbSeeder(
         {
             Id = 2,
             Name = "John Doe's 2",
+            RestaurantType = RestaurantType.Restaurant,
             Nip = "000-00-00-000",
             Address = "ul. Koszykowa 10",
             PostalIndex = "00-000",

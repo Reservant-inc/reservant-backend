@@ -23,6 +23,11 @@ public class CreateRestaurantRequest
     public required string Nip { get; init; }
 
     /// <summary>
+    /// Restaurant type
+    /// </summary>
+    public RestaurantType RestaurantType { get; init; }
+
+    /// <summary>
     /// Address of the restaurant
     /// </summary>
     /// <example>ul. Koszykowa 86</example>

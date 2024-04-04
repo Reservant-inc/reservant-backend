@@ -21,6 +21,11 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         public required string Name { get; init; }
 
         /// <summary>
+        /// Type of the establishment
+        /// </summary>
+        public required RestaurantType RestaurantType { get; set; }
+
+        /// <summary>
         /// Adres
         /// </summary>
         ///  <example>ul. Koszykowa 86</example>
