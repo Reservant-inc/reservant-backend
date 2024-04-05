@@ -15,6 +15,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
     public DbSet<RestaurantGroup> RestaurantGroups { get; init; } = null!;
 
+    public DbSet<Menu> Menus { get; init; } = null!;
+
+    public DbSet<MenuItem> MenuItems { get; init; } = null!;
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
