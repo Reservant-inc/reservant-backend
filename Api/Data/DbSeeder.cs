@@ -70,13 +70,14 @@ internal class DbSeeder(
             OwnerId = johnDoe.Id
         });
 
-        context.Restaurants.Add(new Restaurant
+        var johnDoes = new Restaurant
         {
             Id = 1,
             Name = "John Doe's",
             Address = "Warszawa, ul. Marszałkowska 2",
             GroupId = 1,
-            Tables = [
+            Tables =
+            [
                 new Table
                 {
                     RestaurantId = 1,
@@ -102,15 +103,60 @@ internal class DbSeeder(
                     Capacity = 6
                 }
             ]
+        };
+        context.Restaurants.Add(johnDoes);
+
+        context.Menus.Add(new Menu
+        {
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            RestaurantId = johnDoes.Id,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Burger",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                },
+                new MenuItem
+                {
+                    Name = "Cheeseburger",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                }
+            ]
         });
 
-        context.Restaurants.Add(new Restaurant
+        context.Menus.Add(new Menu
+        {
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            MenuType = MenuType.Alcohol,
+            RestaurantId = johnDoes.Id,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                }
+            ]
+        });
+
+        var johnDoes2 = new Restaurant
         {
             Id = 2,
             Name = "John Doe's 2",
             Address = "Warszawa, ul. Koszykowa 10",
             GroupId = 1,
-            Tables = [
+            Tables =
+            [
                 new Table
                 {
                     RestaurantId = 2,
@@ -134,6 +180,32 @@ internal class DbSeeder(
                     RestaurantId = 2,
                     Id = 4,
                     Capacity = 4
+                }
+            ]
+        };
+        context.Restaurants.Add(johnDoes2);
+
+        context.Menus.Add(new Menu
+        {
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            RestaurantId = johnDoes.Id,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Kotlet schabowy",
+                    Price = 19m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                },
+                new MenuItem
+                {
+                    Name = "Zupa pomidorowa",
+                    Price = 7m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
                 }
             ]
         });
