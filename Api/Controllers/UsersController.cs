@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Reservant.Api.Controllers
@@ -13,5 +16,23 @@ namespace Reservant.Api.Controllers
     {
 
         private readonly JwtSecurityTokenHandler _handler = new();
+        /// <summary>
+        /// Sets Restaurant Owner role for specified user
+        /// </summary>
+        /// <param name="id">id of the user</param>
+        /// <returns></returns>
+        [ProducesResponseType(200), ProducesResponseType(404)]
+        [HttpPost("/{id}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
+        public async Task<ActionResult> MakeRestaurantOwner(string id) {
+            var result = await userService.MakeRestaurantOwnerAsync(id);
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+                return ValidationProblem();
+            }
+            User user = result.Value;
+            if (user == null){ return NotFound(); }
+            return Ok(user);
+        }
     }
 }
