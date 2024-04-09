@@ -64,6 +64,30 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         public required string GroupName { get; set; }
 
         /// <summary>
+        /// URI of the rental contract (umowa najmu lokalu)
+        /// </summary>
+        [MinLength(1), StringLength(50)]
+        public required string? RentalContract { get; set; }
+
+        /// <summary>
+        /// URI of the alcohol license (licencja na sprzedaż alkoholu)
+        /// </summary>
+        [MinLength(1), StringLength(50)]
+        public required string? AlcoholLicense { get; set; }
+
+        /// <summary>
+        /// URI of the permission to conduct business (zgoda na prowadzenie działalności)
+        /// </summary>
+        [Required, StringLength(50)]
+        public required string BusinessPermission { get; set; }
+
+        /// <summary>
+        /// URI of the ID card (dowód osobisty)
+        /// </summary>
+        [Required, StringLength(50)]
+        public required string IdCard { get; set; }
+
+        /// <summary>
         /// List of tables in the restaurant
         /// </summary>
         [Required]

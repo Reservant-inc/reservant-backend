@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Services
 {
-    public class RestaurantService(ApiDbContext context)
+    public class RestaurantService(ApiDbContext context, FileUploadService uploadService)
     {
         /// <summary>
         /// Register new Restaurant and add tables.
@@ -51,6 +51,46 @@ namespace Reservant.Api.Services
                 }
             }
 
+            string? rentalContract = null;
+            if (request.RentalContract is not null)
+            {
+                var result = await uploadService.ProcessUploadUriAsync(
+                    request.RentalContract, user.Id, nameof(request.RentalContract));
+                if (result.IsError)
+                {
+                    return result.Errors;
+                }
+
+                rentalContract = result.Value;
+            }
+
+            string? alcoholLicense = null;
+            if (request.AlcoholLicense is not null)
+            {
+                var result = await uploadService.ProcessUploadUriAsync(
+                    request.AlcoholLicense, user.Id, nameof(request.AlcoholLicense));
+                if (result.IsError)
+                {
+                    return result.Errors;
+                }
+
+                alcoholLicense = result.Value;
+            }
+
+            var businessPermissionResult = await uploadService.ProcessUploadUriAsync(
+                request.BusinessPermission, user.Id, nameof(request.BusinessPermission));
+            if (businessPermissionResult.IsError)
+            {
+                return businessPermissionResult.Errors;
+            }
+
+            var idCardResult = await uploadService.ProcessUploadUriAsync(
+                request.IdCard, user.Id, nameof(request.IdCard));
+            if (idCardResult.IsError)
+            {
+                return idCardResult.Errors;
+            }
+
             var restaurant = new Restaurant
             {
                 Name = request.Name.Trim(),
@@ -59,7 +99,11 @@ namespace Reservant.Api.Services
                 Nip = request.Nip,
                 PostalIndex = request.PostalIndex,
                 City = request.City.Trim(),
-                Group = group
+                Group = group,
+                RentalContractFileName = rentalContract,
+                AlcoholLicenseFileName = alcoholLicense,
+                BusinessPermissionFileName = businessPermissionResult.Value,
+                IdCardFileName = idCardResult.Value
             };
 
             if (!ValidationUtils.TryValidate(restaurant, errors))
@@ -100,26 +144,33 @@ namespace Reservant.Api.Services
         public async Task<Result<RestaurantVM?>> GetMyRestaurantByIdAsync(User user, int id)
         {
             var userId = user.Id;
-            var result = await context.Restaurants.Where(r => r.Group!.OwnerId == userId)
-                                                  .Where(r => r.Id == id)
-                                                  .Select(r => new RestaurantVM
-                                                  {
-                                                      Id = r.Id,
-                                                      Name = r.Name,
-                                                      RestaurantType = r.RestaurantType,
-                                                      Nip = r.Nip,
-                                                      Address = r.Address,
-                                                      PostalIndex = r.PostalIndex,
-                                                      City = r.City,
-                                                      GroupId = r.Group!.Id,
-                                                      GroupName = r.Group!.Name,
-                                                      Tables = r.Tables!.Select(t => new TableVM
-                                                      {
-                                                          Id = t.Id,
-                                                          Capacity = t.Capacity
-                                                      })
-                                                  })
-                                                  .FirstOrDefaultAsync();
+            var result = await context.Restaurants
+                .Where(r => r.Group!.OwnerId == userId)
+                .Where(r => r.Id == id)
+                .Select(r => new RestaurantVM
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    RestaurantType = r.RestaurantType,
+                    Nip = r.Nip,
+                    Address = r.Address,
+                    PostalIndex = r.PostalIndex,
+                    City = r.City,
+                    GroupId = r.Group!.Id,
+                    GroupName = r.Group!.Name,
+                    RentalContract = r.RentalContractFileName == null
+                        ? null : uploadService.GetPathForFileName(r.RentalContractFileName),
+                    AlcoholLicense = r.AlcoholLicenseFileName == null
+                        ? null : uploadService.GetPathForFileName(r.AlcoholLicenseFileName),
+                    BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
+                    IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
+                    Tables = r.Tables!.Select(t => new TableVM
+                    {
+                        Id = t.Id,
+                        Capacity = t.Capacity
+                    })
+                })
+                .FirstOrDefaultAsync();
             return result;
         }
     }

@@ -80,6 +80,34 @@ internal class DbSeeder(
             PostalIndex = "00-000",
             City = "Warszawa",
             GroupId = 1,
+            RentalContractFileName = null!,
+            RentalContract = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "rental-contract-1.pdf",
+                ContentType = "application/pdf"
+            },
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "alcohol-license-1.pdf",
+                ContentType = "application/pdf"
+            },
+            BusinessPermissionFileName = null!,
+            BusinessPermission = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "business-permission-1.pdf",
+                ContentType = "application/pdf"
+            },
+            IdCardFileName = null!,
+            IdCard = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "id-card-1.pdf",
+                ContentType = "application/pdf"
+            },
             Tables =
             [
                 new Table
@@ -163,6 +191,34 @@ internal class DbSeeder(
             PostalIndex = "00-000",
             City = "Warszawa",
             GroupId = 1,
+            RentalContractFileName = null!,
+            RentalContract = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "rental-contract-2.pdf",
+                ContentType = "application/pdf"
+            },
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "alcohol-license-2.pdf",
+                ContentType = "application/pdf"
+            },
+            BusinessPermissionFileName = null!,
+            BusinessPermission = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "business-permission-2.pdf",
+                ContentType = "application/pdf"
+            },
+            IdCardFileName = null!,
+            IdCard = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "id-card-2.pdf",
+                ContentType = "application/pdf"
+            },
             Tables =
             [
                 new Table

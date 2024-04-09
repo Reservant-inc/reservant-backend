@@ -50,6 +50,30 @@ public class Restaurant
     public required string City { get; set; }
 
     /// <summary>
+    /// File name of the rental contract (umowa najmu lokalu)
+    /// </summary>
+    [MinLength(1), StringLength(50)]
+    public string? RentalContractFileName { get; set; }
+
+    /// <summary>
+    /// File name of the alcohol license (licencja na sprzedaż alkoholu)
+    /// </summary>
+    [MinLength(1), StringLength(50)]
+    public string? AlcoholLicenseFileName { get; set; }
+
+    /// <summary>
+    /// File name of the permission to conduct business (zgoda na prowadzenie działalności)
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string BusinessPermissionFileName { get; set; }
+
+    /// <summary>
+    /// File name of the ID card (dowód osobisty)
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string IdCardFileName { get; set; }
+
+    /// <summary>
     /// Restaurant group ID
     /// </summary>
     public int GroupId { get; set; }
@@ -63,4 +87,24 @@ public class Restaurant
     /// Navigation property for the restaurant group
     /// </summary>
     public RestaurantGroup? Group { get; set; }
+
+    /// <summary>
+    /// Navigation property for the rental contract
+    /// </summary>
+    public FileUpload? RentalContract { get; set; }
+
+    /// <summary>
+    /// Navigation property for the alcohol license
+    /// </summary>
+    public FileUpload? AlcoholLicense { get; set; }
+
+    /// <summary>
+    /// Navigation property for the permission to conduct business
+    /// </summary>
+    public FileUpload? BusinessPermission { get; set; }
+
+    /// <summary>
+    /// Navigation property for the ID card
+    /// </summary>
+    public FileUpload? IdCard { get; set; }
 }

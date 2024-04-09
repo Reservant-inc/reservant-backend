@@ -49,6 +49,30 @@ public class CreateRestaurantRequest
     public required string City { get; init; }
 
     /// <summary>
+    /// URI of the rental contract upload (umowa najmu lokalu)
+    /// </summary>
+    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    public string? RentalContract { get; init; }
+
+    /// <summary>
+    /// URI of the alcohol license upload (licencja na sprzedaż alkoholu)
+    /// </summary>
+    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    public string? AlcoholLicense { get; init; }
+
+    /// <summary>
+    /// URI of the permission to conduct business upload (zgoda na prowadzenie działalności)
+    /// </summary>
+    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    public required string BusinessPermission { get; init; }
+
+    /// <summary>
+    /// URI of the ID card upload (dowód osobisty)
+    /// </summary>
+    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    public required string IdCard { get; init; }
+
+    /// <summary>
     /// Restaurant group ID, if null a new group is created
     /// </summary>
     public int? GroupId { get; set; }
