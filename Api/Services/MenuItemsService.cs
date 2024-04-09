@@ -2,17 +2,25 @@
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.MenuItem;
-using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Reservant.Api.Services
 {
+    /// <summary>
+    /// Service for creating and finding menu items
+    /// </summary>
+    /// <param name="context"></param>
     public class MenuItemsService(ApiDbContext context)
     {
-
-        public async Task<Result<List<MenuItem>>> CreateMenuItemsAsync(User user, int restaurantId, List<CreateMenuItemRequest> req)
+        /// <summary>
+        /// Validates and creates given menuItems
+        /// </summary>
+        /// <param name="user">The current user, must be a restaurant owner</param>
+        /// <param name="restaurantId">The restaurant in which the menuItems will be created</param>
+        /// <param name="req">MenuItems to be created</param>
+        /// <returns>Validation results or the created menuItems</returns>
+        public async Task<Result<List<MenuItemVM>>> CreateMenuItemsAsync(User user, int restaurantId, List<CreateMenuItemRequest> req)
         {
             var errors = new List<ValidationResult>();
 
@@ -42,11 +50,23 @@ namespace Reservant.Api.Services
             await context.MenuItems.AddRangeAsync(menuItems);
             await context.SaveChangesAsync();
 
-            return menuItems;
+            return menuItems.Select(i => new MenuItemVM()
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Price = i.Price,
+                AlcoholPercentage = i.AlcoholPercentage,
+            }).ToList();
 
         }
 
-        public async Task<Result<List<MenuItem>>> GetMenuItemsAsync(User user, int restaurantId)
+        /// <summary>
+        /// Validates and gets menu items from the given restaurant
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="restaurantId"></param>
+        /// <returns>MenuItems</returns>
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
         {
             var errors = new List<ValidationResult>();
 
@@ -57,11 +77,27 @@ namespace Reservant.Api.Services
                 return isRestaurantValid.Errors;
             }
 
-            return await context.MenuItems.Where(i => i.RestaurantId == restaurantId).ToListAsync();
+            return await context.MenuItems
+                .Where(i => i.RestaurantId == restaurantId)
+                .Select(i => new MenuItemVM()
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Price = i.Price,
+                    AlcoholPercentage = i.AlcoholPercentage,
+                }).ToListAsync();
 
         }
 
-        public async Task<Result<List<MenuItem>>> GetMenuItemByIdAsync(User user, int restaurantId, int menuItemId)
+
+        /// <summary>
+        /// Validates and gets menu item by given id
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="restaurantId"></param>
+        /// <param name="menuItemId"></param>
+        /// <returns>MenuItem</returns>
+        public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int restaurantId, int menuItemId)
         {
             var errors = new List<ValidationResult>();
 
@@ -72,7 +108,24 @@ namespace Reservant.Api.Services
                 return isRestaurantValid.Errors;
             }
 
-            return await context.MenuItems.Where(i => i.RestaurantId == restaurantId && i.Id == menuItemId).ToListAsync();
+            var item = await context.MenuItems
+                .FirstOrDefaultAsync(i => i.Id == menuItemId);
+
+            if (item == null)
+            {
+                errors.Add(new ValidationResult(
+                   $"MenuItem: {menuItemId} not found"
+                ));
+                return errors;
+            }
+
+            return new MenuItemVM()
+            {
+                Id= item.Id,
+                Name = item.Name,
+                Price = item.Price,
+                AlcoholPercentage = item.AlcoholPercentage,
+            };
 
         }
 
