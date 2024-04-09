@@ -61,6 +61,21 @@ namespace Reservant.Api.Services
 
         }
 
+        public async Task<Result<List<MenuItem>>> GetMenuItemByIdAsync(User user, int restaurantId, int menuItemId)
+        {
+            var errors = new List<ValidationResult>();
+
+            var isRestaurantValid = await ValidateRestaurant(user, restaurantId);
+
+            if (isRestaurantValid.IsError)
+            {
+                return isRestaurantValid.Errors;
+            }
+
+            return await context.MenuItems.Where(i => i.RestaurantId == restaurantId && i.Id == menuItemId).ToListAsync();
+
+        }
+
         private async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
         {
             var errors = new List<ValidationResult>();

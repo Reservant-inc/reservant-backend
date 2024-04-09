@@ -28,4 +28,42 @@ public class MyMenuItemController(UserManager<User> userManager, MenuItemsServic
         return Created();
     }
 
+    [HttpGet]
+    [ProducesResponseType(201), ProducesResponseType(401), ProducesResponseType(400)]
+    public async Task<ActionResult> GetMenuItems(int restaurantId)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var res = await service.GetMenuItemsAsync(user!, restaurantId);
+
+        if (res.IsError)
+        {
+            return BadRequest();
+        }
+
+        return Ok(res);
+    }
+
+    [HttpGet]
+    [Route("{itemId}")]
+    [ProducesResponseType(201), ProducesResponseType(401), ProducesResponseType(400)]
+    public async Task<ActionResult> GetMenuItemsById(int restaurantId, int itemId)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var res = await service.GetMenuItemByIdAsync(user!, restaurantId, itemId);
+
+        if (res.IsError)
+        {
+            return BadRequest();
+        }
+
+        if (res.Value == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(res);
+    }
+
 }
