@@ -55,7 +55,10 @@ namespace Reservant.Api.Services
             if (request.RentalContract is not null)
             {
                 var result = await uploadService.ProcessUploadUriAsync(
-                    request.RentalContract, user.Id, nameof(request.RentalContract));
+                    request.RentalContract,
+                    user.Id,
+                    FileClass.Document,
+                    nameof(request.RentalContract));
                 if (result.IsError)
                 {
                     return result.Errors;
@@ -68,7 +71,10 @@ namespace Reservant.Api.Services
             if (request.AlcoholLicense is not null)
             {
                 var result = await uploadService.ProcessUploadUriAsync(
-                    request.AlcoholLicense, user.Id, nameof(request.AlcoholLicense));
+                    request.AlcoholLicense,
+                    user.Id,
+                    FileClass.Document,
+                    nameof(request.AlcoholLicense));
                 if (result.IsError)
                 {
                     return result.Errors;
@@ -78,14 +84,20 @@ namespace Reservant.Api.Services
             }
 
             var businessPermissionResult = await uploadService.ProcessUploadUriAsync(
-                request.BusinessPermission, user.Id, nameof(request.BusinessPermission));
+                request.BusinessPermission,
+                user.Id,
+                FileClass.Document,
+                nameof(request.BusinessPermission));
             if (businessPermissionResult.IsError)
             {
                 return businessPermissionResult.Errors;
             }
 
             var idCardResult = await uploadService.ProcessUploadUriAsync(
-                request.IdCard, user.Id, nameof(request.IdCard));
+                request.IdCard,
+                user.Id,
+                FileClass.Document,
+                nameof(request.IdCard));
             if (idCardResult.IsError)
             {
                 return idCardResult.Errors;

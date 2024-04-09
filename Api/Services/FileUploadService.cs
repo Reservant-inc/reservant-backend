@@ -10,6 +10,27 @@ using Reservant.Api.Validation;
 namespace Reservant.Api.Services;
 
 /// <summary>
+/// Used to restrict allowed file types in requests
+/// </summary>
+public enum FileClass
+{
+    /// <summary>
+    /// Images (png, jpeg etc.)
+    /// </summary>
+    Image,
+
+    /// <summary>
+    /// Documents (pdf etc.)
+    /// </summary>
+    Document,
+
+    /// <summary>
+    /// All other file types
+    /// </summary>
+    Unknown
+}
+
+/// <summary>
 /// Service for managing file uploads.
 /// </summary>
 public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContext context)
@@ -19,6 +40,12 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
         { "image/png", ".png" },
         { "image/jpeg", ".jpg" },
         { "application/pdf", ".pdf" }
+    };
+
+    private static readonly Dictionary<string, FileClass> FileClasses = new()
+    {
+        { ".png", FileClass.Image },
+        { ".pdf", FileClass.Document }
     };
 
     /// <summary>
@@ -85,10 +112,11 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     /// </summary>
     /// <param name="propertyName">Used as the member name in the returned errors</param>
     /// <param name="path">Value of the property to validate</param>
+    /// <param name="expectedFileClass">See <see cref="FileClass"/></param>
     /// <param name="userId">User that has to have access to the file (current user)</param>
     /// <returns>Result containing the file name of the upload</returns>
     public async Task<Result<string>> ProcessUploadUriAsync(
-        string path, string userId, string propertyName)
+        string path, string userId, FileClass expectedFileClass, string propertyName)
     {
         var errors = new List<ValidationResult>();
 
@@ -110,11 +138,22 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
             return errors;
         }
 
+        var fileClass = GetFileClass(Path.GetExtension(fileName));
+        if (fileClass != expectedFileClass)
+        {
+            errors.Add(new ValidationResult(
+                $"Expected {expectedFileClass}, got {fileClass}", [propertyName]));
+            return errors;
+        }
+
         return Path.GetFileName(path);
     }
 
     private static ReadOnlySpan<char> RemoveFinalSlash(ReadOnlySpan<char> path) =>
         path[^1] == '/' ? path[..^1] : path;
+
+    private static FileClass GetFileClass(string extension) =>
+        FileClasses.GetValueOrDefault(extension, FileClass.Unknown);
 
     /// <summary>
     /// Returns the URL path of the uploaded file
