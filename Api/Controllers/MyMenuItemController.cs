@@ -6,7 +6,7 @@ namespace Reservant.Api.Controllers;
 /// Registration and signing in and out.
 /// </summary>
 [ApiController, Route("/my-menu-item")]
-public class MyMenuItemController
+public class MyMenuItemController : Controller
 {
     
     
