@@ -60,7 +60,7 @@ public class MyMenuItemController(UserManager<User> userManager, MenuItemsServic
             return BadRequest();
         }
 
-        return Ok(res);
+        return Ok(res.Value);
     }
 
 
@@ -85,7 +85,7 @@ public class MyMenuItemController(UserManager<User> userManager, MenuItemsServic
         }
 
 
-        return Ok(res);
+        return Ok(res.Value);
     }
 
 }
