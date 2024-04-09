@@ -5,6 +5,7 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Reservant.Api.Services
 {
@@ -15,24 +16,11 @@ namespace Reservant.Api.Services
         {
             var errors = new List<ValidationResult>();
 
-            var restaurant = await context.Restaurants
-                .Include(r => r.Group)
-                .FirstOrDefaultAsync(r => r.Id == restaurantId);
+            var isRestaurantValid = await ValidateRestaurant(user, restaurantId);
 
-            if (restaurant == null)
+            if (isRestaurantValid.IsError)
             {
-                errors.Add(new ValidationResult(
-                    $"Restaurant: {restaurantId} not found."
-                ));
-                return errors;
-            }
-
-            if (restaurant.Group!.OwnerId != user.Id)
-            {
-                errors.Add(new ValidationResult(
-                    $"Restaurant: {restaurantId} doesn't belong to the restautantOwner."
-                ));
-                return errors;
+                return isRestaurantValid.Errors;
             }
 
             var menuItems = req.Select(item => new MenuItem()
@@ -56,6 +44,48 @@ namespace Reservant.Api.Services
 
             return menuItems;
 
+        }
+
+        public async Task<Result<List<MenuItem>>> GetMenuItemsAsync(User user, int restaurantId)
+        {
+            var errors = new List<ValidationResult>();
+
+            var isRestaurantValid = await ValidateRestaurant(user, restaurantId);
+
+            if (isRestaurantValid.IsError)
+            {
+                return isRestaurantValid.Errors;
+            }
+
+            return await context.MenuItems.Where(i => i.RestaurantId == restaurantId).ToListAsync();
+
+        }
+
+        private async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
+        {
+            var errors = new List<ValidationResult>();
+
+            var restaurant = await context.Restaurants
+                .Include(r => r.Group)
+                .FirstOrDefaultAsync(r => r.Id == restaurantId);
+
+            if (restaurant == null)
+            {
+                errors.Add(new ValidationResult(
+                    $"Restaurant: {restaurantId} not found."
+                ));
+                return errors;
+            }
+
+            if (restaurant.Group!.OwnerId != user.Id)
+            {
+                errors.Add(new ValidationResult(
+                    $"Restaurant: {restaurantId} doesn't belong to the restautantOwner."
+                ));
+                return errors;
+            }
+
+            return true;
         }
 
     }
