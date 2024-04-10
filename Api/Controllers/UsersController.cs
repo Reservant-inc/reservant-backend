@@ -26,7 +26,7 @@ namespace Reservant.Api.Controllers
             }
             User user = result.Value;
             if (user == null){ return NotFound(); }
-            return Ok(user);
+            return Ok();
         }
     }
 }
