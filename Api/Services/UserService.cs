@@ -19,39 +19,6 @@ namespace Reservant.Api.Services;
 public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 {
     /// <summary>
-    /// Register a new restaurant owner.
-    /// </summary>
-    public async Task<Result<User>> RegisterRestaurantOwnerAsync(RegisterRestaurantOwnerRequest request)
-    {
-        var user = new User
-        {
-            UserName = request.Email.Trim(),
-            Email = request.Email.Trim(),
-            PhoneNumber = request.PhoneNumber.Trim(),
-            FirstName = request.FirstName.Trim(),
-            LastName = request.LastName.Trim(),
-            RegisteredAt = DateTime.UtcNow
-
-        };
-
-        var errors = new List<ValidationResult>();
-        if (!ValidationUtils.TryValidate(user, errors))
-        {
-            return errors;
-        }
-
-        var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
-        {
-            return ValidationUtils.AsValidationErrors("", result);
-        }
-
-        await userManager.AddToRolesAsync(user, [Roles.RestaurantOwner]);
-        return user;
-    }
-
-
-    /// <summary>
     /// Register a new restaurant Customer Support Agent.
     /// </summary>
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(RegisterCustomerSupportAgentRequest request)
@@ -179,6 +146,15 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         await userManager.AddToRoleAsync(user, Roles.Customer);
 
+        return user;
+    }
+
+    public async Task<Result<User>> MakeRestaurantOwnerAsync(string id) {
+        var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
+        if (user == null) { return user; }
+        await userManager.AddToRoleAsync(user, Roles.RestaurantOwner);
+        dbContext.Users.Update(user);
+        dbContext.SaveChanges();
         return user;
     }
 

@@ -54,10 +54,11 @@ internal class DbSeeder(
             }
         );
 
-        var johnDoe = (await userService.RegisterRestaurantOwnerAsync(new RegisterRestaurantOwnerRequest
+        var johnDoe = (await userService.RegisterCustomerAsync(new Models.Dtos.RegisterCustomerRequest
         {
             FirstName = "John",
             LastName = "Doe",
+            Login = "JD",
             Email = "john@doe.pl",
             PhoneNumber = "+48123456789",
             Password = "Pa$$w0rd"

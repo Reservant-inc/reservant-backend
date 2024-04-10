@@ -29,23 +29,6 @@ public class AuthController(
     private readonly JwtSecurityTokenHandler _handler = new();
 
     /// <summary>
-    /// Register a restaurant owner.
-    /// </summary>
-    [HttpPost("register-restaurant-owner")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult> RegisterRestaurantOwner(RegisterRestaurantOwnerRequest request)
-    {
-        var result = await userService.RegisterRestaurantOwnerAsync(request);
-        if (result.IsError)
-        {
-            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return ValidationProblem();
-        }
-
-        return Ok();
-    }
-
-    /// <summary>
     /// Endpoint for restaurant owners to register their employees.
     /// </summary>
     /// <param name="request"></param>
