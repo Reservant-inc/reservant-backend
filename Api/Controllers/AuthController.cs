@@ -161,13 +161,13 @@ public class AuthController(
     }
 
     /// <summary>
-    /// check if mail is aviable
+    /// check if login is aviable
     /// </summary>
-    [HttpGet("is-unique-mail")]
+    [HttpGet("is-unique-login")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult> IsUniqueMail(String mail)
+    public async Task<ActionResult> IsUniqueLogin(String login)
     {
-        var result = await userService.IsUniqueMailAsync(mail);
+        var result = await userService.IsUniqueLoginAsync(login);
 
         return Ok(result);
     }
