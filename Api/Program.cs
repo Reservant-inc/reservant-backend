@@ -22,7 +22,7 @@ builder.Services.AddOptions<FileUploadsOptions>()
     .BindConfiguration(FileUploadsOptions.ConfigSection)
     .ValidateDataAnnotations()
     .Validate(
-        o => Path.EndsInDirectorySeparator(o.SavePath) && Path.Exists(o.SavePath),
+        o => Path.EndsInDirectorySeparator(o.GetFullSavePath()) && Path.Exists(o.GetFullSavePath()),
         $"{nameof(FileUploadsOptions.SavePath)} must exist and end with /")
     .Validate(
         o => !Path.EndsInDirectorySeparator(o.ServePath),
@@ -151,7 +151,7 @@ using (var scope = app.Services.CreateScope())
     var fileUploadsOptions = scope.ServiceProvider.GetRequiredService<IOptions<FileUploadsOptions>>().Value;
     app.UseStaticFiles(new StaticFileOptions
     {
-        FileProvider = new PhysicalFileProvider(fileUploadsOptions.SavePath),
+        FileProvider = new PhysicalFileProvider(fileUploadsOptions.GetFullSavePath()),
         RequestPath = fileUploadsOptions.ServePath
     });
 }

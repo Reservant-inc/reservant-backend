@@ -74,7 +74,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
 
         var fileName = Guid.NewGuid() + fileExtension;
 
-        var filePath = Path.Combine(options.Value.SavePath, fileName);
+        var filePath = Path.Combine(options.Value.GetFullSavePath(), fileName);
         await using var disk = new FileStream(filePath, FileMode.Create);
         await request.File.CopyToAsync(disk);
 

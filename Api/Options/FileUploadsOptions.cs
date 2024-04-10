@@ -35,4 +35,9 @@ public class FileUploadsOptions
     /// </summary>
     [Range(1, int.MaxValue)]
     public int MaxSizeKb { get; init; }
+
+    /// <summary>
+    /// Return absolute to SavePath
+    /// </summary>
+    public string GetFullSavePath() => Path.GetFullPath(SavePath);
 }
