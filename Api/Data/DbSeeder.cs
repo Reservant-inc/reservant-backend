@@ -63,6 +63,7 @@ internal class DbSeeder(
             PhoneNumber = "+48123456789",
             Password = "Pa$$w0rd"
         })).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
         context.RestaurantGroups.Add(new RestaurantGroup
         {
