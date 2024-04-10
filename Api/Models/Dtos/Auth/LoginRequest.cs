@@ -6,7 +6,7 @@ namespace Reservant.Api.Models.Dtos.Auth;
 
 public class LoginRequest
 {
-    /// <example>john@doe.pl</example>
+    /// <example>JD</example>
     [Required, StringLength(50)]
     public required string Login { get; init; }
 
