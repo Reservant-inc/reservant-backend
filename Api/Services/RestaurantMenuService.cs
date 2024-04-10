@@ -83,29 +83,35 @@ public class RestaurantMenuService(ApiDbContext context)
     /// </summary>
     /// <param name="req">Request for Menu to be created.</param>
     /// <returns></returns>
-    public async Task<Result<Menu>> PostMenuToRestaurant(CreateMenuRequest req)
+    public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(int restaurantId, CreateMenuRequest req)
     {
-        var restaurant = await context.Restaurants.FindAsync(req.RestaurantId);
-        // var errors = new List<ValidationResult>();
-        //     
-        // if (restaurant == null)
-        // {
-        //     errors.Add(new ValidationResult($"Restaurant with id: {req.RestaurantId} not found.", [nameof(req.RestaurantId)]));
-        //     return errors;
-        // }
+        var restaurant = await context.Restaurants.FindAsync(restaurantId);
+        var errors = new List<ValidationResult>();
+            
+        if (restaurant == null)
+        {
+            errors.Add(new ValidationResult($"Restaurant with id: {restaurantId} not found.", [nameof(restaurantId)]));
+            return errors;
+        }
 
         var newMenu = new Menu
         {
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
-            RestaurantId = req.RestaurantId
+            RestaurantId = restaurantId
         };
 
         context.Menus.Add(newMenu);
         await context.SaveChangesAsync();
 
-        return newMenu;
+        return new MenuSummaryVM
+        {
+            Id = newMenu.Id,
+            MenuType = newMenu.MenuType,
+            DateFrom = newMenu.DateFrom,
+            DateUntil = newMenu.DateUntil
+        };
     }
 
     

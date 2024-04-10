@@ -50,20 +50,18 @@ public class MyMenuItemController(RestaurantMenuService service) : Controller
     /// </summary>
     /// <param name="req">Request for Menu to be created.</param>
     /// <returns></returns>
-    [HttpPost("{id:int}/menus")]
+    [HttpPost("{restaurantId:int}/menus")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult> CreateMenu(CreateMenuRequest req)
+    public async Task<ActionResult> CreateMenu(int restaurantId, CreateMenuRequest req)
     {
-        var result = await service.PostMenuToRestaurant(req);
+        var result = await service.PostMenuToRestaurant(restaurantId, req);
 
-        // if (result.IsError)
-        // {
-        //     ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-        //     return ValidationProblem();
-        // }
+        if (!result.IsError) return Ok(result.Value);
 
-        return Ok(result);
+        ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+        return ValidationProblem();
+
     }
     
 }
