@@ -1,21 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Options;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Reservant.Api.Controllers
 {
     [ApiController, Route("/users")]
-    public class UsersController(UserService userService, UserManager<User> userManager, IOptions<JwtOptions> jwtOptions) : Controller
+    public class UsersController(UserService userService) : Controller
     {
-
-        private readonly JwtSecurityTokenHandler _handler = new();
         /// <summary>
         /// Sets Restaurant Owner role for specified user
         /// </summary>
