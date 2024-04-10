@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers
         /// <param name="id">id of the user</param>
         /// <returns></returns>
         [ProducesResponseType(200), ProducesResponseType(404)]
-        [HttpPost("/{id}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
+        [HttpPost("{id}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
         public async Task<ActionResult> MakeRestaurantOwner(string id) {
             var result = await userService.MakeRestaurantOwnerAsync(id);
             if (result.IsError)
