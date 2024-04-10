@@ -16,7 +16,7 @@ public class FileUploadsOptions
     /// Folder to save file uploads to
     /// </summary>
     /// <remarks>
-    /// Must exist at startup and end with /
+    /// Must end with /
     /// </remarks>
     [Required]
     public required string SavePath { get; init; }

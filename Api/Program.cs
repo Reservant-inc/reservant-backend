@@ -22,8 +22,8 @@ builder.Services.AddOptions<FileUploadsOptions>()
     .BindConfiguration(FileUploadsOptions.ConfigSection)
     .ValidateDataAnnotations()
     .Validate(
-        o => Path.EndsInDirectorySeparator(o.GetFullSavePath()) && Path.Exists(o.GetFullSavePath()),
-        $"{nameof(FileUploadsOptions.SavePath)} must exist and end with /")
+        o => Path.EndsInDirectorySeparator(o.GetFullSavePath()),
+        $"{nameof(FileUploadsOptions.SavePath)} must end with /")
     .Validate(
         o => !Path.EndsInDirectorySeparator(o.ServePath),
         $"{nameof(FileUploadsOptions.ServePath)} must not end with /")
@@ -149,6 +149,11 @@ app.UseSwaggerUI();
 using (var scope = app.Services.CreateScope())
 {
     var fileUploadsOptions = scope.ServiceProvider.GetRequiredService<IOptions<FileUploadsOptions>>().Value;
+    if (!Path.Exists(fileUploadsOptions.GetFullSavePath()))
+    {
+        Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
+    }
+    
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(fileUploadsOptions.GetFullSavePath()),
