@@ -102,7 +102,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
 
         return new UploadVM
         {
-            Path = Path.Combine(options.Value.ServePath, fileName),
+            Path = GetPathForFileName(fileName),
             ContentType = contentType
         };
     }
@@ -161,5 +161,5 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     /// <param name="fileName"></param>
     /// <returns></returns>
     public string GetPathForFileName(string fileName) =>
-        Path.Combine(options.Value.ServePath, fileName);
+        options.Value.ServePath + '/' + fileName;
 }

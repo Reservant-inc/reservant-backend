@@ -24,6 +24,9 @@ builder.Services.AddOptions<FileUploadsOptions>()
     .Validate(
         o => Path.EndsInDirectorySeparator(o.SavePath) && Path.Exists(o.SavePath),
         $"{nameof(FileUploadsOptions.SavePath)} must exist and end with /")
+    .Validate(
+        o => !Path.EndsInDirectorySeparator(o.ServePath),
+        $"{nameof(FileUploadsOptions.ServePath)} must not end with /")
     .ValidateOnStart();
 
 builder.Services.AddCors(o =>

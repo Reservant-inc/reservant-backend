@@ -24,6 +24,9 @@ public class FileUploadsOptions
     /// <summary>
     /// Path to serve the uploaded files on
     /// </summary>
+    /// <remarks>
+    /// Must not end with /
+    /// </remarks>
     [Required]
     public required string ServePath { get; init; }
 
