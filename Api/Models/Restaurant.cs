@@ -107,4 +107,9 @@ public class Restaurant
     /// Navigation property for the ID card
     /// </summary>
     public FileUpload? IdCard { get; set; }
+
+    /// <summary>
+    /// Proof of verification by specific CustomerSupportAgent
+    /// </summary>
+    public int? VerifierId { get; set; }
 }

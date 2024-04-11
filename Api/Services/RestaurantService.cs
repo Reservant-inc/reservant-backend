@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Restaurant;
@@ -8,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Services
 {
+    /// <param name="context">context</param>
     public class RestaurantService(ApiDbContext context, FileUploadService uploadService)
     {
         /// <summary>
@@ -184,6 +186,35 @@ namespace Reservant.Api.Services
                 })
                 .FirstOrDefaultAsync();
             return result;
+        }
+
+        
+        /// <summary>
+        /// Returns a specific restaurant owned by the user.
+        /// </summary>
+        /// <param name="idUser"></param>
+        /// <param name="idRestaurant"> Id of the restaurant.</param>
+        /// <returns></returns>
+        public async Task<bool> setVerifierIdAsync(int idUser, int idRestaurant)
+        {
+            var result = await context
+            .Restaurants
+            .Where(r => r.Id == idRestaurant)
+            .AnyAsync();
+
+            if(!result)
+                return false;
+
+            await context
+            .Restaurants
+            .Where (r => r.Id == idRestaurant)    
+            .ForEachAsync(r =>
+            {
+                //r.VerifierId = idUser;
+                r.Name="aaaaa";
+            });//RZEKOMO NIE ISTNIEJE VERIFIEDID, ALE MÓWI TAK TEŻ O NAME
+
+            return true;
         }
     }
 }
