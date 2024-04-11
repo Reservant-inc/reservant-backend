@@ -45,33 +45,5 @@ namespace Reservant.Api.Controllers
 
         }
         
-        /// <summary>
-        /// Deletes a specific restaurant group
-        /// </summary>
-        [HttpDelete("{id:int}"), Authorize(Roles = Roles.RestaurantOwner)]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult<bool>> DeleteRestaurantGroup(int id)
-        {
-            var user = await userManager.GetUserAsync(User);
-            var result = await groupService.DeleteRestaurantGroupAsync(id, user.Id);
-
-            try
-            {
-                return Ok(result.OrThrow());
-            }
-            catch (InvalidOperationException ex)
-            {
-                if (ex.Message.Contains("not found"))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    return Forbid();
-                }
-            }
-        }
     }
 }

@@ -43,29 +43,6 @@ namespace Reservant.Api.Services
                 }).ToList()
             });
         }
-        /// <summary>
-        /// Deletes a restaurant group.
-        /// </summary>
-        /// <param name="groupId">The ID of the restaurant group to delete.</param>
-        /// <param name="userId">The ID of the user requesting the deletion.</param>
-        /// <returns>A <see cref="Task{Result}"/> representing the asynchronous operation, containing the result of the operation.</returns>
-        public async Task<Result<bool>> DeleteRestaurantGroupAsync(int groupId, string userId)
-        {
-            var restaurantGroup = await context.RestaurantGroups
-                .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId);
-            
-            if (restaurantGroup == null)
-            {
-                return new Result<bool>([
-                    new ValidationResult($"RestaurantGroup with ID {groupId} not found.")
-                ]);
-            }
-
-            context.RestaurantGroups.Remove(restaurantGroup);
-            await context.SaveChangesAsync();
-
-            return new Result<bool>(true);
-        }
 
     }
 }
