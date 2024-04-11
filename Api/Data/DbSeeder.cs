@@ -136,7 +136,9 @@ internal class DbSeeder(
                     Id = 4,
                     Capacity = 6
                 }
-            ]
+            ],
+            VerifierId = null!
+
         };
         context.Restaurants.Add(johnDoes);
 
@@ -247,7 +249,8 @@ internal class DbSeeder(
                     Id = 4,
                     Capacity = 4
                 }
-            ]
+            ],
+            VerifierId = null!
         };
         context.Restaurants.Add(johnDoes2);
 

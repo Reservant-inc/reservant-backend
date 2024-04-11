@@ -195,7 +195,7 @@ namespace Reservant.Api.Services
         /// <param name="idUser"></param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<bool> setVerifierIdAsync(int idUser, int idRestaurant)
+        public async Task<bool> setVerifierIdAsync(User user, int idRestaurant)
         {
             var result = await context
             .Restaurants
@@ -210,9 +210,8 @@ namespace Reservant.Api.Services
             .Where (r => r.Id == idRestaurant)    
             .ForEachAsync(r =>
             {
-                //r.VerifierId = idUser;
-                r.Name="aaaaa";
-            });//RZEKOMO NIE ISTNIEJE VERIFIEDID, ALE MÓWI TAK TEŻ O NAME
+                r.VerifierId=user.Id;
+            });
 
             return true;
         }

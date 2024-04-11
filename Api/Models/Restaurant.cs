@@ -111,5 +111,5 @@ public class Restaurant
     /// <summary>
     /// Proof of verification by specific CustomerSupportAgent
     /// </summary>
-    public int? VerifierId { get; set; }
+    public string? VerifierId { get; set; }
 }
