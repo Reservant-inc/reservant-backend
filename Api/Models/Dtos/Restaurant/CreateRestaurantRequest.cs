@@ -18,7 +18,7 @@ public class CreateRestaurantRequest
     /// <summary>
     /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a> associated with the restaurant
     /// </summary>
-    /// <example>022-41-11-111</example>
+    /// <example>1231264550</example>
     [Required, Nip]
     public required string Nip { get; init; }
 
