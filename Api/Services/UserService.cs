@@ -128,7 +128,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             PhoneNumber = request.PhoneNumber.Trim(),
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
-            BirthDate = DateOnly.FromDateTime(request.BirthDate),
+            BirthDate = request.BirthDate,
             RegisteredAt = DateTime.UtcNow
         };
 
