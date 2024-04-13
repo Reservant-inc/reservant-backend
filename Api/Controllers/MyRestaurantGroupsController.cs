@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -54,7 +55,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// </summary>
     /// <returns>RestaurantGroupSummaryVM</returns>
     [HttpGet]
-    [ProducesResponseType(200),ProducesResponseType(401)]
+    [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult<List<RestaurantGroupSummaryVM>>> GetMyRestaurantGroupSummary()
     {
         var user = await userManager.GetUserAsync(User);
@@ -65,5 +66,35 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
 
         var result = await service.GetUsersRestaurantGroupSummary(user);
         return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Retrieves information about a specific restaurant group
+    /// </summary>
+    [HttpGet("{id:int}"), Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<RestaurantGroupVM>> GetRestaurantGroup(int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+        var result = await service.GetRestaurantGroupAsync(id, user.Id);
+
+        try
+        {
+            return Ok(result.OrThrow());
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message.Contains("not found"))
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Forbid();
+            }
+        }
+
     }
 }
