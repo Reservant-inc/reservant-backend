@@ -14,9 +14,9 @@ namespace Reservant.Api.Controllers;
 /// <param name="userManager"></param>
 /// <param name="service"></param>
 
-[ApiController, Route("/my-restaurant-groups/{restaurantId}/menu-items")]
+[ApiController, Route("/my-restaurants/{restaurantId:int}/menu-items")]
 [Authorize(Roles = Roles.RestaurantOwner)]
-public class MyMenuItemController(UserManager<User> userManager, MenuItemsService service): Controller
+public class MenuItemController(UserManager<User> userManager, MenuItemsService service): Controller
 {
 
     /// <summary>
@@ -71,7 +71,7 @@ public class MyMenuItemController(UserManager<User> userManager, MenuItemsServic
     /// <param name="itemId">Id of the menuItem</param>
     /// <returns>The found menu item</returns>
     [HttpGet]
-    [Route("{itemId}")]
+    [Route("{itemId:int}")]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int restaurantId, int itemId)
     {
