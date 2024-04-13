@@ -153,8 +153,6 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
         if (user == null) { return user; }
         await userManager.AddToRoleAsync(user, Roles.RestaurantOwner);
-        dbContext.Users.Update(user);
-        dbContext.SaveChanges();
         return user;
     }
 
