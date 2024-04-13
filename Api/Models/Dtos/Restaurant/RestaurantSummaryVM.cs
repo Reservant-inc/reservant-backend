@@ -38,5 +38,10 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// <example>Warszawa</example>
         [Required, StringLength(15)]
         public required string City { get; init; }
+
+        /// <summary>
+        /// Restaurant group ID
+        /// </summary>
+        public required int GroupId { get; set; }
     }
 }

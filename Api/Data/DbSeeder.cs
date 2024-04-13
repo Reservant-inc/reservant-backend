@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Services;
 
@@ -54,14 +55,15 @@ internal class DbSeeder(
             }
         );
 
-        var johnDoe = (await userService.RegisterCustomerAsync(new Models.Dtos.RegisterCustomerRequest
+        var johnDoe = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             FirstName = "John",
             LastName = "Doe",
             Login = "JD",
             Email = "john@doe.pl",
             PhoneNumber = "+48123456789",
-            Password = "Pa$$w0rd"
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1990, 2, 3)
         })).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
@@ -72,6 +74,44 @@ internal class DbSeeder(
             OwnerId = johnDoe.Id
         });
 
+        await CreateJohnDoesRestaurant(johnDoe);
+        await CreateJohnDoes2Restaurant(johnDoe);
+
+        (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            Login = "customer",
+            Email = "customer@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Customer",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789",
+            BirthDate = new DateOnly(2000, 1, 1)
+        })).OrThrow();
+
+        (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
+        {
+            Email = "support@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Pracownik BOK",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789"
+        })).OrThrow();
+
+        (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
+        {
+            Email = "manager@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Kierownik BOK",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789",
+            IsManager = true
+        })).OrThrow();
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task CreateJohnDoesRestaurant(User johnDoe)
+    {
         var johnDoes = new Restaurant
         {
             Id = 1,
@@ -177,12 +217,41 @@ internal class DbSeeder(
                 {
                     Name = "Piwo",
                     Price = 8m,
-                    AlcoholPercentage = null,
+                    AlcoholPercentage = 4.6m,
                     RestaurantId = johnDoes.Id,
                 }
             ]
         });
 
+        await context.SaveChangesAsync();
+
+        (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
+        {
+            Login = "hall",
+            Password = "Pa$$w0rd",
+            FirstName = "Pracownik Sali",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789",
+            RestaurantId = johnDoes.Id,
+            IsBackdoorEmployee = false,
+            IsHallEmployee = true
+        }, johnDoe)).OrThrow();
+
+        (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
+        {
+            Login = "backdoors",
+            Password = "Pa$$w0rd",
+            FirstName = "Pracownik Zaplecza",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789",
+            RestaurantId = johnDoes.Id,
+            IsBackdoorEmployee = true,
+            IsHallEmployee = false
+        }, johnDoe)).OrThrow();
+    }
+
+    private async Task CreateJohnDoes2Restaurant(User johnDoe)
+    {
         var johnDoes2 = new Restaurant
         {
             Id = 2,
@@ -256,7 +325,7 @@ internal class DbSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            RestaurantId = johnDoes.Id,
+            RestaurantId = johnDoes2.Id,
             MenuItems =
             [
                 new MenuItem
@@ -264,18 +333,30 @@ internal class DbSeeder(
                     Name = "Kotlet schabowy",
                     Price = 19m,
                     AlcoholPercentage = null,
-                    RestaurantId = johnDoes.Id,
+                    RestaurantId = johnDoes2.Id,
                 },
                 new MenuItem
                 {
                     Name = "Zupa pomidorowa",
                     Price = 7m,
                     AlcoholPercentage = null,
-                    RestaurantId = johnDoes.Id,
+                    RestaurantId = johnDoes2.Id,
                 }
             ]
         });
 
         await context.SaveChangesAsync();
+
+        (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
+        {
+            Login = "employee",
+            Password = "Pa$$w0rd",
+            FirstName = "Pracownik 2",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789",
+            RestaurantId = johnDoes2.Id,
+            IsBackdoorEmployee = true,
+            IsHallEmployee = true
+        }, johnDoe)).OrThrow();
     }
 }

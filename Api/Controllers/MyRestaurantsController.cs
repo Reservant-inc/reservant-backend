@@ -11,12 +11,11 @@ namespace Reservant.Api.Controllers
 {
     /// <summary>
     /// Controller resposnible for registration of a new restaurant, listing owned restaurants and accessing restaurant data
-    /// Only RestaurantOwner can use this controller
     /// </summary>
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
-    [Authorize(Roles = Roles.RestaurantOwner)]
+    [Authorize(Roles = Roles.Customer)]
     public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager) : Controller
     {
         /// <summary>

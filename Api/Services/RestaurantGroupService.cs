@@ -4,6 +4,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Restaurant;
 
 namespace Reservant.Api.Services;
 
@@ -93,5 +95,40 @@ public class RestaurantGroupService(ApiDbContext context)
             .ToListAsync();
 
         return result;
+    }
+
+    /// <summary>
+    /// Retrieves information about a specific restaurant group.
+    /// </summary>
+    /// <param name="groupId">The ID of the restaurant group.</param>
+    /// <param name="userId">The ID of the user requesting the information.</param>
+    /// <returns>A <see cref="Task{Result}"/> representing the asynchronous operation, containing the result of the operation.</returns>
+    public async Task<Result<RestaurantGroupVM>> GetRestaurantGroupAsync(int groupId, string userId)
+    {
+        var restaurantGroup = await context.RestaurantGroups
+            .Include(rg => rg.Restaurants)
+            .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId);
+
+        if (restaurantGroup == null)
+        {
+            return new Result<RestaurantGroupVM>([
+                new ValidationResult($"RestaurantGroup with ID {groupId} not found.")
+            ]);
+        }
+
+        return new Result<RestaurantGroupVM>(new RestaurantGroupVM
+        {
+            Id = restaurantGroup.Id,
+            Name = restaurantGroup.Name,
+            Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Address = r.Address,
+                RestaurantType = r.RestaurantType,
+                City = r.City,
+                GroupId = r.GroupId
+            }).ToList()
+        });
     }
 }

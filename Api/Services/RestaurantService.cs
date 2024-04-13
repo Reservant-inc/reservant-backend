@@ -142,7 +142,8 @@ namespace Reservant.Api.Services
                                                     Name = r.Name,
                                                     RestaurantType = r.RestaurantType,
                                                     Address = r.Address,
-                                                    City = r.City
+                                                    City = r.City,
+                                                    GroupId = r.GroupId
                                                   })
                                                   .ToListAsync();
             return result;

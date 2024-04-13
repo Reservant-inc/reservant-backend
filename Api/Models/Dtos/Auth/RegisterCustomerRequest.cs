@@ -20,8 +20,8 @@ public class RegisterCustomerRequest
     [Required, StringLength(15), Phone]
     public required string PhoneNumber { get; init; }
 
-    [Required, DataType(DataType.Date)]
-    public DateTime BirthDate { get; init; }
+    [Required]
+    public DateOnly BirthDate { get; init; }
 
     [Required, StringLength(50)]
     public required string Password { get; init; }
