@@ -8,6 +8,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Validation;
 
 
@@ -19,50 +20,17 @@ namespace Reservant.Api.Services;
 public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 {
     /// <summary>
-    /// Register a new restaurant owner.
-    /// </summary>
-    public async Task<Result<User>> RegisterRestaurantOwnerAsync(RegisterRestaurantOwnerRequest request)
-    {
-        var user = new User
-        {
-            UserName = request.Email,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            RegisteredAt = DateTime.UtcNow
-
-        };
-
-        var errors = new List<ValidationResult>();
-        if (!ValidationUtils.TryValidate(user, errors))
-        {
-            return errors;
-        }
-
-        var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
-        {
-            return ValidationUtils.AsValidationErrors("", result);
-        }
-
-        await userManager.AddToRolesAsync(user, [Roles.RestaurantOwner]);
-        return user;
-    }
-
-
-    /// <summary>
     /// Register a new restaurant Customer Support Agent.
     /// </summary>
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(RegisterCustomerSupportAgentRequest request)
     {
         var user = new User
         {
-            UserName = request.Email,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            UserName = request.Email.Trim(),
+            Email = request.Email.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
             RegisteredAt = DateTime.UtcNow
         };
 
@@ -110,14 +78,14 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             errors.Add(new ValidationResult($"Not authorized to access restaurant with ID {request.RestaurantId}.", [nameof(request.RestaurantId)]));
             return errors;
         }
-        
-        var username = restaurant.Id + "+" + request.Login;
-        
+
+        var username = restaurant.Id + "+" + request.Login.Trim();
+
         var employee = new User {
-            UserName = username, 
-            FirstName = request.FirstName, 
-            LastName = request.LastName, 
-            PhoneNumber = request.PhoneNumber, 
+            UserName = username,
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
             RegisteredAt = DateTime.UtcNow,
         };
         
@@ -156,11 +124,11 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         
         var user = new User
         {
-            UserName = request.Login,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            UserName = request.Login.Trim(),
+            Email = request.Email.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
             BirthDate = DateOnly.FromDateTime(request.BirthDate),
             RegisteredAt = DateTime.UtcNow
         };
@@ -183,18 +151,27 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     }
 
     /// <summary>
-    /// returns whether mail provided is unique among registered users
+    /// returns whether username provided is unique among registered users (login)
     /// </summary>
     /// <returns>Task<bool></returns>
-    public async Task<bool> isUniqueAsync(string mail)
+    public async Task<bool> isUniqueUsernameAsync(string name)
     {
         var result = await dbContext
             .Users
-            .Where(r => r.Email == mail)
-            .CountAsync();
+            .Where(r => r.UserName == name)
+            .AnyAsync();
         
-        return (result==0);     
+        return (!result);     
     }
+    public async Task<Result<User>> MakeRestaurantOwnerAsync(string id) {
+        var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
+        if (user == null) { return user; }
+        await userManager.AddToRoleAsync(user, Roles.RestaurantOwner);
+        dbContext.Users.Update(user);
+        dbContext.SaveChanges();
+        return user;
+    }
+
 
 
 

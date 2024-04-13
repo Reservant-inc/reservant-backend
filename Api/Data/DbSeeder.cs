@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Data;
@@ -54,14 +54,16 @@ internal class DbSeeder(
             }
         );
 
-        var johnDoe = (await userService.RegisterRestaurantOwnerAsync(new RegisterRestaurantOwnerRequest
+        var johnDoe = (await userService.RegisterCustomerAsync(new Models.Dtos.RegisterCustomerRequest
         {
             FirstName = "John",
             LastName = "Doe",
+            Login = "JD",
             Email = "john@doe.pl",
             PhoneNumber = "+48123456789",
             Password = "Pa$$w0rd"
         })).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
         context.RestaurantGroups.Add(new RestaurantGroup
         {
@@ -70,13 +72,46 @@ internal class DbSeeder(
             OwnerId = johnDoe.Id
         });
 
-        context.Restaurants.Add(new Restaurant
+        var johnDoes = new Restaurant
         {
             Id = 1,
             Name = "John Doe's",
-            Address = "Warszawa, ul. Marszałkowska 2",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "000-00-00-000",
+            Address = "ul. Marszałkowska 2",
+            PostalIndex = "00-000",
+            City = "Warszawa",
             GroupId = 1,
-            Tables = [
+            RentalContractFileName = null!,
+            RentalContract = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "rental-contract-1.pdf",
+                ContentType = "application/pdf"
+            },
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "alcohol-license-1.pdf",
+                ContentType = "application/pdf"
+            },
+            BusinessPermissionFileName = null!,
+            BusinessPermission = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "business-permission-1.pdf",
+                ContentType = "application/pdf"
+            },
+            IdCardFileName = null!,
+            IdCard = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "id-card-1.pdf",
+                ContentType = "application/pdf"
+            },
+            Tables =
+            [
                 new Table
                 {
                     RestaurantId = 1,
@@ -102,15 +137,92 @@ internal class DbSeeder(
                     Capacity = 6
                 }
             ]
+        };
+        context.Restaurants.Add(johnDoes);
+
+        context.Menus.Add(new Menu
+        {
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            RestaurantId = johnDoes.Id,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Burger",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                },
+                new MenuItem
+                {
+                    Name = "Cheeseburger",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                }
+            ]
         });
 
-        context.Restaurants.Add(new Restaurant
+        context.Menus.Add(new Menu
+        {
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            MenuType = MenuType.Alcohol,
+            RestaurantId = johnDoes.Id,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                }
+            ]
+        });
+
+        var johnDoes2 = new Restaurant
         {
             Id = 2,
             Name = "John Doe's 2",
-            Address = "Warszawa, ul. Koszykowa 10",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "000-00-00-000",
+            Address = "ul. Koszykowa 10",
+            PostalIndex = "00-000",
+            City = "Warszawa",
             GroupId = 1,
-            Tables = [
+            RentalContractFileName = null!,
+            RentalContract = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "rental-contract-2.pdf",
+                ContentType = "application/pdf"
+            },
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "alcohol-license-2.pdf",
+                ContentType = "application/pdf"
+            },
+            BusinessPermissionFileName = null!,
+            BusinessPermission = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "business-permission-2.pdf",
+                ContentType = "application/pdf"
+            },
+            IdCardFileName = null!,
+            IdCard = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "id-card-2.pdf",
+                ContentType = "application/pdf"
+            },
+            Tables =
+            [
                 new Table
                 {
                     RestaurantId = 2,
@@ -134,6 +246,32 @@ internal class DbSeeder(
                     RestaurantId = 2,
                     Id = 4,
                     Capacity = 4
+                }
+            ]
+        };
+        context.Restaurants.Add(johnDoes2);
+
+        context.Menus.Add(new Menu
+        {
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            RestaurantId = johnDoes.Id,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Kotlet schabowy",
+                    Price = 19m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
+                },
+                new MenuItem
+                {
+                    Name = "Zupa pomidorowa",
+                    Price = 7m,
+                    AlcoholPercentage = null,
+                    RestaurantId = johnDoes.Id,
                 }
             ]
         });

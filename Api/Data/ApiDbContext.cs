@@ -9,11 +9,17 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 {
     public required DbSet<WeatherForecast> WeatherForecasts { get; init; }
 
+    public DbSet<FileUpload> FileUploads { get; init; } = null!;
+
     public DbSet<Restaurant> Restaurants { get; init; } = null!;
 
     public DbSet<Table> Tables { get; init; } = null!;
 
     public DbSet<RestaurantGroup> RestaurantGroups { get; init; } = null!;
+
+    public DbSet<Menu> Menus { get; init; } = null!;
+
+    public DbSet<MenuItem> MenuItems { get; init; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -16,7 +16,8 @@ pipeline {
             }
             steps {
                 sh "docker stop kuchnia || true"
-                sh "docker run --detach --rm --name kuchnia -p 12038:8080 ${imageTag}"
+                sh "docker rm kuchnia || true"
+                sh "docker run --detach --name kuchnia -p 12038:8080 -v /var/lib/docker/volumes/kuchnia_config/_data/config.json:/app/appsettings.Production.json ${imageTag}"
             }
         }
     }

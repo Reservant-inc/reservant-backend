@@ -1,7 +1,11 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
@@ -9,8 +13,21 @@ using Reservant.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var config = builder.Configuration;
-builder.Services.Configure<JwtOptions>(config.GetSection(JwtOptions.ConfigSection));
+builder.Services.AddOptions<JwtOptions>()
+    .BindConfiguration(JwtOptions.ConfigSection)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddOptions<FileUploadsOptions>()
+    .BindConfiguration(FileUploadsOptions.ConfigSection)
+    .ValidateDataAnnotations()
+    .Validate(
+        o => Path.EndsInDirectorySeparator(o.GetFullSavePath()),
+        $"{nameof(FileUploadsOptions.SavePath)} must end with /")
+    .Validate(
+        o => !Path.EndsInDirectorySeparator(o.ServePath),
+        $"{nameof(FileUploadsOptions.ServePath)} must not end with /")
+    .ValidateOnStart();
 
 builder.Services.AddCors(o =>
 {
@@ -32,14 +49,14 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(o =>
     {
-        var jwtOptions = config.GetSection(JwtOptions.ConfigSection)
+        var jwtOptions = builder.Configuration.GetSection(JwtOptions.ConfigSection)
             .Get<JwtOptions>() ?? throw new InvalidOperationException("Failed to read JwtOptions");
 
         o.TokenValidationParameters = new TokenValidationParameters
         {
             ValidIssuer = jwtOptions.Issuer,
             ValidAudience = jwtOptions.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(jwtOptions.KeyBytes),
+            IssuerSigningKey = new SymmetricSecurityKey(jwtOptions.GetKeyBytes()),
             ValidateIssuerSigningKey = true
         };
     });
@@ -75,11 +92,38 @@ builder.Services.AddSwaggerGen(options =>
 {
     var filePath = Path.Combine(AppContext.BaseDirectory, "Api.xml");
     options.IncludeXmlComments(filePath, includeControllerXmlComments: true);
+
+    var jwtSecurityScheme = new OpenApiSecurityScheme
+    {
+        Description = "Your JWT Token",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        BearerFormat = "JWT",
+        Reference = new OpenApiReference
+        {
+            Id = "JWT Bearer",
+            Type = ReferenceType.SecurityScheme
+        }
+    };
+
+    options.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        { jwtSecurityScheme, new List<string>() }
+    });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<FileUploadService>();
 builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<RestaurantGroupService>();
 builder.Services.AddScoped<RestaurantGroupService>();
@@ -101,6 +145,21 @@ app.UseCors();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+using (var scope = app.Services.CreateScope())
+{
+    var fileUploadsOptions = scope.ServiceProvider.GetRequiredService<IOptions<FileUploadsOptions>>().Value;
+    if (!Path.Exists(fileUploadsOptions.GetFullSavePath()))
+    {
+        Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
+    }
+    
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(fileUploadsOptions.GetFullSavePath()),
+        RequestPath = fileUploadsOptions.ServePath
+    });
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

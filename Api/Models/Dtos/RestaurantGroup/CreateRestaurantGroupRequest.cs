@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-namespace Reservant.Api.Models.Dtos;
+namespace Reservant.Api.Models.Dtos.RestaurantGroup;
 
 public class CreateRestaurantGroupRequest
 {

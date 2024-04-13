@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -26,23 +27,6 @@ public class AuthController(
     : Controller
 {
     private readonly JwtSecurityTokenHandler _handler = new();
-
-    /// <summary>
-    /// Register a restaurant owner.
-    /// </summary>
-    [HttpPost("register-restaurant-owner")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult> RegisterRestaurantOwner(RegisterRestaurantOwnerRequest request)
-    {
-        var result = await userService.RegisterRestaurantOwnerAsync(request);
-        if (result.IsError)
-        {
-            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return ValidationProblem();
-        }
-
-        return Ok();
-    }
 
     /// <summary>
     /// Endpoint for restaurant owners to register their employees.
@@ -127,7 +111,7 @@ public class AuthController(
             Issuer = jwtOptions.Value.Issuer,
             Audience = jwtOptions.Value.Audience,
             SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(jwtOptions.Value.KeyBytes),
+                new SymmetricSecurityKey(jwtOptions.Value.GetKeyBytes()),
                 SecurityAlgorithms.HmacSha256)
         };
 
@@ -161,13 +145,13 @@ public class AuthController(
     }
 
     /// <summary>
-    /// check if mail is aviable
+    /// check if name is aviable
     /// </summary>
-    [HttpGet("is-unique")]
+    [HttpGet("is-unique-username")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult> isUnique(String mail)
+    public async Task<ActionResult> isUniqueUsername(String mail)
     {
-        var result = await userService.isUniqueAsync(mail);
+        var result = await userService.isUniqueUsernameAsync(mail);
 
         return Ok(result);
     }

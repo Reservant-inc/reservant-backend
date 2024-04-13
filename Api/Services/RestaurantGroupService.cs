@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
 
@@ -57,7 +57,7 @@ public class RestaurantGroupService(ApiDbContext context)
 
         var group = new RestaurantGroup
         {
-            Name = req.Name,
+            Name = req.Name.Trim(),
             OwnerId = user.Id,
             Owner = user,
             Restaurants = restaurants

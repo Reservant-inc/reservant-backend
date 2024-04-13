@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Models;
 
@@ -20,10 +21,57 @@ public class Restaurant
     public required string Name { get; set; }
 
     /// <summary>
+    /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a> associated with the restaurant
+    /// </summary>
+    [Required, Nip, StringLength(13)]
+    public required string Nip { get; set; }
+
+    /// <summary>
+    /// Type of the establishment
+    /// </summary>
+    public required RestaurantType RestaurantType { get; set; }
+
+    /// <summary>
     /// Adres
     /// </summary>
     [Required, StringLength(70)]
     public required string Address { get; set; }
+
+    /// <summary>
+    /// Postal index of the restaurant
+    /// </summary>
+    [Required, PostalIndex, StringLength(6)]
+    public required string PostalIndex { get; set; }
+
+    /// <summary>
+    /// City of the restaurant
+    /// </summary>
+    [Required, StringLength(15)]
+    public required string City { get; set; }
+
+    /// <summary>
+    /// File name of the rental contract (umowa najmu lokalu)
+    /// </summary>
+    [MinLength(1), StringLength(50)]
+    public string? RentalContractFileName { get; set; }
+
+    /// <summary>
+    /// File name of the alcohol license (licencja na sprzedaż alkoholu)
+    /// </summary>
+    [MinLength(1), StringLength(50)]
+    public string? AlcoholLicenseFileName { get; set; }
+
+    /// <summary>
+    /// File name of the permission to conduct business (zgoda na prowadzenie działalności)
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string BusinessPermissionFileName { get; set; }
+
+    /// <summary>
+    /// File name of the ID card (dowód osobisty)
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string IdCardFileName { get; set; }
 
     /// <summary>
     /// Restaurant group ID
@@ -39,4 +87,24 @@ public class Restaurant
     /// Navigation property for the restaurant group
     /// </summary>
     public RestaurantGroup? Group { get; set; }
+
+    /// <summary>
+    /// Navigation property for the rental contract
+    /// </summary>
+    public FileUpload? RentalContract { get; set; }
+
+    /// <summary>
+    /// Navigation property for the alcohol license
+    /// </summary>
+    public FileUpload? AlcoholLicense { get; set; }
+
+    /// <summary>
+    /// Navigation property for the permission to conduct business
+    /// </summary>
+    public FileUpload? BusinessPermission { get; set; }
+
+    /// <summary>
+    /// Navigation property for the ID card
+    /// </summary>
+    public FileUpload? IdCard { get; set; }
 }
