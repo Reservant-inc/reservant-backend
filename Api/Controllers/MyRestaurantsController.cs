@@ -19,8 +19,11 @@ namespace Reservant.Api.Controllers
     public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager) : Controller
     {
         /// <summary>
-        /// Create a new restaurant and add it to the database
+        /// Create a new restaurant (and optionally a new group)
         /// </summary>
+        /// <remarks>
+        /// If groupId is null, then creates a new group with the same name as the restaurant.
+        /// </remarks>
         /// <param name="request"> Create Restaurant Request DTO</param>
         /// <returns></returns>
         [HttpPost]

@@ -11,7 +11,7 @@ namespace Reservant.Api.Services
     public class RestaurantService(ApiDbContext context, FileUploadService uploadService)
     {
         /// <summary>
-        /// Register new Restaurant and add tables.
+        /// Register new Restaurant and optionally a new group for it.
         /// </summary>
         /// <param name="request"></param>
         /// <param name="user"></param>
