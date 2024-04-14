@@ -239,7 +239,6 @@ namespace Reservant.Api.Services
         /// Add the given employee to the given restaurant, acting as the given employer (restaurant owner)
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
-        /// <param name="employeeId">ID of the employee to add</param>
         /// <param name="employerId">ID of the current user (restaurant owner)</param>
         /// <returns>The bool returned inside the result does not mean anything</returns>
         public async Task<Result<bool>> AddEmployeeAsync(AddEmployeeRequest request, int restaurantId, string employerId)
