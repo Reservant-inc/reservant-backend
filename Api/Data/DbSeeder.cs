@@ -4,6 +4,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
+using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Data;
@@ -11,7 +12,8 @@ namespace Reservant.Api.Data;
 internal class DbSeeder(
     ApiDbContext context,
     RoleManager<IdentityRole> roleManager,
-    UserService userService)
+    UserService userService,
+    RestaurantService restaurantService)
 {
     public async Task SeedDataAsync()
     {
@@ -299,7 +301,7 @@ internal class DbSeeder(
 
         await context.SaveChangesAsync();
 
-        (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
+        var hallEmployee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
         {
             Login = "hall",
             Password = "Pa$$w0rd",
@@ -307,8 +309,17 @@ internal class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
         }, johnDoe, "22781e02-d83a-44ef-8cf4-735e95d9a0b2")).OrThrow();
+        await restaurantService.AddEmployeeAsync(
+            new AddEmployeeRequest
+            {
+                EmployeeId = hallEmployee.Id,
+                IsBackdoorEmployee = false,
+                IsHallEmployee = true
+            },
+            johnDoes.Id,
+            johnDoe.Id);
 
-        (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
+        var backdoorEmployee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
         {
             Login = "backdoors",
             Password = "Pa$$w0rd",
@@ -316,6 +327,15 @@ internal class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
         }, johnDoe, "06c12721-e59e-402f-aafb-2b43a4dd23f2")).OrThrow();
+        await restaurantService.AddEmployeeAsync(
+            new AddEmployeeRequest
+            {
+                EmployeeId = backdoorEmployee.Id,
+                IsBackdoorEmployee = true,
+                IsHallEmployee = false
+            },
+            johnDoes.Id,
+            johnDoe.Id);
     }
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe)
@@ -428,7 +448,7 @@ internal class DbSeeder(
 
         await context.SaveChangesAsync();
 
-        (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
+        var employee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
         {
             Login = "employee",
             Password = "Pa$$w0rd",
@@ -436,5 +456,14 @@ internal class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
         }, johnDoe, "f1b1b494-85f2-4dc7-856d-d04d1ce50d65")).OrThrow();
+        await restaurantService.AddEmployeeAsync(
+            new AddEmployeeRequest
+            {
+                EmployeeId = employee.Id,
+                IsBackdoorEmployee = true,
+                IsHallEmployee = true
+            },
+            johnDoes2.Id,
+            johnDoe.Id);
     }
 }

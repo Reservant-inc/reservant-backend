@@ -5,10 +5,12 @@ using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Identity;
 
 namespace Reservant.Api.Services
 {
-    public class RestaurantService(ApiDbContext context, FileUploadService uploadService)
+    public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager)
     {
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
@@ -231,6 +233,85 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
 
             return result;
+        }
+
+        /// <summary>
+        /// Add the given employee to the given restaurant, acting as the given employer (restaurant owner)
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
+        /// <param name="employeeId">ID of the employee to add</param>
+        /// <param name="employerId">ID of the current user (restaurant owner)</param>
+        /// <returns>The bool returned inside the result does not mean anything</returns>
+        public async Task<Result<bool>> AddEmployeeAsync(AddEmployeeRequest request, int restaurantId, string employerId)
+        {
+            if (!request.IsBackdoorEmployee && !request.IsHallEmployee)
+            {
+                return new List<ValidationResult>
+                {
+                    new($"Employee must have at least one role",
+                        [nameof(request.IsBackdoorEmployee), nameof(request.IsHallEmployee)])
+                };
+            }
+
+            var restaurantOwnerId = await context.Restaurants
+                .Where(r => r.Id == restaurantId)
+                .Select(r => r.Group!.OwnerId)
+                .FirstOrDefaultAsync();
+            if (restaurantOwnerId is null)
+            {
+                return new List<ValidationResult>
+                {
+                    new($"Restaurant with ID {restaurantId} not found")
+                };
+            }
+
+            if (restaurantOwnerId != employerId)
+            {
+                return new List<ValidationResult>
+                {
+                    new("User is not the owner of the restaurant")
+                };
+            }
+
+            var employee = await context.Users.FindAsync(request.EmployeeId);
+            if (employee is null)
+            {
+                return new List<ValidationResult>
+                {
+                    new($"User with ID {request.EmployeeId} not found",
+                        [nameof(request.EmployeeId)])
+                };
+            }
+
+            if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
+                || employee.EmployerId != employerId)
+            {
+                return new List<ValidationResult>
+                {
+                    new($"User with ID {request.EmployeeId} is not current user's employee",
+                        [nameof(request.EmployeeId)])
+                };
+            }
+
+            var existingEmployment = await context.Employments.FindAsync(request.EmployeeId, restaurantId);
+            if (existingEmployment is not null)
+            {
+                existingEmployment.IsHallEmployee = request.IsHallEmployee;
+                existingEmployment.IsBackdoorEmployee = request.IsBackdoorEmployee;
+            }
+            else
+            {
+                context.Employments.Add(new Employment
+                {
+                    EmployeeId = request.EmployeeId,
+                    RestaurantId = restaurantId,
+                    IsBackdoorEmployee = request.IsBackdoorEmployee,
+                    IsHallEmployee = request.IsHallEmployee
+                });
+            }
+
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

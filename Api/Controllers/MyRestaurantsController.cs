@@ -66,5 +66,26 @@ namespace Reservant.Api.Controllers
             }
             return Ok(result);
         }
+
+        /// <summary>
+        /// Adds an employee to the restaurant
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost("{id:int}/employees")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult> AddEmployee(AddEmployeeRequest request, int id)
+        {
+            var userId = userManager.GetUserId(User);
+            var result = await restaurantService.AddEmployeeAsync(request, id, userId!);
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+                return ValidationProblem();
+            }
+
+            return Ok();
+        }
     }
 }
