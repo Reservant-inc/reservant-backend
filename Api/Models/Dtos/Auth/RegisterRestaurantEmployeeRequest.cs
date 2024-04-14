@@ -19,15 +19,6 @@ public class RegisterRestaurantEmployeeRequest
     [Required, StringLength(15), Phone]
     public required string PhoneNumber { get; init; }
 
-    [Required]
-    public required int RestaurantId { get; init; }
-
     [Required, StringLength(50)]
     public required string Password { get; init; }
-
-    [Required]
-    public required  bool IsBackdoorEmployee { get; init; }
-    [Required]
-    public required  bool IsHallEmployee { get; init; }
-
 }

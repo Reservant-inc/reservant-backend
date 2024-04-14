@@ -59,4 +59,14 @@ public class User : IdentityUser
             return age;
         }
     }
+
+    /// <summary>
+    /// ID of the RestaurantOwner who employs the user. For restaurant employees
+    /// </summary>
+    public string? EmployerId { get; set; }
+
+    /// <summary>
+    /// Employer of the user. For restaurant employees
+    /// </summary>
+    public User? Employer { get; set; }
 }

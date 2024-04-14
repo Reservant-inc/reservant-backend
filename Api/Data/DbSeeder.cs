@@ -18,8 +18,6 @@ internal class DbSeeder(
         await roleManager.CreateAsync(new IdentityRole(Roles.Customer));
         await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantOwner));
         await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantEmployee));
-        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantBackdoorsEmployee));
-        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantHallEmployee));
         await roleManager.CreateAsync(new IdentityRole(Roles.CustomerSupportAgent));
         await roleManager.CreateAsync(new IdentityRole(Roles.CustomerSupportManager));
 
@@ -307,10 +305,7 @@ internal class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Pracownik Sali",
             LastName = "Przykładowski",
-            PhoneNumber = "+48123456789",
-            RestaurantId = johnDoes.Id,
-            IsBackdoorEmployee = false,
-            IsHallEmployee = true
+            PhoneNumber = "+48123456789"
         }, johnDoe, "22781e02-d83a-44ef-8cf4-735e95d9a0b2")).OrThrow();
 
         (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
@@ -319,10 +314,7 @@ internal class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Pracownik Zaplecza",
             LastName = "Przykładowski",
-            PhoneNumber = "+48123456789",
-            RestaurantId = johnDoes.Id,
-            IsBackdoorEmployee = true,
-            IsHallEmployee = false
+            PhoneNumber = "+48123456789"
         }, johnDoe, "06c12721-e59e-402f-aafb-2b43a4dd23f2")).OrThrow();
     }
 
@@ -442,10 +434,7 @@ internal class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Pracownik 2",
             LastName = "Przykładowski",
-            PhoneNumber = "+48123456789",
-            RestaurantId = johnDoes2.Id,
-            IsBackdoorEmployee = true,
-            IsHallEmployee = true
+            PhoneNumber = "+48123456789"
         }, johnDoe, "f1b1b494-85f2-4dc7-856d-d04d1ce50d65")).OrThrow();
     }
 }

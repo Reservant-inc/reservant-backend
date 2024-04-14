@@ -61,31 +61,16 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// Service used for restaurant employee registration
     /// </summary>
     /// <param name="request"></param>
-    /// <param name="user"></param>
+    /// <param name="employer"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
     /// <returns></returns>
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
-        RegisterRestaurantEmployeeRequest request, User user, string? id = null)
+        RegisterRestaurantEmployeeRequest request, User employer, string? id = null)
     {
 
         var errors = new List<ValidationResult>();
-        
-        var restaurant = await dbContext.Restaurants
-            .Include(r => r.Group)
-            .FirstOrDefaultAsync(r => r.Id == request.RestaurantId);
 
-        if (restaurant == null)
-        {
-            errors.Add(new ValidationResult($"Restaurant with id {request.RestaurantId} not found.", [nameof(request.RestaurantId)]));
-            return errors;
-        }
-        if (restaurant.Group.OwnerId != user.Id)
-        {
-            errors.Add(new ValidationResult($"Not authorized to access restaurant with ID {request.RestaurantId}.", [nameof(request.RestaurantId)]));
-            return errors;
-        }
-
-        var username = restaurant.Id + "+" + request.Login.Trim();
+        var username = employer.UserName + "+" + request.Login.Trim();
 
         var employee = new User {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -94,12 +79,8 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             LastName = request.LastName.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
             RegisteredAt = DateTime.UtcNow,
+            Employer = employer
         };
-        
-        if (!request.IsBackdoorEmployee && !request.IsHallEmployee) { 
-            errors.Add(new ValidationResult("At least one role must be set as true", ["IsBackdoorEmployee", "IsHallEmployee"]));
-            return errors;
-        }
 
         if (!ValidationUtils.TryValidate(employee, errors))
         {
@@ -111,12 +92,8 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         {
             return ValidationUtils.AsValidationErrors("", result);
         }
-        if(request.IsHallEmployee && request.IsBackdoorEmployee)
-            await userManager.AddToRolesAsync(employee, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee, Roles.RestaurantHallEmployee]);
-        else if(request.IsHallEmployee)
-            await userManager.AddToRolesAsync(employee, [Roles.RestaurantEmployee, Roles.RestaurantHallEmployee]);
-        else
-            await userManager.AddToRolesAsync(employee, [Roles.RestaurantEmployee, Roles.RestaurantBackdoorsEmployee]);
+
+        await userManager.AddToRolesAsync(employee, [Roles.RestaurantEmployee]);
         return employee;
     }
 
