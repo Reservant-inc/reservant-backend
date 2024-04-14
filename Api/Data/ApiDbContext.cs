@@ -13,6 +13,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
     public DbSet<Restaurant> Restaurants { get; init; } = null!;
 
+    public DbSet<RestaurantPhoto> RestaurantPhotos { get; init; } = null!;
+
     public DbSet<Table> Tables { get; init; } = null!;
 
     public DbSet<RestaurantGroup> RestaurantGroups { get; init; } = null!;
@@ -26,5 +28,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
         base.OnModelCreating(builder);
 
         builder.Entity<Table>().HasKey(t => new { t.RestaurantId, t.Id });
+
+        builder.Entity<RestaurantPhoto>().HasKey(rp => new { rp.RestaurantId, rp.Order });
     }
 }

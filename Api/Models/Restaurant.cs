@@ -79,6 +79,23 @@ public class Restaurant
     public int GroupId { get; set; }
 
     /// <summary>
+    /// Whether we provide delivery for the restaurant
+    /// </summary>
+    public bool ProvideDelivery { get; set; }
+
+    /// <summary>
+    /// File name of the logo
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string LogoFileName { get; set; }
+
+    /// <summary>
+    /// Optional description of the restaurant
+    /// </summary>
+    [MinLength(1), StringLength(200)]
+    public string? Description { get; set; }
+
+    /// <summary>
     /// Navigation collection for the tables
     /// </summary>
     public ICollection<Table>? Tables { get; set; }
@@ -107,4 +124,14 @@ public class Restaurant
     /// Navigation property for the ID card
     /// </summary>
     public FileUpload? IdCard { get; set; }
+
+    /// <summary>
+    /// Navigation property for the logo
+    /// </summary>
+    public FileUpload? Logo { get; set; }
+
+    /// <summary>
+    /// Navigation collection for the photos. Ordered by the RestaurantPhoto.Order property.
+    /// </summary>
+    public ICollection<RestaurantPhoto>? Photos { get; set; }
 }

@@ -76,4 +76,21 @@ public class CreateRestaurantRequest
     /// Restaurant group ID, if null a new group is created
     /// </summary>
     public int? GroupId { get; set; }
+
+    /// <summary>
+    /// URI of the logo upload
+    /// </summary>
+    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.png</example>
+    public required string Logo { get; init; }
+
+    /// <summary>
+    /// Whether we provide delivery for the restaurant
+    /// </summary>
+    public bool ProvideDelivery { get; init; }
+
+    /// <summary>
+    /// Optional description of the restaurant
+    /// </summary>
+    [MinLength(1), StringLength(200)]
+    public string? Description { get; init; }
 }

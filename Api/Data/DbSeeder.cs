@@ -176,7 +176,79 @@ internal class DbSeeder(
                     Id = 4,
                     Capacity = 6
                 }
-            ]
+            ],
+            LogoFileName = null!,
+            Logo = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "logo-1.png",
+                ContentType = "image/png"
+            },
+            ProvideDelivery = true,
+            Description = "The first example restaurant",
+            Photos = new List<RestaurantPhoto>
+            {
+                new()
+                {
+                    RestaurantId = 1,
+                    Order = 1,
+                    PhotoFileName = null!,
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-1.png",
+                        ContentType = "image/png"
+                    }
+                },
+                new()
+                {
+                    RestaurantId = 1,
+                    Order = 2,
+                    PhotoFileName = null!,
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-2.png",
+                        ContentType = "image/png"
+                    }
+                },
+                new()
+                {
+                    RestaurantId = 1,
+                    Order = 3,
+                    PhotoFileName = null!,
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-3.png",
+                        ContentType = "image/png"
+                    }
+                },
+                new()
+                {
+                    RestaurantId = 1,
+                    Order = 4,
+                    PhotoFileName = null!,
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-4.png",
+                        ContentType = "image/png"
+                    }
+                },
+                new()
+                {
+                    RestaurantId = 1,
+                    Order = 5,
+                    PhotoFileName = null!,
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-5.png",
+                        ContentType = "image/png"
+                    }
+                },
+            }
         };
         context.Restaurants.Add(johnDoes);
 
@@ -316,7 +388,17 @@ internal class DbSeeder(
                     Id = 4,
                     Capacity = 4
                 }
-            ]
+            ],
+            LogoFileName = null!,
+            Logo = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "logo-2.png",
+                ContentType = "image/png"
+            },
+            ProvideDelivery = false,
+            Description = "Another example restaurant",
+            Photos = []
         };
         context.Restaurants.Add(johnDoes2);
 

@@ -103,6 +103,16 @@ namespace Reservant.Api.Services
                 return idCardResult.Errors;
             }
 
+            var logoResult = await uploadService.ProcessUploadUriAsync(
+                request.Logo,
+                user.Id,
+                FileClass.Image,
+                nameof(request.Logo));
+            if (logoResult.IsError)
+            {
+                return logoResult.Errors;
+            }
+
             var restaurant = new Restaurant
             {
                 Name = request.Name.Trim(),
@@ -115,7 +125,10 @@ namespace Reservant.Api.Services
                 RentalContractFileName = rentalContract,
                 AlcoholLicenseFileName = alcoholLicense,
                 BusinessPermissionFileName = businessPermissionResult.Value,
-                IdCardFileName = idCardResult.Value
+                IdCardFileName = idCardResult.Value,
+                LogoFileName = logoResult.Value,
+                ProvideDelivery = request.ProvideDelivery,
+                Description = request.Description?.Trim()
             };
 
             if (!ValidationUtils.TryValidate(restaurant, errors))
