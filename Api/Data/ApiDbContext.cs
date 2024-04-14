@@ -13,6 +13,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
     public DbSet<Restaurant> Restaurants { get; init; } = null!;
 
+    public DbSet<Employment> Employments { get; init; } = null!;
+
     public DbSet<RestaurantPhoto> RestaurantPhotos { get; init; } = null!;
 
     public DbSet<RestaurantTag> RestaurantTags { get; init; } = null!;
@@ -41,5 +43,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
             new RestaurantTag { Name = "Tag1" },
             new RestaurantTag { Name = "Tag2" }
         ]);
+
+        builder.Entity<Employment>().HasKey(e => new { e.EmployeeId, e.RestaurantId });
     }
 }
