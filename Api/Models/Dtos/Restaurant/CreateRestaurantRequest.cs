@@ -93,4 +93,9 @@ public class CreateRestaurantRequest
     /// </summary>
     [MinLength(1), StringLength(200)]
     public string? Description { get; init; }
+
+    /// <summary>
+    /// Restaurant tags
+    /// </summary>
+    public required HashSet<string> Tags { get; init; }
 }

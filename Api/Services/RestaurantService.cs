@@ -113,6 +113,22 @@ namespace Reservant.Api.Services
                 return logoResult.Errors;
             }
 
+            var tags = await context.RestaurantTags
+                .Join(
+                    request.Tags,
+                    rt => rt.Name,
+                    tag => tag,
+                    (rt, _) => rt)
+                .ToListAsync();
+
+            var notFoundTags = request.Tags.Where(tag => tags.All(rt => rt.Name != tag));
+            errors.AddRange(notFoundTags.Select(
+                tag => new ValidationResult($"Tag not found: {tag}", [nameof(request.Tags)])));
+            if (errors.Count != 0)
+            {
+                return errors;
+            }
+
             var restaurant = new Restaurant
             {
                 Name = request.Name.Trim(),
@@ -128,7 +144,8 @@ namespace Reservant.Api.Services
                 IdCardFileName = idCardResult.Value,
                 LogoFileName = logoResult.Value,
                 ProvideDelivery = request.ProvideDelivery,
-                Description = request.Description?.Trim()
+                Description = request.Description?.Trim(),
+                Tags = tags
             };
 
             if (!ValidationUtils.TryValidate(restaurant, errors))
