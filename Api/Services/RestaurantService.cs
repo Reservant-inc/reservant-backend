@@ -161,7 +161,8 @@ namespace Reservant.Api.Services
                     GroupId = r.GroupId,
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                    Description = r.Description
+                    Description = r.Description,
+                    Tags = r.Tags!.Select(t => t.Name).ToList()
                 })
                 .ToListAsync();
             return result;
@@ -206,7 +207,8 @@ namespace Reservant.Api.Services
                         .ToList(),
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                    Description = r.Description
+                    Description = r.Description,
+                    Tags = r.Tags!.Select(t => t.Name).ToList()
                 })
                 .AsSplitQuery()
                 .FirstOrDefaultAsync();

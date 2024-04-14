@@ -115,5 +115,11 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// </summary>
         [MinLength(1), StringLength(200)]
         public required string? Description { get; init; }
+
+        /// <summary>
+        /// Restaurant tags
+        /// </summary>
+        [Required]
+        public required List<string> Tags { get; init; }
     }
 }

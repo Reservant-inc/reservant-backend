@@ -106,7 +106,8 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
     public async Task<Result<RestaurantGroupVM>> GetRestaurantGroupAsync(int groupId, string userId)
     {
         var restaurantGroup = await context.RestaurantGroups
-            .Include(rg => rg.Restaurants)
+            .Include(rg => rg.Restaurants!)
+            .ThenInclude(rg => rg.Tags!)
             .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId);
 
         if (restaurantGroup == null)
@@ -130,7 +131,8 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
-                ProvideDelivery = r.ProvideDelivery
+                ProvideDelivery = r.ProvideDelivery,
+                Tags = r.Tags!.Select(t => t.Name).ToList()
             }).ToList()
         });
     }

@@ -60,5 +60,11 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// Whether we provide delivery for the restaurant
         /// </summary>
         public required bool ProvideDelivery { get; init; }
+
+        /// <summary>
+        /// Restaurant tags
+        /// </summary>
+        [Required]
+        public required List<string> Tags { get; init; }
     }
 }
