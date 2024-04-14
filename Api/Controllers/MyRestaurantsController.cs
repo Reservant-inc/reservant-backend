@@ -48,7 +48,7 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants() {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantsAsync(user);
-            return Ok(result.Value);
+            return Ok(result);
         }
         /// <summary>
         /// Get a specific restaurant owned by the user.

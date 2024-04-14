@@ -13,7 +13,7 @@ namespace Reservant.Api.Services;
 /// Util class for managing RestaurantGroups
 /// </summary>
 /// <param name="context">context</param>
-public class RestaurantGroupService(ApiDbContext context)
+public class RestaurantGroupService(ApiDbContext context, FileUploadService uploadService)
 {
 
     /// <summary>
@@ -127,7 +127,10 @@ public class RestaurantGroupService(ApiDbContext context)
                 Address = r.Address,
                 RestaurantType = r.RestaurantType,
                 City = r.City,
-                GroupId = r.GroupId
+                GroupId = r.GroupId,
+                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Description = r.Description,
+                ProvideDelivery = r.ProvideDelivery
             }).ToList()
         });
     }

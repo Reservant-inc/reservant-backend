@@ -147,18 +147,23 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<List<RestaurantSummaryVM>>> GetMyRestaurantsAsync(User user) {
+        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user) {
             var userId = user.Id;
-            var result = await context.Restaurants.Where(r => r.Group!.OwnerId == userId)
-                                                  .Select(r=> new RestaurantSummaryVM{
-                                                    Id = r.Id,
-                                                    Name = r.Name,
-                                                    RestaurantType = r.RestaurantType,
-                                                    Address = r.Address,
-                                                    City = r.City,
-                                                    GroupId = r.GroupId
-                                                  })
-                                                  .ToListAsync();
+            var result = await context.Restaurants
+                .Where(r => r.Group!.OwnerId == userId)
+                .Select(r=> new RestaurantSummaryVM
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    RestaurantType = r.RestaurantType,
+                    Address = r.Address,
+                    City = r.City,
+                    GroupId = r.GroupId,
+                    ProvideDelivery = r.ProvideDelivery,
+                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Description = r.Description
+                })
+                .ToListAsync();
             return result;
         }
         /// <summary>

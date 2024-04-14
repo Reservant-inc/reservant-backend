@@ -43,5 +43,22 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// Restaurant group ID
         /// </summary>
         public required int GroupId { get; set; }
+
+        /// <summary>
+        /// URI of the logo
+        /// </summary>
+        [Required]
+        public required string Logo { get; init; }
+
+        /// <summary>
+        /// Optional description
+        /// </summary>
+        [StringLength(200)]
+        public required string? Description { get; init; }
+
+        /// <summary>
+        /// Whether we provide delivery for the restaurant
+        /// </summary>
+        public required bool ProvideDelivery { get; init; }
     }
 }
