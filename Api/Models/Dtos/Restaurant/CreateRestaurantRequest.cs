@@ -49,27 +49,27 @@ public class CreateRestaurantRequest
     public required string City { get; init; }
 
     /// <summary>
-    /// URI of the rental contract upload (umowa najmu lokalu)
+    /// File name of the rental contract upload (umowa najmu lokalu)
     /// </summary>
-    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
     public string? RentalContract { get; init; }
 
     /// <summary>
-    /// URI of the alcohol license upload (licencja na sprzedaż alkoholu)
+    /// File name of the alcohol license upload (licencja na sprzedaż alkoholu)
     /// </summary>
-    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
     public string? AlcoholLicense { get; init; }
 
     /// <summary>
-    /// URI of the permission to conduct business upload (zgoda na prowadzenie działalności)
+    /// File name of the permission to conduct business upload (zgoda na prowadzenie działalności)
     /// </summary>
-    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
     public required string BusinessPermission { get; init; }
 
     /// <summary>
-    /// URI of the ID card upload (dowód osobisty)
+    /// File name of the ID card upload (dowód osobisty)
     /// </summary>
-    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
+    /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
     public required string IdCard { get; init; }
 
     /// <summary>
@@ -78,9 +78,9 @@ public class CreateRestaurantRequest
     public int? GroupId { get; set; }
 
     /// <summary>
-    /// URI of the logo upload
+    /// File name of the logo upload
     /// </summary>
-    /// <example>/uploads/306f9fa1-fda5-48c4-aa5f-7c7c375e065f.png</example>
+    /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.png</example>
     public required string Logo { get; init; }
 
     /// <summary>

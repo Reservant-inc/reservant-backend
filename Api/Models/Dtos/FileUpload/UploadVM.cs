@@ -13,6 +13,12 @@ public class UploadVM
     [Required]
     public required string Path { get; init; }
 
+    /// <summary>
+    /// File name of the file, used to include the file in requests
+    /// </summary>
+    [Required]
+    public required string FileName { get; init; }
+
     [Required]
     public required string ContentType { get; init; }
 }

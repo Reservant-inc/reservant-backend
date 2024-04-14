@@ -103,32 +103,24 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
         return new UploadVM
         {
             Path = GetPathForFileName(fileName),
+            FileName = fileName,
             ContentType = contentType
         };
     }
 
     /// <summary>
-    /// Validates that the given path leads to a valid upload that the user can use
+    /// Validates that the file name is of a valid upload that the user can use
     /// </summary>
     /// <param name="propertyName">Used as the member name in the returned errors</param>
-    /// <param name="path">Value of the property to validate</param>
+    /// <param name="fileName">Value of the property to validate</param>
     /// <param name="expectedFileClass">See <see cref="FileClass"/></param>
     /// <param name="userId">User that has to have access to the file (current user)</param>
     /// <returns>Result containing the file name of the upload</returns>
-    public async Task<Result<string>> ProcessUploadUriAsync(
-        string path, string userId, FileClass expectedFileClass, string propertyName)
+    public async Task<Result<string>> ProcessUploadNameAsync(
+        string fileName, string userId, FileClass expectedFileClass, string propertyName)
     {
         var errors = new List<ValidationResult>();
 
-        if (!Path.GetDirectoryName(path.AsSpan()).SequenceEqual(RemoveFinalSlash(options.Value.ServePath)))
-        {
-            errors.Add(new ValidationResult(
-                $"Upload file must be located in {options.Value.ServePath}",
-                [propertyName]));
-            return errors;
-        }
-
-        var fileName = Path.GetFileName(path);
         var upload = await context.FileUploads
             .Where(fu => fu.FileName == fileName && fu.UserId == userId)
             .FirstOrDefaultAsync();
@@ -146,11 +138,8 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
             return errors;
         }
 
-        return Path.GetFileName(path);
+        return fileName;
     }
-
-    private static ReadOnlySpan<char> RemoveFinalSlash(ReadOnlySpan<char> path) =>
-        path[^1] == '/' ? path[..^1] : path;
 
     private static FileClass GetFileClass(string extension) =>
         FileClasses.GetValueOrDefault(extension, FileClass.Unknown);
