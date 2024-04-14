@@ -60,11 +60,11 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int id) {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantByIdAsync(user, id);
-            if (result.Value == null)
+            if (result == null)
             {
                 return NotFound();
             }
-            return Ok(result.Value);
+            return Ok(result);
         }
     }
 }

@@ -167,7 +167,7 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <param name="id"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<Result<RestaurantVM?>> GetMyRestaurantByIdAsync(User user, int id)
+        public async Task<RestaurantVM?> GetMyRestaurantByIdAsync(User user, int id)
         {
             var userId = user.Id;
             var result = await context.Restaurants
@@ -194,9 +194,18 @@ namespace Reservant.Api.Services
                     {
                         Id = t.Id,
                         Capacity = t.Capacity
-                    })
+                    }),
+                    Photos = r.Photos!
+                        .OrderBy(rp => rp.Order)
+                        .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
+                        .ToList(),
+                    ProvideDelivery = r.ProvideDelivery,
+                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Description = r.Description
                 })
+                .AsSplitQuery()
                 .FirstOrDefaultAsync();
+
             return result;
         }
     }

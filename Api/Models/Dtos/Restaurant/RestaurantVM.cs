@@ -92,5 +92,28 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// </summary>
         [Required]
         public required IEnumerable<TableVM> Tables { get; init; }
+
+        /// <summary>
+        /// Whether we provide delivery for the restaurant
+        /// </summary>
+        public required bool ProvideDelivery { get; init; }
+
+        /// <summary>
+        /// URI of the logo
+        /// </summary>
+        [Required, StringLength(50)]
+        public required string Logo { get; init; }
+
+        /// <summary>
+        /// Photos of the restaurant
+        /// </summary>
+        [Required]
+        public required List<string> Photos { get; init; }
+
+        /// <summary>
+        /// Optional description of the restaurant
+        /// </summary>
+        [MinLength(1), StringLength(200)]
+        public required string? Description { get; init; }
     }
 }
