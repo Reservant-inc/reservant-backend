@@ -63,5 +63,19 @@ namespace Reservant.Api.Controllers
             }
             return Ok(result.Value);
         }
+
+        [HttpPost("{id:int}/move-to-group")]
+        [ProducesResponseType(200), ProducesResponseType(404)]
+        public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request) {
+            var user = await userManager.GetUserAsync(User);
+            var result = await restaurantService.MoveRestaurantToGroupAsync(id, request, user);
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+                return ValidationProblem();
+            }
+
+            return Ok(result.Value);
+        }
     }
 }

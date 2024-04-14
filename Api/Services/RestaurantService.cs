@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
@@ -134,16 +135,18 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<List<RestaurantSummaryVM>>> GetMyRestaurantsAsync(User user) {
+        public async Task<Result<List<RestaurantSummaryVM>>> GetMyRestaurantsAsync(User user)
+        {
             var userId = user.Id;
             var result = await context.Restaurants.Where(r => r.Group!.OwnerId == userId)
-                                                  .Select(r=> new RestaurantSummaryVM{
-                                                    Id = r.Id,
-                                                    Name = r.Name,
-                                                    RestaurantType = r.RestaurantType,
-                                                    Address = r.Address,
-                                                    City = r.City,
-                                                    GroupId = r.GroupId
+                                                  .Select(r => new RestaurantSummaryVM
+                                                  {
+                                                      Id = r.Id,
+                                                      Name = r.Name,
+                                                      RestaurantType = r.RestaurantType,
+                                                      Address = r.Address,
+                                                      City = r.City,
+                                                      GroupId = r.GroupId
                                                   })
                                                   .ToListAsync();
             return result;
@@ -185,6 +188,48 @@ namespace Reservant.Api.Services
                 })
                 .FirstOrDefaultAsync();
             return result;
+        }
+
+        public async Task<Result<RestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId, MoveToGroupRequest request, User user)
+        {
+            var errors = new List<ValidationResult>();
+            var newRestaurantGroup = await context.RestaurantGroups.Include(rg => rg.Restaurants).FirstOrDefaultAsync(rg => rg.Id == request.GroupId && rg.OwnerId == user.Id);
+            if (newRestaurantGroup == null)
+            {
+                errors.Add(new ValidationResult(
+                    $"RestaurantGroup with ID {request.GroupId} not found.",
+                        [nameof(request.GroupId)]));
+                return errors;
+            }
+            var restaurant = await context.Restaurants.Include(r => r.Group).ThenInclude(g => g.Restaurants).FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
+            if (restaurant == null)
+            {
+                errors.Add(new ValidationResult(
+                    $"Restaurant with ID {restaurantId} not found.",
+                        [nameof(restaurantId)]));
+                return errors;
+            }
+
+            var oldGroup = restaurant.Group;
+            oldGroup.Restaurants.Remove(restaurant);
+            if (oldGroup.Restaurants.Count == 0)
+            {
+                context.Remove(oldGroup);
+            }
+            restaurant.GroupId = request.GroupId;
+            restaurant.Group = newRestaurantGroup;
+            newRestaurantGroup.Restaurants.Add(restaurant);
+            var result = context.RestaurantGroups.Update(newRestaurantGroup);
+            await context.SaveChangesAsync();
+            return new RestaurantSummaryVM
+            {
+                Id = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Address = restaurant.Address,
+                City = restaurant.City,
+                GroupId = restaurant.GroupId
+            };
         }
     }
 }

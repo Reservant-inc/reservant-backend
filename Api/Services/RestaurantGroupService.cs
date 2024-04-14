@@ -6,6 +6,8 @@ using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Restaurant;
+using System.Text.RegularExpressions;
+using Reservant.Api.Models.Dtos.Table;
 
 namespace Reservant.Api.Services;
 
@@ -80,18 +82,20 @@ public class RestaurantGroupService(ApiDbContext context)
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<List<RestaurantGroupSummaryVM>>> GetUsersRestaurantGroupSummary(User user) {
-         var userId = user.Id;
+    public async Task<Result<List<RestaurantGroupSummaryVM>>> GetUsersRestaurantGroupSummary(User user)
+    {
+        var userId = user.Id;
 
 
         var result = await context
             .RestaurantGroups
             .Where(r => r.OwnerId == userId)
-            .Select(r => new RestaurantGroupSummaryVM {
+            .Select(r => new RestaurantGroupSummaryVM
+            {
                 Id = r.Id,
                 Name = r.Name,
                 RestaurantCount = r.Restaurants != null ? r.Restaurants.Count() : 0
-        })
+            })
             .ToListAsync();
 
         return result;
