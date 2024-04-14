@@ -37,7 +37,7 @@ public class AuthController(
     [ProducesResponseType(200),
      ProducesResponseType(400),
      ProducesResponseType(401)]
-    public async Task<ActionResult> RegisterRestaurantEmployee(RegisterRestaurantEmployeeRequest request)
+    public async Task<ActionResult<UserVM>> RegisterRestaurantEmployee(RegisterRestaurantEmployeeRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         var result = await userService.RegisterRestaurantEmployeeAsync(request, user);
@@ -46,7 +46,13 @@ public class AuthController(
             return ValidationProblem();
         }
 
-        return Ok();
+        var employee = result.Value;
+        return Ok(new UserVM
+        {
+            Id = employee.Id,
+            Login = employee.UserName!,
+            Roles = await userManager.GetRolesAsync(employee)
+        });
     }
 
     /// <summary>
@@ -54,7 +60,7 @@ public class AuthController(
     /// </summary>
     [HttpPost("register-customer-support-agent")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult> RegisterCustomerSupportAgent(RegisterCustomerSupportAgentRequest request)
+    public async Task<ActionResult<UserVM>> RegisterCustomerSupportAgent(RegisterCustomerSupportAgentRequest request)
     {
         var result = await userService.RegisterCustomerSupportAgentAsync(request);
         if (result.IsError)
@@ -63,7 +69,13 @@ public class AuthController(
             return ValidationProblem();
         }
 
-        return Ok();
+        var user = result.Value;
+        return Ok(new UserVM
+        {
+            Id = user.Id,
+            Login = user.UserName!,
+            Roles = await userManager.GetRolesAsync(user)
+        });
     }
 
     /// <summary>
@@ -132,7 +144,7 @@ public class AuthController(
     /// </summary>
     [HttpPost("register-customer")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult> RegisterCustomer(RegisterCustomerRequest request)
+    public async Task<ActionResult<UserVM>> RegisterCustomer(RegisterCustomerRequest request)
     {
         var result = await userService.RegisterCustomerAsync(request);
         if (result.IsError)
@@ -141,6 +153,12 @@ public class AuthController(
             return ValidationProblem();
         }
 
-        return Ok();
+        var user = result.Value;
+        return Ok(new UserVM
+        {
+            Id = user.Id,
+            Login = user.UserName!,
+            Roles = await userManager.GetRolesAsync(user)
+        });
     }
 }
