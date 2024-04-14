@@ -21,10 +21,14 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// <summary>
     /// Register a new restaurant Customer Support Agent.
     /// </summary>
-    public async Task<Result<User>> RegisterCustomerSupportAgentAsync(RegisterCustomerSupportAgentRequest request)
+    /// <param name="request"></param>
+    /// <param name="id">ID of the new user, if null then generated automatically</param>
+    public async Task<Result<User>> RegisterCustomerSupportAgentAsync(
+        RegisterCustomerSupportAgentRequest request, string? id = null)
     {
         var user = new User
         {
+            Id = id ?? Guid.NewGuid().ToString(),
             UserName = request.Email.Trim(),
             Email = request.Email.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
@@ -58,9 +62,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// </summary>
     /// <param name="request"></param>
     /// <param name="user"></param>
+    /// <param name="id">ID of the new user, if null then generated automatically</param>
     /// <returns></returns>
-    public async Task<Result<User>> RegisterRestaurantEmployeeAsync(RegisterRestaurantEmployeeRequest request, User user) {
-        
+    public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
+        RegisterRestaurantEmployeeRequest request, User user, string? id = null)
+    {
+
         var errors = new List<ValidationResult>();
         
         var restaurant = await dbContext.Restaurants
@@ -81,6 +88,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         var username = restaurant.Id + "+" + request.Login.Trim();
 
         var employee = new User {
+            Id = id ?? Guid.NewGuid().ToString(),
             UserName = username,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
@@ -112,7 +120,13 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         return employee;
     }
 
-    public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request)
+    /// <summary>
+    /// Register a user with Customer role
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="id">ID of the new user, if null then generated automatically</param>
+    /// <returns></returns>
+    public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
     {
         var errors = new List<ValidationResult>();
         if(request.Login.Contains('+'))
@@ -123,6 +137,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         
         var user = new User
         {
+            Id = id ?? Guid.NewGuid().ToString(),
             UserName = request.Login.Trim(),
             Email = request.Email.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),

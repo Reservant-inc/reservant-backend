@@ -64,7 +64,7 @@ internal class DbSeeder(
             PhoneNumber = "+48123456789",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1990, 2, 3)
-        })).OrThrow();
+        }, "e5779baf-5c9b-4638-b9e7-ec285e57b367")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
         context.RestaurantGroups.Add(new RestaurantGroup
@@ -86,7 +86,7 @@ internal class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        })).OrThrow();
+        }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
 
         (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
         {
@@ -95,7 +95,7 @@ internal class DbSeeder(
             FirstName = "Pracownik BOK",
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
-        })).OrThrow();
+        }, "fced96c1-dad9-49ff-a598-05e1c5e433aa")).OrThrow();
 
         (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
         {
@@ -105,7 +105,7 @@ internal class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789",
             IsManager = true
-        })).OrThrow();
+        }, "3f97a9d9-21b5-40ae-b178-bfe071de723c")).OrThrow();
 
         await context.SaveChangesAsync();
     }
@@ -235,7 +235,7 @@ internal class DbSeeder(
             RestaurantId = johnDoes.Id,
             IsBackdoorEmployee = false,
             IsHallEmployee = true
-        }, johnDoe)).OrThrow();
+        }, johnDoe, "22781e02-d83a-44ef-8cf4-735e95d9a0b2")).OrThrow();
 
         (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
         {
@@ -247,7 +247,7 @@ internal class DbSeeder(
             RestaurantId = johnDoes.Id,
             IsBackdoorEmployee = true,
             IsHallEmployee = false
-        }, johnDoe)).OrThrow();
+        }, johnDoe, "06c12721-e59e-402f-aafb-2b43a4dd23f2")).OrThrow();
     }
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe)
@@ -357,6 +357,6 @@ internal class DbSeeder(
             RestaurantId = johnDoes2.Id,
             IsBackdoorEmployee = true,
             IsHallEmployee = true
-        }, johnDoe)).OrThrow();
+        }, johnDoe, "f1b1b494-85f2-4dc7-856d-d04d1ce50d65")).OrThrow();
     }
 }
