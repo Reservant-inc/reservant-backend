@@ -134,4 +134,9 @@ public class Restaurant
     /// Navigation collection for the photos. Ordered by the RestaurantPhoto.Order property.
     /// </summary>
     public ICollection<RestaurantPhoto>? Photos { get; set; }
+
+    /// <summary>
+    /// Navigation collection for the photos. Ordered by the RestaurantPhoto.Order property.
+    /// </summary>
+    public ICollection<RestaurantTag>? Tags { get; set; }
 }

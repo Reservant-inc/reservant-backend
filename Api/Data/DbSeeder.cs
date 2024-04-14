@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -248,7 +249,10 @@ internal class DbSeeder(
                         ContentType = "image/png"
                     }
                 },
-            }
+            },
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync()
         };
         context.Restaurants.Add(johnDoes);
 
@@ -398,7 +402,10 @@ internal class DbSeeder(
             },
             ProvideDelivery = false,
             Description = "Another example restaurant",
-            Photos = []
+            Photos = [],
+            Tags = context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite")
+                .ToList()
         };
         context.Restaurants.Add(johnDoes2);
 

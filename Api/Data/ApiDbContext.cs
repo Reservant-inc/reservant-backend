@@ -15,6 +15,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
     public DbSet<RestaurantPhoto> RestaurantPhotos { get; init; } = null!;
 
+    public DbSet<RestaurantTag> RestaurantTags { get; init; } = null!;
+
     public DbSet<Table> Tables { get; init; } = null!;
 
     public DbSet<RestaurantGroup> RestaurantGroups { get; init; } = null!;
@@ -30,5 +32,14 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
         builder.Entity<Table>().HasKey(t => new { t.RestaurantId, t.Id });
 
         builder.Entity<RestaurantPhoto>().HasKey(rp => new { rp.RestaurantId, rp.Order });
+
+        builder.Entity<RestaurantTag>().HasData([
+            new RestaurantTag { Name = "OnSite" },
+            new RestaurantTag { Name = "Takeaway" },
+            new RestaurantTag { Name = "Asian" },
+            new RestaurantTag { Name = "Italian" },
+            new RestaurantTag { Name = "Tag1" },
+            new RestaurantTag { Name = "Tag2" }
+        ]);
     }
 }
