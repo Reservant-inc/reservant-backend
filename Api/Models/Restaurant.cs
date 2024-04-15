@@ -139,4 +139,9 @@ public class Restaurant
     /// Navigation collection for the restaurant tags
     /// </summary>
     public ICollection<RestaurantTag>? Tags { get; set; }
+
+    /// <summary>
+    /// Navigational collection for the employees
+    /// </summary>
+    public ICollection<Employment>? Employments { get; set; }
 }

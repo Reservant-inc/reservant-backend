@@ -383,5 +383,47 @@ namespace Reservant.Api.Services
                 ProvideDelivery = restaurant.ProvideDelivery
             };
         }
+
+        /// <summary>
+        /// Get list of restaurant's employees
+        /// </summary>
+        /// <param name="id">ID of the restaurants</param>
+        /// <param name="userId">ID of the current user (to check permissions)</param>
+        public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, string userId)
+        {
+            var restaurant = await context.Restaurants
+                .Include(r => r.Group)
+                .Include(r => r.Employments!)
+                .ThenInclude(e => e.Employee)
+                .Where(r => r.Id == id)
+                .FirstOrDefaultAsync();
+            if (restaurant is null)
+            {
+                return new List<ValidationResult>
+                {
+                    new($"Restaurant with ID {id} not found")
+                };
+            }
+
+            if (restaurant.Group!.OwnerId != userId)
+            {
+                return new List<ValidationResult>
+                {
+                    new($"Restaurant with ID {id} is not owned by the current user")
+                };
+            }
+
+            return restaurant.Employments!
+                .Select(e => new RestaurantEmployeeVM
+                {
+                    Id = e.EmployeeId,
+                    Login = e.Employee!.UserName!,
+                    FirstName = e.Employee.FirstName,
+                    LastName = e.Employee.LastName,
+                    IsBackdoorEmployee = e.IsBackdoorEmployee,
+                    IsHallEmployee = e.IsHallEmployee
+                })
+                .ToList();
+        }
     }
 }

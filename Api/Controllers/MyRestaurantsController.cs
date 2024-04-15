@@ -101,5 +101,29 @@ namespace Reservant.Api.Controllers
 
             return Ok(result.Value);
         }
+
+        /// <summary>
+        /// Get list of restaurant's employees
+        /// </summary>
+        /// <param name="id">ID of the restaurant</param>
+        [HttpGet("{id:int}/employees")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<List<RestaurantEmployeeVM>>> GetEmployees(int id)
+        {
+            var userId = userManager.GetUserId(User);
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await restaurantService.GetEmployeesAsync(id, userId);
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+                return ValidationProblem();
+            }
+
+            return Ok(result.Value);
+        }
     }
 }
