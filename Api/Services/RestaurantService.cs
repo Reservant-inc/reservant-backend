@@ -333,5 +333,55 @@ namespace Reservant.Api.Services
             await context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<Result<RestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId, MoveToGroupRequest request, User user)
+        {
+            var errors = new List<ValidationResult>();
+            var newRestaurantGroup = await context.RestaurantGroups.Include(rg => rg.Restaurants).FirstOrDefaultAsync(rg => rg.Id == request.GroupId && rg.OwnerId == user.Id);
+            if (newRestaurantGroup == null)
+            {
+                errors.Add(new ValidationResult(
+                    $"RestaurantGroup with ID {request.GroupId} not found.",
+                        [nameof(request.GroupId)]));
+                return errors;
+            }
+            var restaurant = await context.Restaurants
+                .Include(r => r.Tags)
+                .Include(r => r.Group)
+                .ThenInclude(g => g.Restaurants)
+                .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
+            if (restaurant == null)
+            {
+                errors.Add(new ValidationResult(
+                    $"Restaurant with ID {restaurantId} not found.",
+                        [nameof(restaurantId)]));
+                return errors;
+            }
+
+            var oldGroup = restaurant.Group;
+            oldGroup.Restaurants.Remove(restaurant);
+            if (oldGroup.Restaurants.Count == 0)
+            {
+                context.Remove(oldGroup);
+            }
+            restaurant.GroupId = request.GroupId;
+            restaurant.Group = newRestaurantGroup;
+            newRestaurantGroup.Restaurants.Add(restaurant);
+            var result = context.RestaurantGroups.Update(newRestaurantGroup);
+            await context.SaveChangesAsync();
+            return new RestaurantSummaryVM
+            {
+                Id = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Address = restaurant.Address,
+                City = restaurant.City,
+                GroupId = restaurant.GroupId,
+                Description = restaurant.Description,
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
+                ProvideDelivery = restaurant.ProvideDelivery
+            };
+        }
     }
 }
