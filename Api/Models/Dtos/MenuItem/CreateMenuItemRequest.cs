@@ -25,8 +25,4 @@ public class CreateMenuItemRequest
     [Range(0, 100)]
     public decimal? AlcoholPercentage { get; set; }
 
-    /// <summary>
-    /// ID of the restaurant owning the menu
-    /// </summary>
-    public int RestaurantId { get; set; }
 }

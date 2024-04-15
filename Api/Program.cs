@@ -127,6 +127,7 @@ builder.Services.AddScoped<FileUploadService>();
 builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<RestaurantGroupService>();
 builder.Services.AddScoped<RestaurantGroupService>();
+builder.Services.AddScoped<MenuItemsService>();
 
 var app = builder.Build();
 
