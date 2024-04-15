@@ -131,6 +131,26 @@ namespace Reservant.Api.Services
                 return errors;
             }
 
+            var photos = new List<RestaurantPhoto>();
+            foreach (var (photo, order) in request.Photos.Select((photo, index) => (photo, index + 1)))
+            {
+                var result = await uploadService.ProcessUploadNameAsync(
+                    photo,
+                    user.Id,
+                    FileClass.Image,
+                    nameof(request.Photos));
+                if (result.IsError)
+                {
+                    return result.Errors;
+                }
+
+                photos.Add(new RestaurantPhoto
+                {
+                    PhotoFileName = result.Value,
+                    Order = order
+                });
+            }
+
             var restaurant = new Restaurant
             {
                 Name = request.Name.Trim(),
@@ -147,7 +167,8 @@ namespace Reservant.Api.Services
                 LogoFileName = logoResult.Value,
                 ProvideDelivery = request.ProvideDelivery,
                 Description = request.Description?.Trim(),
-                Tags = tags
+                Tags = tags,
+                Photos = photos
             };
 
             if (!ValidationUtils.TryValidate(restaurant, errors))

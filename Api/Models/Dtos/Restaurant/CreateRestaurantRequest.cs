@@ -98,4 +98,10 @@ public class CreateRestaurantRequest
     /// Restaurant tags
     /// </summary>
     public required HashSet<string> Tags { get; init; }
+
+    /// <summary>
+    /// Restaurant photos
+    /// </summary>
+    [Required]
+    public required List<string> Photos { get; init; }
 }
