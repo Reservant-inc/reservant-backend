@@ -111,7 +111,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             errors.Add(new ValidationResult($"Login can't contain '+' sign.", [nameof(request.Login)]));
             return errors;
         }
-        
+
         var user = new User
         {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -124,7 +124,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             RegisteredAt = DateTime.UtcNow
         };
 
-        
+
         if (!ValidationUtils.TryValidate(user, errors))
         {
             return errors;
@@ -148,6 +148,19 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         return user;
     }
 
+    /// <summary>
+    /// returns whether login provided is unique among registered users
+    /// </summary>
+    /// <returns>Task<bool></returns>
+    public async Task<bool> IsUniqueLoginAsync(string login)
+    {
+        var result = await dbContext
+            .Users
+            .Where(r => r.UserName == login)
+            .AnyAsync();
+
+        return (!result);
+    }
 
 
 
