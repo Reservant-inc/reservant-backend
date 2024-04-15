@@ -186,7 +186,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// returns whether login provided is unique among registered users
     /// </summary>
     /// <returns>Task<bool></returns>
-    public async Task<bool> IsUniqueloginAsync(string login)
+    public async Task<bool> IsUniqueLoginAsync(string login)
     {
         var result = await dbContext
             .Users
