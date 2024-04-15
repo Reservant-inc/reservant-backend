@@ -69,4 +69,10 @@ public class User : IdentityUser
     /// Employer of the user. For restaurant employees
     /// </summary>
     public User? Employer { get; set; }
+
+    /// <summary>
+    /// Navigational collection for the employments. For restaurant employees
+    /// </summary>
+    /// <returns></returns>
+    public ICollection<Employment>? Employments { get; set; }
 }

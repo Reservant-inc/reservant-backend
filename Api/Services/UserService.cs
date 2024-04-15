@@ -8,6 +8,8 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
+using Reservant.Api.Models.Dtos.Employment;
+using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Validation;
 
 
@@ -162,8 +164,29 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         return (!result);
     }
 
-
-
-
-
+    /// <summary>
+    /// Return employees of the given user
+    /// </summary>
+    /// <returns></returns>
+    public async Task<List<UserEmployeeVM>> GetEmployeesAsync(string userId)
+    {
+        return await dbContext.Users
+            .Where(u => u.EmployerId == userId)
+            .Select(u => new UserEmployeeVM
+            {
+                Id = u.Id,
+                Login = u.UserName!,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Employments = u.Employments!
+                    .Select(e => new EmploymentVM
+                    {
+                        RestaurantId = e.RestaurantId,
+                        IsBackdoorEmployee = e.IsBackdoorEmployee,
+                        IsHallEmployee = e.IsHallEmployee
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+    }
 }
