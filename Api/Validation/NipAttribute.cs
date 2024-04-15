@@ -11,7 +11,7 @@ namespace Reservant.Api.Validation;
 public sealed class NipAttribute : ValidationAttribute
 {
     private static readonly Regex Regex1 = new(@"^\d{10}$", RegexOptions.Compiled);
-    private static readonly Regex Regex2 = new(@"^\d{3}-\d{2}-\d{2}-\d{3}$", RegexOptions.Compiled);
+    private static readonly int[] Weights = new[] { 6, 5, 7, 2, 3, 4, 5, 6, 7 };
 
     /// <inheritdoc />
     public override bool IsValid(object? value)
@@ -20,8 +20,25 @@ public sealed class NipAttribute : ValidationAttribute
         {
             return false;
         }
+        
+        if (!Regex1.IsMatch(strValue))
+        {
+            return false;
+        }
+        
+        int sum = 0;
+        for (int i = 0; i < Weights.Length; i++)
+        {
+            sum += Weights[i] * (strValue[i] - '0');
+        }
 
-        return Regex1.IsMatch(strValue) || Regex2.IsMatch(strValue);
+        int checksum = sum % 11;
+        if (checksum == 10)
+        {
+            checksum = 0;
+        }
+        
+        return checksum == (strValue[9] - '0');
     }
 
     /// <inheritdoc />
