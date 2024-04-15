@@ -109,8 +109,7 @@ namespace Reservant.Api.Services
             }
 
             var item = await context.MenuItems
-                .Where(i => i.RestaurantId == restaurantId)
-                .FirstOrDefaultAsync(i => i.Id == menuItemId);
+                .FirstOrDefaultAsync(i => i.Id == menuItemId && i.RestaurantId == restaurantId);
 
             if (item == null)
             {
