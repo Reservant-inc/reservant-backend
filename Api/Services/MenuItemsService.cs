@@ -39,7 +39,7 @@ namespace Reservant.Api.Services
                 RestaurantId = restaurantId,
             }).ToList();
 
-            foreach (var item in req)
+            foreach (var item in menuItems)
             {
                 if (!ValidationUtils.TryValidate(item, errors))
                 {
@@ -109,6 +109,7 @@ namespace Reservant.Api.Services
             }
 
             var item = await context.MenuItems
+                .Where(i => i.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync(i => i.Id == menuItemId);
 
             if (item == null)

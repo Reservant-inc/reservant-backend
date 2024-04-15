@@ -5,6 +5,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
@@ -35,7 +36,8 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         if (res.IsError)
         {
-            return BadRequest();
+            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
+            return ValidationProblem();
         }
 
         return Created("", res.Value);
@@ -57,7 +59,8 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         if (res.IsError)
         {
-            return BadRequest();
+            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
+            return ValidationProblem();
         }
 
         return Ok(res.Value);
@@ -81,7 +84,8 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         if (res.IsError)
         {
-            return BadRequest();
+            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
+            return ValidationProblem();
         }
 
 
