@@ -65,7 +65,7 @@ namespace Reservant.Api.Controllers
         }
 
         [HttpPost("{id:int}/move-to-group")]
-        [ProducesResponseType(200), ProducesResponseType(404)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request) {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.MoveRestaurantToGroupAsync(id, request, user);
