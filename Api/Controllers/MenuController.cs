@@ -43,11 +43,11 @@ public class MenuController(RestaurantMenuService service) : Controller
     [HttpGet("{restaurantId:int}/menus/{menuId:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<MenuVM>>> GetSingleMenuById(int restaurantId, int menuId)
+    public async Task<ActionResult<MenuVM>> GetSingleMenuById(int restaurantId, int menuId)
     {
         var result = await service.GetSingleMenuAsync(restaurantId, menuId);
         
-        return Ok(result);
+        return Ok(result.Value);
     }
 
     /// <summary>
