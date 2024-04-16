@@ -195,7 +195,7 @@ namespace Reservant.Api.Services
         /// <param name="idUser"></param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<bool> setVerifierIdAsync(User user, int idRestaurant)
+        public async Task<bool> SetVerifierIdAsync(User user, int idRestaurant)
         {
             var result = await context
             .Restaurants
@@ -212,6 +212,7 @@ namespace Reservant.Api.Services
             {
                 r.VerifierId=user.Id;
             });
+            await context.SaveChangesAsync();
 
             return true;
         }

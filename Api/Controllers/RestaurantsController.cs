@@ -19,7 +19,6 @@ namespace Reservant.Api.Controllers;
 /// <param name="userManager"></param>
 /// <param name="service"></param>
 [ApiController, Route("/restaurants")]
-//[Authorize(Roles = Roles.CustomerSupportManager)]
 public class RestaurantController(UserManager<User> userManager, RestaurantService service) : Controller
 {
 
@@ -28,9 +27,10 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// </summary>
     /// <param name="restaurantId">int</param>
     /// <returns>conformation if action was performed succesfuly</returns>
-    [HttpPost("{restaurantId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(401)]
-    public async Task<ActionResult> setVerifierId(int restaurantId)
+    [HttpPost("{restaurantId:int}/verify")]
+    [ProducesResponseType(200), ProducesResponseType(404)]
+    [Authorize(Roles.CustomerSupportAgent)]
+    public async Task<ActionResult> SetVerifierId(int restaurantId)
     {
 
         var user = await userManager.GetUserAsync(User);
@@ -40,10 +40,10 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var result = await service.setVerifierIdAsync(user,restaurantId);
+        var result = await service.SetVerifierIdAsync(user,restaurantId);
 
         if(result)
-            return Ok(result);
-        return NotFound(404);
+            return Ok();
+        return NotFound();
     }
 }
