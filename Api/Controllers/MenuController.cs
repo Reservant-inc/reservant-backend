@@ -10,7 +10,7 @@ namespace Reservant.Api.Controllers;
 /// Menu item controller.
 /// </summary>
 [ApiController, Route("/my-restaurants")]
-public class MyMenuItemController(RestaurantMenuService service) : Controller
+public class MenuController(RestaurantMenuService service) : Controller
 {
     
     /// <summary>
