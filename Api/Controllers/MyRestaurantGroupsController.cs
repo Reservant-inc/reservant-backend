@@ -98,6 +98,9 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
 
     }
     
+    /// <summary>
+    /// Updates name of restaurant group
+    /// </summary>
     [HttpPut("{id:int}"), Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(403)]
