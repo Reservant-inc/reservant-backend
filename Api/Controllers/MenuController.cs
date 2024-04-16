@@ -47,7 +47,10 @@ public class MenuController(RestaurantMenuService service) : Controller
     {
         var result = await service.GetSingleMenuAsync(restaurantId, menuId);
         
-        return Ok(result.Value);
+        if (!result.IsError) return Ok(result.Value);
+        
+        ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+        return ValidationProblem();
     }
 
     /// <summary>
@@ -68,7 +71,6 @@ public class MenuController(RestaurantMenuService service) : Controller
 
         ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
         return ValidationProblem();
-
     }
     
 }

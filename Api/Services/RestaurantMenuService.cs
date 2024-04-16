@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Menu;
@@ -56,6 +57,17 @@ public class RestaurantMenuService(ApiDbContext context)
     public async Task<Result<MenuVM?>> GetSingleMenuAsync(int restaurantId, int menuId)
     {
         var errors = new List<ValidationResult>();
+        
+        var restaurantExists = await context.Restaurants.AnyAsync(r => r.Id == restaurantId);
+        if (!restaurantExists)
+            errors.Add(new ValidationResult($"Restaurant with ID {restaurantId} not found.", [nameof(restaurantId)]));
+        
+        var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId && m.RestaurantId == restaurantId);
+        if (!menuExists && restaurantExists)
+            errors.Add(new ValidationResult($"Menu with ID {menuId} not found in restaurant {restaurantId}.", [nameof(menuId)]));
+
+        if (!errors.IsNullOrEmpty()) return errors;
+        
         
         var menu = await context.Menus
             .Include(m => m.MenuItems)
