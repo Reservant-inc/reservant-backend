@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Services;
@@ -24,6 +25,8 @@ public class MenuController(RestaurantMenuService service) : Controller
     public async Task<ActionResult<List<MenuVM>>> GetMenusById(int id)
     {
         var result = await service.GetMenusAsync(id);
+        
+        if (result.IsNullOrEmpty()) return NotFound($"Menus with id {id} not found.");
         
         return Ok(result);
     }
