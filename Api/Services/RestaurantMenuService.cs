@@ -53,7 +53,7 @@ public class RestaurantMenuService(ApiDbContext context)
     /// <param name="menuId"> Id of the menu.</param>
     /// <param name="restaurantId"> Id of the restaurant.</param>
     /// <returns></returns>
-    public async Task<MenuVM> GetSingleMenuAsync(int restaurantId, int menuId)
+    public async Task<MenuVM?> GetSingleMenuAsync(int restaurantId, int menuId)
     {
         var menu = await context.Menus
             .Include(m => m.MenuItems)
