@@ -97,16 +97,26 @@ public class RestaurantMenuService(ApiDbContext context)
     /// </summary>
     /// <param name="req">Request for Menu to be created.</param>
     /// <returns></returns>
-    public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(int restaurantId, CreateMenuRequest req)
+    public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(int restaurantId, CreateMenuRequest req, User user)
     {
-        var restaurant = await context.Restaurants.FindAsync(restaurantId);
         var errors = new List<ValidationResult>();
-            
+
+        var restaurant = await context.Restaurants
+            .Include(r => r.Group)
+            .FirstOrDefaultAsync(r => r.Id == restaurantId);
+
         if (restaurant == null)
         {
-            errors.Add(new ValidationResult($"Restaurant with id: {restaurantId} not found.", [nameof(restaurantId)]));
-            return errors;
+            errors.Add(new ValidationResult($"Restaurant with ID: {restaurantId} not found.", [nameof(restaurantId) ]));
         }
+        else
+        {
+            if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
+                errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {restaurantId}.", [nameof(user.Id)]));
+        }
+        
+        if(!errors.IsNullOrEmpty()) return errors;
+
 
         var newMenu = new Menu
         {
@@ -118,19 +128,20 @@ public class RestaurantMenuService(ApiDbContext context)
 
         context.Menus.Add(newMenu);
         await context.SaveChangesAsync();
-        
-        if (!ValidationUtils.TryValidate(newMenu, errors))
-        {
-            return errors;
-        }
 
-        return new MenuSummaryVM
+        if (!ValidationUtils.TryValidate(newMenu, errors))
+            return new Result<MenuSummaryVM>(errors);
+
+
+        var menuSummary = new MenuSummaryVM
         {
             Id = newMenu.Id,
             MenuType = newMenu.MenuType,
             DateFrom = newMenu.DateFrom,
             DateUntil = newMenu.DateUntil
         };
+
+        return new Result<MenuSummaryVM>(menuSummary);
     }
 
     
