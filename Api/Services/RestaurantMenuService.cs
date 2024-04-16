@@ -104,6 +104,11 @@ public class RestaurantMenuService(ApiDbContext context)
 
         context.Menus.Add(newMenu);
         await context.SaveChangesAsync();
+        
+        if (!ValidationUtils.TryValidate(newMenu, errors))
+        {
+            return errors;
+        }
 
         return new MenuSummaryVM
         {
