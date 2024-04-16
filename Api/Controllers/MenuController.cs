@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Services;
@@ -51,9 +53,11 @@ public class MenuController(RestaurantMenuService service) : Controller
     /// <summary>
     /// Posts menu to the restaurant
     /// </summary>
+    /// <param name="restaurantId">Restaurant id.</param>
     /// <param name="req">Request for Menu to be created.</param>
     /// <returns></returns>
     [HttpPost("{restaurantId:int}/menus")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
     public async Task<ActionResult> CreateMenu(int restaurantId, CreateMenuRequest req)
