@@ -130,7 +130,7 @@ public class RestaurantMenuService(ApiDbContext context)
         await context.SaveChangesAsync();
 
         if (!ValidationUtils.TryValidate(newMenu, errors))
-            return new Result<MenuSummaryVM>(errors);
+            return errors;
 
 
         var menuSummary = new MenuSummaryVM
@@ -141,7 +141,7 @@ public class RestaurantMenuService(ApiDbContext context)
             DateUntil = newMenu.DateUntil
         };
 
-        return new Result<MenuSummaryVM>(menuSummary);
+        return menuSummary;
     }
 
     
