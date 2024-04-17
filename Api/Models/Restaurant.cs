@@ -144,4 +144,9 @@ public class Restaurant
     /// Navigational collection for the employees
     /// </summary>
     public ICollection<Employment>? Employments { get; set; }
+
+    /// <summary>
+    /// Proof of verification by specific CustomerSupportAgent
+    /// </summary>
+    public string? VerifierId { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Restaurant;
@@ -424,6 +425,35 @@ namespace Reservant.Api.Services
                     IsHallEmployee = e.IsHallEmployee
                 })
                 .ToList();
+        }
+
+
+        /// <summary>
+        /// Returns a specific restaurant owned by the user.
+        /// </summary>
+        /// <param name="idUser"></param>
+        /// <param name="idRestaurant"> Id of the restaurant.</param>
+        /// <returns></returns>
+        public async Task<bool> SetVerifierIdAsync(User user, int idRestaurant)
+        {
+            var result = await context
+            .Restaurants
+            .Where(r => r.Id == idRestaurant)
+            .AnyAsync();
+
+            if(!result)
+                return false;
+
+            await context
+            .Restaurants
+            .Where (r => r.Id == idRestaurant)
+            .ForEachAsync(r =>
+            {
+                r.VerifierId=user.Id;
+            });
+            await context.SaveChangesAsync();
+
+            return true;
         }
     }
 }
