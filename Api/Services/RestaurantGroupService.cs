@@ -169,12 +169,15 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             return errors;
         }
         
+
+        
+        restaurantGroup.Name = request.Name.Trim();
+        
         if (!ValidationUtils.TryValidate(restaurantGroup, errors))
         {
             return errors;
         }
         
-        restaurantGroup.Name = request.Name.Trim();
         await context.SaveChangesAsync();
         
         return new RestaurantGroupVM
