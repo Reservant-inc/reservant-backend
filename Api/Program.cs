@@ -126,8 +126,8 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<FileUploadService>();
 builder.Services.AddScoped<RestaurantService>();
 builder.Services.AddScoped<RestaurantGroupService>();
-builder.Services.AddScoped<RestaurantGroupService>();
 builder.Services.AddScoped<MenuItemsService>();
+builder.Services.AddScoped<RestaurantMenuService>();
 
 var app = builder.Build();
 
@@ -154,7 +154,7 @@ using (var scope = app.Services.CreateScope())
     {
         Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
     }
-    
+
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(fileUploadsOptions.GetFullSavePath()),

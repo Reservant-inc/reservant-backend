@@ -27,6 +27,6 @@ public class CreateMenuRequest
     /// <summary>
     /// ID of the restaurant owning the menu
     /// </summary>
-    [Required]
-    public int RestaurantId { get; set; }
+    // [Required]
+    // public int RestaurantId { get; set; }
 }
