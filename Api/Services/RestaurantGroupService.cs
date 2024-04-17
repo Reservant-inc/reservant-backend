@@ -65,7 +65,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             Owner = user,
             Restaurants = restaurants
         };
-
+        
         if (!ValidationUtils.TryValidate(group, errors))
         {
             return errors;
@@ -73,6 +73,12 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
 
         await context.RestaurantGroups.AddAsync(group);
         await context.SaveChangesAsync();
+        
+        if (!ValidationUtils.TryValidate(group, errors))
+        {
+            return errors;
+        }
+        
         return group;
     }
 
