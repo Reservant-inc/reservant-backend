@@ -25,7 +25,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpGet("{id:int}/menus")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<List<MenuVM>>> GetMenusById(int id)
+    public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int id)
     {
         var result = await service.GetMenusAsync(id);
         

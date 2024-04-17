@@ -24,24 +24,17 @@ public class RestaurantMenuService(ApiDbContext context)
     /// </summary>
     /// <param name="id"> Id of the restaurant.</param>
     /// <returns></returns>
-    public async Task<List<MenuVM>> GetMenusAsync(int id)
+    public async Task<List<MenuSummaryVM>> GetMenusAsync(int id)
     {
         var menus = await context.Menus
             .Where(m => m.RestaurantId == id)
             .Include(m => m.MenuItems)
-            .Select(menu => new MenuVM
+            .Select(menu => new MenuSummaryVM
             {
                 Id = menu.Id,
                 MenuType = menu.MenuType,
                 DateFrom = menu.DateFrom,
-                DateUntil = menu.DateUntil,
-                MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
-                {
-                    Id = mi.Id,
-                    Name = mi.Name,
-                    Price = mi.Price,
-                    AlcoholPercentage = mi.AlcoholPercentage
-                }).ToList()
+                DateUntil = menu.DateUntil
             })
             .ToListAsync();
 
