@@ -43,7 +43,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <returns></returns>
     [HttpGet("{restaurantId:int}/menus/{menuId:int}")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(400)]
     public async Task<ActionResult<MenuVM>> GetSingleMenuById(int restaurantId, int menuId)
     {
         var result = await service.GetSingleMenuAsync(restaurantId, menuId);
@@ -63,7 +63,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpPost("{restaurantId:int}/menus")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
-    [ProducesResponseType(404)]
+    [ProducesResponseType(400)]
     public async Task<ActionResult> CreateMenu(int restaurantId, CreateMenuRequest req)
     {
         var user = await userManager.GetUserAsync(User);
