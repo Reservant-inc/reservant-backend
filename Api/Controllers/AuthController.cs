@@ -31,6 +31,9 @@ public class AuthController(
     /// <summary>
     /// Endpoint for restaurant owners to register their employees.
     /// </summary>
+    /// <remarks>
+    /// Actual user login is set to '{current user's login}+{login from request}'.
+    /// </remarks>
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("register-restaurant-employee"), Authorize(Roles = Roles.RestaurantOwner)]
