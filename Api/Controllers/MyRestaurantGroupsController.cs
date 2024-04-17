@@ -97,4 +97,26 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         }
 
     }
+    
+    /// <summary>
+    /// Updates name of restaurant group
+    /// </summary>
+    [HttpPut("{id:int}"), Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<RestaurantGroupVM>> UpdateRestaurantGroupInfo(int id, UpdateRestaurantGroupRequest request)
+    {
+        var user = await userManager.GetUserAsync(User);
+        var result = await service.UpdateRestaurantGroupAsync(id, request, user.Id);
+    
+        if (!result.IsError)
+        {
+            return Ok(result.Value);
+        }
+    
+        ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+        return BadRequest(ModelState);
+    }
+    
 }

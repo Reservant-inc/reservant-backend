@@ -6,8 +6,7 @@ using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Restaurant;
-using System.Text.RegularExpressions;
-using Reservant.Api.Models.Dtos.Table;
+
 
 namespace Reservant.Api.Services;
 
@@ -66,7 +65,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             Owner = user,
             Restaurants = restaurants
         };
-
+        
         if (!ValidationUtils.TryValidate(group, errors))
         {
             return errors;
@@ -74,6 +73,8 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
 
         await context.RestaurantGroups.AddAsync(group);
         await context.SaveChangesAsync();
+        
+        
         return group;
     }
 
@@ -139,5 +140,63 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
                 Tags = r.Tags!.Select(t => t.Name).ToList()
             }).ToList()
         });
+    }
+    
+    /// <summary>
+    /// Updates restaurant group name.
+    /// </summary>
+    /// <param name="groupId">The ID of the restaurant group.</param>
+    /// <param name="request">Request containing restaurant name.</param>
+    /// <param name="userId">Id of user calling the method</param>
+    public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
+    {
+        var errors = new List<ValidationResult>();
+        var restaurantGroup = await context.RestaurantGroups
+            .Include(restaurantGroup => restaurantGroup.Restaurants)!
+            .ThenInclude(restaurant => restaurant.Tags!)
+            .FirstOrDefaultAsync(rg => rg.Id == groupId);
+    
+    
+        if (restaurantGroup == null)
+        {
+            errors.Add(new ValidationResult($"RestaurantGroup with ID {groupId} not found."));
+            return errors;
+        }
+        
+        if (restaurantGroup.OwnerId != userId)
+        {
+            errors.Add(new ValidationResult($"User with ID {userId} is not an Owner of group {groupId}."));
+            return errors;
+        }
+        
+
+        
+        restaurantGroup.Name = request.Name.Trim();
+        
+        if (!ValidationUtils.TryValidate(restaurantGroup, errors))
+        {
+            return errors;
+        }
+        
+        await context.SaveChangesAsync();
+        
+        return new RestaurantGroupVM
+        {
+            Id = restaurantGroup.Id,
+            Name = restaurantGroup.Name,
+            Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Address = r.Address,
+                RestaurantType = r.RestaurantType,
+                City = r.City,
+                GroupId = r.GroupId,
+                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Description = r.Description,
+                ProvideDelivery = r.ProvideDelivery,
+                Tags = r.Tags!.Select(t => t.Name).ToList()
+            }).ToList()
+        };
     }
 }
