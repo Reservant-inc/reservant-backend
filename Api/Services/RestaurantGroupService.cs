@@ -74,10 +74,6 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
         await context.RestaurantGroups.AddAsync(group);
         await context.SaveChangesAsync();
         
-        if (!ValidationUtils.TryValidate(group, errors))
-        {
-            return errors;
-        }
         
         return group;
     }
@@ -173,6 +169,10 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             return errors;
         }
         
+        if (!ValidationUtils.TryValidate(group, errors))
+        {
+            return errors;
+        }
         
         restaurantGroup.Name = request.Name.Trim();
         await context.SaveChangesAsync();
