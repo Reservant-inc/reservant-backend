@@ -21,6 +21,12 @@ namespace Reservant.Api.Services;
 public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 {
     /// <summary>
+    /// Used to generate restaurant employee's logins:
+    /// '{employer's login}{separator}{employees's login}'
+    /// </summary>
+    private const string RestaurantEmployeeLoginSeparator = "+";
+
+    /// <summary>
     /// Register a new restaurant Customer Support Agent.
     /// </summary>
     /// <param name="request"></param>
@@ -72,7 +78,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         var errors = new List<ValidationResult>();
 
-        var username = employer.UserName + "+" + request.Login.Trim();
+        var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
         var employee = new User {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -108,9 +114,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
     {
         var errors = new List<ValidationResult>();
-        if(request.Login.Contains('+'))
+        if (request.Login.Contains(RestaurantEmployeeLoginSeparator))
         {
-            errors.Add(new ValidationResult($"Login can't contain '+' sign.", [nameof(request.Login)]));
+            errors.Add(new ValidationResult(
+                $"Login can't contain '{RestaurantEmployeeLoginSeparator}'.", [nameof(request.Login)]));
             return errors;
         }
 
