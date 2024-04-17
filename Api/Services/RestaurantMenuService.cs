@@ -105,7 +105,7 @@ public class RestaurantMenuService(ApiDbContext context)
         else
         {
             if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
-                errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {restaurantId}.", [nameof(user.Id)]));
+                errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {restaurantId}.", [nameof(restaurantId)]));
         }
         
         if(!errors.IsNullOrEmpty()) return errors;
