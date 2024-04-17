@@ -29,7 +29,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns>conformation if action was performed succesfuly</returns>
     [HttpPost("{restaurantId:int}/verify")]
     [ProducesResponseType(200), ProducesResponseType(404)]
-    [Authorize(Roles.CustomerSupportAgent)]
+    [Authorize(Roles = Roles.CustomerSupportAgent)]
     public async Task<ActionResult> SetVerifierId(int restaurantId)
     {
 
