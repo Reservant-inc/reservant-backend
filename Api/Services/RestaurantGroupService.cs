@@ -169,7 +169,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             return errors;
         }
         
-        if (!ValidationUtils.TryValidate(group, errors))
+        if (!ValidationUtils.TryValidate(restaurantGroup, errors))
         {
             return errors;
         }
