@@ -125,5 +125,18 @@ namespace Reservant.Api.Controllers
 
             return Ok(result.Value);
         }
+
+        [HttpPut("{id:int}")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<RestaurantVM>> EditRestaurantInfo(int id, UpdateRestaurantRequest request)
+        {
+            var user = await userManager.GetUserAsync(User);
+
+            //var result = await restaurantService.
+
+        }
     }
 }
