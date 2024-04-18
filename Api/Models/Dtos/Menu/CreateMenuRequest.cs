@@ -8,6 +8,12 @@ namespace Reservant.Api.Models.Dtos.Menu;
 public class CreateMenuRequest
 {
     /// <summary>
+    /// id of restaurant this menu will belog to
+    /// </summary>
+    [Required]
+    public int restaurantId { get; set; }
+
+    /// <summary>
     /// Typ menu
     /// </summary>
     [Required]

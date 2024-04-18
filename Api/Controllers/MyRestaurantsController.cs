@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using Microsoft.IdentityModel.Tokens;
+using Reservant.Api.Models.Dtos.MenuItem;
+
 
 namespace Reservant.Api.Controllers
 {
@@ -124,6 +128,44 @@ namespace Reservant.Api.Controllers
             }
 
             return Ok(result.Value);
+        }
+
+        /// <summary>
+        /// Get list of menus by given restaurant id
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{id:int}/menus")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int id)
+        {
+            var result = await restaurantService.GetMenusAsync(id);
+            
+            if (result.IsNullOrEmpty()) return NotFound($"Menus with id {id} not found.");
+            
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Gets menu items from the given restaurant
+        /// </summary>
+        /// <param name="restaurantId"></param>
+        /// <returns>The found list of menuItems</returns>
+        [HttpGet("{id:int}/menu-items")]
+        [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
+        public async Task<ActionResult<MenuItemVM>> GetMenuItems(int restaurantId)
+        {
+            var user = await userManager.GetUserAsync(User);
+
+            var res = await restaurantService.GetMenuItemsAsync(user!, restaurantId);
+
+            if (res.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
+                return ValidationProblem();
+            }
+
+            return Ok(res.Value);
         }
     }
 }
