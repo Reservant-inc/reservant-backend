@@ -8,6 +8,7 @@ using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Services
 {
@@ -434,7 +435,7 @@ namespace Reservant.Api.Services
         /// <param name="idUser"></param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<bool> SetVerifierIdAsync(User user, int idRestaurant)
+        public async Task<int> SetVerifierIdAsync(User user, int idRestaurant)
         {
             var result = await context
             .Restaurants
@@ -442,7 +443,15 @@ namespace Reservant.Api.Services
             .AnyAsync();
 
             if(!result)
-                return false;
+                return 1;
+
+            result = await context
+            .Restaurants
+            .Where(r => r.VerifierId == user.Id)
+            .AnyAsync();
+
+            if(!result)
+                return 2;
 
             await context
             .Restaurants
@@ -453,7 +462,7 @@ namespace Reservant.Api.Services
             });
             await context.SaveChangesAsync();
 
-            return true;
+            return 3;
         }
     }
 }

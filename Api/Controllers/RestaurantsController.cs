@@ -29,7 +29,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns>conformation if action was performed succesfuly</returns>
     [HttpPost("{restaurantId:int}/verify")]
     [ProducesResponseType(200), ProducesResponseType(404)]
-    [Authorize(Roles = Roles.CustomerSupportAgent)]
+    //[Authorize(Roles = Roles.CustomerSupportAgent)]
     public async Task<ActionResult> SetVerifierId(int restaurantId)
     {
 
@@ -42,8 +42,10 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         var result = await service.SetVerifierIdAsync(user,restaurantId);
 
-        if(result)
+        if(result==1)
             return Ok();
+        if(result==2)
+            return BadRequest("already veryfied");
         return NotFound();
     }
 }
