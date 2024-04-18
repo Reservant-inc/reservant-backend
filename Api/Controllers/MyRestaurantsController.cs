@@ -125,7 +125,11 @@ namespace Reservant.Api.Controllers
 
             return Ok(result.Value);
         }
-
+        
+        /// <summary>
+        /// Get list of restaurant's employees
+        /// </summary>
+        /// <param name="id">ID of the restaurant</param>
         [HttpPut("{id:int}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200)]
@@ -136,7 +140,7 @@ namespace Reservant.Api.Controllers
             var user = await userManager.GetUserAsync(User);
 
             //var result = await restaurantService.
-
+            return Ok();
         }
     }
 }
