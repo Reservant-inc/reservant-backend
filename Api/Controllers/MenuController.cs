@@ -90,7 +90,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     {
         var user = await userManager.GetUserAsync(User);
 
-        var result = await service.AddItemsToMenu(id, request, user);
+        var result = await service.AddItemsToMenuAsync(id, request, user);
         
         if (!result.IsError) return Ok(result.Value);
         

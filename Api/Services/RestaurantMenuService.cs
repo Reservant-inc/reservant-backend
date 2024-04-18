@@ -138,7 +138,7 @@ public class RestaurantMenuService(ApiDbContext context)
     }
     
     
-    public async Task<Result<MenuVM>> AddItemsToMenu(int menuId, AddItemsRequest request, User user)
+    public async Task<Result<MenuVM>> AddItemsToMenuAsync(int menuId, AddItemsRequest request, User user)
     {
         
         var errors = new List<ValidationResult>();
