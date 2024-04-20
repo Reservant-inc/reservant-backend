@@ -630,6 +630,55 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
+        /// Deletes a restaurant
+        /// </summary>
+        /// <param name="id">ID of the restaurant to delete</param>
+        /// <param name="user">User requesting a deletion</param>
+        public async Task<Result<bool>> DeleteRestaurantAsync(int id, User user)
+        {
+            var errors = new List<ValidationResult>();
+    
+            var restaurant = await context.Restaurants
+                .Include(r => r.Group)
+                .Include(r => r.Photos)
+                .Include(r => r.Tags)
+                .Include(r => r.Tables)
+                .Include(r => r.Employments)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (restaurant == null)
+            {
+                errors.Add(new ValidationResult($"Restaurant with ID {id} not found."));
+                return errors;
+            }
+
+            if (restaurant.Group?.OwnerId != user.Id)
+            {
+                errors.Add(new ValidationResult("User is not the owner of this restaurant."));
+                return errors;
+            }
+
+            // Removing dependencies
+            context.RestaurantPhotos.RemoveRange(restaurant.Photos);
+            context.Tables.RemoveRange(restaurant.Tables);
+            context.Employments.RemoveRange(restaurant.Employments);
+
+
+            context.Restaurants.Remove(restaurant);
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                errors.Add(new ValidationResult("Failed to delete restaurant: " + ex.Message));
+                return errors;
+            }
+        }
+        
+        /// <summary>
         /// Returns a specific restaurant owned by the user.
         /// </summary>
         /// <param name="idUser"></param>
