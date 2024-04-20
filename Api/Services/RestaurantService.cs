@@ -455,7 +455,12 @@ namespace Reservant.Api.Services
 
             return true;
         }
-
+        /// <summary>
+        /// Validates if given dto is valid. If a group is given, checks if that group belongs to User
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<Result<bool>> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
         {
             var errors = new List<ValidationResult>();
