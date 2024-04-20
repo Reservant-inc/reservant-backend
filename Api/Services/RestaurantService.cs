@@ -455,5 +455,40 @@ namespace Reservant.Api.Services
 
             return true;
         }
+
+        public async Task<Result<bool>> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
+        {
+            var errors = new List<ValidationResult>();
+
+            if (!ValidationUtils.TryValidate(dto, errors))
+            {
+                return errors;
+            }
+
+            if (dto.GroupId != null)
+            {
+                var group = await context.RestaurantGroups.FindAsync(dto.GroupId);
+
+                if (group is null)
+                {
+                    errors.Add(new ValidationResult(
+                        $"Group with ID {dto.GroupId} not found",
+                        [nameof(dto.GroupId)]));
+                    return errors;
+                }
+
+                if (group.OwnerId != user.Id)
+                {
+                    errors.Add(new ValidationResult(
+                        $"Group with ID {dto.GroupId} is not owned by the current user",
+                        [nameof(dto.GroupId)]));
+                    return errors;
+                }
+
+            }
+
+            return true;
+
+        }
     }
 }
