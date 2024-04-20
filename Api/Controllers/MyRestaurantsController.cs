@@ -127,9 +127,10 @@ namespace Reservant.Api.Controllers
         }
         
         /// <summary>
-        /// Get list of restaurant's employees
+        /// Updates restaurant info
         /// </summary>
         /// <param name="id">ID of the restaurant</param>
+        /// <param name="request">Request with data</param>
         [HttpPut("{id:int}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200)]
@@ -139,8 +140,14 @@ namespace Reservant.Api.Controllers
         {
             var user = await userManager.GetUserAsync(User);
 
-            //var result = await restaurantService.
-            return Ok();
+            var result = await restaurantService.UpdateRestaurantAsync(id, request, user);
+
+            if (!result.IsError)
+            {
+                return Ok(result.Value);
+            }
+            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+            return ValidationProblem();
         }
     }
 }
