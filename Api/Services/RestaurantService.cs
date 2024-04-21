@@ -188,11 +188,12 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user) {
+        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user)
+        {
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group!.OwnerId == userId)
-                .Select(r=> new RestaurantSummaryVM
+                .Select(r => new RestaurantSummaryVM
                 {
                     Id = r.Id,
                     Name = r.Name,
@@ -445,15 +446,15 @@ namespace Reservant.Api.Services
             .Where(r => r.Id == idRestaurant)
             .AnyAsync();
 
-            if(!result)
+            if (!result)
                 return false;
 
             await context
             .Restaurants
-            .Where (r => r.Id == idRestaurant)
+            .Where(r => r.Id == idRestaurant)
             .ForEachAsync(r =>
             {
-                r.VerifierId=user.Id;
+                r.VerifierId = user.Id;
             });
             await context.SaveChangesAsync();
 
@@ -498,6 +499,23 @@ namespace Reservant.Api.Services
 
             return true;
 
+        }
+
+        public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
+        {
+            var errors = new List<ValidationResult>();
+            var restaurant = await context.Restaurants.Include(r => r.Group).ThenInclude(g => g.OwnerId == user.Id).Where(r => r.Id == id && r.IsDeleted == false).FirstOrDefaultAsync();
+            if (restaurant == null)
+            {
+                errors.Add(new ValidationResult($"No restaurant found"));
+                return errors;
+            }
+            await context.Restaurants.Where(r => r == restaurant).ForEachAsync(r => r.IsDeleted = true);
+            if (restaurant.Group.Restaurants.Count > 1) {
+                context.Remove(restaurant.Group);
+            }
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

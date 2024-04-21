@@ -253,8 +253,8 @@ internal class DbSeeder(
             Tags = await context.RestaurantTags
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
-            VerifierId = null!
-
+            VerifierId = null!,
+            IsDeleted = false
         };
         context.Restaurants.Add(johnDoes);
 
@@ -420,7 +420,8 @@ internal class DbSeeder(
             Tags = context.RestaurantTags
                 .Where(rt => rt.Name == "OnSite")
                 .ToList(),
-            VerifierId = null!
+            VerifierId = null!,
+            IsDeleted = false
         };
         context.Restaurants.Add(johnDoes2);
 

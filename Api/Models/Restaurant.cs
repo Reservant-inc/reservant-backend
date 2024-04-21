@@ -149,4 +149,8 @@ public class Restaurant
     /// Proof of verification by specific CustomerSupportAgent
     /// </summary>
     public string? VerifierId { get; set; }
+    /// <summary>
+    /// Property for showing effects of soft-delete
+    /// </summary>
+    public bool IsDeleted { get; set; } = false; //Default false
 }
