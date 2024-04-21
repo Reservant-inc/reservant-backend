@@ -314,7 +314,7 @@ internal class DbSeeder(
         await restaurantService.AddEmployeeAsync(
             new AddEmployeeRequest
             {
-                EmployeeId = hallEmployee.Id,
+                Id = hallEmployee.Id,
                 IsBackdoorEmployee = false,
                 IsHallEmployee = true
             },
@@ -332,7 +332,7 @@ internal class DbSeeder(
         await restaurantService.AddEmployeeAsync(
             new AddEmployeeRequest
             {
-                EmployeeId = backdoorEmployee.Id,
+                Id = backdoorEmployee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = false
             },
@@ -462,7 +462,7 @@ internal class DbSeeder(
         await restaurantService.AddEmployeeAsync(
             new AddEmployeeRequest
             {
-                EmployeeId = employee.Id,
+                Id = employee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = true
             },

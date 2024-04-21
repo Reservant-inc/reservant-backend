@@ -294,13 +294,13 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var employee = await context.Users.FindAsync(request.EmployeeId);
+            var employee = await context.Users.FindAsync(request.Id);
             if (employee is null)
             {
                 return new List<ValidationResult>
                 {
-                    new($"User with ID {request.EmployeeId} not found",
-                        [nameof(request.EmployeeId)])
+                    new($"User with ID {request.Id} not found",
+                        [nameof(request.Id)])
                 };
             }
 
@@ -309,12 +309,12 @@ namespace Reservant.Api.Services
             {
                 return new List<ValidationResult>
                 {
-                    new($"User with ID {request.EmployeeId} is not current user's employee",
-                        [nameof(request.EmployeeId)])
+                    new($"User with ID {request.Id} is not current user's employee",
+                        [nameof(request.Id)])
                 };
             }
 
-            var existingEmployment = await context.Employments.FindAsync(request.EmployeeId, restaurantId);
+            var existingEmployment = await context.Employments.FindAsync(request.Id, restaurantId);
             if (existingEmployment is not null)
             {
                 existingEmployment.IsHallEmployee = request.IsHallEmployee;
@@ -324,7 +324,7 @@ namespace Reservant.Api.Services
             {
                 context.Employments.Add(new Employment
                 {
-                    EmployeeId = request.EmployeeId,
+                    EmployeeId = request.Id,
                     RestaurantId = restaurantId,
                     IsBackdoorEmployee = request.IsBackdoorEmployee,
                     IsHallEmployee = request.IsHallEmployee
