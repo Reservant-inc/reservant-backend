@@ -30,13 +30,13 @@ namespace Reservant.Api.Controllers
             return Ok();
         }
 
-        [HttpGet("{empId:string}")]
+        [HttpGet("{employeeId}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-        public async Task<ActionResult<UserDetailsVM>> GetEmployee(string empId)
+        public async Task<ActionResult<UserDetailsVM>> GetEmployee(string employeeId)
         {
 
-            var result = await userService.GetEmployeeAsync(empId, User);
+            var result = await userService.GetEmployeeAsync(employeeId, User);
 
             if (result.IsError)
             {
