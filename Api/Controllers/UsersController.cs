@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -27,6 +28,17 @@ namespace Reservant.Api.Controllers
             User user = result.Value;
             if (user == null){ return NotFound(); }
             return Ok();
+        }
+
+        [HttpGet("{empId:string}")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+        public async Task<ActionResult<UserDetailsVM>> GetEmployee(string empId)
+        {
+
+            var result = await userService.GetEmployeeAsync(empId, User);
+
+
         }
     }
 }

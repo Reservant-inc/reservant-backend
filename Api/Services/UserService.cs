@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices.JavaScript;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -195,5 +196,28 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
                     .ToList()
             })
             .ToListAsync();
+    }
+
+    public async Task<Result<User>> GetEmployeeAsync(string empId, ClaimsPrincipal user)
+    {
+
+        var errors = new List<ValidationResult>();
+
+        var owner = (await userManager.GetUserAsync(user))!;
+        var emp = await userManager.FindByIdAsync(empId);
+
+        if (emp is null)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} not found"));
+            return errors;
+        }
+
+        if (emp.EmployerId != owner.Id)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
+            return errors;
+        }
+
+        return emp;
     }
 }
