@@ -31,4 +31,31 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         return Ok(await userService.GetEmployeesAsync(userId));
     }
+
+    [HttpGet]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(401)]
+    public async Task<ActionResult<UserDetailsVM>> GetUser()
+    {
+
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        return Ok(new UserDetailsVM
+        {
+            Id = user.Id,
+            Login = "",
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            RegisteredAt = user.RegisteredAt,
+            BirthDate = user.BirthDate,
+            Roles = [Roles.RestaurantOwner],
+            EmployerId = user.EmployerId,
+        });
+    }
 }
