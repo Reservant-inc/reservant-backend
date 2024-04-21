@@ -227,13 +227,59 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         return emp;
     }
     /// <summary>
-    /// Gets roles for the given user
+    /// Gets roles for the given ClaimsPrincipal
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<List<string>> GetRolesAsync(ClaimsPrincipal user)
+    public async Task<List<string>> GetRolesAsync(ClaimsPrincipal claims)
     {
-        var currentUser = await userManager.GetUserAsync(user);
-        return [.. await userManager.GetRolesAsync(currentUser!)];
+        var user = await userManager.GetUserAsync(claims);
+        return [.. await userManager.GetRolesAsync(user!)];
+    }
+
+    /// <summary>
+    /// Gets roles for the given User
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<List<string>> GetRolesAsync(User user)
+    {
+        return [.. await userManager.GetRolesAsync(user!)];
+    }
+    /// <summary>
+    /// Updates a specified employee, provided he works for the current user
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="empId"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, string empId, ClaimsPrincipal user)
+    {
+        var errors = new List<ValidationResult>();
+
+        var owner = (await userManager.GetUserAsync(user))!;
+        var employee = await userManager.FindByIdAsync(empId);
+
+        if (employee is null)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} not found", [nameof(empId)]));
+            return errors;
+        }
+
+        if (employee.EmployerId != owner.Id)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}", [nameof(empId)]));
+            return errors;
+        }
+
+        employee.Email = request.Email;
+        employee.PhoneNumber = request.PhoneNumber;
+        employee.FirstName = request.FirstName;
+        employee.LastName = request.LastName;
+        employee.BirthDate = request.BirthDate;
+
+        await userManager.UpdateAsync(employee);
+
+        return employee;
     }
 }

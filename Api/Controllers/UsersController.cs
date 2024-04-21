@@ -49,7 +49,38 @@ namespace Reservant.Api.Controllers
             return Ok(new UserDetailsVM
             {
                 Id = emp.Id,
-                Login = "",
+                Login = emp.UserName!,
+                Email = emp.Email,
+                PhoneNumber = emp.PhoneNumber,
+                FirstName = emp.FirstName,
+                LastName = emp.LastName,
+                RegisteredAt = emp.RegisteredAt,
+                BirthDate = emp.BirthDate,
+                Roles = await userService.GetRolesAsync(emp),
+                EmployerId = emp.EmployerId,
+            });
+
+        }
+
+        [HttpPut("{employeeId}")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+        public async Task<ActionResult<UserDetailsVM>> PutEmployee(UpdateUserDetailsRequest request, string employeeId)
+        {
+            var result = await userService.PutEmployeeAsync(request, employeeId, User);
+
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+                return ValidationProblem();
+            }
+
+            var emp = result.Value;
+
+            return Ok(new UserDetailsVM
+            {
+                Id = emp.Id,
+                Login = emp.UserName!,
                 Email = emp.Email,
                 PhoneNumber = emp.PhoneNumber,
                 FirstName = emp.FirstName,
@@ -59,7 +90,6 @@ namespace Reservant.Api.Controllers
                 Roles = await userService.GetRolesAsync(User),
                 EmployerId = emp.EmployerId,
             });
-
         }
     }
 }

@@ -50,7 +50,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
         return Ok(new UserDetailsVM
         {
             Id = user.Id,
-            Login = "",
+            Login = user.UserName!,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
             FirstName = user.FirstName,
