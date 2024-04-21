@@ -229,7 +229,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// <summary>
     /// Gets roles for the given ClaimsPrincipal
     /// </summary>
-    /// <param name="user"></param>
+    /// <param name="claims"></param>
     /// <returns></returns>
     public async Task<List<string>> GetRolesAsync(ClaimsPrincipal claims)
     {
@@ -246,6 +246,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     {
         return [.. await userManager.GetRolesAsync(user!)];
     }
+
     /// <summary>
     /// Updates a specified employee, provided he works for the current user
     /// </summary>
@@ -256,6 +257,11 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, string empId, ClaimsPrincipal user)
     {
         var errors = new List<ValidationResult>();
+
+        if (!ValidationUtils.TryValidate(request, errors))
+        {
+            return errors;
+        }
 
         var owner = (await userManager.GetUserAsync(user))!;
         var employee = await userManager.FindByIdAsync(empId);

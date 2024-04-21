@@ -87,7 +87,7 @@ namespace Reservant.Api.Controllers
                 LastName = emp.LastName,
                 RegisteredAt = emp.RegisteredAt,
                 BirthDate = emp.BirthDate,
-                Roles = await userService.GetRolesAsync(User),
+                Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
             });
         }

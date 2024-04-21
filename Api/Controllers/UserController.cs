@@ -5,6 +5,8 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Controllers;
 
@@ -46,6 +48,51 @@ public class UserController(UserManager<User> userManager, UserService userServi
         {
             return Unauthorized();
         }
+
+        return Ok(new UserDetailsVM
+        {
+            Id = user.Id,
+            Login = user.UserName!,
+            Email = user.Email,
+            PhoneNumber = user.PhoneNumber,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            RegisteredAt = user.RegisteredAt,
+            BirthDate = user.BirthDate,
+            Roles = await userService.GetRolesAsync(User),
+            EmployerId = user.EmployerId,
+        });
+    }
+    /// <summary>
+    /// Updates current user
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPut]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(401)]
+    public async Task<ActionResult<UserDetailsVM>> PutUser(UpdateUserDetailsRequest request)
+    {
+
+        var errors = new List<ValidationResult>();
+
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        if (!ValidationUtils.TryValidate(request, errors))
+        {
+            ValidationUtils.AddErrorsToModel(errors, ModelState);
+            return ValidationProblem();
+        }
+
+        user.Email = request.Email;
+        user.PhoneNumber = request.PhoneNumber;
+        user.FirstName = request.FirstName;
+        user.LastName = request.LastName;
+        user.BirthDate = request.BirthDate;
 
         return Ok(new UserDetailsVM
         {
