@@ -19,9 +19,7 @@ builder.Services.AddOptions<JwtOptions>()
     .ValidateOnStart();
 
 builder.Services.AddOptions<FileUploadsOptions>()
-    .BindConfiguration(FileUploadsOptions.ConfigSection)
-    .ValidateDataAnnotations()
-    .Validate(
+    .BindConfigsekude
         o => Path.EndsInDirectorySeparator(o.GetFullSavePath()),
         $"{nameof(FileUploadsOptions.SavePath)} must end with /")
     .Validate(
