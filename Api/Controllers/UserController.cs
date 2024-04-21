@@ -44,6 +44,8 @@ public class UserController(UserManager<User> userManager, UserService userServi
             return Unauthorized();
         }
 
+        
+
         return Ok(new UserDetailsVM
         {
             Id = user.Id,
@@ -54,7 +56,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
             LastName = user.LastName,
             RegisteredAt = user.RegisteredAt,
             BirthDate = user.BirthDate,
-            Roles = [Roles.RestaurantOwner],
+            Roles = [.. await userManager.GetRolesAsync(user)],
             EmployerId = user.EmployerId,
         });
     }
