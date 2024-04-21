@@ -30,6 +30,11 @@ namespace Reservant.Api.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Gets employee who works for the current user
+        /// </summary>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
         [HttpGet("{employeeId}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
@@ -61,7 +66,12 @@ namespace Reservant.Api.Controllers
             });
 
         }
-
+        /// <summary>
+        /// Updates employee who works for the current user
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="employeeId"></param>
+        /// <returns></returns>
         [HttpPut("{employeeId}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
