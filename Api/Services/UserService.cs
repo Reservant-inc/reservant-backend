@@ -198,6 +198,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Gets the employee with the given id, provided he works for the current user
+    /// </summary>
+    /// <param name="empId"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public async Task<Result<User>> GetEmployeeAsync(string empId, ClaimsPrincipal user)
     {
 

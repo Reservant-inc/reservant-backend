@@ -38,6 +38,27 @@ namespace Reservant.Api.Controllers
 
             var result = await userService.GetEmployeeAsync(empId, User);
 
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+                return ValidationProblem();
+            }
+           
+            var emp = result.Value;
+
+            return Ok(new UserDetailsVM
+            {
+                Id = emp.Id,
+                Login = "",
+                Email = emp.Email,
+                PhoneNumber = emp.PhoneNumber,
+                FirstName = emp.FirstName,
+                LastName = emp.LastName,
+                RegisteredAt = emp.RegisteredAt,
+                BirthDate = emp.BirthDate,
+                Roles = [],
+                EmployerId = emp.EmployerId,
+            });
 
         }
     }
