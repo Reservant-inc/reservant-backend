@@ -125,5 +125,25 @@ namespace Reservant.Api.Controllers
 
             return Ok(result.Value);
         }
+        /// <summary>
+        /// Validates input fields for Restaurant Registration process
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPost("validate-first-step")]
+        [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+        public async Task<ActionResult> ValidateFirstStep(ValidateRestaurantFirstStepRequest dto)
+        {
+            var user = await userManager.GetUserAsync(User);
+            var result = await restaurantService.ValidateFirstStepAsync(dto, user!);
+
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+                return ValidationProblem();
+            }
+
+            return Ok();
+        }
     }
 }
