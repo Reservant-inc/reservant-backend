@@ -26,6 +26,11 @@ public class RestaurantEmployeeVM
     public required string LastName { get; init; }
 
     /// <summary>
+    /// User's phone number
+    /// </summary>
+    public required string PhoneNumber { get; init; }
+
+    /// <summary>
     /// Whether the employee is a hall employee (pracownik sali)
     /// </summary>
     public required bool IsHallEmployee { get; init; }
