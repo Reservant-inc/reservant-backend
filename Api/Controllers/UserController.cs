@@ -31,7 +31,10 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         return Ok(await userService.GetEmployeesAsync(userId));
     }
-
+    /// <summary>
+    /// Gets information about the current user.
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(401)]
@@ -43,8 +46,6 @@ public class UserController(UserManager<User> userManager, UserService userServi
         {
             return Unauthorized();
         }
-
-        
 
         return Ok(new UserDetailsVM
         {
