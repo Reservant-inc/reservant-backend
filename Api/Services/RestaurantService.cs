@@ -203,7 +203,8 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
-                    Tags = r.Tags!.Select(t => t.Name).ToList()
+                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    IsVerified = r.VerifierId != null
                 })
                 .ToListAsync();
             return result;
@@ -249,7 +250,8 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
-                    Tags = r.Tags!.Select(t => t.Name).ToList()
+                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    IsVerified = r.VerifierId != null
                 })
                 .AsSplitQuery()
                 .FirstOrDefaultAsync();
@@ -381,7 +383,8 @@ namespace Reservant.Api.Services
                 Description = restaurant.Description,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
-                ProvideDelivery = restaurant.ProvideDelivery
+                ProvideDelivery = restaurant.ProvideDelivery,
+                IsVerified = restaurant.VerifierId != null
             };
         }
 

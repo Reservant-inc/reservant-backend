@@ -137,7 +137,8 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags!.Select(t => t.Name).ToList()
+                Tags = r.Tags!.Select(t => t.Name).ToList(),
+                IsVerified = r.VerifierId != null
             }).ToList()
         });
     }
@@ -195,7 +196,8 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags!.Select(t => t.Name).ToList()
+                Tags = r.Tags!.Select(t => t.Name).ToList(),
+                IsVerified = r.VerifierId != null
             }).ToList()
         };
     }
