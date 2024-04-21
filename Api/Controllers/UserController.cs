@@ -57,7 +57,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
             LastName = user.LastName,
             RegisteredAt = user.RegisteredAt,
             BirthDate = user.BirthDate,
-            Roles = [.. await userManager.GetRolesAsync(user)],
+            Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
         });
     }

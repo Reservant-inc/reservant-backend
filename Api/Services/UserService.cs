@@ -226,4 +226,14 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         return emp;
     }
+    /// <summary>
+    /// Gets roles for the given user
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<List<string>> GetRolesAsync(ClaimsPrincipal user)
+    {
+        var currentUser = await userManager.GetUserAsync(user);
+        return [.. await userManager.GetRolesAsync(currentUser!)];
+    }
 }
