@@ -1,0 +1,44 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Reservant.Api.Models;
+using Reservant.Api.Options;
+using System.Reflection.Metadata;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Options;
+
+namespace Reservant.Api.Services
+{
+    public class AuthService
+    {
+        public async Task<SecurityToken> GenerateSecurityToken(User user, UserManager<User> userManager, IOptions<JwtOptions> jwtOptions)
+        {
+            JwtSecurityTokenHandler _handler = new();
+            var claims = new List<Claim>
+            {
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(JwtRegisteredClaimNames.Sub, user.Id),
+                new(ClaimTypes.Name, user.UserName!)
+            };
+
+            var roles = userManager.GetRolesAsync(user).Result;
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.Add(TimeSpan.FromHours(jwtOptions.Value.LifetimeHours)),
+                Issuer = jwtOptions.Value.Issuer,
+                Audience = jwtOptions.Value.Audience,
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(jwtOptions.Value.GetKeyBytes()),
+                    SecurityAlgorithms.HmacSha256)
+            };
+
+            var token = _handler.CreateToken(tokenDescriptor);
+            return token;
+        }
+
+
+    }
+}
