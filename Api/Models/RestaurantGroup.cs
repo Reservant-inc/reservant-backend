@@ -31,4 +31,9 @@ public class RestaurantGroup
     /// Navigation collection for the restaurants
     /// </summary>
     public ICollection<Restaurant>? Restaurants { get; set; }
+
+    /// <summary>
+    /// Property for handling soft deletes
+    /// </summary>
+    public bool IsDeleted { get; set; } = false;
 }

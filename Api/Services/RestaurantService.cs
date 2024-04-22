@@ -222,6 +222,7 @@ namespace Reservant.Api.Services
             var result = await context.Restaurants
                 .Where(r => r.Group!.OwnerId == userId)
                 .Where(r => r.Id == id)
+                .Where(r => !r.IsDeleted)
                 .Select(r => new RestaurantVM
                 {
                     Id = r.Id,
@@ -278,7 +279,7 @@ namespace Reservant.Api.Services
             }
 
             var restaurantOwnerId = await context.Restaurants
-                .Where(r => r.Id == restaurantId)
+                .Where(r => r.Id == restaurantId && !r.IsDeleted)
                 .Select(r => r.Group!.OwnerId)
                 .FirstOrDefaultAsync();
             if (restaurantOwnerId is null)
@@ -353,7 +354,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Tags)
                 .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)
-                .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
+                .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id && !r.IsDeleted);
             if (restaurant == null)
             {
                 errors.Add(new ValidationResult(
@@ -400,7 +401,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Group)
                 .Include(r => r.Employments!)
                 .ThenInclude(e => e.Employee)
-                .Where(r => r.Id == id)
+                .Where(r => r.Id == id && !r.IsDeleted)
                 .FirstOrDefaultAsync();
             if (restaurant is null)
             {
@@ -501,6 +502,12 @@ namespace Reservant.Api.Services
 
         }
 
+        /// <summary>
+        /// Function for soft deleting Restaurants that also deletes newly emptied restaurant groups
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var errors = new List<ValidationResult>();
@@ -511,8 +518,9 @@ namespace Reservant.Api.Services
                 return errors;
             }
             await context.Restaurants.Where(r => r == restaurant).ForEachAsync(r => r.IsDeleted = true);
-            if (restaurant.Group.Restaurants.Count == 1) {
-                context.Remove(restaurant.Group);
+            if (restaurant.Group.Restaurants.Where(r => !r.IsDeleted).Count() == 0) {
+                var groupId = restaurant.GroupId;
+                await context.RestaurantGroups.Where(g => g.Id == groupId).ForEachAsync(g => g.IsDeleted = true);
             }
             await context.SaveChangesAsync();
             return true;
