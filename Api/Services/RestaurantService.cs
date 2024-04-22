@@ -192,7 +192,7 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
-                .Where(r => r.Group!.OwnerId == userId)
+                .Where(r => r.Group!.OwnerId == userId && !r.IsDeleted)
                 .Select(r => new RestaurantSummaryVM
                 {
                     Id = r.Id,
@@ -504,14 +504,14 @@ namespace Reservant.Api.Services
         public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var errors = new List<ValidationResult>();
-            var restaurant = await context.Restaurants.Include(r => r.Group).ThenInclude(g => g.OwnerId == user.Id).Where(r => r.Id == id && r.IsDeleted == false).FirstOrDefaultAsync();
+            var restaurant = await context.Restaurants.Include(r => r.Group).Where(r => r.Id == id && r.IsDeleted == false && r.Group.OwnerId == user.Id).FirstOrDefaultAsync();
             if (restaurant == null)
             {
                 errors.Add(new ValidationResult($"No restaurant found"));
                 return errors;
             }
             await context.Restaurants.Where(r => r == restaurant).ForEachAsync(r => r.IsDeleted = true);
-            if (restaurant.Group.Restaurants.Count > 1) {
+            if (restaurant.Group.Restaurants.Count == 1) {
                 context.Remove(restaurant.Group);
             }
             await context.SaveChangesAsync();
