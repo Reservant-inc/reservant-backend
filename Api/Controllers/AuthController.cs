@@ -1,3 +1,4 @@
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,8 @@ namespace Reservant.Api.Controllers;
 public class AuthController(
     UserService userService,
     UserManager<User> userManager,
-    IOptions<JwtOptions> jwtOptions)
+    IOptions<JwtOptions> jwtOptions,
+    AuthService authService)
     : Controller
 {
     private readonly JwtSecurityTokenHandler _handler = new();
@@ -109,29 +111,9 @@ public class AuthController(
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(ClaimTypes.Name, user.UserName!)
-        };
-
-        var roles = await userManager.GetRolesAsync(user);
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.Add(TimeSpan.FromHours(jwtOptions.Value.LifetimeHours)),
-            Issuer = jwtOptions.Value.Issuer,
-            Audience = jwtOptions.Value.Audience,
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(jwtOptions.Value.GetKeyBytes()),
-                SecurityAlgorithms.HmacSha256)
-        };
-
-        var token = _handler.CreateToken(tokenDescriptor);
+        var token = await authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
+        var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
         {
             Token = jwt,
@@ -175,5 +157,27 @@ public class AuthController(
         var result = await userService.IsUniqueLoginAsync(login);
 
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Refresh access token
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("refresh-token")]
+    [ProducesResponseType(200)]
+    [Authorize]
+    public async Task<ActionResult<UserInfo>> RefreshTokenAsync() { 
+        var user = await userManager.GetUserAsync(User);
+        var token = await authService.GenerateSecurityToken(user);
+        var jwt = _handler.WriteToken(token);
+        var roles = await userManager.GetRolesAsync(user);
+        return Ok(new UserInfo
+        {
+            Token = jwt,
+            Login = user.UserName,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Roles = roles.ToList()
+        });
     }
 }
