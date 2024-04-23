@@ -73,9 +73,31 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
 
         await context.RestaurantGroups.AddAsync(group);
         await context.SaveChangesAsync();
-        
-        
+
+        await DeleteEmptyRestaurantGroups();
+
         return group;
+    }
+
+    /// <summary>
+    /// Deletes empty groups
+    /// </summary>
+    /// <returns></returns>
+    public async Task DeleteEmptyRestaurantGroups()
+    {
+        // Pobranie wszystkich grup restauracji
+        var allGroups = await context.RestaurantGroups
+            .Include(g => g.Restaurants)
+            .ToListAsync();
+
+        // Filtracja grup, które s¹ puste (nie maj¹ restauracji)
+        var emptyGroups = allGroups.Where(g => !g.Restaurants.Any()).ToList();
+
+        if (emptyGroups.Any())
+        {
+            context.RestaurantGroups.RemoveRange(emptyGroups);
+            await context.SaveChangesAsync();
+        }
     }
 
     /// <summary>
