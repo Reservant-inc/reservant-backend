@@ -145,6 +145,8 @@ public class RestaurantMenuService(ApiDbContext context)
         
         var menuToUpdate = await context.Menus
             .Include(m => m.MenuItems)
+            .Include(m => m.Restaurant!)
+            .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync(m => m.Id == menuId);
         
         if (menuToUpdate == null)
@@ -152,10 +154,8 @@ public class RestaurantMenuService(ApiDbContext context)
             errors.Add(new ValidationResult($"Menu with id ${menuId} not found.", [nameof(menuId) ]));
             return errors;
         }
-        
-        var restaurant = await context.Restaurants
-            .Include(r => r.Group)
-            .FirstOrDefaultAsync(r => r.Id == menuToUpdate.RestaurantId);
+
+        var restaurant = menuToUpdate.Restaurant!;
 
         if (restaurant.Group.OwnerId != user.Id)
         {
