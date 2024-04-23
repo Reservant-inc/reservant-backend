@@ -83,7 +83,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <returns>The created list of menuItems</returns>
     [HttpPost("/menus/{id:int}/items")]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(201)]
+    [ProducesResponseType(200)]
     [ProducesResponseType(400)] 
     [ProducesResponseType(401)]
     public async Task<ActionResult> AddToMenu(int id, AddItemsRequest request)
