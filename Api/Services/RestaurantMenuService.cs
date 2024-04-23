@@ -167,7 +167,13 @@ public class RestaurantMenuService(ApiDbContext context)
             .Where(item => request.ItemIds.Contains(item.Id))
             .ToListAsync();
 
-
+        var allBelongToUser = menuItemsToAdd.All(mi => mi.Restaurant.Group.OwnerId == user.Id);
+        if (!allBelongToUser)
+        {
+            errors.Add(new ValidationResult("Some of menuItems does not belong to the user", [nameof(request.ItemIds)]));
+            return errors;
+        }
+        
         var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.Id)).ToList();
         if (nonExistentItemIds.Any())
         {
