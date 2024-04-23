@@ -9,9 +9,9 @@ using Microsoft.Extensions.Options;
 
 namespace Reservant.Api.Services
 {
-    public class AuthService
+    public class AuthService(UserManager<User> userManager, IOptions<JwtOptions> jwtOptions)
     {
-        public async Task<SecurityToken> GenerateSecurityToken(User user, UserManager<User> userManager, IOptions<JwtOptions> jwtOptions)
+        public async Task<SecurityToken> GenerateSecurityToken(User user)
         {
             JwtSecurityTokenHandler _handler = new();
             var claims = new List<Claim>

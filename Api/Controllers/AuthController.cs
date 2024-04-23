@@ -111,7 +111,7 @@ public class AuthController(
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
-        var token = await authService.GenerateSecurityToken(user, userManager, jwtOptions);
+        var token = await authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
@@ -159,20 +159,26 @@ public class AuthController(
         return Ok(result);
     }
 
+    /// <summary>
+    /// Refresh access token
+    /// </summary>
+    /// <returns></returns>
     [HttpPost("refresh-token")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult> RefreshToken() { 
+    [Authorize]
+    public async Task<ActionResult> RefreshTokenAsync() { 
         var user = await userManager.GetUserAsync(User);
-        var token = await authService.GenerateSecurityToken(user, userManager, jwtOptions);
+        var token = await authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);
-        return Ok(new UserInfo
+        var res = new UserInfo
         {
             Token = jwt,
             Login = user.UserName,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Roles = roles.ToList()
-        });
+        };
+        return Ok(res);
     }
 }
