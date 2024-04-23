@@ -136,7 +136,85 @@ public class RestaurantMenuService(ApiDbContext context)
 
         return menuSummary;
     }
-
     
+    
+    public async Task<Result<MenuVM>> AddItemsToMenuAsync(int menuId, AddItemsRequest request, User user)
+    {
+        
+        var errors = new List<ValidationResult>();
+        
+        var menuToUpdate = await context.Menus
+            .Include(m => m.MenuItems)
+            .Include(m => m.Restaurant!)
+            .ThenInclude(r => r.Group)
+            .FirstOrDefaultAsync(m => m.Id == menuId);
+        
+        if (menuToUpdate == null)
+        {
+            errors.Add(new ValidationResult($"Menu with id ${menuId} not found.", [nameof(menuId) ]));
+            return errors;
+        }
+
+        var restaurant = menuToUpdate.Restaurant!;
+
+        if (restaurant.Group.OwnerId != user.Id)
+        {
+            errors.Add(new ValidationResult($"User is not the owner of the restaurant that contains menu ID: {menuToUpdate.Id}.", [nameof(menuToUpdate.Id)]));
+            return errors;
+        }
+        
+        var menuItemsToAdd = await context.MenuItems
+            .Where(item => request.ItemIds.Contains(item.Id))
+            .ToListAsync();
+
+        var fromAnotherRestaurant = menuItemsToAdd
+            .Where(mi => mi.RestaurantId != menuToUpdate.RestaurantId)
+            .Select(mi => mi.Id)
+            .ToList();
+        if (fromAnotherRestaurant.Count != 0)
+        {
+            errors.Add(new ValidationResult(
+                $"MenuItems with IDs {string.Join(", ", fromAnotherRestaurant)} belong to another restaurant",
+                [nameof(request.ItemIds)]));
+            return errors;
+        }
+        
+        var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.Id)).ToList();
+        if (nonExistentItemIds.Any())
+        {
+            errors.Add(new ValidationResult($"MenuItems with IDs {string.Join(", ", nonExistentItemIds)} not found.", [nameof(request.ItemIds)]));
+            return errors;
+        }
+
+        // Adding items
+        foreach (var item in menuItemsToAdd)
+        {
+            // Adding only items that are not already in menu
+            if (!menuToUpdate.MenuItems.Any(mi => mi.Id == item.Id))
+            {
+                menuToUpdate.MenuItems.Add(item);
+            }
+        }
+        
+        if (!ValidationUtils.TryValidate(menuToUpdate, errors))
+            return errors;
+        
+        await context.SaveChangesAsync();
+    
+        return new MenuVM
+        {
+            Id = menuToUpdate.Id,
+            MenuType = menuToUpdate.MenuType,
+            DateFrom = menuToUpdate.DateFrom,
+            DateUntil = menuToUpdate.DateUntil,
+            MenuItems = menuToUpdate.MenuItems.Select(mi => new MenuItemSummaryVM
+            {
+                Id = mi.Id,
+                Name = mi.Name,
+                Price = mi.Price,
+                AlcoholPercentage = mi.AlcoholPercentage
+            }).ToList()
+        };
+    }
     
 }
