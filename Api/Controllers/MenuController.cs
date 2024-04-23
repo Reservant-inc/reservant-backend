@@ -86,7 +86,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [ProducesResponseType(200)]
     [ProducesResponseType(400)] 
     [ProducesResponseType(401)]
-    public async Task<ActionResult> AddToMenu(int id, AddItemsRequest request)
+    public async Task<ActionResult<MenuVM>> AddToMenu(int id, AddItemsRequest request)
     {
         var user = await userManager.GetUserAsync(User);
 
