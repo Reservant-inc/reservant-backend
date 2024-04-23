@@ -166,19 +166,18 @@ public class AuthController(
     [HttpPost("refresh-token")]
     [ProducesResponseType(200)]
     [Authorize]
-    public async Task<ActionResult> RefreshTokenAsync() { 
+    public async Task<ActionResult<UserInfo>> RefreshTokenAsync() { 
         var user = await userManager.GetUserAsync(User);
         var token = await authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);
-        var res = new UserInfo
+        return Ok(new UserInfo
         {
             Token = jwt,
             Login = user.UserName,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Roles = roles.ToList()
-        };
-        return Ok(res);
+        });
     }
 }
