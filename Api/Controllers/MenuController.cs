@@ -81,7 +81,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <param name="id">Id of menu</param>
     /// <param name="request">Request containing MenuItemIds</param>
     /// <returns>The created list of menuItems</returns>
-    [HttpPost("/menu/{id:int}/items")]
+    [HttpPost("/menus/{id:int}/items")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)] 
