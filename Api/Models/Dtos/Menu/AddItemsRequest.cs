@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Reservant.Api.Models.Dtos.Menu;
 
 /// <summary>
-/// Request to add an existing item to a menu
+/// Request to add existing items to a menu
 /// </summary>
 public class AddItemsRequest
 {
