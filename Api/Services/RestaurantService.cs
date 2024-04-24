@@ -439,15 +439,7 @@ namespace Reservant.Api.Services
             var errors = new List<ValidationResult>();
 
             var restaurant = await context.Restaurants
-                .Include(r => r.Group)
-                .Include(r => r.Tags)
-                .Include(r => r.Photos)
-                .Include(r => r.IdCard)
-                .Include(r => r.AlcoholLicense)
-                .Include(r => r.BusinessPermission)
-                .Include(r => r.Logo)
-                .Include(r => r.RentalContract)
-                .Include(r => r.Tables)
+                .Include(restaurant => restaurant.Group)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (restaurant == null)
