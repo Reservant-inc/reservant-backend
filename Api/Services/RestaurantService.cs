@@ -203,7 +203,8 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
-                    Tags = r.Tags!.Select(t => t.Name).ToList()
+                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    IsVerified = r.VerifierId != null
                 })
                 .ToListAsync();
             return result;
@@ -249,7 +250,8 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
-                    Tags = r.Tags!.Select(t => t.Name).ToList()
+                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    IsVerified = r.VerifierId != null
                 })
                 .AsSplitQuery()
                 .FirstOrDefaultAsync();
@@ -294,13 +296,13 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var employee = await context.Users.FindAsync(request.EmployeeId);
+            var employee = await context.Users.FindAsync(request.Id);
             if (employee is null)
             {
                 return new List<ValidationResult>
                 {
-                    new($"User with ID {request.EmployeeId} not found",
-                        [nameof(request.EmployeeId)])
+                    new($"User with ID {request.Id} not found",
+                        [nameof(request.Id)])
                 };
             }
 
@@ -309,12 +311,12 @@ namespace Reservant.Api.Services
             {
                 return new List<ValidationResult>
                 {
-                    new($"User with ID {request.EmployeeId} is not current user's employee",
-                        [nameof(request.EmployeeId)])
+                    new($"User with ID {request.Id} is not current user's employee",
+                        [nameof(request.Id)])
                 };
             }
 
-            var existingEmployment = await context.Employments.FindAsync(request.EmployeeId, restaurantId);
+            var existingEmployment = await context.Employments.FindAsync(request.Id, restaurantId);
             if (existingEmployment is not null)
             {
                 existingEmployment.IsHallEmployee = request.IsHallEmployee;
@@ -324,7 +326,7 @@ namespace Reservant.Api.Services
             {
                 context.Employments.Add(new Employment
                 {
-                    EmployeeId = request.EmployeeId,
+                    EmployeeId = request.Id,
                     RestaurantId = restaurantId,
                     IsBackdoorEmployee = request.IsBackdoorEmployee,
                     IsHallEmployee = request.IsHallEmployee
@@ -381,7 +383,8 @@ namespace Reservant.Api.Services
                 Description = restaurant.Description,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
-                ProvideDelivery = restaurant.ProvideDelivery
+                ProvideDelivery = restaurant.ProvideDelivery,
+                IsVerified = restaurant.VerifierId != null
             };
         }
 
@@ -421,6 +424,7 @@ namespace Reservant.Api.Services
                     Login = e.Employee!.UserName!,
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
+                    PhoneNumber = e.Employee.PhoneNumber!,
                     IsBackdoorEmployee = e.IsBackdoorEmployee,
                     IsHallEmployee = e.IsHallEmployee
                 })
@@ -627,6 +631,46 @@ namespace Reservant.Api.Services
             await context.SaveChangesAsync();
 
             return true;
+        }
+        /// <summary>
+        /// Validates if given dto is valid. If a group is given, checks if that group belongs to User
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public async Task<Result<bool>> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
+        {
+            var errors = new List<ValidationResult>();
+
+            if (!ValidationUtils.TryValidate(dto, errors))
+            {
+                return errors;
+            }
+
+            if (dto.GroupId != null)
+            {
+                var group = await context.RestaurantGroups.FindAsync(dto.GroupId);
+
+                if (group is null)
+                {
+                    errors.Add(new ValidationResult(
+                        $"Group with ID {dto.GroupId} not found",
+                        [nameof(dto.GroupId)]));
+                    return errors;
+                }
+
+                if (group.OwnerId != user.Id)
+                {
+                    errors.Add(new ValidationResult(
+                        $"Group with ID {dto.GroupId} is not owned by the current user",
+                        [nameof(dto.GroupId)]));
+                    return errors;
+                }
+
+            }
+
+            return true;
+
         }
     }
 }

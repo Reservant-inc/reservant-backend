@@ -28,6 +28,11 @@ public class UserEmployeeVM
     public required string LastName { get; init; }
 
     /// <summary>
+    /// User's phone number
+    /// </summary>
+    public required string PhoneNumber { get; init; }
+
+    /// <summary>
     /// Employee's employments
     /// </summary>
     public required List<EmploymentVM> Employments { get; init; }

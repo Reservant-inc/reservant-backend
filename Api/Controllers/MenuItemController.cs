@@ -50,7 +50,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <param name="restaurantId"></param>
     /// <returns>The found list of menuItems</returns>
     [HttpGet]
-    [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
+    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<MenuItemVM>> GetMenuItems(int restaurantId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -75,7 +75,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <returns>The found menu item</returns>
     [HttpGet]
     [Route("{itemId:int}")]
-    [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
+    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int restaurantId, int itemId)
     {
         var user = await userManager.GetUserAsync(User);

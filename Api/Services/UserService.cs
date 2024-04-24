@@ -185,6 +185,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
                 Login = u.UserName!,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
+                PhoneNumber = u.PhoneNumber!,
                 Employments = u.Employments!
                     .Select(e => new EmploymentVM
                     {

@@ -121,5 +121,11 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// </summary>
         [Required]
         public required List<string> Tags { get; init; }
+
+        /// <summary>
+        /// Whether the restaurant is verified or not
+        /// </summary>
+        [Required]
+        public required bool IsVerified { get; init; }
     }
 }
