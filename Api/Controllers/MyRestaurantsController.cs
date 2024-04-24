@@ -149,31 +149,5 @@ namespace Reservant.Api.Controllers
             ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
             return ValidationProblem();
         }
-        
-        /// <summary>
-        /// Deletes a restaurant
-        /// </summary>
-        /// <param name="id">ID of the restaurant to delete</param>
-        [HttpDelete("{id:int}")]
-        [Authorize(Roles = Roles.RestaurantOwner)]
-        [ProducesResponseType(204)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteRestaurant(int id)
-        {
-            var user = await userManager.GetUserAsync(User);
-
-            var result = await restaurantService.DeleteRestaurantAsync(id, user);
-
-            if (!result.IsError)
-            {
-                return NoContent();
-            }
-
-            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-            return ValidationProblem();
-        }
-        
-        
     }
 }
