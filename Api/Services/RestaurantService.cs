@@ -433,6 +433,180 @@ namespace Reservant.Api.Services
 
 
         /// <summary>
+        /// Updates restaurant info
+        /// </summary>
+        /// <param name="id">ID of the restaurant</param>
+        /// <param name="request">Request with new restaurant data</param>
+        /// <param name="user">User requesting a update</param>
+        public async Task<Result<RestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
+        {
+            var errors = new List<ValidationResult>();
+
+            var restaurant = await context.Restaurants
+                .Include(restaurant => restaurant.Group)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (restaurant == null)
+            {
+                errors.Add(new ValidationResult($"Restaurant with ID {id} not found."));
+                return errors;
+            }
+
+            if (restaurant.Group?.OwnerId != user.Id)
+            {
+                errors.Add(new ValidationResult("User is not the owner of this restaurant."));
+                return errors;
+            }
+
+            // Process file uploads directly
+            string? rentalContract = null;
+            if (request.RentalContract != null)
+            {
+                var result = await uploadService.ProcessUploadNameAsync(request.RentalContract, user.Id, FileClass.Document, nameof(request.RentalContract));
+                if (result.IsError)
+                {
+                    errors.AddRange(result.Errors);
+                }
+                else
+                {
+                    rentalContract = result.Value;
+                }
+            }
+
+            string? alcoholLicense = null;
+            if (request.AlcoholLicense != null)
+            {
+                var result = await uploadService.ProcessUploadNameAsync(request.AlcoholLicense, user.Id, FileClass.Document, nameof(request.AlcoholLicense));
+                if (result.IsError)
+                {
+                    errors.AddRange(result.Errors);
+                }
+                else
+                {
+                    alcoholLicense = result.Value;
+                }
+            }
+
+            var businessPermissionResult = await uploadService.ProcessUploadNameAsync(request.BusinessPermission, user.Id, FileClass.Document, nameof(request.BusinessPermission));
+            if (businessPermissionResult.IsError)
+            {
+                errors.AddRange(businessPermissionResult.Errors);
+            }
+
+            var idCardResult = await uploadService.ProcessUploadNameAsync(request.IdCard, user.Id, FileClass.Document, nameof(request.IdCard));
+            if (idCardResult.IsError)
+            {
+                errors.AddRange(idCardResult.Errors);
+            }
+
+            var logoResult = await uploadService.ProcessUploadNameAsync(request.Logo, user.Id, FileClass.Image, nameof(request.Logo));
+            if (logoResult.IsError)
+            {
+                errors.AddRange(logoResult.Errors);
+            }
+
+            if (errors.Any())
+            {
+                return errors;
+            }
+
+            restaurant.Name = request.Name;
+            restaurant.Nip = request.Nip;
+            restaurant.RestaurantType = request.RestaurantType;
+            restaurant.Address = request.Address;
+            restaurant.PostalIndex = request.PostalIndex;
+            restaurant.City = request.City;
+            restaurant.ProvideDelivery = request.ProvideDelivery;
+            restaurant.Description = request.Description;
+
+            restaurant.RentalContractFileName = rentalContract;
+            restaurant.AlcoholLicenseFileName = alcoholLicense;
+            restaurant.BusinessPermissionFileName = businessPermissionResult.Value;
+            restaurant.IdCardFileName = idCardResult.Value;
+            restaurant.LogoFileName = logoResult.Value;
+
+
+            restaurant.Tags = await context.RestaurantTags
+                .Where(t => request.Tags.Contains(t.Name))
+                .ToListAsync();
+
+
+            // Update photos
+            var photos = new List<RestaurantPhoto>();
+            foreach (var (photo, order) in request.Photos.Select((photo, index) => (photo, index + 1)))
+            {
+                var result = await uploadService.ProcessUploadNameAsync(
+                    photo,
+                    user.Id,
+                    FileClass.Image,
+                    nameof(request.Photos));
+                if (result.IsError)
+                {
+                    return result.Errors;
+                }
+
+                photos.Add(new RestaurantPhoto
+                {
+                    PhotoFileName = result.Value,
+                    Order = order
+                });
+            }
+
+            restaurant.Photos!.Clear();
+            foreach (var photo in photos)
+            {
+                restaurant.Photos.Add(photo);
+            }
+
+            if (!ValidationUtils.TryValidate(restaurant, errors))
+            {
+                return errors;
+            }
+
+            await context.SaveChangesAsync();
+            var newRestaurant = await context.Restaurants
+                .Where(r => r.Group!.OwnerId == user.Id)
+                .Where(r => r.Id == id)
+                .Select(r => new RestaurantVM
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    RestaurantType = r.RestaurantType,
+                    Nip = r.Nip,
+                    Address = r.Address,
+                    PostalIndex = r.PostalIndex,
+                    City = r.City,
+                    GroupId = r.Group!.Id,
+                    GroupName = r.Group!.Name,
+                    RentalContract = r.RentalContractFileName == null
+                        ? null : uploadService.GetPathForFileName(r.RentalContractFileName),
+                    AlcoholLicense = r.AlcoholLicenseFileName == null
+                        ? null : uploadService.GetPathForFileName(r.AlcoholLicenseFileName),
+                    BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
+                    IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
+                    Tables = r.Tables!.Select(t => new TableVM
+                    {
+                        Id = t.Id,
+                        Capacity = t.Capacity
+                    }),
+                    Photos = r.Photos!
+                        .OrderBy(rp => rp.Order)
+                        .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
+                        .ToList(),
+                    ProvideDelivery = r.ProvideDelivery,
+                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Description = r.Description,
+                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    IsVerified = r.VerifierId != null
+                })
+                .AsSplitQuery()
+                .FirstOrDefaultAsync();
+
+            return newRestaurant;
+        }
+
+
+        /// <summary>
         /// Returns a specific restaurant owned by the user.
         /// </summary>
         /// <param name="idUser"></param>

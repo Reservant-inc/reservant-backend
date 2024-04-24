@@ -125,6 +125,30 @@ namespace Reservant.Api.Controllers
 
             return Ok(result.Value);
         }
+
+        /// <summary>
+        /// Updates restaurant info
+        /// </summary>
+        /// <param name="id">ID of the restaurant</param>
+        /// <param name="request">Request with data</param>
+        [HttpPut("{id:int}")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<ActionResult<RestaurantVM>> EditRestaurantInfo(int id, UpdateRestaurantRequest request)
+        {
+            var user = await userManager.GetUserAsync(User);
+
+            var result = await restaurantService.UpdateRestaurantAsync(id, request, user);
+
+            if (!result.IsError)
+            {
+                return Ok(result.Value);
+            }
+            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+            return ValidationProblem();
+        }
+
         /// <summary>
         /// Validates input fields for Restaurant Registration process
         /// </summary>

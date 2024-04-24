@@ -73,11 +73,6 @@ public class UpdateRestaurantRequest
     public required string IdCard { get; init; }
 
     /// <summary>
-    /// Restaurant group ID
-    /// </summary>
-    public int GroupId { get; set; }
-
-    /// <summary>
     /// File name of the logo upload
     /// </summary>
     /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.png</example>
