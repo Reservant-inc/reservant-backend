@@ -12,6 +12,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Services
 {
+    public enum VerificationResult
+    {
+        RestaurantNotFound,
+        VerifierAlreadyExists,
+        VerifierSetSuccessfully,
+    }
+
     public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager)
     {
         /// <summary>
@@ -435,34 +442,31 @@ namespace Reservant.Api.Services
         /// <param name="idUser"></param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<int> SetVerifierIdAsync(User user, int idRestaurant)
+        public async Task<VerificationResult> SetVerifiedIdAsync(User user, int idRestaurant)
         {
             var result = await context
-            .Restaurants
-            .Where(r => r.Id == idRestaurant)
-            .AnyAsync();
+                .Restaurants
+                .Where(r => r.Id == idRestaurant)
+                .ToListAsync();
 
-            if(!result)
-                return 1;
+            if(result.Count == 0)
+                return VerificationResult.RestaurantNotFound;
 
-            result = await context
-            .Restaurants
-            .Where(r => r.VerifierId == user.Id)
-            .AnyAsync();
+            var result2 = result
+                .Where(r => r.VerifierId != null)
+                .ToList();
 
-            if(!result)
-                return 2;
+            if(result2.Count != 0)
+                return VerificationResult.VerifierAlreadyExists;
 
-            await context
-            .Restaurants
-            .Where (r => r.Id == idRestaurant)
-            .ForEachAsync(r =>
+            result.Where(r => r.VerifierId == null).ToList().ForEach(r =>
             {
-                r.VerifierId=user.Id;
+                r.VerifierId = user.Id;
             });
             await context.SaveChangesAsync();
 
-            return 3;
+            return VerificationResult.VerifierSetSuccessfully;
         }
+
     }
 }

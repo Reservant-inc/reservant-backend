@@ -28,11 +28,10 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId">int</param>
     /// <returns>conformation if action was performed succesfuly</returns>
     [HttpPost("{restaurantId:int}/verify")]
-    [ProducesResponseType(200), ProducesResponseType(404)]
-    //[Authorize(Roles = Roles.CustomerSupportAgent)]
-    public async Task<ActionResult> SetVerifierId(int restaurantId)
+    [ProducesResponseType(200), ProducesResponseType(404),ProducesResponseType(400)]
+    [Authorize(Roles = Roles.CustomerSupportAgent)]
+    public async Task<ActionResult> SetVerifiedId(int restaurantId)
     {
-
         var user = await userManager.GetUserAsync(User);
 
         if (user == null)
@@ -40,12 +39,19 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var result = await service.SetVerifierIdAsync(user,restaurantId);
+        var result = await service.SetVerifiedIdAsync(user, restaurantId);
 
-        if(result==1)
-            return Ok();
-        if(result==2)
-            return BadRequest("already veryfied");
-        return NotFound();
+        switch (result)
+        {
+            case VerificationResult.VerifierSetSuccessfully:
+                return Ok();
+            case VerificationResult.VerifierAlreadyExists:
+                return BadRequest();
+            case VerificationResult.RestaurantNotFound:
+                return NotFound();
+            default:
+                return null;
+        }
     }
+
 }
