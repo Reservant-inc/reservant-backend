@@ -528,33 +528,12 @@ namespace Reservant.Api.Services
             restaurant.BusinessPermissionFileName = businessPermissionResult.Value;
             restaurant.IdCardFileName = idCardResult.Value;
             restaurant.LogoFileName = logoResult.Value;
-            
 
 
-            // Current tags
-            var currentTags = restaurant.Tags.ToList();
-            foreach (var tag in currentTags)
-            {
-                if (!request.Tags.Contains(tag.Name))
-                {
-                    restaurant.Tags.Remove(tag);
-                }
-            }
+            restaurant.Tags = await context.RestaurantTags
+                .Where(t => request.Tags.Contains(t.Name))
+                .ToListAsync();
 
-            // Adding new tags
-            foreach (var tagName in request.Tags)
-            {
-                if (restaurant.Tags.All(t => t.Name != tagName))
-                {
-                    var tag = await context.Set<RestaurantTag>().SingleOrDefaultAsync(t => t.Name == tagName);
-                    if (tag == null)
-                    {
-                        tag = new RestaurantTag { Name = tagName };
-                        context.Set<RestaurantTag>().Add(tag);
-                    }
-                    restaurant.Tags.Add(tag);
-                }
-            }
 
             // Update photos
             var photos = new List<RestaurantPhoto>();
