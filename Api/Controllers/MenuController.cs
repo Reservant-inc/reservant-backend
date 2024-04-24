@@ -23,12 +23,12 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <param name="restaurantId">The ID of the restaurant.</param>
     /// <param name="menuId">The ID of the menu.</param>
     /// <returns></returns>
-    [HttpGet("/menus/{Id}")]
+    [HttpGet("/menus/{Id:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult<MenuVM>> GetSingleMenuById(int restaurantId,int Id)
+    public async Task<ActionResult<MenuVM>> GetSingleMenuById(int Id)
     {
-        var result = await service.GetSingleMenuAsync(restaurantId,Id);
+        var result = await service.GetSingleMenuAsync(Id);
         
         if (!result.IsError) return Ok(result.Value);
         
@@ -41,7 +41,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// </summary>
     /// <param name="req">Request for Menu to be created.</param>
     /// <returns></returns>
-    [HttpPost("/menus")]
+    [HttpPost]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]

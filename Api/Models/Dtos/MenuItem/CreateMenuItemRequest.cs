@@ -14,30 +14,24 @@ namespace Reservant.Api.Models.Dtos.MenuItem
         [Required]
         public int RestaurantId { get; set; }
 
+        
         /// <summary>
-        /// Menu item details
+        /// Cena
         /// </summary>
-        public List<MenuItemDetails> MenuItems { get; set; } = new List<MenuItemDetails>();
+        [Range(0, 500)]
+        public decimal Price { get; set; }
 
-        public class MenuItemDetails
-        {
-            /// <summary>
-            /// Cena
-            /// </summary>
-            [Range(0, 500)]
-            public decimal Price { get; set; }
+        /// <summary>
+        /// Nazwa
+         /// </summary>
+        [Required, StringLength(20)]
+        public string Name { get; set; }
 
-            /// <summary>
-            /// Nazwa
-            /// </summary>
-            [Required, StringLength(20)]
-            public string Name { get; set; }
-
-            /// <summary>
-            /// Zawartość alkoholu
-            /// </summary>
-            [Range(0, 100)]
-            public decimal? AlcoholPercentage { get; set; }
-        }
+        /// <summary>
+        /// Zawartość alkoholu
+        /// </summary>
+        [Range(0, 100)]
+        public decimal? AlcoholPercentage { get; set; }
+        
     }
 }

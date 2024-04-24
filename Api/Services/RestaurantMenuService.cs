@@ -24,23 +24,19 @@ public class RestaurantMenuService(ApiDbContext context)
     /// </summary>
     /// <param name="menuId"> Id of the menu.</param>
     /// <returns></returns>
-    public async Task<Result<MenuVM?>> GetSingleMenuAsync(int restaurantId, int menuId)
+    public async Task<Result<MenuVM?>> GetSingleMenuAsync(int menuId)
     {
         var errors = new List<ValidationResult>();
         
-        var restaurantExists = await context.Restaurants.AnyAsync(r => r.Id == restaurantId);
-        if (!restaurantExists)
-            errors.Add(new ValidationResult($"Restaurant with ID {restaurantId} not found.", [nameof(restaurantId)]));
-        
-        var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId && m.RestaurantId == restaurantId);
-        if (!menuExists && restaurantExists)
-            errors.Add(new ValidationResult($"Menu with ID {menuId} not found in restaurant {restaurantId}.", [nameof(menuId)]));
+        var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId);
+        if (!menuExists)
+            errors.Add(new ValidationResult($"Menu with ID {menuId} not found.", [nameof(menuId)]));
 
         if (!errors.IsNullOrEmpty()) return errors;
              
         var menu = await context.Menus
             .Include(m => m.MenuItems)
-            .Where(m => m.Id == menuId && m.RestaurantId == restaurantId)
+            .Where(m => m.Id == menuId)
             .Select(m => new MenuVM
             {
                 Id = m.Id,
@@ -72,16 +68,16 @@ public class RestaurantMenuService(ApiDbContext context)
 
         var restaurant = await context.Restaurants
             .Include(r => r.Group)
-            .FirstOrDefaultAsync(r => r.Id == req.restaurantId);
+            .FirstOrDefaultAsync(r => r.Id == req.RestaurantId);
 
         if (restaurant == null)
         {
-            errors.Add(new ValidationResult($"Restaurant with ID: {req.restaurantId} not found.", [nameof(req.restaurantId) ]));
+            errors.Add(new ValidationResult($"Restaurant with ID: {req.RestaurantId} not found.", [nameof(req.RestaurantId) ]));
         }
         else
         {
             if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
-                errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {req.restaurantId}.", [nameof(req.restaurantId)]));
+                errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {req.RestaurantId}.", [nameof(req.RestaurantId)]));
         }
         
         if(!errors.IsNullOrEmpty()) return errors;
@@ -92,7 +88,7 @@ public class RestaurantMenuService(ApiDbContext context)
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
-            RestaurantId = req.restaurantId
+            RestaurantId = req.RestaurantId
         };
 
         if (!ValidationUtils.TryValidate(newMenu, errors))

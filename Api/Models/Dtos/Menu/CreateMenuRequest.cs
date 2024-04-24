@@ -11,7 +11,7 @@ public class CreateMenuRequest
     /// id of restaurant this menu will belog to
     /// </summary>
     [Required]
-    public int restaurantId { get; set; }
+    public int RestaurantId { get; set; }
 
     /// <summary>
     /// Typ menu

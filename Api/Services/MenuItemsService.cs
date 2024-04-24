@@ -19,7 +19,7 @@ namespace Reservant.Api.Services
         /// <param name="user">The current user, must be a restaurant owner</param>
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
-        public async Task<Result<List<MenuItemVM>>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
+        public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
             var errors = new List<ValidationResult>();
 
@@ -30,33 +30,32 @@ namespace Reservant.Api.Services
                 return isRestaurantValid.Errors;
             }
 
-            var menuItems = req.MenuItems.Select(item => new MenuItem()
+            var menuItem = new MenuItem()
             {
-                Price = item.Price,
-                Name = item.Name,
-                AlcoholPercentage = item.AlcoholPercentage,
+                Price = req.Price,
+                Name = req.Name,
+                AlcoholPercentage = req.AlcoholPercentage,
                 RestaurantId = req.RestaurantId,
-            }).ToList();
+            };
 
 
-            foreach (var item in menuItems)
+  
+            if (!ValidationUtils.TryValidate(menuItem, errors))
             {
-                if (!ValidationUtils.TryValidate(item, errors))
-                {
-                    return errors;
-                }
+                return errors;
             }
+            
 
-            await context.MenuItems.AddRangeAsync(menuItems);
+            await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
 
-            return menuItems.Select(i => new MenuItemVM()
+            return new MenuItemVM()
             {
-                Id = i.Id,
-                Name = i.Name,
-                Price = i.Price,
-                AlcoholPercentage = i.AlcoholPercentage,
-            }).ToList();
+                Id = menuItem.Id,
+                Name = menuItem.Name,
+                Price = menuItem.Price,
+                AlcoholPercentage = menuItem.AlcoholPercentage,
+            };
 
         }
 
