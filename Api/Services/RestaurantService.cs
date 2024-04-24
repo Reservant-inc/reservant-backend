@@ -451,7 +451,7 @@ namespace Reservant.Api.Services
                 errors.Add(new ValidationResult($"Restaurant with ID {id} not found."));
                 return errors;
             }
-            
+
             if (restaurant.Group?.OwnerId != user.Id)
             {
                 errors.Add(new ValidationResult("User is not the owner of this restaurant."));
@@ -509,7 +509,7 @@ namespace Reservant.Api.Services
             {
                 return errors;
             }
-            
+
             restaurant.Name = request.Name;
             restaurant.Nip = request.Nip;
             restaurant.RestaurantType = request.RestaurantType;
@@ -518,7 +518,7 @@ namespace Reservant.Api.Services
             restaurant.City = request.City;
             restaurant.ProvideDelivery = request.ProvideDelivery;
             restaurant.Description = request.Description;
-            
+
             restaurant.RentalContractFileName = rentalContract;
             restaurant.AlcoholLicenseFileName = alcoholLicense;
             restaurant.BusinessPermissionFileName = businessPermissionResult.Value;
@@ -596,15 +596,16 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
-                    Tags = r.Tags!.Select(t => t.Name).ToList()
+                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    IsVerified = r.VerifierId != null
                 })
                 .AsSplitQuery()
                 .FirstOrDefaultAsync();
 
             return newRestaurant;
         }
-        
-        
+
+
         /// <summary>
         /// Returns a specific restaurant owned by the user.
         /// </summary>
