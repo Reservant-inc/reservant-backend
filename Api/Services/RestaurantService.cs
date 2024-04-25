@@ -196,6 +196,7 @@ namespace Reservant.Api.Services
                 {
                     Id = r.Id,
                     Name = r.Name,
+                    Nip = r.Nip,
                     RestaurantType = r.RestaurantType,
                     Address = r.Address,
                     City = r.City,
@@ -376,6 +377,7 @@ namespace Reservant.Api.Services
             {
                 Id = restaurant.Id,
                 Name = restaurant.Name,
+                Nip = restaurant.Nip,
                 RestaurantType = restaurant.RestaurantType,
                 Address = restaurant.Address,
                 City = restaurant.City,

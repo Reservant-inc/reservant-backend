@@ -152,6 +152,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             {
                 Id = r.Id,
                 Name = r.Name,
+                Nip = r.Nip,
                 Address = r.Address,
                 RestaurantType = r.RestaurantType,
                 City = r.City,
@@ -211,6 +212,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             {
                 Id = r.Id,
                 Name = r.Name,
+                Nip = r.Nip,
                 Address = r.Address,
                 RestaurantType = r.RestaurantType,
                 City = r.City,

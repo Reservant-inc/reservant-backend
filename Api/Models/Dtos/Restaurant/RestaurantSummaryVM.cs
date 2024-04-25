@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Models.Dtos.Restaurant
 {
@@ -20,6 +21,13 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         [Required, StringLength(50)]
         public required string Name { get; init; }
 
+        /// <summary>
+        /// NIP
+        /// </summary>
+        /// <example>1231264550</example>
+        [Required, Nip, StringLength(13)]
+        public required string Nip { get; init; }
+        
         /// <summary>
         /// Type of the establishment
         /// </summary>
