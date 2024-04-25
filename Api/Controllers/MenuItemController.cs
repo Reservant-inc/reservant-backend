@@ -15,8 +15,7 @@ namespace Reservant.Api.Controllers;
 /// <param name="userManager"></param>
 /// <param name="service"></param>
 
-[ApiController, Route("/my-restaurants/{restaurantId:int}/menu-items")]
-[Authorize(Roles = Roles.RestaurantOwner)]
+[ApiController, Route("/menu-items")]
 public class MenuItemController(UserManager<User> userManager, MenuItemsService service): Controller
 {
 
@@ -27,12 +26,13 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <param name="menuItems">Items to be created</param>
     /// <returns>The created list of menuItems</returns>
     [HttpPost]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult<List<MenuItemVM>>> CreateMenuItems(int restaurantId, List<CreateMenuItemRequest> menuItems)
+    public async Task<ActionResult<List<MenuItemVM>>> CreateMenuItems(int restaurantId, CreateMenuItemRequest menuItems)
     {
         var user = await userManager.GetUserAsync(User);
 
-        var res = await service.CreateMenuItemsAsync(user!, restaurantId, menuItems);
+        var res = await service.CreateMenuItemsAsync(user!, menuItems);
 
         if (res.IsError)
         {
@@ -45,29 +45,6 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
 
     /// <summary>
-    /// Gets menu items from the given restaurant
-    /// </summary>
-    /// <param name="restaurantId"></param>
-    /// <returns>The found list of menuItems</returns>
-    [HttpGet]
-    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult<MenuItemVM>> GetMenuItems(int restaurantId)
-    {
-        var user = await userManager.GetUserAsync(User);
-
-        var res = await service.GetMenuItemsAsync(user!, restaurantId);
-
-        if (res.IsError)
-        {
-            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
-            return ValidationProblem();
-        }
-
-        return Ok(res.Value);
-    }
-
-
-    /// <summary>
     /// Gets menu item by given id
     /// </summary>
     /// <param name="restaurantId"></param>
@@ -75,7 +52,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <returns>The found menu item</returns>
     [HttpGet]
     [Route("{itemId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+    [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int restaurantId, int itemId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -92,4 +69,23 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
         return Ok(res.Value);
     }
 
+    /// <summary>
+    /// removes menu item from given menue by given id
+    /// </summary>
+    /// <param name="menueId"></param>
+    /// <param name="id">id of the menuItem</param>
+    /// <returns>The found menu item</returns>
+    [HttpDelete]
+    [Route("{id:int}/items")]
+    [ProducesResponseType(200), ProducesResponseType(404)]
+    public async Task<ActionResult> RemoveMenuItemFromMenu(int menueId, int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var res = await service.RemoveMenuItemFromMenuAsync(user!, menueId, id);
+
+        if (res)
+            return Ok();
+        return NotFound();
+    }
 }
