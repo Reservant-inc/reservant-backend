@@ -99,6 +99,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     }
 
     [HttpPut("/menus/{id:int}")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     public async Task<ActionResult<MenuVM>> UpdateMenu(UpdateMenuRequest request, int id)
