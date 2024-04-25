@@ -26,7 +26,7 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// </summary>
         /// <example>1231264550</example>
         [Required, Nip, StringLength(13)]
-        public required string Nip { get; set; }
+        public required string Nip { get; init; }
         
         /// <summary>
         /// Type of the establishment
