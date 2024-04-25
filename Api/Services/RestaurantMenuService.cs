@@ -216,5 +216,57 @@ public class RestaurantMenuService(ApiDbContext context)
             }).ToList()
         };
     }
-    
+
+    public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
+    {
+        var errors = new List<ValidationResult>();
+        
+        // Getting menu
+        var menu = await context.Menus
+            .Where(m => m.Id == menuId)
+            .Include(menu => menu.Restaurant)
+            .ThenInclude(restaurant => restaurant!.Group)
+            .Include(menu => menu.MenuItems)
+            .FirstOrDefaultAsync();
+
+        // Checking if menu exists
+        if (menu == null)
+        {
+            errors.Add(new ValidationResult($"Menu with ID {menuId} not found.", [ nameof(menuId) ]));
+            return errors;
+        }
+        
+        // Checking ownership of menu
+        if (menu.Restaurant!.Group!.OwnerId != user.Id)
+        {
+            errors.Add(new ValidationResult($"User not permitted to edit menu with ID {menuId}.", [ nameof(menuId) ]));
+            return errors;
+        }
+
+        menu.MenuType = request.MenuType;
+        menu.DateFrom = request.DateFrom;
+        menu.DateUntil = request.DateUntil;
+
+        if (!ValidationUtils.TryValidate(menu, errors))
+        {
+            return errors;
+        }
+
+        await context.SaveChangesAsync();
+
+        return new MenuVM()
+        {
+            DateFrom = menu.DateFrom,
+            DateUntil = menu.DateUntil,
+            Id = menu.Id,
+            MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
+            {
+                Id = mi.Id,
+                Name = mi.Name,
+                Price = mi.Price,
+                AlcoholPercentage = mi.AlcoholPercentage
+            }).ToList(),
+            MenuType = menu.MenuType
+        };
+    }
 }
