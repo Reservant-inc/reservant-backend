@@ -155,6 +155,8 @@ namespace Reservant.Api.Services
             item.Name = request.Name;
             item.AlcoholPercentage = request.AlcoholPercentage;
 
+            await context.SaveChangesAsync();
+
             return new MenuItemVM()
             {
                 Id = item.Id,
