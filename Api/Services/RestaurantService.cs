@@ -8,10 +8,12 @@ using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
+using Reservant.Api.Models.Dtos.Menu;
+using Reservant.Api.Models.Dtos.MenuItem;
 
 namespace Reservant.Api.Services
 {
-    public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager)
+    public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager,MenuItemsService menuItemsServiceservice)
     {
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
@@ -673,6 +675,57 @@ namespace Reservant.Api.Services
             }
 
             return true;
+
+        }
+
+        /// <summary>
+        /// Returns a list of menus of specific restaurant
+        /// </summary>
+        /// <param name="id"> Id of the restaurant.</param>
+        /// <returns></returns>
+        public async Task<List<MenuSummaryVM>> GetMenusAsync(int id)
+        {
+            var menus = await context.Menus
+                .Where(m => m.RestaurantId == id)
+                .Include(m => m.MenuItems)
+                .Select(menu => new MenuSummaryVM
+                {
+                    Id = menu.Id,
+                    MenuType = menu.MenuType,
+                    DateFrom = menu.DateFrom,
+                    DateUntil = menu.DateUntil
+                })
+                .ToListAsync();
+
+            return menus;
+        }
+
+        /// <summary>
+        /// Validates and gets menu items from the given restaurant
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="restaurantId"></param>
+        /// <returns>MenuItems</returns>
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
+        {
+            var errors = new List<ValidationResult>();
+
+            var isRestaurantValid = await menuItemsServiceservice.ValidateRestaurant(user, restaurantId);
+
+            if (isRestaurantValid.IsError)
+            {
+                return isRestaurantValid.Errors;
+            }
+
+            return await context.MenuItems
+                .Where(i => i.RestaurantId == restaurantId)
+                .Select(i => new MenuItemVM()
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Price = i.Price,
+                    AlcoholPercentage = i.AlcoholPercentage,
+                }).ToListAsync();
 
         }
     }
