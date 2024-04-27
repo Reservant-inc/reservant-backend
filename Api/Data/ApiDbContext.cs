@@ -46,4 +46,42 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
         builder.Entity<Employment>().HasKey(e => new { e.EmployeeId, e.RestaurantId });
     }
+
+    public override int SaveChanges()
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChanges();
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new())
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void SetIsDeletedOnDeletedEntries()
+    {
+        ChangeTracker.DetectChanges();
+        var deleted = ChangeTracker.Entries()
+            .Where(e => e is { State: EntityState.Deleted, Entity: ISoftDeletable });
+
+        foreach (var entry in deleted)
+        {
+            var entity = (ISoftDeletable)entry.Entity;
+            entity.IsDeleted = true;
+            entry.State = EntityState.Modified;
+        }
+    }
 }

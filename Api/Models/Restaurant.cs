@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 using Reservant.Api.Validation;
 
 namespace Reservant.Api.Models;
@@ -6,7 +7,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// Lokal
 /// </summary>
-public class Restaurant
+public class Restaurant : ISoftDeletable
 {
     /// <summary>
     /// Unique ID
@@ -149,8 +150,7 @@ public class Restaurant
     /// Proof of verification by specific CustomerSupportAgent
     /// </summary>
     public string? VerifierId { get; set; }
-    /// <summary>
-    /// Property for showing effects of soft-delete
-    /// </summary>
+
+    /// <inheritdoc />
     public bool IsDeleted { get; set; } = false; //Default false
 }

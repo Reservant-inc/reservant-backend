@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
-public class RestaurantGroup
+public class RestaurantGroup : ISoftDeletable
 {
     /// <summary>
     /// Unique ID
@@ -32,8 +33,6 @@ public class RestaurantGroup
     /// </summary>
     public ICollection<Restaurant>? Restaurants { get; set; }
 
-    /// <summary>
-    /// Property for handling soft deletes
-    /// </summary>
+    ///  <inheritdoc />
     public bool IsDeleted { get; set; } = false;
 }
