@@ -509,7 +509,11 @@ namespace Reservant.Api.Services
         public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var errors = new List<ValidationResult>();
-            var restaurant = await context.Restaurants.Include(r => r.Group).Where(r => r.Id == id && r.Group.OwnerId == user.Id).FirstOrDefaultAsync();
+            var restaurant = await context.Restaurants
+                .Include(r => r.Group!)
+                .ThenInclude(g => g.Restaurants)
+                .Where(r => r.Id == id && r.Group!.OwnerId == user.Id)
+                .FirstOrDefaultAsync();
             if (restaurant == null)
             {
                 errors.Add(new ValidationResult($"No restaurant found"));
