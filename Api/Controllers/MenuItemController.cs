@@ -22,13 +22,12 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <summary>
     /// Creates menu items in the given restaurant
     /// </summary>
-    /// <param name="restaurantId">Id of the restaurant in which menu items will be created</param>
     /// <param name="menuItems">Items to be created</param>
     /// <returns>The created list of menuItems</returns>
     [HttpPost]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult<List<MenuItemVM>>> CreateMenuItems(int restaurantId, CreateMenuItemRequest menuItems)
+    public async Task<ActionResult<List<MenuItemVM>>> CreateMenuItems(CreateMenuItemRequest menuItems)
     {
         var user = await userManager.GetUserAsync(User);
 
