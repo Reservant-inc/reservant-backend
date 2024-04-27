@@ -30,7 +30,7 @@ public class RestaurantMenuService(ApiDbContext context)
         
         var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId);
         if (!menuExists)
-            errors.Add(new ValidationResult($"Menu with ID {menuId} not found.", [nameof(menuId)]));
+            errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
 
         if (!errors.IsNullOrEmpty()) return errors;
              
