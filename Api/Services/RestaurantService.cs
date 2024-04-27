@@ -515,10 +515,11 @@ namespace Reservant.Api.Services
                 errors.Add(new ValidationResult($"No restaurant found"));
                 return errors;
             }
-            await context.Restaurants.Where(r => r == restaurant).ForEachAsync(r => r.IsDeleted = true);
-            if (restaurant.Group!.Restaurants!.Count == 0) {
-                var groupId = restaurant.GroupId;
-                await context.RestaurantGroups.Where(g => g.Id == groupId).ForEachAsync(g => g.IsDeleted = true);
+
+            context.Remove(restaurant);
+            if (restaurant.Group!.Restaurants!.Count == 0)
+            {
+                context.Remove(restaurant.Group);
             }
             await context.SaveChangesAsync();
             return true;
