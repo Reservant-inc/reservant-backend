@@ -90,12 +90,12 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
 
         var result = await context
             .RestaurantGroups
-            .Where(r => r.OwnerId == userId && !r.IsDeleted)
+            .Where(r => r.OwnerId == userId)
             .Select(r => new RestaurantGroupSummaryVM
             {
                 Id = r.Id,
                 Name = r.Name,
-                RestaurantCount = r.Restaurants != null ? r.Restaurants.Where(r => !r.IsDeleted).Count() : 0
+                RestaurantCount = r.Restaurants != null ? r.Restaurants.Count() : 0
             })
             .ToListAsync();
 
@@ -113,7 +113,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
         var restaurantGroup = await context.RestaurantGroups
             .Include(rg => rg.Restaurants!)
             .ThenInclude(rg => rg.Tags!)
-            .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId && !rg.IsDeleted);
+            .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId);
 
         if (restaurantGroup == null)
         {
@@ -126,7 +126,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
         {
             Id = restaurantGroup.Id,
             Name = restaurantGroup.Name,
-            Restaurants = restaurantGroup.Restaurants.Where(r => !r.IsDeleted).Select(r => new RestaurantSummaryVM
+            Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
                 Id = r.Id,
                 Name = r.Name,
@@ -155,9 +155,9 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
         var restaurantGroup = await context.RestaurantGroups
             .Include(restaurantGroup => restaurantGroup.Restaurants)!
             .ThenInclude(restaurant => restaurant.Tags!)
-            .FirstOrDefaultAsync(rg => rg.Id == groupId && !rg.IsDeleted);
-    
-    
+            .FirstOrDefaultAsync(rg => rg.Id == groupId);
+
+
         if (restaurantGroup == null)
         {
             errors.Add(new ValidationResult($"RestaurantGroup with ID {groupId} not found."));
@@ -185,7 +185,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
         {
             Id = restaurantGroup.Id,
             Name = restaurantGroup.Name,
-            Restaurants = restaurantGroup.Restaurants.Where(r => !r.IsDeleted).Select(r => new RestaurantSummaryVM
+            Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
                 Id = r.Id,
                 Name = r.Name,

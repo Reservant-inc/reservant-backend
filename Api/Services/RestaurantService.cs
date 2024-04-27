@@ -192,7 +192,7 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
-                .Where(r => r.Group!.OwnerId == userId && !r.IsDeleted)
+                .Where(r => r.Group!.OwnerId == userId)
                 .Select(r => new RestaurantSummaryVM
                 {
                     Id = r.Id,
@@ -222,7 +222,6 @@ namespace Reservant.Api.Services
             var result = await context.Restaurants
                 .Where(r => r.Group!.OwnerId == userId)
                 .Where(r => r.Id == id)
-                .Where(r => !r.IsDeleted)
                 .Select(r => new RestaurantVM
                 {
                     Id = r.Id,
@@ -279,7 +278,6 @@ namespace Reservant.Api.Services
             }
 
             var restaurantOwnerId = await context.Restaurants
-                .Where(r => r.Id == restaurantId && !r.IsDeleted)
                 .Select(r => r.Group!.OwnerId)
                 .FirstOrDefaultAsync();
             if (restaurantOwnerId is null)
@@ -354,7 +352,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Tags)
                 .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)
-                .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id && !r.IsDeleted);
+                .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
             if (restaurant == null)
             {
                 errors.Add(new ValidationResult(
@@ -401,7 +399,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Group)
                 .Include(r => r.Employments!)
                 .ThenInclude(e => e.Employee)
-                .Where(r => r.Id == id && !r.IsDeleted)
+                .Where(r => r.Id == id)
                 .FirstOrDefaultAsync();
             if (restaurant is null)
             {
@@ -511,14 +509,14 @@ namespace Reservant.Api.Services
         public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var errors = new List<ValidationResult>();
-            var restaurant = await context.Restaurants.Include(r => r.Group).Where(r => r.Id == id && r.IsDeleted == false && r.Group.OwnerId == user.Id).FirstOrDefaultAsync();
+            var restaurant = await context.Restaurants.Include(r => r.Group).Where(r => r.Id == id && r.Group.OwnerId == user.Id).FirstOrDefaultAsync();
             if (restaurant == null)
             {
                 errors.Add(new ValidationResult($"No restaurant found"));
                 return errors;
             }
             await context.Restaurants.Where(r => r == restaurant).ForEachAsync(r => r.IsDeleted = true);
-            if (restaurant.Group.Restaurants.Where(r => !r.IsDeleted).Count() == 0) {
+            if (restaurant.Group!.Restaurants!.Count == 0) {
                 var groupId = restaurant.GroupId;
                 await context.RestaurantGroups.Where(g => g.Id == groupId).ForEachAsync(g => g.IsDeleted = true);
             }
