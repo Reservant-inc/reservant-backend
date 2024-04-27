@@ -153,7 +153,7 @@ namespace Reservant.Api.Controllers
         /// <returns>The found list of menuItems</returns>
         [HttpGet("{id:int}/menu-items")]
         [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-        public async Task<ActionResult<MenuItemVM>> GetMenuItems(int id)
+        public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int id)
         {
             var user = await userManager.GetUserAsync(User);
 
