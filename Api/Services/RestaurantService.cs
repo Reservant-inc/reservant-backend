@@ -506,9 +506,8 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
+        public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
         {
-            var errors = new List<ValidationResult>();
             var restaurant = await context.Restaurants
                 .Include(r => r.Group!)
                 .ThenInclude(g => g.Restaurants)
@@ -516,8 +515,7 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
             if (restaurant == null)
             {
-                errors.Add(new ValidationResult($"No restaurant found"));
-                return errors;
+                return false;
             }
 
             context.Remove(restaurant);

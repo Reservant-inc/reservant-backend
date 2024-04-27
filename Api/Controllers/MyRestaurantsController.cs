@@ -157,12 +157,10 @@ namespace Reservant.Api.Controllers
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.SoftDeleteRestaurantAsync(id, user);
 
-            if (result.IsError)
+            if (!result)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return NotFound();
             }
-            if (!result.Value) { return NotFound(); }
 
             return NoContent();
         }
