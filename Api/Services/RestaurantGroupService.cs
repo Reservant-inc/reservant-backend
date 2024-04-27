@@ -112,7 +112,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
 
         var result = await context
             .RestaurantGroups
-            .Where(r => r.OwnerId == userId)
+            .Where(r => r.OwnerId == userId && !r.IsDeleted)
             .Select(r => new RestaurantGroupSummaryVM
             {
                 Id = r.Id,
