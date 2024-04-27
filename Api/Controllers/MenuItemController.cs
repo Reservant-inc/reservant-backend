@@ -47,17 +47,16 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <summary>
     /// Gets menu item by given id
     /// </summary>
-    /// <param name="restaurantId"></param>
     /// <param name="itemId">Id of the menuItem</param>
     /// <returns>The found menu item</returns>
     [HttpGet]
     [Route("{itemId:int}")]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int restaurantId, int itemId)
+    public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int itemId)
     {
         var user = await userManager.GetUserAsync(User);
 
-        var res = await service.GetMenuItemByIdAsync(user!, restaurantId, itemId);
+        var res = await service.GetMenuItemByIdAsync(user!, itemId);
 
         if (res.IsError)
         {

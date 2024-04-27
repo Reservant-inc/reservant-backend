@@ -67,19 +67,12 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId"></param>
         /// <param name="menuItemId"></param>
         /// <returns>MenuItem</returns>
-        public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int restaurantId, int menuItemId)
+        public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int menuItemId)
         {
             var errors = new List<ValidationResult>();
 
-            var isRestaurantValid = await ValidateRestaurant(user, restaurantId);
-
-            if (isRestaurantValid.IsError)
-            {
-                return isRestaurantValid.Errors;
-            }
-
             var item = await context.MenuItems
-                .FirstOrDefaultAsync(i => i.Id == menuItemId && i.RestaurantId == restaurantId);
+                .FirstOrDefaultAsync(i => i.Id == menuItemId);
 
             if (item == null)
             {
