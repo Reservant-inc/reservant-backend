@@ -67,6 +67,12 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
         return Ok(res.Value);
     }
 
+    /// <summary>
+    /// Changes the menuitem with the given id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPut("{id:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]

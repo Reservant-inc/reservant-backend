@@ -119,7 +119,13 @@ namespace Reservant.Api.Services
             return true;
         }
 
-
+        /// <summary>
+        /// changes the given menuitem
+        /// </summary>
+        /// <param name="user">current user, must be restaurantowner</param>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<Result<MenuItemVM>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
         {
             var errors = new List<ValidationResult>();
