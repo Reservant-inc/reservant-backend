@@ -44,6 +44,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
             new RestaurantTag { Name = "Tag2" }
         ]);
 
+        builder.Entity<Restaurant>().HasQueryFilter(r => !r.IsDeleted);
+
+        builder.Entity<RestaurantGroup>().HasQueryFilter(r => !r.IsDeleted);
+
         builder.Entity<Employment>().HasKey(e => new { e.EmployeeId, e.RestaurantId });
     }
 
