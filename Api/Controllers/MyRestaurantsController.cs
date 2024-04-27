@@ -150,6 +150,10 @@ namespace Reservant.Api.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Delete restaurant
+        /// </summary>
+        /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
         [HttpDelete("{id:int}")]
         [ProducesResponseType(204), ProducesResponseType(404)]
         public async Task<ActionResult> SoftDeleteRestaurant(int id)
