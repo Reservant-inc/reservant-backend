@@ -65,7 +65,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             Owner = user,
             Restaurants = restaurants
         };
-        
+
         if (!ValidationUtils.TryValidate(group, errors))
         {
             return errors;
@@ -165,7 +165,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             }).ToList()
         });
     }
-    
+
     /// <summary>
     /// Updates restaurant group name.
     /// </summary>
@@ -186,24 +186,24 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             errors.Add(new ValidationResult($"RestaurantGroup with ID {groupId} not found."));
             return errors;
         }
-        
+
         if (restaurantGroup.OwnerId != userId)
         {
             errors.Add(new ValidationResult($"User with ID {userId} is not an Owner of group {groupId}."));
             return errors;
         }
-        
 
-        
+
+
         restaurantGroup.Name = request.Name.Trim();
-        
+
         if (!ValidationUtils.TryValidate(restaurantGroup, errors))
         {
             return errors;
         }
-        
+
         await context.SaveChangesAsync();
-        
+
         return new RestaurantGroupVM
         {
             Id = restaurantGroup.Id,
@@ -224,5 +224,30 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
                 IsVerified = r.VerifierId != null
             }).ToList()
         };
+    }
+
+    /// <summary>
+    /// Function for deleteing entire restaurant group in one go
+    /// </summary>
+    /// <param name="id">id of the restaurant group</param>
+    /// <param name="user">owner of the restaurant group</param>
+    /// <returns></returns>
+    public async Task<bool> SoftDeleteRestaurantGroupAsync(int id, User user)
+    {
+        var group = await context.RestaurantGroups
+            .Where(g => g.Id == id && g.OwnerId == user.Id)
+            .Include(g => g.Restaurants)
+            .FirstOrDefaultAsync();
+        if (group == null) { return false; }
+
+        foreach (Restaurant restaurant in group.Restaurants)
+        {
+            context.Remove(restaurant);
+        }
+
+        context.Remove(group);
+
+        return true;
+
     }
 }

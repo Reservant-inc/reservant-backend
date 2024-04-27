@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -97,7 +98,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         }
 
     }
-    
+
     /// <summary>
     /// Updates name of restaurant group
     /// </summary>
@@ -109,14 +110,31 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     {
         var user = await userManager.GetUserAsync(User);
         var result = await service.UpdateRestaurantGroupAsync(id, request, user.Id);
-    
+
         if (!result.IsError)
         {
             return Ok(result.Value);
         }
-    
+
         ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
         return BadRequest(ModelState);
     }
-    
+
+    /// <summary>
+    /// Deletes a restaurant group
+    /// </summary>
+    /// <param name="id">id of the restaurant group that will be deleted</param>
+    /// <returns></returns>
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(204), ProducesResponseType(404)]
+    public async Task<ActionResult> SoftDeleteRestaurantGroup(int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+        var result = await service.SoftDeleteRestaurantGroupAsync(id, user);
+
+        if (!result) { return NotFound(); }
+
+        return NoContent();
+    }
+
 }
