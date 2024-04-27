@@ -20,16 +20,14 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <summary>
     /// Gets a single menu with details for a given menu ID and restaurant ID.
     /// </summary>
-    /// <param name="restaurantId">The ID of the restaurant.</param>
-    /// <param name="menuId">The ID of the menu.</param>
     /// <returns></returns>
-    [HttpGet("/menus/{Id:int}")]
+    [HttpGet("/menus/{id:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult<MenuVM>> GetSingleMenuById(int Id)
+    public async Task<ActionResult<MenuVM>> GetSingleMenuById(int id)
     {
-        var result = await service.GetSingleMenuAsync(Id);
-        
+        var result = await service.GetSingleMenuAsync(id);
+
         if (!result.IsError) return Ok(result.Value);
         
         ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
