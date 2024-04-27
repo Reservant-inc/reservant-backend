@@ -118,5 +118,51 @@ namespace Reservant.Api.Services
 
             return true;
         }
+
+
+        public async Task<Result<MenuItemVM>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
+        {
+            var errors = new List<ValidationResult>();
+
+            var item = await context.MenuItems
+                .Include(r => r.Restaurant)
+                .Include(r => r.Restaurant!.Group)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (item == null)
+            {
+                errors.Add(new ValidationResult(
+                   $"MenuItem: {id} not found"
+                ));
+                return errors;
+            }
+
+            //check if menuitem belongs to a restaurant owned by user
+            if (item.Restaurant!.Group!.OwnerId != user.Id)
+            {
+                errors.Add(new ValidationResult(
+                   $"MenuItem: {id} doesn't belong to a restaurant owned by the user"
+                ));
+                return errors;
+            }
+
+            if (!ValidationUtils.TryValidate(request, errors))
+            {
+                return errors;
+            }
+
+            item.Price = request.Price;
+            item.Name = request.Name;
+            item.AlcoholPercentage = request.AlcoholPercentage;
+
+            return new MenuItemVM()
+            {
+                Id = item.Id,
+                Price = item.Price,
+                Name = item.Name,
+                AlcoholPercentage = item.AlcoholPercentage,
+            };
+            
+        }
     }
 }

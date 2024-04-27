@@ -82,7 +82,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
             return ValidationProblem();
         }
 
-        return Ok();
+        return Ok(res.Value);
     }
 
 }
