@@ -190,11 +190,12 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user) {
+        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user)
+        {
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group!.OwnerId == userId)
-                .Select(r=> new RestaurantSummaryVM
+                .Select(r => new RestaurantSummaryVM
                 {
                     Id = r.Id,
                     Name = r.Name,
@@ -623,15 +624,15 @@ namespace Reservant.Api.Services
             .Where(r => r.Id == idRestaurant)
             .AnyAsync();
 
-            if(!result)
+            if (!result)
                 return false;
 
             await context
             .Restaurants
-            .Where (r => r.Id == idRestaurant)
+            .Where(r => r.Id == idRestaurant)
             .ForEachAsync(r =>
             {
-                r.VerifierId=user.Id;
+                r.VerifierId = user.Id;
             });
             await context.SaveChangesAsync();
 
@@ -727,6 +728,33 @@ namespace Reservant.Api.Services
                     AlcoholPercentage = i.AlcoholPercentage,
                 }).ToListAsync();
 
+        }
+
+        /// <summary>
+        /// Function for soft deleting Restaurants that also deletes newly emptied restaurant groups
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
+        {
+            var restaurant = await context.Restaurants
+                .Include(r => r.Group!)
+                .ThenInclude(g => g.Restaurants)
+                .Where(r => r.Id == id && r.Group!.OwnerId == user.Id)
+                .FirstOrDefaultAsync();
+            if (restaurant == null)
+            {
+                return false;
+            }
+
+            context.Remove(restaurant);
+            if (restaurant.Group!.Restaurants!.Count == 0)
+            {
+                context.Remove(restaurant.Group);
+            }
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -32,7 +32,8 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult> CreateRestaurant(CreateRestaurantRequest request) {
+        public async Task<ActionResult> CreateRestaurant(CreateRestaurantRequest request)
+        {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.CreateRestaurantAsync(request, user);
             if (result.IsError)
@@ -49,7 +50,8 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants() {
+        public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants()
+        {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantsAsync(user);
             return Ok(result);
@@ -61,7 +63,8 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet("{id:int}")]
         [ProducesResponseType(200), ProducesResponseType(404)]
-        public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int id) {
+        public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int id)
+        {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.GetMyRestaurantByIdAsync(user, id);
             if (result == null)
@@ -94,7 +97,8 @@ namespace Reservant.Api.Controllers
 
         [HttpPost("{id:int}/move-to-group")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request) {
+        public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request)
+        {
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.MoveRestaurantToGroupAsync(id, request, user);
             if (result.IsError)
@@ -210,6 +214,25 @@ namespace Reservant.Api.Controllers
             }
 
             return Ok(res.Value);
+        }
+
+        /// <summary>
+        /// Delete restaurant
+        /// </summary>
+        /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
+        [HttpDelete("{id:int}")]
+        [ProducesResponseType(204), ProducesResponseType(404)]
+        public async Task<ActionResult> SoftDeleteRestaurant(int id)
+        {
+            var user = await userManager.GetUserAsync(User);
+            var result = await restaurantService.SoftDeleteRestaurantAsync(id, user);
+
+            if (!result)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
     }
 }
