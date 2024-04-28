@@ -11,22 +11,20 @@ namespace Reservant.Api.Controllers;
 
 
 /// <summary>
-/// Controller resposnible for setting verifiedId for logged in user
-/// Only CustomerSupportAgent can use this controllers
+/// Restaurants from the perspective of other people than the owner
 /// </summary>
-/// <request code="404"> Refering to nonexistant restaurant </request>
-/// <request code="200"> When assigning is succesful </request>
-/// <param name="userManager"></param>
-/// <param name="service"></param>
 [ApiController, Route("/restaurants")]
 public class RestaurantController(UserManager<User> userManager, RestaurantService service) : Controller
 {
 
     /// <summary>
-    /// Sets properties VerifierId on users ID
+    /// Verify restaurant
     /// </summary>
-    /// <param name="restaurantId">int</param>
-    /// <returns>conformation if action was performed succesfuly</returns>
+    /// <remarks>
+    /// For CustomerSupportAgent. Sets the restaurant's verifier ID to the current user's ID.
+    /// </remarks>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <response code="400">Restaurant already verified</response>
     [HttpPost("{restaurantId:int}/verify")]
     [ProducesResponseType(200), ProducesResponseType(404),ProducesResponseType(400)]
     [Authorize(Roles = Roles.CustomerSupportAgent)]
