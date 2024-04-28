@@ -447,22 +447,15 @@ namespace Reservant.Api.Services
             var result = await context
                 .Restaurants
                 .Where(r => r.Id == idRestaurant)
-                .ToListAsync();
+                .FirstOrDefaultAsync();
 
-            if(result.Count == 0)
+            if (result is null)
                 return VerificationResult.RestaurantNotFound;
 
-            var result2 = result
-                .Where(r => r.VerifierId != null)
-                .ToList();
-
-            if(result2.Count != 0)
+            if (result.VerifierId is not null)
                 return VerificationResult.VerifierAlreadyExists;
 
-            result.Where(r => r.VerifierId == null).ToList().ForEach(r =>
-            {
-                r.VerifierId = user.Id;
-            });
+            result.VerifierId = user.Id;
             await context.SaveChangesAsync();
 
             return VerificationResult.VerifierSetSuccessfully;
