@@ -751,6 +751,8 @@ namespace Reservant.Api.Services
                 .Include(restaurant => restaurant.Tables!)
                 .Include(restaurant => restaurant.Employments!)
                 .Include(restaurant => restaurant.Photos!)
+                .Include(restaurant => restaurant.Menus!)
+                .Include(restaurant => restaurant.MenuItems!)
                 .Where(r => r.Id == id && r.Group!.OwnerId == user.Id)
                 .FirstOrDefaultAsync();
             if (restaurant == null)
@@ -767,6 +769,8 @@ namespace Reservant.Api.Services
             context.RemoveRange(restaurant.Tables!);
             context.RemoveRange(restaurant.Employments!);
             context.RemoveRange(restaurant.Photos!);
+            context.RemoveRange(restaurant.Menus!);
+            context.RemoveRange(restaurant.MenuItems!);
 
             await context.SaveChangesAsync();
             return true;
