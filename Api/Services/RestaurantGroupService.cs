@@ -246,7 +246,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
         }
 
         context.Remove(group);
-
+        await context.SaveChangesAsync();
         return true;
 
     }
