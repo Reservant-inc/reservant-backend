@@ -1,9 +1,11 @@
+using Reservant.Api.Data;
+
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// Connects an employee to the restaurants they work at
 /// </summary>
-public class Employment
+public class Employment : ISoftDeletable
 {
     /// <summary>
     /// ID of the employee
@@ -34,4 +36,7 @@ public class Employment
     /// Navigational property for the restaurant
     /// </summary>
     public Restaurant? Restaurant { get; set; }
+
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }

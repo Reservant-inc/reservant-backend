@@ -745,8 +745,12 @@ namespace Reservant.Api.Services
         public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
+                .AsSplitQuery()
                 .Include(r => r.Group!)
                 .ThenInclude(g => g.Restaurants)
+                .Include(restaurant => restaurant.Tables!)
+                .Include(restaurant => restaurant.Employments!)
+                .Include(restaurant => restaurant.Photos!)
                 .Where(r => r.Id == id && r.Group!.OwnerId == user.Id)
                 .FirstOrDefaultAsync();
             if (restaurant == null)
@@ -759,6 +763,11 @@ namespace Reservant.Api.Services
             {
                 context.Remove(restaurant.Group);
             }
+
+            context.RemoveRange(restaurant.Tables!);
+            context.RemoveRange(restaurant.Employments!);
+            context.RemoveRange(restaurant.Photos!);
+
             await context.SaveChangesAsync();
             return true;
         }
