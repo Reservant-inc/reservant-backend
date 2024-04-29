@@ -232,14 +232,14 @@ public class RestaurantMenuService(ApiDbContext context)
         // Checking if menu exists
         if (menu == null)
         {
-            errors.Add(new ValidationResult($"Menu with ID {menuId} not found.", [ nameof(menuId) ]));
+            errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
             return errors;
         }
         
         // Checking ownership of menu
         if (menu.Restaurant!.Group!.OwnerId != user.Id)
         {
-            errors.Add(new ValidationResult($"User not permitted to edit menu with ID {menuId}.", [ nameof(menuId) ]));
+            errors.Add(new ValidationResult($"User not permitted to edit menu with ID {menuId}."));
             return errors;
         }
 
