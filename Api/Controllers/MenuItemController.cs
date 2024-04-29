@@ -67,4 +67,25 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
         return Ok(res.Value);
     }
 
+
+    /// <summary>
+    /// removes menu item from given menue by given id
+    /// </summary>
+    /// <param name="menueId"></param>
+    /// <param name="id">id of the menuItem</param>
+    /// <returns>The found menu item</returns>
+    [HttpDelete]
+    [Route("{id:int}/items")]
+    [ProducesResponseType(200), ProducesResponseType(404)]
+    public async Task<ActionResult> RemoveMenuItemFromMenu(int menueId, int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var res = await service.RemoveMenuItemFromMenuAsync(user!, menueId, id);
+
+        if (res)
+            return Ok();
+        return NotFound();
+    }
+
 }

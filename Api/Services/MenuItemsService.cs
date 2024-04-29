@@ -118,5 +118,46 @@ namespace Reservant.Api.Services
 
             return true;
         }
+
+        /// <summary>
+        /// Deletes Menue
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="menueId"></param>
+        /// <param name="menuItemId"></param>
+        /// <returns>MenuItem</returns>
+        public async Task<bool> RemoveMenuItemFromMenuAsync(User user, int menuId, int menuItemId)
+        {
+            var menuItem = await context
+                .MenuItems
+                .Include(m => m.Menus)
+                .ThenInclude(m => m.Restaurant)
+                .ThenInclude(r => r.Group)
+                .FirstOrDefaultAsync(r => r.Id == menuItemId);
+
+            if (menuItem == null)
+                return false;
+
+            var menu = menuItem.Menus.FirstOrDefault(m => m.Id == menuId);
+
+            if (menu == null)
+                return false;
+
+            if (menuItem.Restaurant == null || menuItem.Restaurant.Group == null || menuItem.Restaurant.Group.Owner == null)
+            {
+                return false;
+            }
+
+            if (menuItem.Restaurant.Group.Owner.Id != user.Id) 
+                return false;
+
+            menuItem.Menus.Remove(menu);
+
+            await context.SaveChangesAsync();
+
+            return true;
+        }
+
+
     }
 }
