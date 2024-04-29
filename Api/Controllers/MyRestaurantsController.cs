@@ -95,6 +95,27 @@ namespace Reservant.Api.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Terminates an employee's employment by setting the end date to today's date.
+        /// </summary>
+        /// <param name="id">ID of the restaurant.</param>
+        /// <param name="employmentId">ID of the employment to terminate.</param>
+        /// <returns>A result indicating success or failure.</returns>
+        [HttpDelete("{restaurantId:int}/employees/{employmentId:int}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult> DeleteEmployment(int restaurantId, int employmentId)
+        {
+            var userId = userManager.GetUserId(User);
+            var result = await restaurantService.DeleteEmploymentAsync(restaurantId, employmentId, userId);
+            if (result.IsError)
+            {
+                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+                return ValidationProblem();
+            }
+
+            return Ok();
+        }
+
         [HttpPost("{id:int}/move-to-group")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request)
