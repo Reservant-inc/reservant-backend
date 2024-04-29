@@ -188,5 +188,43 @@ public class RestaurantMenuService(ApiDbContext context)
             }).ToList()
         };
     }
-    
+
+        /// <summary>
+        /// Deletes Menue item from provided menue with given id
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="menueId"></param>
+        /// <param name="menuItemId"></param>
+        /// <returns>MenuItem</returns>
+        public async Task<bool> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
+        {
+            var menuItemIds = req.ItemIds;
+
+            var menuItems = await context
+                .MenuItems
+                .Include(m => m.Menus)
+                .ThenInclude(m => m.Restaurant)
+                .ThenInclude(r => r.Group)
+                .Where(r => menuItemIds.Contains(r.Id))
+                .ToListAsync();
+
+            var menu = await context.Menus.FirstOrDefaultAsync(m => m.Id == menuId);
+
+            if (menu == null)
+                return false;
+
+            var validMenuItems = menuItems.Where(m => m.Restaurant != null && m.Restaurant.Group != null && m.Restaurant.Group.Owner != null && m.Restaurant.Group.Owner.Id == user.Id);
+
+            if (!validMenuItems.Any())
+                return false;
+
+            foreach (var menuItem in validMenuItems)
+            {
+                menuItem.Menus.Remove(menu);
+            }
+
+            await context.SaveChangesAsync();
+
+            return true;
+        } 
 }
