@@ -232,13 +232,21 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
     /// <param name="id">id of the restaurant group</param>
     /// <param name="user">owner of the restaurant group</param>
     /// <returns></returns>
-    public async Task<bool> SoftDeleteRestaurantGroupAsync(int id, User user)
+    public async Task<Result<bool>> SoftDeleteRestaurantGroupAsync(int id, User user)
     {
+        var errors = new List<ValidationResult>();
         var group = await context.RestaurantGroups
-            .Where(g => g.Id == id && g.OwnerId == user.Id)
+            .Where(g => g.Id == id)
             .Include(g => g.Restaurants)
             .FirstOrDefaultAsync();
-        if (group == null) { return false; }
+        if (group == null)
+        {
+            errors.Add(new ValidationResult("Restaurant group not found"));
+            return errors;
+        }
+        if (group.OwnerId != user.Id) {
+            errors.Add(new ValidationResult("Restaurant group does not belong to this user"));
+            return errors; }
 
         foreach (Restaurant restaurant in group.Restaurants)
         {

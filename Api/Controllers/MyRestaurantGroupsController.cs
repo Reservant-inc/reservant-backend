@@ -132,7 +132,11 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         var user = await userManager.GetUserAsync(User);
         var result = await service.SoftDeleteRestaurantGroupAsync(id, user);
 
-        if (!result) { return NotFound(); }
+        if (result.IsError)
+        {
+            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
+            return BadRequest(ModelState);
+        }
 
         return NoContent();
     }
