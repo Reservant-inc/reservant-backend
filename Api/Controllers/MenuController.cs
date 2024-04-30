@@ -77,7 +77,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         return ValidationProblem();
     }
 
-    [HttpPut("/menus/{id:int}")]
+    [HttpPut("{id:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
