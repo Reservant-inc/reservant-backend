@@ -14,7 +14,8 @@ namespace Reservant.Api.Services;
 /// Util class for managing RestaurantGroups
 /// </summary>
 /// <param name="context">context</param>
-public class RestaurantGroupService(ApiDbContext context, FileUploadService uploadService)
+public class RestaurantGroupService(
+    ApiDbContext context, FileUploadService uploadService, RestaurantService restaurantService)
 {
 
     /// <summary>
@@ -250,7 +251,13 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
 
         foreach (Restaurant restaurant in group.Restaurants)
         {
-            context.Remove(restaurant);
+            if (await restaurantService.SoftDeleteRestaurantAsync(restaurant.Id, user))
+            {
+                continue;
+            }
+
+            errors.Add(new ValidationResult($"Unable to delete restaurant with ID {restaurant.Id}"));
+            return errors;
         }
 
         context.Remove(group);
