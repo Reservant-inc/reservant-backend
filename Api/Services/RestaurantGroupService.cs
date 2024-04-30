@@ -90,7 +90,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             .Include(g => g.Restaurants)
             .ToListAsync();
 
-        // Filtracja grup, które s¹ puste (nie maj¹ restauracji)
+        // Filtracja grup, ktï¿½re sï¿½ puste (nie majï¿½ restauracji)
         var emptyGroups = allGroups.Where(g => !g.Restaurants.Any()).ToList();
 
         if (emptyGroups.Any())
