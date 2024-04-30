@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// Stolik
 /// </summary>
-public class Table
+public class Table : ISoftDeletable
 {
     /// <summary>
     /// ID of the table's restaurant
@@ -27,4 +28,7 @@ public class Table
     /// Restaurant
     /// </summary>
     public Restaurant? Restaurant { get; set; }
+
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }

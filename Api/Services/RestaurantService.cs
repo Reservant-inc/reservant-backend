@@ -10,9 +10,17 @@ using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Services
 {
+    public enum VerificationResult
+    {
+        RestaurantNotFound,
+        VerifierAlreadyExists,
+        VerifierSetSuccessfully,
+    }
+
     public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager,MenuItemsService menuItemsServiceservice)
     {
         /// <summary>
@@ -617,27 +625,25 @@ namespace Reservant.Api.Services
         /// <param name="idUser"></param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<bool> SetVerifierIdAsync(User user, int idRestaurant)
+        public async Task<VerificationResult> SetVerifiedIdAsync(User user, int idRestaurant)
         {
             var result = await context
-            .Restaurants
-            .Where(r => r.Id == idRestaurant)
-            .AnyAsync();
+                .Restaurants
+                .Where(r => r.Id == idRestaurant)
+                .FirstOrDefaultAsync();
 
-            if (!result)
-                return false;
+            if (result is null)
+                return VerificationResult.RestaurantNotFound;
 
-            await context
-            .Restaurants
-            .Where(r => r.Id == idRestaurant)
-            .ForEachAsync(r =>
-            {
-                r.VerifierId = user.Id;
-            });
+            if (result.VerifierId is not null)
+                return VerificationResult.VerifierAlreadyExists;
+
+            result.VerifierId = user.Id;
             await context.SaveChangesAsync();
 
-            return true;
+            return VerificationResult.VerifierSetSuccessfully;
         }
+
         /// <summary>
         /// Validates if given dto is valid. If a group is given, checks if that group belongs to User
         /// </summary>
@@ -739,8 +745,14 @@ namespace Reservant.Api.Services
         public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
+                .AsSplitQuery()
                 .Include(r => r.Group!)
                 .ThenInclude(g => g.Restaurants)
+                .Include(restaurant => restaurant.Tables!)
+                .Include(restaurant => restaurant.Employments!)
+                .Include(restaurant => restaurant.Photos!)
+                .Include(restaurant => restaurant.Menus!)
+                .Include(restaurant => restaurant.MenuItems!)
                 .Where(r => r.Id == id && r.Group!.OwnerId == user.Id)
                 .FirstOrDefaultAsync();
             if (restaurant == null)
@@ -753,8 +765,16 @@ namespace Reservant.Api.Services
             {
                 context.Remove(restaurant.Group);
             }
+
+            context.RemoveRange(restaurant.Tables!);
+            context.RemoveRange(restaurant.Employments!);
+            context.RemoveRange(restaurant.Photos!);
+            context.RemoveRange(restaurant.Menus!);
+            context.RemoveRange(restaurant.MenuItems!);
+
             await context.SaveChangesAsync();
             return true;
         }
+
     }
 }

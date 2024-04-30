@@ -147,6 +147,16 @@ public class Restaurant : ISoftDeletable
     public ICollection<Employment>? Employments { get; set; }
 
     /// <summary>
+    /// Navigational collection for menus
+    /// </summary>
+    public ICollection<Menu>? Menus { get; set; }
+
+    /// <summary>
+    /// Navigational collection for menu items
+    /// </summary>
+    public ICollection<MenuItem>? MenuItems { get; set; }
+
+    /// <summary>
     /// Proof of verification by specific CustomerSupportAgent
     /// </summary>
     public string? VerifierId { get; set; }

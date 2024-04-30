@@ -76,6 +76,26 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
         return ValidationProblem();
     }
-    
-    
+
+    /// <summary>
+    /// Update menu
+    /// </summary>
+    /// <param name="request">New data</param>
+    /// <param name="id">ID of the menu</param>
+    /// <returns></returns>
+    [HttpPut("{id:int}")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<MenuVM>> UpdateMenu(UpdateMenuRequest request, int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var result = await service.UpdateMenuAsync(request, id, user);
+
+        if (!result.IsError) return Ok(result.Value);
+        
+        ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
+        return ValidationProblem();
+    }
 }

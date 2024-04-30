@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// Pozycja z menu
 /// </summary>
-public class MenuItem
+public class MenuItem : ISoftDeletable
 {
     /// <summary>
     /// Unique ID
@@ -45,4 +46,7 @@ public class MenuItem
     /// Navigation property for the restaurant owning the menu
     /// </summary>
     public Restaurant? Restaurant { get; set; }
+
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }

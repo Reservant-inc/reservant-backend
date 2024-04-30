@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// Photo of a restaurant
 /// </summary>
-public class RestaurantPhoto
+public class RestaurantPhoto : ISoftDeletable
 {
     /// <summary>
     /// ID of the restaurant
@@ -32,4 +33,7 @@ public class RestaurantPhoto
     /// Navigation property for the photo upload
     /// </summary>
     public FileUpload? Photo { get; set; }
+
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }
