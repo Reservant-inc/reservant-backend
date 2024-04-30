@@ -246,7 +246,7 @@ public class RestaurantGroupService(
             return errors;
         }
         if (group.OwnerId != user.Id) {
-            errors.Add(new ValidationResult("Restaurant group does not belong "));
+            errors.Add(new ValidationResult("Restaurant group does not belong to the current user"));
             return errors; }
 
         foreach (Restaurant restaurant in group.Restaurants)
