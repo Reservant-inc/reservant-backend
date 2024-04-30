@@ -245,7 +245,7 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             return errors;
         }
         if (group.OwnerId != user.Id) {
-            errors.Add(new ValidationResult("Restaurant group does not belong to this user"));
+            errors.Add(new ValidationResult("Restaurant group does not belong "));
             return errors; }
 
         foreach (Restaurant restaurant in group.Restaurants)
