@@ -77,6 +77,12 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         return ValidationProblem();
     }
 
+    /// <summary>
+    /// Update menu
+    /// </summary>
+    /// <param name="request">New data</param>
+    /// <param name="id">ID of the menu</param>
+    /// <returns></returns>
     [HttpPut("{id:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
