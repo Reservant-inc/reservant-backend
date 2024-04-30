@@ -189,42 +189,50 @@ public class RestaurantMenuService(ApiDbContext context)
         };
     }
 
-        /// <summary>
-        /// Deletes Menue item from provided menue with given id
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="menueId"></param>
-        /// <param name="menuItemId"></param>
-        /// <returns>MenuItem</returns>
-        public async Task<bool> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
+
+    public enum RemoveMenuItemResult
+    {
+        Success,
+        MenuNotFound,
+        NoValidMenuItems
+    }
+
+    /// <summary>
+    /// Deletes Menue item from provided menue with given id
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="menueId"></param>
+    /// <param name="menuItemId"></param>
+    /// <returns>MenuItem</returns>
+    public async Task<RemoveMenuItemResult> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
+    {
+        var menuItemIds = req.ItemIds;
+
+        var menuItems = await context
+            .MenuItems
+            .Include(m => m.Menus)
+            .ThenInclude(m => m.Restaurant)
+            .ThenInclude(r => r.Group)
+            .Where(r => menuItemIds.Contains(r.Id))
+            .ToListAsync();
+
+        var menu = await context.Menus.FirstOrDefaultAsync(m => m.Id == menuId);
+
+        if (menu == null)
+            return RemoveMenuItemResult.MenuNotFound;
+
+        var validMenuItems = menuItems.Where(m => m.Restaurant != null && m.Restaurant.Group != null && m.Restaurant.Group.Owner != null && m.Restaurant.Group.Owner.Id == user.Id);
+
+        if (!validMenuItems.Any())
+            return RemoveMenuItemResult.NoValidMenuItems;
+
+        foreach (var menuItem in validMenuItems)
         {
-            var menuItemIds = req.ItemIds;
+            menuItem.Menus.Remove(menu);
+        }
 
-            var menuItems = await context
-                .MenuItems
-                .Include(m => m.Menus)
-                .ThenInclude(m => m.Restaurant)
-                .ThenInclude(r => r.Group)
-                .Where(r => menuItemIds.Contains(r.Id))
-                .ToListAsync();
+        await context.SaveChangesAsync();
 
-            var menu = await context.Menus.FirstOrDefaultAsync(m => m.Id == menuId);
-
-            if (menu == null)
-                return false;
-
-            var validMenuItems = menuItems.Where(m => m.Restaurant != null && m.Restaurant.Group != null && m.Restaurant.Group.Owner != null && m.Restaurant.Group.Owner.Id == user.Id);
-
-            if (!validMenuItems.Any())
-                return false;
-
-            foreach (var menuItem in validMenuItems)
-            {
-                menuItem.Menus.Remove(menu);
-            }
-
-            await context.SaveChangesAsync();
-
-            return true;
-        } 
+        return RemoveMenuItemResult.Success;
+    }
 }

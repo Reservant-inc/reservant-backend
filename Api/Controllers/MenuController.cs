@@ -93,9 +93,17 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
         var res = await service.RemoveMenuItemFromMenuAsync(user!, id, req);
 
-        if (res)
-            return Ok();
-        return NotFound();
+        switch (res)
+        {
+            case RestaurantMenuService.RemoveMenuItemResult.Success:
+                return Ok();
+            case RestaurantMenuService.RemoveMenuItemResult.MenuNotFound:
+                return NotFound();
+            case RestaurantMenuService.RemoveMenuItemResult.NoValidMenuItems:
+                return BadRequest();
+            default:
+                return StatusCode(500, "Internal server error");
+        }
     }
     
 }
