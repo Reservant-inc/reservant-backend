@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Models;
@@ -45,5 +46,67 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
         ]);
 
         builder.Entity<Employment>().HasKey(e => new { e.EmployeeId, e.RestaurantId });
+
+        var softDeletableEntities =
+            from prop in GetType().GetProperties()
+            where prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
+            let entity = prop.PropertyType.GenericTypeArguments[0]
+            where entity.IsAssignableTo(typeof(ISoftDeletable))
+            select entity;
+        foreach (var entity in softDeletableEntities)
+        {
+            SetSoftDeletableQueryFilterMethod
+                .MakeGenericMethod(entity)
+                .Invoke(null, [builder]);
+        }
+    }
+
+    private static readonly MethodInfo SetSoftDeletableQueryFilterMethod =
+        typeof(ApiDbContext).GetMethod(
+            nameof(SetSoftDeletableQueryFilter), BindingFlags.Static | BindingFlags.NonPublic)!;
+
+    private static void SetSoftDeletableQueryFilter<TEntity>(ModelBuilder builder)
+        where TEntity : class, ISoftDeletable
+    {
+        builder.Entity<TEntity>()
+            .HasQueryFilter(e => !e.IsDeleted);
+    }
+
+    public override int SaveChanges()
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChanges();
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new())
+    {
+        SetIsDeletedOnDeletedEntries();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    private void SetIsDeletedOnDeletedEntries()
+    {
+        ChangeTracker.DetectChanges();
+        var deleted = ChangeTracker.Entries()
+            .Where(e => e is { State: EntityState.Deleted, Entity: ISoftDeletable });
+
+        foreach (var entry in deleted)
+        {
+            var entity = (ISoftDeletable)entry.Entity;
+            entity.IsDeleted = true;
+            entry.State = EntityState.Modified;
+        }
     }
 }

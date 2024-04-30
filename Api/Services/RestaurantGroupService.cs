@@ -179,8 +179,8 @@ public class RestaurantGroupService(ApiDbContext context, FileUploadService uplo
             .Include(restaurantGroup => restaurantGroup.Restaurants)!
             .ThenInclude(restaurant => restaurant.Tags!)
             .FirstOrDefaultAsync(rg => rg.Id == groupId);
-    
-    
+
+
         if (restaurantGroup == null)
         {
             errors.Add(new ValidationResult($"RestaurantGroup with ID {groupId} not found."));

@@ -17,75 +17,45 @@ namespace Reservant.Api.Services
         /// Validates and creates given menuItems
         /// </summary>
         /// <param name="user">The current user, must be a restaurant owner</param>
-        /// <param name="restaurantId">The restaurant in which the menuItems will be created</param>
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
-        public async Task<Result<List<MenuItemVM>>> CreateMenuItemsAsync(User user, int restaurantId, List<CreateMenuItemRequest> req)
+        public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
             var errors = new List<ValidationResult>();
 
-            var isRestaurantValid = await ValidateRestaurant(user, restaurantId);
+            var isRestaurantValid = await ValidateRestaurant(user, req.RestaurantId);
 
             if (isRestaurantValid.IsError)
             {
                 return isRestaurantValid.Errors;
             }
 
-            var menuItems = req.Select(item => new MenuItem()
+            var menuItem = new MenuItem()
             {
-                Price = item.Price,
-                Name = item.Name,
-                AlcoholPercentage = item.AlcoholPercentage,
-                RestaurantId = restaurantId,
-            }).ToList();
+                Price = req.Price,
+                Name = req.Name,
+                AlcoholPercentage = req.AlcoholPercentage,
+                RestaurantId = req.RestaurantId,
+            };
 
-            foreach (var item in menuItems)
+
+  
+            if (!ValidationUtils.TryValidate(menuItem, errors))
             {
-                if (!ValidationUtils.TryValidate(item, errors))
-                {
-                    return errors;
-                }
+                return errors;
             }
+            
 
-            await context.MenuItems.AddRangeAsync(menuItems);
+            await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
 
-            return menuItems.Select(i => new MenuItemVM()
+            return new MenuItemVM()
             {
-                Id = i.Id,
-                Name = i.Name,
-                Price = i.Price,
-                AlcoholPercentage = i.AlcoholPercentage,
-            }).ToList();
-
-        }
-
-        /// <summary>
-        /// Validates and gets menu items from the given restaurant
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="restaurantId"></param>
-        /// <returns>MenuItems</returns>
-        public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
-        {
-            var errors = new List<ValidationResult>();
-
-            var isRestaurantValid = await ValidateRestaurant(user, restaurantId);
-
-            if (isRestaurantValid.IsError)
-            {
-                return isRestaurantValid.Errors;
-            }
-
-            return await context.MenuItems
-                .Where(i => i.RestaurantId == restaurantId)
-                .Select(i => new MenuItemVM()
-                {
-                    Id = i.Id,
-                    Name = i.Name,
-                    Price = i.Price,
-                    AlcoholPercentage = i.AlcoholPercentage,
-                }).ToListAsync();
+                Id = menuItem.Id,
+                Name = menuItem.Name,
+                Price = menuItem.Price,
+                AlcoholPercentage = menuItem.AlcoholPercentage,
+            };
 
         }
 
@@ -97,19 +67,12 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId"></param>
         /// <param name="menuItemId"></param>
         /// <returns>MenuItem</returns>
-        public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int restaurantId, int menuItemId)
+        public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int menuItemId)
         {
             var errors = new List<ValidationResult>();
 
-            var isRestaurantValid = await ValidateRestaurant(user, restaurantId);
-
-            if (isRestaurantValid.IsError)
-            {
-                return isRestaurantValid.Errors;
-            }
-
             var item = await context.MenuItems
-                .FirstOrDefaultAsync(i => i.Id == menuItemId && i.RestaurantId == restaurantId);
+                .FirstOrDefaultAsync(i => i.Id == menuItemId);
 
             if (item == null)
             {
@@ -129,7 +92,7 @@ namespace Reservant.Api.Services
 
         }
 
-        private async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
+        public async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
         {
             var errors = new List<ValidationResult>();
 
@@ -155,6 +118,5 @@ namespace Reservant.Api.Services
 
             return true;
         }
-
     }
 }

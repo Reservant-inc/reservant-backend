@@ -8,10 +8,20 @@ using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
+using Reservant.Api.Models.Dtos.Menu;
+using Reservant.Api.Models.Dtos.MenuItem;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Services
 {
-    public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager)
+    public enum VerificationResult
+    {
+        RestaurantNotFound,
+        VerifierAlreadyExists,
+        VerifierSetSuccessfully,
+    }
+
+    public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager,MenuItemsService menuItemsServiceservice)
     {
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
@@ -188,11 +198,12 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user) {
+        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user)
+        {
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group!.OwnerId == userId)
-                .Select(r=> new RestaurantSummaryVM
+                .Select(r => new RestaurantSummaryVM
                 {
                     Id = r.Id,
                     Name = r.Name,
@@ -614,27 +625,25 @@ namespace Reservant.Api.Services
         /// <param name="idUser"></param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<bool> SetVerifierIdAsync(User user, int idRestaurant)
+        public async Task<VerificationResult> SetVerifiedIdAsync(User user, int idRestaurant)
         {
             var result = await context
-            .Restaurants
-            .Where(r => r.Id == idRestaurant)
-            .AnyAsync();
+                .Restaurants
+                .Where(r => r.Id == idRestaurant)
+                .FirstOrDefaultAsync();
 
-            if(!result)
-                return false;
+            if (result is null)
+                return VerificationResult.RestaurantNotFound;
 
-            await context
-            .Restaurants
-            .Where (r => r.Id == idRestaurant)
-            .ForEachAsync(r =>
-            {
-                r.VerifierId=user.Id;
-            });
+            if (result.VerifierId is not null)
+                return VerificationResult.VerifierAlreadyExists;
+
+            result.VerifierId = user.Id;
             await context.SaveChangesAsync();
 
-            return true;
+            return VerificationResult.VerifierSetSuccessfully;
         }
+
         /// <summary>
         /// Validates if given dto is valid. If a group is given, checks if that group belongs to User
         /// </summary>
@@ -675,5 +684,97 @@ namespace Reservant.Api.Services
             return true;
 
         }
+
+        /// <summary>
+        /// Returns a list of menus of specific restaurant
+        /// </summary>
+        /// <param name="id"> Id of the restaurant.</param>
+        /// <returns></returns>
+        public async Task<List<MenuSummaryVM>> GetMenusAsync(int id)
+        {
+            var menus = await context.Menus
+                .Where(m => m.RestaurantId == id)
+                .Include(m => m.MenuItems)
+                .Select(menu => new MenuSummaryVM
+                {
+                    Id = menu.Id,
+                    MenuType = menu.MenuType,
+                    DateFrom = menu.DateFrom,
+                    DateUntil = menu.DateUntil
+                })
+                .ToListAsync();
+
+            return menus;
+        }
+
+        /// <summary>
+        /// Validates and gets menu items from the given restaurant
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="restaurantId"></param>
+        /// <returns>MenuItems</returns>
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
+        {
+            var errors = new List<ValidationResult>();
+
+            var isRestaurantValid = await menuItemsServiceservice.ValidateRestaurant(user, restaurantId);
+
+            if (isRestaurantValid.IsError)
+            {
+                return isRestaurantValid.Errors;
+            }
+
+            return await context.MenuItems
+                .Where(i => i.RestaurantId == restaurantId)
+                .Select(i => new MenuItemVM()
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Price = i.Price,
+                    AlcoholPercentage = i.AlcoholPercentage,
+                }).ToListAsync();
+
+        }
+
+        /// <summary>
+        /// Function for soft deleting Restaurants that also deletes newly emptied restaurant groups
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
+        {
+            var restaurant = await context.Restaurants
+                .AsSplitQuery()
+                .Include(r => r.Group!)
+                .ThenInclude(g => g.Restaurants)
+                .Include(restaurant => restaurant.Tables!)
+                .Include(restaurant => restaurant.Employments!)
+                .Include(restaurant => restaurant.Photos!)
+                .Include(restaurant => restaurant.Menus!)
+                .Include(restaurant => restaurant.MenuItems!)
+                .Where(r => r.Id == id && r.Group!.OwnerId == user.Id)
+                .FirstOrDefaultAsync();
+            if (restaurant == null)
+            {
+                return false;
+            }
+
+            context.Remove(restaurant);
+            if (restaurant.Group!.Restaurants!.Count == 0)
+            {
+                context.Remove(restaurant.Group);
+            }
+
+            context.RemoveRange(restaurant.Tables!);
+            context.RemoveRange(restaurant.Employments!);
+            context.RemoveRange(restaurant.Photos!);
+            context.RemoveRange(restaurant.Menus!);
+            context.RemoveRange(restaurant.MenuItems!);
+
+            await context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }
