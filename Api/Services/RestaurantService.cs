@@ -474,17 +474,17 @@ namespace Reservant.Api.Services
             if (restaurant == null)
             {
                 return new List<ValidationResult>
-        {
-            new($"Restaurant with ID {id} not found")
-        };
+                {
+                    new($"Restaurant with ID {id} not found")
+                };
             }
 
             if (restaurant.Group!.OwnerId != userId)
             {
                 return new List<ValidationResult>
-        {
-            new($"Restaurant with ID {id} is not owned by the current user")
-        };
+                {
+                    new($"Restaurant with ID {id} is not owned by the current user")
+                };
             }
 
             return restaurant.Employments!
