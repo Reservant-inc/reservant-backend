@@ -68,15 +68,15 @@ internal class DbSeeder(
         }, "e5779baf-5c9b-4638-b9e7-ec285e57b367")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
-        context.RestaurantGroups.Add(new RestaurantGroup
+        var johnDoesGroup = new RestaurantGroup
         {
-            Id = 1,
             Name = "John Doe's Restaurant Group",
             OwnerId = johnDoe.Id
-        });
+        };
+        context.RestaurantGroups.Add(johnDoesGroup);
 
-        await CreateJohnDoesRestaurant(johnDoe);
-        await CreateJohnDoes2Restaurant(johnDoe);
+        await CreateJohnDoesRestaurant(johnDoe, johnDoesGroup);
+        await CreateJohnDoes2Restaurant(johnDoe, johnDoesGroup);
 
         (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -111,18 +111,17 @@ internal class DbSeeder(
         await context.SaveChangesAsync();
     }
 
-    private async Task CreateJohnDoesRestaurant(User johnDoe)
+    private async Task CreateJohnDoesRestaurant(User johnDoe, RestaurantGroup johnDoesGroup)
     {
         var johnDoes = new Restaurant
         {
-            Id = 1,
             Name = "John Doe's",
             RestaurantType = RestaurantType.Restaurant,
             Nip = "1231264550",
             Address = "ul. Marszałkowska 2",
             PostalIndex = "00-000",
             City = "Warszawa",
-            GroupId = 1,
+            Group = johnDoesGroup,
             RentalContractFileName = null!,
             RentalContract = new FileUpload
             {
@@ -151,33 +150,6 @@ internal class DbSeeder(
                 FileName = "id-card-1.pdf",
                 ContentType = "application/pdf"
             },
-            Tables =
-            [
-                new Table
-                {
-                    RestaurantId = 1,
-                    Id = 1,
-                    Capacity = 4
-                },
-                new Table
-                {
-                    RestaurantId = 1,
-                    Id = 2,
-                    Capacity = 4
-                },
-                new Table
-                {
-                    RestaurantId = 1,
-                    Id = 3,
-                    Capacity = 4
-                },
-                new Table
-                {
-                    RestaurantId = 1,
-                    Id = 4,
-                    Capacity = 6
-                }
-            ],
             LogoFileName = null!,
             Logo = new FileUpload
             {
@@ -187,75 +159,105 @@ internal class DbSeeder(
             },
             ProvideDelivery = true,
             Description = "The first example restaurant",
-            Photos = new List<RestaurantPhoto>
-            {
-                new()
-                {
-                    RestaurantId = 1,
-                    Order = 1,
-                    PhotoFileName = null!,
-                    Photo = new FileUpload
-                    {
-                        UserId = johnDoe.Id,
-                        FileName = "photo-1.png",
-                        ContentType = "image/png"
-                    }
-                },
-                new()
-                {
-                    RestaurantId = 1,
-                    Order = 2,
-                    PhotoFileName = null!,
-                    Photo = new FileUpload
-                    {
-                        UserId = johnDoe.Id,
-                        FileName = "photo-2.png",
-                        ContentType = "image/png"
-                    }
-                },
-                new()
-                {
-                    RestaurantId = 1,
-                    Order = 3,
-                    PhotoFileName = null!,
-                    Photo = new FileUpload
-                    {
-                        UserId = johnDoe.Id,
-                        FileName = "photo-3.png",
-                        ContentType = "image/png"
-                    }
-                },
-                new()
-                {
-                    RestaurantId = 1,
-                    Order = 4,
-                    PhotoFileName = null!,
-                    Photo = new FileUpload
-                    {
-                        UserId = johnDoe.Id,
-                        FileName = "photo-4.png",
-                        ContentType = "image/png"
-                    }
-                },
-                new()
-                {
-                    RestaurantId = 1,
-                    Order = 5,
-                    PhotoFileName = null!,
-                    Photo = new FileUpload
-                    {
-                        UserId = johnDoe.Id,
-                        FileName = "photo-5.png",
-                        ContentType = "image/png"
-                    }
-                },
-            },
             Tags = await context.RestaurantTags
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = null!,
             IsDeleted = false
         };
+
+        johnDoes.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = johnDoes,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = johnDoes,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = johnDoes,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = johnDoes,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        johnDoes.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = johnDoes,
+                Order = 1,
+                PhotoFileName = null!,
+                Photo = new FileUpload
+                {
+                    UserId = johnDoe.Id,
+                    FileName = "photo-1.png",
+                    ContentType = "image/png"
+                }
+            },
+            new()
+            {
+                Restaurant = johnDoes,
+                Order = 2,
+                PhotoFileName = null!,
+                Photo = new FileUpload
+                {
+                    UserId = johnDoe.Id,
+                    FileName = "photo-2.png",
+                    ContentType = "image/png"
+                }
+            },
+            new()
+            {
+                Restaurant = johnDoes,
+                Order = 3,
+                PhotoFileName = null!,
+                Photo = new FileUpload
+                {
+                    UserId = johnDoe.Id,
+                    FileName = "photo-3.png",
+                    ContentType = "image/png"
+                }
+            },
+            new()
+            {
+                Restaurant = johnDoes,
+                Order = 4,
+                PhotoFileName = null!,
+                Photo = new FileUpload
+                {
+                    UserId = johnDoe.Id,
+                    FileName = "photo-4.png",
+                    ContentType = "image/png"
+                }
+            },
+            new()
+            {
+                Restaurant = johnDoes,
+                Order = 5,
+                PhotoFileName = null!,
+                Photo = new FileUpload
+                {
+                    UserId = johnDoe.Id,
+                    FileName = "photo-5.png",
+                    ContentType = "image/png"
+                }
+            },
+        };
+
         context.Restaurants.Add(johnDoes);
 
         context.Menus.Add(new Menu
@@ -263,7 +265,7 @@ internal class DbSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            RestaurantId = johnDoes.Id,
+            Restaurant = johnDoes,
             MenuItems =
             [
                 new MenuItem
@@ -271,14 +273,14 @@ internal class DbSeeder(
                     Name = "Burger",
                     Price = 20m,
                     AlcoholPercentage = null,
-                    RestaurantId = johnDoes.Id,
+                    Restaurant = johnDoes,
                 },
                 new MenuItem
                 {
                     Name = "Cheeseburger",
                     Price = 25m,
                     AlcoholPercentage = null,
-                    RestaurantId = johnDoes.Id,
+                    Restaurant = johnDoes,
                 }
             ]
         });
@@ -288,7 +290,7 @@ internal class DbSeeder(
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
             MenuType = MenuType.Alcohol,
-            RestaurantId = johnDoes.Id,
+            Restaurant = johnDoes,
             MenuItems =
             [
                 new MenuItem
@@ -296,7 +298,7 @@ internal class DbSeeder(
                     Name = "Piwo",
                     Price = 8m,
                     AlcoholPercentage = 4.6m,
-                    RestaurantId = johnDoes.Id,
+                    Restaurant = johnDoes,
                 }
             ]
         });
@@ -340,18 +342,17 @@ internal class DbSeeder(
             johnDoe.Id);
     }
 
-    private async Task CreateJohnDoes2Restaurant(User johnDoe)
+    private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup)
     {
         var johnDoes2 = new Restaurant
         {
-            Id = 2,
             Name = "John Doe's 2",
             RestaurantType = RestaurantType.Restaurant,
             Nip = "0000000000",
             Address = "ul. Koszykowa 10",
             PostalIndex = "00-000",
             City = "Warszawa",
-            GroupId = 1,
+            Group = johnDoesGroup,
             RentalContractFileName = null!,
             RentalContract = new FileUpload
             {
@@ -380,33 +381,6 @@ internal class DbSeeder(
                 FileName = "id-card-2.pdf",
                 ContentType = "application/pdf"
             },
-            Tables =
-            [
-                new Table
-                {
-                    RestaurantId = 2,
-                    Id = 1,
-                    Capacity = 2
-                },
-                new Table
-                {
-                    RestaurantId = 2,
-                    Id = 2,
-                    Capacity = 2
-                },
-                new Table
-                {
-                    RestaurantId = 2,
-                    Id = 3,
-                    Capacity = 4
-                },
-                new Table
-                {
-                    RestaurantId = 2,
-                    Id = 4,
-                    Capacity = 4
-                }
-            ],
             LogoFileName = null!,
             Logo = new FileUpload
             {
@@ -423,6 +397,33 @@ internal class DbSeeder(
             VerifierId = null!,
             IsDeleted = false
         };
+        johnDoes2.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = johnDoes2,
+                Id = 1,
+                Capacity = 2
+            },
+            new()
+            {
+                Restaurant = johnDoes2,
+                Id = 2,
+                Capacity = 2
+            },
+            new()
+            {
+                Restaurant = johnDoes2,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = johnDoes2,
+                Id = 4,
+                Capacity = 4
+            }
+        };
         context.Restaurants.Add(johnDoes2);
 
         context.Menus.Add(new Menu
@@ -430,7 +431,7 @@ internal class DbSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            RestaurantId = johnDoes2.Id,
+            Restaurant = johnDoes2,
             MenuItems =
             [
                 new MenuItem
@@ -438,14 +439,14 @@ internal class DbSeeder(
                     Name = "Kotlet schabowy",
                     Price = 19m,
                     AlcoholPercentage = null,
-                    RestaurantId = johnDoes2.Id,
+                    Restaurant = johnDoes2,
                 },
                 new MenuItem
                 {
                     Name = "Zupa pomidorowa",
                     Price = 7m,
                     AlcoholPercentage = null,
-                    RestaurantId = johnDoes2.Id,
+                    Restaurant = johnDoes2,
                 }
             ]
         });

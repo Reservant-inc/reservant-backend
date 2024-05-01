@@ -32,7 +32,7 @@ public class Menu : ISoftDeletable
     /// <summary>
     /// ID of the restaurant owning the menu
     /// </summary>
-    public required int RestaurantId { get; set; }
+    public int RestaurantId { get; set; }
 
     /// <summary>
     /// Navigation collection for the items
