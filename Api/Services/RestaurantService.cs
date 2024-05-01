@@ -354,57 +354,6 @@ namespace Reservant.Api.Services
             return true;
         }
 
-        /// <summary>
-        /// Terminates an employee's employment in a specific restaurant by setting the end date to the current date.
-        /// </summary>
-        /// <param name="restaurantId">ID of the restaurant from which the employee is being terminated.</param>
-        /// <param name="employmentId">ID of the employment record to terminate.</param>
-        /// <param name="userId">ID of the current user, who must be the owner of the restaurant to authorize the termination.</param>
-        /// <returns>The bool returned inside the result does not mean anything</returns>
-
-        public async Task<Result<bool>> DeleteEmploymentAsync(int restaurantId, int employmentId, string userId)
-        {
-            var restaurantOwnerId = await context.Restaurants
-                            .Where(r => r.Id == restaurantId)
-                            .Select(r => r.Group!.OwnerId)
-                            .FirstOrDefaultAsync();
-            if (restaurantOwnerId is null)
-            {
-                return new List<ValidationResult>
-                {
-                    new($"Restaurant with ID {restaurantId} not found")
-                };
-            }
-
-            if (restaurantOwnerId != userId)
-            {
-                return new List<ValidationResult>
-                {
-                    new("User is not the owner of the restaurant")
-                };
-            }
-
-            var employment = await context.Employments
-                .Include(e => e.Restaurant)
-                .ThenInclude(r => r.Group)
-                .FirstOrDefaultAsync(e => e.Id == employmentId && e.RestaurantId == restaurantId && e.DateUntil == null);
-
-            if (employment == null)
-            {
-                return new List<ValidationResult> {
-                    new ValidationResult($"Employment with ID {employmentId} not found or already terminated")
-                };
-            }
-
-            employment.DateUntil = DateOnly.FromDateTime(DateTime.Now);
-            await context.SaveChangesAsync();
-
-            return true;
-        }
-
-
-
-
         public async Task<Result<RestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId, MoveToGroupRequest request, User user)
         {
             var errors = new List<ValidationResult>();
