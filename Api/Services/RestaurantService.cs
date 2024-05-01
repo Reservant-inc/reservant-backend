@@ -458,7 +458,7 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Get list of restaurant's employees
+        /// Get list of restaurant's current employees
         /// </summary>
         /// <param name="id">ID of the restaurants</param>
         /// <param name="userId">ID of the current user (to check permissions)</param>
@@ -488,6 +488,7 @@ namespace Reservant.Api.Services
             }
 
             return restaurant.Employments!
+                .Where(e => e.DateUntil == null)
                 .Select(e => new RestaurantEmployeeVM
                 {
                     EmploymentId = e.Id,
