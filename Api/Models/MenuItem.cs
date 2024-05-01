@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
@@ -17,7 +18,7 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// Cena
     /// </summary>
-    [Range(0, 500)]
+    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
     public required decimal Price { get; set; }
 
     /// <summary>
@@ -29,7 +30,7 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// Zawartość alkoholu
     /// </summary>
-    [Range(0, 100)]
+    [Range(0, 100), Column(TypeName = "decimal(4, 1)")]
     public required decimal? AlcoholPercentage { get; set; }
 
     /// <summary>
