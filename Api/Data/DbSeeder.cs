@@ -9,7 +9,7 @@ using Reservant.Api.Services;
 
 namespace Reservant.Api.Data;
 
-internal class DbSeeder(
+public class DbSeeder(
     ApiDbContext context,
     RoleManager<IdentityRole> roleManager,
     UserService userService,
