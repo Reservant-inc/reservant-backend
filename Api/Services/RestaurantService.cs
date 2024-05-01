@@ -329,14 +329,13 @@ namespace Reservant.Api.Services
             }
 
             var currentEmployment = await context.Employments
-                .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId)
-                .OrderByDescending(e => e.DateFrom)
+                .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId && e.DateUntil == null)
                 .FirstOrDefaultAsync();
 
-            if (currentEmployment != null && currentEmployment.DateUntil == null)
+            if (currentEmployment != null)
             {
-                return new List<ValidationResult> 
-                { 
+                return new List<ValidationResult>
+                {
                     new ("Employee is currently employed at this restaurant")
                 };
             }
