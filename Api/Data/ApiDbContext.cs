@@ -57,6 +57,14 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
                 .MakeGenericMethod(entity)
                 .Invoke(null, [builder]);
         }
+
+        // Microsoft suggest we do not configure cascade delete when using soft delete
+        var relationships = builder.Model.GetEntityTypes()
+            .SelectMany(e => e.GetForeignKeys());
+        foreach (var relationship in relationships)
+        {
+            relationship.DeleteBehavior = DeleteBehavior.Restrict;
+        }
     }
 
     private static readonly MethodInfo SetSoftDeletableQueryFilterMethod =
