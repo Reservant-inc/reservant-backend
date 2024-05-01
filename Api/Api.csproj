@@ -4,7 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <InvariantGlobalization>true</InvariantGlobalization>
+        <InvariantGlobalization>false</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>Reservant.Api</RootNamespace>
         <UserSecretsId>71abd42b-36f0-4f9f-9166-bf4b4ee57b99</UserSecretsId>
@@ -22,7 +22,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

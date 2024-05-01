@@ -41,7 +41,8 @@ builder.Services.AddCors(o =>
 });
 
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseSqlite("Data Source=app.db"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")
+                         ?? throw new InvalidOperationException("Connection string 'Default' not found")));
 
 builder.Services.AddScoped<DbSeeder>();
 
