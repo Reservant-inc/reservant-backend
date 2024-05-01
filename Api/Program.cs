@@ -139,6 +139,11 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 
+    if (app.Environment.IsProduction())
+    {
+        await context.Database.EnsureDeletedAsync();
+    }
+
     if (await context.Database.EnsureCreatedAsync())
     {
         await seeder.SeedDataAsync();
