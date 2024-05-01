@@ -1,4 +1,5 @@
 using Reservant.Api.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Models;
 
@@ -8,13 +9,21 @@ namespace Reservant.Api.Models;
 public class Employment : ISoftDeletable
 {
     /// <summary>
+    /// Unique identifier for the employment record.
+    /// </summary>
+    [Key]
+    public int Id { get; set; }
+
+    /// <summary>
     /// ID of the employee
     /// </summary>
-    public required string EmployeeId { get; set; }
+    [Required]
+    public string EmployeeId { get; set; }
 
     /// <summary>
     /// ID of the restaurant
     /// </summary>
+    [Required]
     public int RestaurantId { get; set; }
 
     /// <summary>
@@ -26,6 +35,17 @@ public class Employment : ISoftDeletable
     /// Whether the employee is a backdoor employee (Pracownik zaplecza)
     /// </summary>
     public bool IsBackdoorEmployee { get; set; }
+
+    /// <summary>
+    /// The start date of employment.
+    /// </summary>
+    [Required]
+    public DateOnly DateFrom { get; set; }
+
+    /// <summary>
+    /// The end date of employment, if applicable.
+    /// </summary>
+    public DateOnly? DateUntil { get; set; }
 
     /// <summary>
     /// Navigational property for the employee

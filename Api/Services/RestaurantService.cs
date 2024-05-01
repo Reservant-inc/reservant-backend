@@ -328,22 +328,26 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var existingEmployment = await context.Employments.FindAsync(request.Id, restaurantId);
-            if (existingEmployment is not null)
+            var currentEmployment = await context.Employments
+                .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId && e.DateUntil == null)
+                .FirstOrDefaultAsync();
+
+            if (currentEmployment != null)
             {
-                existingEmployment.IsHallEmployee = request.IsHallEmployee;
-                existingEmployment.IsBackdoorEmployee = request.IsBackdoorEmployee;
-            }
-            else
-            {
-                context.Employments.Add(new Employment
+                return new List<ValidationResult>
                 {
-                    EmployeeId = request.Id,
-                    RestaurantId = restaurantId,
-                    IsBackdoorEmployee = request.IsBackdoorEmployee,
-                    IsHallEmployee = request.IsHallEmployee
-                });
+                    new ("Employee is currently employed at this restaurant")
+                };
             }
+
+            context.Employments.Add(new Employment
+            {
+                EmployeeId = request.Id,
+                RestaurantId = restaurantId,
+                IsBackdoorEmployee = request.IsBackdoorEmployee,
+                IsHallEmployee = request.IsHallEmployee,
+                DateFrom = DateOnly.FromDateTime(DateTime.Now)
+            });
 
             await context.SaveChangesAsync();
             return true;
@@ -402,7 +406,7 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Get list of restaurant's employees
+        /// Get list of restaurant's current employees
         /// </summary>
         /// <param name="id">ID of the restaurants</param>
         /// <param name="userId">ID of the current user (to check permissions)</param>
@@ -414,7 +418,8 @@ namespace Reservant.Api.Services
                 .ThenInclude(e => e.Employee)
                 .Where(r => r.Id == id)
                 .FirstOrDefaultAsync();
-            if (restaurant is null)
+
+            if (restaurant == null)
             {
                 return new List<ValidationResult>
                 {
@@ -431,18 +436,23 @@ namespace Reservant.Api.Services
             }
 
             return restaurant.Employments!
+                .Where(e => e.DateUntil == null)
                 .Select(e => new RestaurantEmployeeVM
                 {
+                    EmploymentId = e.Id,
                     Id = e.EmployeeId,
                     Login = e.Employee!.UserName!,
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
                     PhoneNumber = e.Employee.PhoneNumber!,
                     IsBackdoorEmployee = e.IsBackdoorEmployee,
-                    IsHallEmployee = e.IsHallEmployee
+                    IsHallEmployee = e.IsHallEmployee,
+                    DateFrom = e.DateFrom,
+                    DateUntil = e.DateUntil
                 })
                 .ToList();
         }
+
 
 
         /// <summary>

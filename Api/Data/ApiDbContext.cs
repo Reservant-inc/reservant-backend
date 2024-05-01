@@ -45,8 +45,6 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
             new RestaurantTag { Name = "Tag2" }
         ]);
 
-        builder.Entity<Employment>().HasKey(e => new { e.EmployeeId, e.RestaurantId });
-
         var softDeletableEntities =
             from prop in GetType().GetProperties()
             where prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)

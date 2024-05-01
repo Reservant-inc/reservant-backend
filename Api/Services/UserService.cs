@@ -187,6 +187,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
                 LastName = u.LastName,
                 PhoneNumber = u.PhoneNumber!,
                 Employments = u.Employments!
+                    .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
                     {
                         RestaurantId = e.RestaurantId,

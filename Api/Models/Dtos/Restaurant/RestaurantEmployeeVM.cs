@@ -39,4 +39,19 @@ public class RestaurantEmployeeVM
     /// Whether the employee is a backdoor employee (pracownik zaplecza)
     /// </summary>
     public required bool IsBackdoorEmployee { get; init; }
+
+    /// <summary>
+    /// Start date of the employment.
+    /// </summary>
+    public DateOnly DateFrom { get; init; }
+
+    /// <summary>
+    /// End date of the employment, if applicable.
+    /// </summary>
+    public DateOnly? DateUntil { get; init; }
+
+    /// <summary>
+    /// Employment ID.
+    /// </summary>
+    public int EmploymentId { get; init; }
 }
