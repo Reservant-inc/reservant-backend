@@ -214,13 +214,13 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         if (emp is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found", [nameof(empId)]));
+            errors.Add(new ValidationResult($"Emp: {empId} not found"));
             return errors;
         }
 
         if (emp.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}", [nameof(empId)]));
+            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
             return errors;
         }
 
@@ -268,13 +268,13 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         if (employee is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found", [nameof(empId)]));
+            errors.Add(new ValidationResult($"Emp: {empId} not found"));
             return errors;
         }
 
         if (employee.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}", [nameof(empId)]));
+            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
             return errors;
         }
 
