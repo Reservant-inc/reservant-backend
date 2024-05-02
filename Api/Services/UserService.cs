@@ -278,10 +278,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             return errors;
         }
 
-        employee.Email = request.Email;
-        employee.PhoneNumber = request.PhoneNumber;
-        employee.FirstName = request.FirstName;
-        employee.LastName = request.LastName;
+        employee.Email = request.Email.Trim();
+        employee.PhoneNumber = request.PhoneNumber.Trim();
+        employee.FirstName = request.FirstName.Trim();
+        employee.LastName = request.LastName.Trim();
         employee.BirthDate = request.BirthDate;
 
         await userManager.UpdateAsync(employee);
