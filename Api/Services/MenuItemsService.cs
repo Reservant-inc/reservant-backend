@@ -152,14 +152,14 @@ namespace Reservant.Api.Services
                 return errors;
             }
 
-            if (!ValidationUtils.TryValidate(request, errors))
+            item.Price = request.Price;
+            item.Name = request.Name.Trim();
+            item.AlcoholPercentage = request.AlcoholPercentage;
+
+            if (!ValidationUtils.TryValidate(item, errors))
             {
                 return errors;
             }
-
-            item.Price = request.Price;
-            item.Name = request.Name;
-            item.AlcoholPercentage = request.AlcoholPercentage;
 
             await context.SaveChangesAsync();
 
