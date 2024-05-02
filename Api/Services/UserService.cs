@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices.JavaScript;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -197,5 +198,122 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
                     .ToList()
             })
             .ToListAsync();
+    }
+
+    /// <summary>
+    /// Gets the employee with the given id, provided he works for the current user
+    /// </summary>
+    /// <param name="empId"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<User>> GetEmployeeAsync(string empId, ClaimsPrincipal user)
+    {
+
+        var errors = new List<ValidationResult>();
+
+        var owner = (await userManager.GetUserAsync(user))!;
+        var emp = await userManager.FindByIdAsync(empId);
+
+        if (emp is null)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} not found"));
+            return errors;
+        }
+
+        if (emp.EmployerId != owner.Id)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
+            return errors;
+        }
+
+        return emp;
+    }
+    /// <summary>
+    /// Gets roles for the given ClaimsPrincipal
+    /// </summary>
+    /// <param name="claims"></param>
+    /// <returns></returns>
+    public async Task<List<string>> GetRolesAsync(ClaimsPrincipal claims)
+    {
+        var user = await userManager.GetUserAsync(claims);
+        return [.. await userManager.GetRolesAsync(user!)];
+    }
+
+    /// <summary>
+    /// Gets roles for the given User
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<List<string>> GetRolesAsync(User user)
+    {
+        return [.. await userManager.GetRolesAsync(user!)];
+    }
+
+    /// <summary>
+    /// Updates a specified employee, provided he works for the current user
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="empId"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, string empId, ClaimsPrincipal user)
+    {
+        var errors = new List<ValidationResult>();
+
+        var owner = (await userManager.GetUserAsync(user))!;
+        var employee = await userManager.FindByIdAsync(empId);
+
+        if (employee is null)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} not found"));
+            return errors;
+        }
+
+        if (employee.EmployerId != owner.Id)
+        {
+            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
+            return errors;
+        }
+
+        employee.Email = request.Email.Trim();
+        employee.PhoneNumber = request.PhoneNumber.Trim();
+        employee.FirstName = request.FirstName.Trim();
+        employee.LastName = request.LastName.Trim();
+        employee.BirthDate = request.BirthDate;
+
+        if (!ValidationUtils.TryValidate(employee, errors))
+        {
+            return errors;
+        }
+
+        await userManager.UpdateAsync(employee);
+
+        return employee;
+    }
+
+    /// <summary>
+    /// Updates the specified user
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<User>> PutUserAsync(UpdateUserDetailsRequest request, User user)
+    {
+        var errors = new List<ValidationResult>();
+
+        user.Email = request.Email.Trim();
+        user.PhoneNumber = request.PhoneNumber.Trim();
+        user.FirstName = request.FirstName.Trim();
+        user.LastName = request.LastName.Trim();
+        user.BirthDate = request.BirthDate;
+
+        if (!ValidationUtils.TryValidate(user, errors))
+        {
+            return errors;
+        }
+
+        await userManager.UpdateAsync(user);
+
+        return user;
     }
 }
