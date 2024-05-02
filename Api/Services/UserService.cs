@@ -258,11 +258,6 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     {
         var errors = new List<ValidationResult>();
 
-        if (!ValidationUtils.TryValidate(request, errors))
-        {
-            return errors;
-        }
-
         var owner = (await userManager.GetUserAsync(user))!;
         var employee = await userManager.FindByIdAsync(empId);
 
@@ -284,6 +279,11 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         employee.LastName = request.LastName.Trim();
         employee.BirthDate = request.BirthDate;
 
+        if (!ValidationUtils.TryValidate(employee, errors))
+        {
+            return errors;
+        }
+
         await userManager.UpdateAsync(employee);
 
         return employee;
@@ -299,16 +299,16 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     {
         var errors = new List<ValidationResult>();
 
-        if (!ValidationUtils.TryValidate(request, errors))
-        {
-            return errors;
-        }
-
         user.Email = request.Email.Trim();
         user.PhoneNumber = request.PhoneNumber.Trim();
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.BirthDate = request.BirthDate;
+
+        if (!ValidationUtils.TryValidate(user, errors))
+        {
+            return errors;
+        }
 
         await userManager.UpdateAsync(user);
 
