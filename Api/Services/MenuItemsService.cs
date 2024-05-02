@@ -118,5 +118,59 @@ namespace Reservant.Api.Services
 
             return true;
         }
+
+        /// <summary>
+        /// changes the given menuitem
+        /// </summary>
+        /// <param name="user">current user, must be restaurantowner</param>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<Result<MenuItemVM>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
+        {
+            var errors = new List<ValidationResult>();
+
+            var item = await context.MenuItems
+                .Include(r => r.Restaurant)
+                .Include(r => r.Restaurant!.Group)
+                .FirstOrDefaultAsync(i => i.Id == id);
+
+            if (item == null)
+            {
+                errors.Add(new ValidationResult(
+                   $"MenuItem: {id} not found"
+                ));
+                return errors;
+            }
+
+            //check if menuitem belongs to a restaurant owned by user
+            if (item.Restaurant!.Group!.OwnerId != user.Id)
+            {
+                errors.Add(new ValidationResult(
+                   $"MenuItem: {id} doesn't belong to a restaurant owned by the user"
+                ));
+                return errors;
+            }
+
+            item.Price = request.Price;
+            item.Name = request.Name.Trim();
+            item.AlcoholPercentage = request.AlcoholPercentage;
+
+            if (!ValidationUtils.TryValidate(item, errors))
+            {
+                return errors;
+            }
+
+            await context.SaveChangesAsync();
+
+            return new MenuItemVM()
+            {
+                Id = item.Id,
+                Price = item.Price,
+                Name = item.Name,
+                AlcoholPercentage = item.AlcoholPercentage,
+            };
+            
+        }
     }
 }
