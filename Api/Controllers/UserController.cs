@@ -74,8 +74,6 @@ public class UserController(UserManager<User> userManager, UserService userServi
     public async Task<ActionResult<UserDetailsVM>> PutUser(UpdateUserDetailsRequest request)
     {
 
-        var errors = new List<ValidationResult>();
-
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
@@ -86,6 +84,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         if (res.IsError)
         {
+            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
             return ValidationProblem();
         }
 
