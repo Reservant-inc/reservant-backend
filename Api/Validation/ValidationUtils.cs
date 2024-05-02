@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Validation;
 
@@ -23,21 +24,35 @@ public static class ValidationUtils
     /// <summary>
     /// Add errors to ModelState.
     /// </summary>
-    public static void AddErrorsToModel(IEnumerable<ValidationResult> errors, ModelStateDictionary modelState)
+    public static ActionResult ToValidationProblem<T>(this Result<T> result)
     {
-        foreach (var error in errors.Where(x => x.ErrorMessage is not null))
+        var errors = new Dictionary<string, List<string>>();
+        foreach (var error in result.Errors.Where(x => x.ErrorMessage is not null))
         {
             if (!error.MemberNames.Any())
             {
-                modelState.AddModelError("", error.ErrorMessage!);
+                errors.TryAdd("", []);
+                errors[""].Add(error.ErrorMessage!);
                 continue;
             }
 
             foreach (var name in error.MemberNames)
             {
-                modelState.AddModelError(name, error.ErrorMessage!);
+                errors.TryAdd(name, []);
+                errors[name].Add(error.ErrorMessage!);
             }
         }
+
+        return new ObjectResult(new ProblemDetails
+        {
+            Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+            Title = "One or more validation errors occurred.",
+            Status = (int)HttpStatusCode.BadRequest,
+            Extensions =
+            {
+                ["errors"] = errors.ToDictionary()
+            }
+        });
     }
 
     /// <summary>
