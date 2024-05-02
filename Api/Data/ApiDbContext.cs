@@ -28,6 +28,14 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
     public DbSet<MenuItem> MenuItems { get; init; } = null!;
 
+    /// <summary>
+    /// Drop all tables in the database
+    /// </summary>
+    public async Task DropAllTablesAsync()
+    {
+        await Database.ExecuteSqlRawAsync("EXEC DropAllTables");
+    }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

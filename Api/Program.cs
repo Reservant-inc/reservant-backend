@@ -141,7 +141,7 @@ using (var scope = app.Services.CreateScope())
 
     if (app.Environment.IsProduction())
     {
-        await context.Database.EnsureDeletedAsync();
+        await context.DropAllTablesAsync();
     }
 
     if (await context.Database.EnsureCreatedAsync())

@@ -15,7 +15,7 @@ public class DebugController(ApiDbContext context, DbSeeder seeder)
     [HttpPost("recreate-database")]
     public async Task RecreateDatabase()
     {
-        await context.Database.EnsureDeletedAsync();
+        await context.DropAllTablesAsync();
         await context.Database.EnsureCreatedAsync();
         await seeder.SeedDataAsync();
     }
