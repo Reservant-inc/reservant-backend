@@ -82,17 +82,12 @@ public class UserController(UserManager<User> userManager, UserService userServi
             return Unauthorized();
         }
 
-        if (!ValidationUtils.TryValidate(request, errors))
+        var res = await userService.PutUserAsync(request, user);
+
+        if (res.IsError)
         {
-            ValidationUtils.AddErrorsToModel(errors, ModelState);
             return ValidationProblem();
         }
-
-        user.Email = request.Email;
-        user.PhoneNumber = request.PhoneNumber;
-        user.FirstName = request.FirstName;
-        user.LastName = request.LastName;
-        user.BirthDate = request.BirthDate;
 
         return Ok(new UserDetailsVM
         {

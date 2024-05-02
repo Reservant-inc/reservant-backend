@@ -288,4 +288,30 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         return employee;
     }
+
+    /// <summary>
+    /// Updates the specified user
+    /// </summary>
+    /// <param name="request"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<User>> PutUserAsync(UpdateUserDetailsRequest request, User user)
+    {
+        var errors = new List<ValidationResult>();
+
+        if (!ValidationUtils.TryValidate(request, errors))
+        {
+            return errors;
+        }
+
+        user.Email = request.Email.Trim();
+        user.PhoneNumber = request.PhoneNumber.Trim();
+        user.FirstName = request.FirstName.Trim();
+        user.LastName = request.LastName.Trim();
+        user.BirthDate = request.BirthDate;
+
+        await userManager.UpdateAsync(user);
+
+        return user;
+    }
 }
