@@ -14,9 +14,9 @@ namespace Reservant.Api.Controllers;
 /// Menu item controller.
 /// </summary>
 [ApiController, Route("/menus")]
-public class MenuController(RestaurantMenuService service, UserManager<User> userManager) : Controller
+public class MenuController(RestaurantMenuService service, UserManager<User> userManager, MenuService menuService) : Controller
 {
-      
+
     /// <summary>
     /// Gets a single menu with details for a given menu ID and restaurant ID.
     /// </summary>
@@ -29,7 +29,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         var result = await service.GetSingleMenuAsync(id);
 
         if (!result.IsError) return Ok(result.Value);
-        
+
         ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
         return ValidationProblem();
     }
@@ -63,16 +63,16 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpPost("/menus/{id:int}/items")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
-    [ProducesResponseType(400)] 
+    [ProducesResponseType(400)]
     [ProducesResponseType(401)]
     public async Task<ActionResult<MenuVM>> AddToMenu(int id, AddItemsRequest request)
     {
         var user = await userManager.GetUserAsync(User);
 
         var result = await service.AddItemsToMenuAsync(id, request, user);
-        
+
         if (!result.IsError) return Ok(result.Value);
-        
+
         ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
         return ValidationProblem();
     }
@@ -94,8 +94,26 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         var result = await service.UpdateMenuAsync(request, id, user);
 
         if (!result.IsError) return Ok(result.Value);
-        
+
         ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
         return ValidationProblem();
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(204), ProducesResponseType(404)]
+    public async Task<ActionResult> DeleteMenu(int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var res = await menuService.DeleteMenuAsync(id, user);
+
+        if (res.IsError)
+        {
+            ValidationUtils.AddErrorsToModel(res.Errors, ModelState);
+            return BadRequest(ModelState);
+        }
+
+        return NoContent();
     }
 }

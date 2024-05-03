@@ -131,6 +131,7 @@ builder.Services.AddScoped<MenuItemsService>();
 builder.Services.AddScoped<RestaurantMenuService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmploymentService>();
+builder.Services.AddScoped<MenuService>();
 
 var app = builder.Build();
 
