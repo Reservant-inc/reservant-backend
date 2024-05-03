@@ -189,7 +189,10 @@ namespace Reservant.Api.Controllers
         {
             var result = await restaurantService.GetMenusAsync(id);
 
-            if (result.IsNullOrEmpty()) return NotFound($"Menus with id {id} not found.");
+            if (result == null)
+            {
+                return NotFound();
+            }
 
             return Ok(result);
         }
@@ -212,6 +215,9 @@ namespace Reservant.Api.Controllers
                 ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
                 return ValidationProblem();
             }
+
+            if(res.Value==null) 
+                return NotFound();
 
             return Ok(res.Value);
         }
