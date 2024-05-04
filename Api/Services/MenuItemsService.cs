@@ -39,12 +39,12 @@ namespace Reservant.Api.Services
             };
 
 
-  
+
             if (!ValidationUtils.TryValidate(menuItem, errors))
             {
                 return errors;
             }
-            
+
 
             await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
@@ -84,7 +84,7 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id= item.Id,
+                Id = item.Id,
                 Name = item.Name,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
@@ -170,7 +170,47 @@ namespace Reservant.Api.Services
                 Name = item.Name,
                 AlcoholPercentage = item.AlcoholPercentage,
             };
-            
+
+        }
+        /// <summary>
+        /// service that deletes a menu item 
+        /// </summary>
+        /// <param name="id">id of the menu item</param>
+        /// <param name="user">owner of the item</param>
+        /// <returns></returns>
+        public async Task<Result<bool>> DeleteMenuItemByIdAsync(int id, User user)
+        {
+            var errors = new List<ValidationResult>();
+            var menuItem = await context.MenuItems.Where(m => m.Id == id)
+                .Include(item => item.Menus)
+                .ThenInclude(menu => menu.Restaurant)
+                .ThenInclude(restaurant => restaurant.Group)
+                .FirstOrDefaultAsync();
+
+            if (menuItem == null)
+            {
+                errors.Add(new ValidationResult("No item found."));
+                return errors;
+            }
+            if (menuItem.Menus == null || menuItem.Menus.Count == 0) //check for items without menus because there is no way to trace them to their owner
+            {
+                context.Remove(menuItem);
+                await context.SaveChangesAsync();
+                return true;
+            }
+            if (menuItem.Menus.ElementAt(0).Restaurant.Group.OwnerId != user.Id) {
+                errors.Add(new ValidationResult("Item does not belong to the user."));
+                return errors;
+            }
+            foreach (var menu in menuItem.Menus)
+            {
+                menu.MenuItems.Remove(menuItem);
+                context.Update(menu);
+            }
+
+            context.Remove(menuItem);
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }
