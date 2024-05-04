@@ -90,7 +90,11 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         return Ok(res.Value);
     }
-
+    /// <summary>
+    /// Deletes chosen menu item
+    /// </summary>
+    /// <param name="id">id of the menu item to delete</param>
+    /// <returns></returns>
     [HttpDelete("{id:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
