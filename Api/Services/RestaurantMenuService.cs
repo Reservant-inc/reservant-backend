@@ -241,4 +241,26 @@ public class RestaurantMenuService(ApiDbContext context)
             MenuType = menu.MenuType
         };
     }
+    public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
+    {
+        var errors = new List<ValidationResult>();
+        var Menu = await context.Menus.Include(m => m.Restaurant)
+            .ThenInclude(r => r.Group)
+            .FirstOrDefaultAsync();
+
+        if (Menu == null)
+        {
+            errors.Add(new ValidationResult("Menu not found"));
+            return errors;
+        }
+
+        if (Menu.Restaurant.Group.OwnerId != user.Id)
+        {
+            errors.Add(new ValidationResult("Menu is not owned by user"));
+            return errors;
+        }
+
+        context.Remove(Menu);
+        return true;
+    }
 }

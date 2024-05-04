@@ -14,7 +14,7 @@ namespace Reservant.Api.Controllers;
 /// Menu item controller.
 /// </summary>
 [ApiController, Route("/menus")]
-public class MenuController(RestaurantMenuService service, UserManager<User> userManager, MenuService menuService) : Controller
+public class MenuController(RestaurantMenuService service, UserManager<User> userManager) : Controller
 {
 
     /// <summary>
@@ -106,7 +106,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     {
         var user = await userManager.GetUserAsync(User);
 
-        var res = await menuService.DeleteMenuAsync(id, user);
+        var res = await service.DeleteMenuAsync(id, user);
 
         if (res.IsError)
         {
