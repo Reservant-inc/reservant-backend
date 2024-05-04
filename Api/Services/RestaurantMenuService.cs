@@ -18,7 +18,7 @@ namespace Reservant.Api.Services;
 /// <param name="context">context</param>
 public class RestaurantMenuService(ApiDbContext context)
 {
-    
+
     /// <summary>
     /// Returns a menu with given Id 
     /// </summary>
@@ -27,13 +27,13 @@ public class RestaurantMenuService(ApiDbContext context)
     public async Task<Result<MenuVM?>> GetSingleMenuAsync(int menuId)
     {
         var errors = new List<ValidationResult>();
-        
+
         var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId);
         if (!menuExists)
             errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
 
         if (!errors.IsNullOrEmpty()) return errors;
-             
+
         var menu = await context.Menus
             .Include(m => m.MenuItems)
             .Where(m => m.Id == menuId)
@@ -52,7 +52,7 @@ public class RestaurantMenuService(ApiDbContext context)
                 }).ToList()
             })
             .FirstOrDefaultAsync();
-        
+
         return menu;
     }
 
@@ -72,15 +72,15 @@ public class RestaurantMenuService(ApiDbContext context)
 
         if (restaurant == null)
         {
-            errors.Add(new ValidationResult($"Restaurant with ID: {req.RestaurantId} not found.", [nameof(req.RestaurantId) ]));
+            errors.Add(new ValidationResult($"Restaurant with ID: {req.RestaurantId} not found.", [nameof(req.RestaurantId)]));
         }
         else
         {
             if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
                 errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {req.RestaurantId}.", [nameof(req.RestaurantId)]));
         }
-        
-        if(!errors.IsNullOrEmpty()) return errors;
+
+        if (!errors.IsNullOrEmpty()) return errors;
 
 
         var newMenu = new Menu
@@ -108,22 +108,22 @@ public class RestaurantMenuService(ApiDbContext context)
 
         return menuSummary;
     }
-    
-    
+
+
     public async Task<Result<MenuVM>> AddItemsToMenuAsync(int menuId, AddItemsRequest request, User user)
     {
-        
+
         var errors = new List<ValidationResult>();
-        
+
         var menuToUpdate = await context.Menus
             .Include(m => m.MenuItems)
             .Include(m => m.Restaurant!)
             .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync(m => m.Id == menuId);
-        
+
         if (menuToUpdate == null)
         {
-            errors.Add(new ValidationResult($"Menu with id ${menuId} not found.", [nameof(menuId) ]));
+            errors.Add(new ValidationResult($"Menu with id ${menuId} not found.", [nameof(menuId)]));
             return errors;
         }
 
@@ -134,7 +134,7 @@ public class RestaurantMenuService(ApiDbContext context)
             errors.Add(new ValidationResult($"User is not the owner of the restaurant that contains menu ID: {menuToUpdate.Id}.", [nameof(menuToUpdate.Id)]));
             return errors;
         }
-        
+
         var menuItemsToAdd = await context.MenuItems
             .Where(item => request.ItemIds.Contains(item.Id))
             .ToListAsync();
@@ -150,7 +150,7 @@ public class RestaurantMenuService(ApiDbContext context)
                 [nameof(request.ItemIds)]));
             return errors;
         }
-        
+
         var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.Id)).ToList();
         if (nonExistentItemIds.Any())
         {
@@ -167,12 +167,12 @@ public class RestaurantMenuService(ApiDbContext context)
                 menuToUpdate.MenuItems.Add(item);
             }
         }
-        
+
         if (!ValidationUtils.TryValidate(menuToUpdate, errors))
             return errors;
-        
+
         await context.SaveChangesAsync();
-    
+
         return new MenuVM
         {
             Id = menuToUpdate.Id,
@@ -192,7 +192,7 @@ public class RestaurantMenuService(ApiDbContext context)
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
         var errors = new List<ValidationResult>();
-        
+
         // Getting menu
         var menu = await context.Menus
             .Where(m => m.Id == menuId)
@@ -207,7 +207,7 @@ public class RestaurantMenuService(ApiDbContext context)
             errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
             return errors;
         }
-        
+
         // Checking ownership of menu
         if (menu.Restaurant!.Group!.OwnerId != user.Id)
         {
@@ -244,7 +244,8 @@ public class RestaurantMenuService(ApiDbContext context)
     public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
     {
         var errors = new List<ValidationResult>();
-        var Menu = await context.Menus.Include(m => m.Restaurant)
+        var Menu = await context.Menus.Where(m => m.Id == id)
+            .Include(m => m.Restaurant)
             .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync();
 
@@ -261,6 +262,7 @@ public class RestaurantMenuService(ApiDbContext context)
         }
 
         context.Remove(Menu);
+        await context.SaveChangesAsync();
         return true;
     }
 }
