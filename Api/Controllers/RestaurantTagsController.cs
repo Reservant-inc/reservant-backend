@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Services;
 
 namespace Reservant.Api.Controllers;
 
@@ -11,7 +12,7 @@ namespace Reservant.Api.Controllers;
 /// Restaurant tag management
 /// </summary>
 [ApiController, Route("/restaurant-tags")]
-public class RestaurantTagsController(ApiDbContext context) : Controller
+public class RestaurantTagsController(ApiDbContext context, FileUploadService uploadService) : Controller
 {
     /// <summary>
     /// Get all available tags
@@ -27,8 +28,33 @@ public class RestaurantTagsController(ApiDbContext context) : Controller
     /// </summary>
     /// <returns></returns>
     [HttpGet]
-    [Route("{tag:string}/restaurants")]
+    [Route("{tag}/restaurants")]
     public async Task<ActionResult<List<RestaurantSummaryVM>>> GetRestaurantsWithTag(string tag)
     {
+        var result = await context.Restaurants
+            .Where(r => r.Tags != null && r.Tags.Select(t => t.Name).Contains(tag))
+            .Include(r => r.Tags)
+            .ToListAsync();
+
+        if (result.Count == 0)
+        { 
+            return NotFound();
+        }
+
+        return Ok(result.Select(r => new RestaurantSummaryVM()
+        {
+            Id = r.Id,
+            Name = r.Name,
+            Nip = r.Nip,
+            RestaurantType = r.RestaurantType,
+            Address = r.Address,
+            City = r.City,
+            GroupId = r.GroupId,
+            Logo = uploadService.GetPathForFileName(r.LogoFileName),
+            Description = r.Description,
+            ProvideDelivery = r.ProvideDelivery,
+            Tags = (r.Tags ?? []).Select(t => t.Name).ToList(),
+            IsVerified = r.VerifierId != null
+        }));
     }
 }
