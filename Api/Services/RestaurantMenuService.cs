@@ -40,6 +40,7 @@ public class RestaurantMenuService(ApiDbContext context)
             .Select(m => new MenuVM
             {
                 Id = m.Id,
+                Name = m.Name,
                 MenuType = m.MenuType,
                 DateFrom = m.DateFrom,
                 DateUntil = m.DateUntil,
@@ -85,6 +86,7 @@ public class RestaurantMenuService(ApiDbContext context)
 
         var newMenu = new Menu
         {
+            Name = req.Name,
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
@@ -176,6 +178,7 @@ public class RestaurantMenuService(ApiDbContext context)
         return new MenuVM
         {
             Id = menuToUpdate.Id,
+            Name = menuToUpdate.Name,
             MenuType = menuToUpdate.MenuType,
             DateFrom = menuToUpdate.DateFrom,
             DateUntil = menuToUpdate.DateUntil,
@@ -215,6 +218,7 @@ public class RestaurantMenuService(ApiDbContext context)
             return errors;
         }
 
+        menu.Name = request.Name;
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
@@ -228,6 +232,7 @@ public class RestaurantMenuService(ApiDbContext context)
 
         return new MenuVM()
         {
+            Name = menu.Name,
             DateFrom = menu.DateFrom,
             DateUntil = menu.DateUntil,
             Id = menu.Id,
