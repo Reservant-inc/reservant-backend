@@ -103,6 +103,7 @@ public class RestaurantMenuService(ApiDbContext context)
         var menuSummary = new MenuSummaryVM
         {
             Id = newMenu.Id,
+            Name = newMenu.Name,
             MenuType = newMenu.MenuType,
             DateFrom = newMenu.DateFrom,
             DateUntil = newMenu.DateUntil

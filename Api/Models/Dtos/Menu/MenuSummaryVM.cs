@@ -12,6 +12,12 @@ public class MenuSummaryVM
     /// </summary>
     [Required]
     public required int Id { get; set; }
+    
+    /// <summary>
+    /// Name of the menu
+    /// </summary>
+    [Required]
+    public required string Name { get; set; }
 
     /// <summary>
     /// Typ menu
