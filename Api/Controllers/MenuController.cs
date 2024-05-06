@@ -101,7 +101,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
     [HttpDelete("{id:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(204), ProducesResponseType(404)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     public async Task<ActionResult> DeleteMenu(int id)
     {
         var user = await userManager.GetUserAsync(User);
@@ -111,7 +111,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         if (res.IsError)
         {
             ValidationUtils.AddErrorsToModel(res.Errors, ModelState);
-            return BadRequest(ModelState);
+            return ValidationProblem();
         }
 
         return NoContent();
