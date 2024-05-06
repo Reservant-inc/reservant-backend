@@ -182,8 +182,7 @@ namespace Reservant.Api.Services
         {
             var errors = new List<ValidationResult>();
             var menuItem = await context.MenuItems.Where(m => m.Id == id)
-                .Include(item => item.Menus)
-                .ThenInclude(menu => menu.Restaurant)
+                .Include(item => item.Restaurant)
                 .ThenInclude(restaurant => restaurant.Group)
                 .FirstOrDefaultAsync();
 
@@ -201,11 +200,6 @@ namespace Reservant.Api.Services
             if (menuItem.Menus.ElementAt(0).Restaurant.Group.OwnerId != user.Id) {
                 errors.Add(new ValidationResult("Item does not belong to the user."));
                 return errors;
-            }
-            foreach (var menu in menuItem.Menus)
-            {
-                menu.MenuItems.Remove(menuItem);
-                context.Update(menu);
             }
 
             context.Remove(menuItem);
