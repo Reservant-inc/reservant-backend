@@ -86,7 +86,7 @@ public class RestaurantMenuService(ApiDbContext context)
 
         var newMenu = new Menu
         {
-            Name = req.Name,
+            Name = req.Name.Trim(),
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
@@ -219,7 +219,7 @@ public class RestaurantMenuService(ApiDbContext context)
             return errors;
         }
 
-        menu.Name = request.Name;
+        menu.Name = request.Name.Trim();
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
