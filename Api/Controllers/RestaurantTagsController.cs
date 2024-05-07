@@ -36,11 +36,6 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             .Include(r => r.Tags)
             .ToListAsync();
 
-        if (result.Count == 0)
-        { 
-            return NotFound();
-        }
-
         return Ok(result.Select(r => new RestaurantSummaryVM()
         {
             Id = r.Id,
