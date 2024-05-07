@@ -11,6 +11,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Validators;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
@@ -57,7 +58,7 @@ namespace Reservant.Api.Services
                     {
                         PropertyName = nameof(request.GroupId),
                         ErrorMessage = $"Group with ID {request.GroupId} not found",
-                        ErrorCode = "NotFound"
+                        ErrorCode = ErrorCodes.NotFound
                     };
                 }
 
@@ -67,7 +68,7 @@ namespace Reservant.Api.Services
                     {
                         PropertyName = nameof(request.GroupId),
                         ErrorMessage = $"Group with ID {request.GroupId} is not owned by the current user",
-                        ErrorCode = "AccessDenied"
+                        ErrorCode = ErrorCodes.AccessDenied
                     };
                 }
             }

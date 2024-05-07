@@ -37,7 +37,7 @@ public static class CustomValidators
                     value, userId, expectedClass, context.PropertyPath);
                 return !result.IsError;
             })
-            .WithErrorCode($"FileName.{expectedClass}")
+            .WithErrorCode($"{ErrorCodes.FileName}.{expectedClass}")
             .WithMessage($"Must be a valid {expectedClass} file upload name");
     }
 
@@ -51,7 +51,7 @@ public static class CustomValidators
         return builder
             .MustAsync(async (_, value, cancellationToken) =>
                 await dbContext.RestaurantTags.AnyAsync(rt => rt.Name == value, cancellationToken))
-            .WithErrorCode("RestaurantTag")
+            .WithErrorCode(ErrorCodes.RestaurantTag)
             .WithMessage("Must be a valid restaurant tag");
     }
 
@@ -63,7 +63,7 @@ public static class CustomValidators
     {
         return builder
             .Must(NipAttribute.IsValidNip)
-            .WithErrorCode("Nip")
+            .WithErrorCode(ErrorCodes.Nip)
             .WithMessage("Must be a valid NIP");
     }
 
@@ -74,7 +74,7 @@ public static class CustomValidators
     {
         return builder
             .Matches(@"^\d{2}-\d{3}$")
-            .WithErrorCode("PostalCode")
+            .WithErrorCode(ErrorCodes.PostalCode)
             .WithMessage("Must be a valid postal code");
     }
 }
