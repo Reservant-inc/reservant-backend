@@ -5,12 +5,13 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Microsoft.AspNetCore.Mvc;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
 {
@@ -463,7 +464,7 @@ namespace Reservant.Api.Services
         /// <param name="user">User requesting a update</param>
         public async Task<Result<RestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
         {
-            var errors = new List<ValidationResult>();
+            var errors = new List<ValidationFailure>();
 
             var restaurant = await context.Restaurants
                 .Include(restaurant => restaurant.Group)
@@ -471,13 +472,19 @@ namespace Reservant.Api.Services
 
             if (restaurant == null)
             {
-                errors.Add(new ValidationResult($"Restaurant with ID {id} not found."));
+                errors.Add(new ValidationFailure
+                {
+                    ErrorMessage = $"Restaurant with ID {id} not found."
+                });
                 return errors;
             }
 
             if (restaurant.Group?.OwnerId != user.Id)
             {
-                errors.Add(new ValidationResult("User is not the owner of this restaurant."));
+                errors.Add(new ValidationFailure
+                {
+                    ErrorMessage = "User is not the owner of this restaurant."
+                });
                 return errors;
             }
 

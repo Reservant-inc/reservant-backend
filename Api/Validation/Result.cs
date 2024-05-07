@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
 
 namespace Reservant.Api.Validation;
 
@@ -14,7 +14,7 @@ public readonly struct Result<TValue>
     public bool IsError { get; }
 
     private readonly TValue? _value;
-    private readonly List<ValidationResult>? _errors;
+    private readonly List<ValidationFailure>? _errors;
 
     /// <summary>
     /// Returned value or null if there are validation errors.
@@ -27,7 +27,7 @@ public readonly struct Result<TValue>
     /// <summary>
     /// Validation errors or null if successful.
     /// </summary>
-    public List<ValidationResult> Errors =>
+    public List<ValidationFailure> Errors =>
         IsError
             ? _errors!
             : throw new InvalidOperationException("Attempt to access the error list of a successful Result");
@@ -45,7 +45,7 @@ public readonly struct Result<TValue>
     /// <summary>
     /// Constructs a failed Result.
     /// </summary>
-    public Result(List<ValidationResult> errors)
+    public Result(List<ValidationFailure> errors)
     {
         IsError = true;
         _value = default;
@@ -58,9 +58,20 @@ public readonly struct Result<TValue>
     public static implicit operator Result<TValue>(TValue value) => new(value);
 
     /// <summary>
+    /// Convert a list of standard C# validation errors to Result
+    /// </summary>
+    public static implicit operator Result<TValue>(List<System.ComponentModel.DataAnnotations.ValidationResult> errors) =>
+        new(ValidationUtils.ConvertToValidationFailures(errors).ToList());
+
+    /// <summary>
+    /// Allows to write <code>return result;</code> instead of <code>return new Result(result.Errors);</code>
+    /// </summary>
+    public static implicit operator Result<TValue>(ValidationResult result) => new(result.Errors);
+
+    /// <summary>
     /// Allows to write <code>return errors;</code> instead of <code>return new Result(errors);</code>
     /// </summary>
-    public static implicit operator Result<TValue>(List<ValidationResult> errors) => new(errors);
+    public static implicit operator Result<TValue>(List<ValidationFailure> errors) => new(errors);
 
     /// <summary>
     /// Return the value, or throw an exception if there are validation errors.
