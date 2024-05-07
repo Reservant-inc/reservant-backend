@@ -12,6 +12,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -125,7 +126,9 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter());
     });
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<ValidationService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<FileUploadService>();
