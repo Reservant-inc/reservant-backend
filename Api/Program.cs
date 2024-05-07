@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -118,6 +119,8 @@ builder.Services.AddSwaggerGen(options =>
         { jwtSecurityScheme, new List<string>() }
     });
 });
+
+builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(o =>

@@ -71,7 +71,7 @@ public static class ValidationUtils
 
         foreach (var error in result.Errors)
         {
-            var key = error.PropertyName ?? "";
+            var key = Utils.PropertyPathToCamelCase((error.PropertyName ?? ""));
 
             errors.TryAdd(key, []);
             errors[key].Add(error.ErrorMessage!);
