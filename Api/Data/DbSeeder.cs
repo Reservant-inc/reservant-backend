@@ -275,6 +275,13 @@ public class DbSeeder(
                     Price = 20m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
+                    PhotoFileName = "photo-6.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-6.png",
+                        ContentType = "image/png"
+                    }
                 },
                 new MenuItem
                 {
@@ -282,6 +289,13 @@ public class DbSeeder(
                     Price = 25m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
+                    PhotoFileName = "photo-7.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-7.png",
+                        ContentType = "image/png"
+                    }
                 }
             ]
         });
@@ -301,6 +315,13 @@ public class DbSeeder(
                     Price = 8m,
                     AlcoholPercentage = 4.6m,
                     Restaurant = johnDoes,
+                    PhotoFileName = "photo-8.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-8.png",
+                        ContentType = "image/png"
+                    }
                 }
             ]
         });
@@ -443,6 +464,13 @@ public class DbSeeder(
                     Price = 19m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
+                    PhotoFileName = "photo-9.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-9.png",
+                        ContentType = "image/png"
+                    }
                 },
                 new MenuItem
                 {
@@ -450,6 +478,13 @@ public class DbSeeder(
                     Price = 7m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
+                    PhotoFileName = "photo-10.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-10.png",
+                        ContentType = "image/png"
+                    }
                 }
             ]
         });

@@ -39,6 +39,7 @@ namespace Reservant.Api.Services
                 AlternateName = req.AlternateName?.Trim(),
                 AlcoholPercentage = req.AlcoholPercentage,
                 RestaurantId = req.RestaurantId,
+                PhotoFileName = req.PhotoFileName
             };
 
 
@@ -59,6 +60,7 @@ namespace Reservant.Api.Services
                 AlternateName = menuItem.AlternateName,
                 Price = menuItem.Price,
                 AlcoholPercentage = menuItem.AlcoholPercentage,
+                PhotoFileName = menuItem.PhotoFileName
             };
 
         }
@@ -93,6 +95,7 @@ namespace Reservant.Api.Services
                 AlternateName = item.AlternateName,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
+                PhotoFileName = item.PhotoFileName
             };
 
         }
@@ -161,6 +164,7 @@ namespace Reservant.Api.Services
             item.Name = request.Name.Trim();
             item.AlternateName = request.AlternateName?.Trim();
             item.AlcoholPercentage = request.AlcoholPercentage;
+            item.PhotoFileName = request.PhotoFileName;
 
             if (!ValidationUtils.TryValidate(item, errors))
             {
@@ -176,6 +180,7 @@ namespace Reservant.Api.Services
                 Name = item.Name,
                 AlternateName = item.AlternateName,
                 AlcoholPercentage = item.AlcoholPercentage,
+                PhotoFileName = item.PhotoFileName,
             };
 
         }
