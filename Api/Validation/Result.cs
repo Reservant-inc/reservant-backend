@@ -74,6 +74,21 @@ public readonly struct Result<TValue>
     public static implicit operator Result<TValue>(List<ValidationFailure> errors) => new(errors);
 
     /// <summary>
+    /// Create a Result with a single error
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// return new ValidationFailure
+    /// {
+    ///     PropertyName = nameof(...),
+    ///     ErrorCode = ...,
+    ///     ErrorMessage = ...
+    /// }
+    /// </code>
+    /// </example>
+    public static implicit operator Result<TValue>(ValidationFailure error) => new([error]);
+
+    /// <summary>
     /// Return the value, or throw an exception if there are validation errors.
     /// </summary>
     /// <exception cref="InvalidOperationException">If there are validation errors.</exception>
