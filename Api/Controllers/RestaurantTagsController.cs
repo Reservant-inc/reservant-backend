@@ -31,8 +31,16 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
     [Route("{tag}/restaurants")]
     public async Task<ActionResult<List<RestaurantSummaryVM>>> GetRestaurantsWithTag(string tag)
     {
+
+        var resultTag = await context.RestaurantTags.FirstOrDefaultAsync(t => t.Name == tag);
+
+        if (resultTag == null)
+        {
+            return NotFound();
+        }
+
         var result = await context.Restaurants
-            .Where(r => r.Tags != null && r.Tags.Select(t => t.Name).Contains(tag))
+            .Where(r => r.Tags != null && r.Tags.Contains(resultTag))
             .Include(r => r.Tags)
             .ToListAsync();
 
