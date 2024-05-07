@@ -48,6 +48,17 @@ public class MenuItem : ISoftDeletable
     /// </summary>
     public Restaurant? Restaurant { get; set; }
 
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string PhotoFileName { get; set; }
+
+    /// <summary>
+    /// Navigation property for the photo upload
+    /// </summary>
+    public FileUpload? Photo { get; set; }
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }

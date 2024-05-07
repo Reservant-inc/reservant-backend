@@ -742,6 +742,7 @@ namespace Reservant.Api.Services
                     Name = i.Name,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
+                    PhotoFileName = i.PhotoFileName
                 }).ToListAsync();
 
         }

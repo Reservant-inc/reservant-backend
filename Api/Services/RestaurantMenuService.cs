@@ -48,7 +48,8 @@ public class RestaurantMenuService(ApiDbContext context)
                     Id = mi.Id,
                     Name = mi.Name,
                     Price = mi.Price,
-                    AlcoholPercentage = mi.AlcoholPercentage
+                    AlcoholPercentage = mi.AlcoholPercentage,
+                    PhotoFileName = mi.PhotoFileName
                 }).ToList()
             })
             .FirstOrDefaultAsync();
@@ -184,7 +185,8 @@ public class RestaurantMenuService(ApiDbContext context)
                 Id = mi.Id,
                 Name = mi.Name,
                 Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage
+                AlcoholPercentage = mi.AlcoholPercentage,
+                PhotoFileName = mi.PhotoFileName
             }).ToList()
         };
     }
@@ -236,7 +238,8 @@ public class RestaurantMenuService(ApiDbContext context)
                 Id = mi.Id,
                 Name = mi.Name,
                 Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage
+                AlcoholPercentage = mi.AlcoholPercentage,
+                PhotoFileName = mi.PhotoFileName,
             }).ToList(),
             MenuType = menu.MenuType
         };

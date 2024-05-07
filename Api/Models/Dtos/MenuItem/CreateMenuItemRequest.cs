@@ -32,6 +32,12 @@ namespace Reservant.Api.Models.Dtos.MenuItem
         /// </summary>
         [Range(0, 100)]
         public decimal? AlcoholPercentage { get; set; }
-        
+
+        /// <summary>
+        /// File name of the photo
+        /// </summary>
+        [Required, StringLength(50)]
+        public required string PhotoFileName { get; set; }
+
     }
 }
