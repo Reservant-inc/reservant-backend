@@ -24,7 +24,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
     }
 
     /// <summary>
-    /// Gets all restaurants with the given tag
+    /// Gets all validated restaurants with the given tag
     /// </summary>
     /// <returns></returns>
     [HttpGet]
@@ -40,7 +40,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
         }
 
         var result = await context.Restaurants
-            .Where(r => r.Tags != null && r.Tags.Contains(resultTag))
+            .Where(r => r.Tags!.Contains(resultTag) && r.VerifierId != null)
             .Include(r => r.Tags)
             .ToListAsync();
 
