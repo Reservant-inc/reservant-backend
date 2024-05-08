@@ -636,11 +636,19 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="id"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<List<MenuSummaryVM>> GetMenusAsync(int id)
+        public async Task<List<MenuSummaryVM>?> GetMenusAsync(int id)
         {
-            var menus = await context.Menus
-                .Where(m => m.RestaurantId == id)
-                .Include(m => m.MenuItems)
+            var restaurant = await context.Restaurants
+                .Include(r => r.Menus)
+                .Where(i => i.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return null;
+            }
+
+            var menus = restaurant.Menus
                 .Select(menu => new MenuSummaryVM
                 {
                     Id = menu.Id,
@@ -649,10 +657,11 @@ namespace Reservant.Api.Services
                     DateFrom = menu.DateFrom,
                     DateUntil = menu.DateUntil
                 })
-                .ToListAsync();
+                .ToList();
 
             return menus;
         }
+
 
         /// <summary>
         /// Validates and gets menu items from the given restaurant

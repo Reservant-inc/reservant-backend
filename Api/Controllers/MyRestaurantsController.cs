@@ -184,7 +184,10 @@ namespace Reservant.Api.Controllers
         {
             var result = await restaurantService.GetMenusAsync(id);
 
-            if (result.IsNullOrEmpty()) return NotFound($"Menus with id {id} not found.");
+            if (result == null)
+            {
+                return NotFound();
+            }
 
             return Ok(result);
         }
