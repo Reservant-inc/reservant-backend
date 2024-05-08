@@ -644,6 +644,7 @@ namespace Reservant.Api.Services
                 .Select(menu => new MenuSummaryVM
                 {
                     Id = menu.Id,
+                    Name = menu.Name,
                     MenuType = menu.MenuType,
                     DateFrom = menu.DateFrom,
                     DateUntil = menu.DateUntil
