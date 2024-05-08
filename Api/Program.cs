@@ -1,6 +1,9 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -10,6 +13,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,12 +120,18 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
+
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
         o.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter());
     });
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<ValidationService>();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<FileUploadService>();
