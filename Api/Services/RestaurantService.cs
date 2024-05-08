@@ -704,7 +704,6 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
-                    .ThenInclude(m => m.MenuItems)
                 .Where(i => i.Id == id)
                 .FirstOrDefaultAsync();
 
