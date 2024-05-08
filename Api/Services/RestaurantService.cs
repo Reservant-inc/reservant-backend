@@ -700,7 +700,7 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="id"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<List<MenuSummaryVM>> GetMenusAsync(int id)
+        public async Task<List<MenuSummaryVM>?> GetMenusAsync(int id)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
