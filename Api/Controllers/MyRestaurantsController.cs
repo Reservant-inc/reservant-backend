@@ -216,9 +216,6 @@ namespace Reservant.Api.Controllers
                 return ValidationProblem();
             }
 
-            if(res.Value==null) 
-                return NotFound();
-
             return Ok(res.Value);
         }
 
