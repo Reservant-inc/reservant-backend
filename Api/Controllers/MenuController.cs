@@ -99,6 +99,9 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         return ValidationProblem();
     }
 
+    /// <summary>
+    /// Delete a menu
+    /// </summary>
     [HttpDelete("{id:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
