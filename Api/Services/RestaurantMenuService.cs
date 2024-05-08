@@ -245,12 +245,12 @@ public class RestaurantMenuService(ApiDbContext context)
     }
     public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
     {
-        var Menu = await context.Menus.Where(m => m.Id == id)
+        var menu = await context.Menus.Where(m => m.Id == id)
             .Include(m => m.Restaurant)
             .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync();
 
-        if (Menu == null)
+        if (menu == null)
         {
             return new ValidationFailure
             {
@@ -259,7 +259,7 @@ public class RestaurantMenuService(ApiDbContext context)
             };
         }
 
-        if (Menu.Restaurant.Group.OwnerId != user.Id)
+        if (menu.Restaurant.Group.OwnerId != user.Id)
         {
             return new ValidationFailure
             {
@@ -268,7 +268,7 @@ public class RestaurantMenuService(ApiDbContext context)
             };
         }
 
-        context.Remove(Menu);
+        context.Remove(menu);
         await context.SaveChangesAsync();
         return true;
     }
