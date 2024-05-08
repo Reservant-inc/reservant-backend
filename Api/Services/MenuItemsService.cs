@@ -191,13 +191,7 @@ namespace Reservant.Api.Services
                 errors.Add(new ValidationResult("No item found."));
                 return errors;
             }
-            if (menuItem.Menus == null || menuItem.Menus.Count == 0) //check for items without menus because there is no way to trace them to their owner
-            {
-                context.Remove(menuItem);
-                await context.SaveChangesAsync();
-                return true;
-            }
-            if (menuItem.Menus.ElementAt(0).Restaurant.Group.OwnerId != user.Id) {
+            if (menuItem.Restaurant.Group.OwnerId != user.Id) {
                 errors.Add(new ValidationResult("Item does not belong to the user."));
                 return errors;
             }
