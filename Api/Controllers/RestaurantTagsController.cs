@@ -29,6 +29,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
     /// <returns></returns>
     [HttpGet]
     [Route("{tag}/restaurants")]
+    [ProducesResponseType(200), ProducesResponseType(404)]
     public async Task<ActionResult<List<RestaurantSummaryVM>>> GetRestaurantsWithTag(string tag)
     {
 
