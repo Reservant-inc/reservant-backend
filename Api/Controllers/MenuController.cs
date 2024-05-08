@@ -109,8 +109,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
         if (res.IsError)
         {
-            ValidationUtils.AddErrorsToModel(res.Errors, ModelState);
-            return ValidationProblem();
+            return res.ToValidationProblem();
         }
 
         return NoContent();

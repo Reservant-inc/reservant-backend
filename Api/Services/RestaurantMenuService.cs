@@ -8,6 +8,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
+using Reservant.Api.Validators;
+using ValidationFailure = FluentValidation.Results.ValidationFailure;
 
 namespace Reservant.Api.Services;
 
@@ -243,7 +245,6 @@ public class RestaurantMenuService(ApiDbContext context)
     }
     public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
     {
-        var errors = new List<ValidationResult>();
         var Menu = await context.Menus.Where(m => m.Id == id)
             .Include(m => m.Restaurant)
             .ThenInclude(r => r.Group)
@@ -251,14 +252,20 @@ public class RestaurantMenuService(ApiDbContext context)
 
         if (Menu == null)
         {
-            errors.Add(new ValidationResult("Menu not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                ErrorMessage = "Menu not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (Menu.Restaurant.Group.OwnerId != user.Id)
         {
-            errors.Add(new ValidationResult("Menu is not owned by user"));
-            return errors;
+            return new ValidationFailure
+            {
+                ErrorMessage = "Menu is not owned by user",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
         }
 
         context.Remove(Menu);
