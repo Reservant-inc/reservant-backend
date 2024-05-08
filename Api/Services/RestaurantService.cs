@@ -5,12 +5,14 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Validators;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
 {
@@ -21,7 +23,12 @@ namespace Reservant.Api.Services
         VerifierSetSuccessfully,
     }
 
-    public class RestaurantService(ApiDbContext context, FileUploadService uploadService, UserManager<User> userManager,MenuItemsService menuItemsServiceservice)
+    public class RestaurantService(
+        ApiDbContext context,
+        FileUploadService uploadService,
+        UserManager<User> userManager,
+        MenuItemsService menuItemsServiceservice,
+        ValidationService validationService)
     {
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
@@ -31,8 +38,6 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<Restaurant>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
         {
-            var errors = new List<ValidationResult>();
-
             RestaurantGroup? group;
             if (request.GroupId is null)
             {
@@ -49,117 +54,29 @@ namespace Reservant.Api.Services
 
                 if (group is null)
                 {
-                    errors.Add(new ValidationResult(
-                        $"Group with ID {request.GroupId} not found",
-                        [nameof(request.GroupId)]));
-                    return errors;
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.GroupId),
+                        ErrorMessage = $"Group with ID {request.GroupId} not found",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
                 }
 
                 if (group.OwnerId != user.Id)
                 {
-                    errors.Add(new ValidationResult(
-                        $"Group with ID {request.GroupId} is not owned by the current user",
-                        [nameof(request.GroupId)]));
-                    return errors;
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.GroupId),
+                        ErrorMessage = $"Group with ID {request.GroupId} is not owned by the current user",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
                 }
             }
 
-            string? rentalContract = null;
-            if (request.RentalContract is not null)
+            var result = await validationService.ValidateAsync(request);
+            if (!result.IsValid)
             {
-                var result = await uploadService.ProcessUploadNameAsync(
-                    request.RentalContract,
-                    user.Id,
-                    FileClass.Document,
-                    nameof(request.RentalContract));
-                if (result.IsError)
-                {
-                    return result.Errors;
-                }
-
-                rentalContract = result.Value;
-            }
-
-            string? alcoholLicense = null;
-            if (request.AlcoholLicense is not null)
-            {
-                var result = await uploadService.ProcessUploadNameAsync(
-                    request.AlcoholLicense,
-                    user.Id,
-                    FileClass.Document,
-                    nameof(request.AlcoholLicense));
-                if (result.IsError)
-                {
-                    return result.Errors;
-                }
-
-                alcoholLicense = result.Value;
-            }
-
-            var businessPermissionResult = await uploadService.ProcessUploadNameAsync(
-                request.BusinessPermission,
-                user.Id,
-                FileClass.Document,
-                nameof(request.BusinessPermission));
-            if (businessPermissionResult.IsError)
-            {
-                return businessPermissionResult.Errors;
-            }
-
-            var idCardResult = await uploadService.ProcessUploadNameAsync(
-                request.IdCard,
-                user.Id,
-                FileClass.Document,
-                nameof(request.IdCard));
-            if (idCardResult.IsError)
-            {
-                return idCardResult.Errors;
-            }
-
-            var logoResult = await uploadService.ProcessUploadNameAsync(
-                request.Logo,
-                user.Id,
-                FileClass.Image,
-                nameof(request.Logo));
-            if (logoResult.IsError)
-            {
-                return logoResult.Errors;
-            }
-
-            var tags = await context.RestaurantTags
-                .Join(
-                    request.Tags,
-                    rt => rt.Name,
-                    tag => tag,
-                    (rt, _) => rt)
-                .ToListAsync();
-
-            var notFoundTags = request.Tags.Where(tag => tags.All(rt => rt.Name != tag));
-            errors.AddRange(notFoundTags.Select(
-                tag => new ValidationResult($"Tag not found: {tag}", [nameof(request.Tags)])));
-            if (errors.Count != 0)
-            {
-                return errors;
-            }
-
-            var photos = new List<RestaurantPhoto>();
-            foreach (var (photo, order) in request.Photos.Select((photo, index) => (photo, index + 1)))
-            {
-                var result = await uploadService.ProcessUploadNameAsync(
-                    photo,
-                    user.Id,
-                    FileClass.Image,
-                    nameof(request.Photos));
-                if (result.IsError)
-                {
-                    return result.Errors;
-                }
-
-                photos.Add(new RestaurantPhoto
-                {
-                    PhotoFileName = result.Value,
-                    Order = order
-                });
+                return result;
             }
 
             var restaurant = new Restaurant
@@ -171,20 +88,33 @@ namespace Reservant.Api.Services
                 PostalIndex = request.PostalIndex,
                 City = request.City.Trim(),
                 Group = group,
-                RentalContractFileName = rentalContract,
-                AlcoholLicenseFileName = alcoholLicense,
-                BusinessPermissionFileName = businessPermissionResult.Value,
-                IdCardFileName = idCardResult.Value,
-                LogoFileName = logoResult.Value,
+                RentalContractFileName = request.RentalContract,
+                AlcoholLicenseFileName = request.AlcoholLicense,
+                BusinessPermissionFileName = request.BusinessPermission,
+                IdCardFileName = request.IdCard,
+                LogoFileName = request.Logo,
                 ProvideDelivery = request.ProvideDelivery,
                 Description = request.Description?.Trim(),
-                Tags = tags,
-                Photos = photos
+                Tags = await context.RestaurantTags
+                    .Join(
+                        request.Tags,
+                        rt => rt.Name,
+                        tag => tag,
+                        (rt, _) => rt)
+                    .ToListAsync(),
+                Photos = request.Photos
+                    .Select((photo, index) => new RestaurantPhoto
+                    {
+                        PhotoFileName = photo,
+                        Order = index + 1
+                    })
+                    .ToList()
             };
 
-            if (!ValidationUtils.TryValidate(restaurant, errors))
+            result = await validationService.ValidateAsync(restaurant);
+            if (!result.IsValid)
             {
-                return errors;
+                return result;
             }
 
             context.Add(restaurant);
@@ -463,7 +393,7 @@ namespace Reservant.Api.Services
         /// <param name="user">User requesting a update</param>
         public async Task<Result<RestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
         {
-            var errors = new List<ValidationResult>();
+            var errors = new List<ValidationFailure>();
 
             var restaurant = await context.Restaurants
                 .Include(restaurant => restaurant.Group)
@@ -471,13 +401,19 @@ namespace Reservant.Api.Services
 
             if (restaurant == null)
             {
-                errors.Add(new ValidationResult($"Restaurant with ID {id} not found."));
+                errors.Add(new ValidationFailure
+                {
+                    ErrorMessage = $"Restaurant with ID {id} not found."
+                });
                 return errors;
             }
 
             if (restaurant.Group?.OwnerId != user.Id)
             {
-                errors.Add(new ValidationResult("User is not the owner of this restaurant."));
+                errors.Add(new ValidationFailure
+                {
+                    ErrorMessage = "User is not the owner of this restaurant."
+                });
                 return errors;
             }
 

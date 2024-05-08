@@ -30,8 +30,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
         if (!result.IsError) return Ok(result.Value);
 
-        ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-        return ValidationProblem();
+        return result.ToValidationProblem();
     }
 
     /// <summary>
@@ -50,8 +49,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
         if (!result.IsError) return Ok(result.Value);
 
-        ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-        return ValidationProblem();
+        return result.ToValidationProblem();
     }
 
     /// <summary>
@@ -73,8 +71,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
         if (!result.IsError) return Ok(result.Value);
 
-        ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-        return ValidationProblem();
+        return result.ToValidationProblem();
     }
 
     /// <summary>
@@ -95,8 +92,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
         if (!result.IsError) return Ok(result.Value);
 
-        ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-        return ValidationProblem();
+        return result.ToValidationProblem();
     }
 
     /// <summary>
