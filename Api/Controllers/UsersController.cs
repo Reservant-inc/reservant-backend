@@ -44,8 +44,7 @@ namespace Reservant.Api.Controllers
 
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
            
             var emp = result.Value;
@@ -80,8 +79,7 @@ namespace Reservant.Api.Controllers
 
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
 
             var emp = result.Value;

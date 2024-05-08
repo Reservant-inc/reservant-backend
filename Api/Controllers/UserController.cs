@@ -84,8 +84,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         if (res.IsError)
         {
-            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
-            return ValidationProblem();
+            return res.ToValidationProblem();
         }
 
         return Ok(new UserDetailsVM
