@@ -742,7 +742,7 @@ namespace Reservant.Api.Services
                     Name = i.Name,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
-                    PhotoFileName = i.PhotoFileName
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName)
                 }).ToListAsync();
 
         }
