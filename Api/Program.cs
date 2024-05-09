@@ -133,14 +133,12 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ValidationService>();
 
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<FileUploadService>();
-builder.Services.AddScoped<RestaurantService>();
-builder.Services.AddScoped<RestaurantGroupService>();
-builder.Services.AddScoped<MenuItemsService>();
-builder.Services.AddScoped<RestaurantMenuService>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<EmploymentService>();
+var services = Assembly.GetExecutingAssembly()
+    .GetTypes().Where(t => t.Name.EndsWith("Service"));
+foreach (var service in services)
+{
+    builder.Services.AddScoped(service);
+}
 
 var app = builder.Build();
 
