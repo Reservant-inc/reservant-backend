@@ -18,7 +18,7 @@ namespace Reservant.Api.Services;
 /// Util class for managing RestaurantMenus
 /// </summary>
 /// <param name="context">context</param>
-public class RestaurantMenuService(ApiDbContext context)
+public class RestaurantMenuService(ApiDbContext context, FileUploadService uploadService)
 {
 
     /// <summary>
@@ -54,7 +54,7 @@ public class RestaurantMenuService(ApiDbContext context)
                     AlternateName = mi.AlternateName,
                     Price = mi.Price,
                     AlcoholPercentage = mi.AlcoholPercentage,
-                    PhotoFileName = mi.PhotoFileName
+                    Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
                 }).ToList()
             })
             .FirstOrDefaultAsync();
@@ -197,7 +197,7 @@ public class RestaurantMenuService(ApiDbContext context)
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage,
-                PhotoFileName = mi.PhotoFileName
+                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
             }).ToList()
         };
     }
@@ -255,7 +255,7 @@ public class RestaurantMenuService(ApiDbContext context)
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage,
-                PhotoFileName = mi.PhotoFileName,
+                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
             }).ToList(),
             MenuType = menu.MenuType
         };

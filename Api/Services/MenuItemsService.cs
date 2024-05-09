@@ -13,7 +13,7 @@ namespace Reservant.Api.Services
     /// Service for creating and finding menu items
     /// </summary>
     /// <param name="context"></param>
-    public class MenuItemsService(ApiDbContext context)
+    public class MenuItemsService(ApiDbContext context, FileUploadService uploadService)
     {
         /// <summary>
         /// Validates and creates given menuItems
@@ -26,6 +26,16 @@ namespace Reservant.Api.Services
             var errors = new List<ValidationResult>();
 
             var isRestaurantValid = await ValidateRestaurant(user, req.RestaurantId);
+            
+            var photo = await uploadService.ProcessUploadNameAsync(
+                req.PhotoFileName,
+                user.Id,
+                FileClass.Image,
+                nameof(req.PhotoFileName));
+            if (photo.IsError)
+            {
+                return photo.Errors;
+            }
 
             if (isRestaurantValid.IsError)
             {
@@ -60,7 +70,7 @@ namespace Reservant.Api.Services
                 AlternateName = menuItem.AlternateName,
                 Price = menuItem.Price,
                 AlcoholPercentage = menuItem.AlcoholPercentage,
-                PhotoFileName = menuItem.PhotoFileName
+                Photo = photo.Value
             };
 
         }
@@ -95,7 +105,7 @@ namespace Reservant.Api.Services
                 AlternateName = item.AlternateName,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
-                PhotoFileName = item.PhotoFileName
+                Photo = uploadService.GetPathForFileName(item.PhotoFileName)
             };
 
         }
@@ -142,6 +152,16 @@ namespace Reservant.Api.Services
                 .Include(r => r.Restaurant)
                 .Include(r => r.Restaurant!.Group)
                 .FirstOrDefaultAsync(i => i.Id == id);
+            
+            var photo = await uploadService.ProcessUploadNameAsync(
+                request.PhotoFileName,
+                user.Id,
+                FileClass.Image,
+                nameof(request.PhotoFileName));
+            if (photo.IsError)
+            {
+                return photo.Errors;
+            }
 
             if (item == null)
             {
@@ -180,7 +200,7 @@ namespace Reservant.Api.Services
                 Name = item.Name,
                 AlternateName = item.AlternateName,
                 AlcoholPercentage = item.AlcoholPercentage,
-                PhotoFileName = item.PhotoFileName,
+                Photo = photo.Value,
             };
 
         }

@@ -40,5 +40,5 @@ public class MenuItemVM
     /// File name of the photo
     /// </summary>
     [Required, StringLength(50)]
-    public required string PhotoFileName { get; set; }
+    public required string Photo { get; set; }
 }
