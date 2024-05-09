@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Services;
 
 namespace Reservant.Api.Controllers;
 
@@ -6,6 +7,6 @@ namespace Reservant.Api.Controllers;
 /// Managing orders
 /// </summary>
 [ApiController, Route("/orders")]
-public class OrdersController : Controller
+public class OrdersController(OrderService orderService) : Controller
 {
 }
