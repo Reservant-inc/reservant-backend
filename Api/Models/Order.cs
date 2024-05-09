@@ -14,6 +14,11 @@ public class Order : ISoftDeletable
     public int Id { get; set; }
 
     /// <summary>
+    /// ID of the visit
+    /// </summary>
+    public int VisitId { get; set; }
+
+    /// <summary>
     /// Optional note
     /// </summary>
     [StringLength(100)]
@@ -61,6 +66,11 @@ public class Order : ISoftDeletable
                 .MaxBy(s => (int)s);
         }
     }
+
+    /// <summary>
+    /// Navigational collection for the visit
+    /// </summary>
+    public Visit? Visit { get; set; }
 
     /// <summary>
     /// Navigational collection for the order items

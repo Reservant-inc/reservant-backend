@@ -28,6 +28,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
     public DbSet<MenuItem> MenuItems { get; init; } = null!;
 
+    public DbSet<Visit> Visits { get; init; } = null!;
+
     public DbSet<Order> Orders { get; init; } = null!;
 
     public DbSet<OrderItem> OrderItems { get; init; } = null!;
