@@ -7,6 +7,7 @@ using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Dtos.Visit;
 
 namespace Reservant.Api.Controllers;
 
@@ -100,5 +101,52 @@ public class UserController(UserManager<User> userManager, UserService userServi
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
         });
+    }
+
+
+
+    /// <summary>
+    /// Get list of visits of logged in user
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("visits")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<VisitSummaryVM>>> getVisits()
+    {
+        var userId = userManager.GetUserId(User);
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.getVisitsAsync(userId);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        else
+        {
+            return Ok(result.Value);
+        }
+    }
+
+    /// <summary>
+    /// Get visit of provided id
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("visits/{id:int}")]
+    [ProducesResponseType(200)]
+    public async Task<ActionResult<List<VisitSummaryVM>>> getVisits(int id)
+    {
+        var result = await userService.GetVisitByIdAsync(id);
+
+        // if (result.IsError)
+        // {
+        //     return result.ToValidationProblem();
+        // }
+        if(result!=null)
+            return Ok(result);
+        return NotFound();
     }
 }

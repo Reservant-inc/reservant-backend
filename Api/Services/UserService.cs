@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
@@ -11,6 +12,7 @@ using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Models.Dtos.User;
+using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
 
 
@@ -316,4 +318,60 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         return user;
     }
+    
+
+
+    /// <summary>
+    /// Gets the list of visists of user of provided id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task<Result<List<VisitSummaryVM>>> getVisitsAsync( string? userId)
+    {
+        var list = await dbContext.Visits
+            .Where(x => x.ClientId == userId || (x.Participants != null && x.Participants.Any(p => p.Id == userId)))
+            .ToListAsync();
+
+        var resultList = list.Select(visit => new VisitSummaryVM
+        {    
+            Id=visit.Id,
+            Date=visit.Date,
+            NumberOfPeople=visit.NumberOfGuests+1,
+            Takeaway=visit.Takeaway,
+            ClientId=visit.ClientId,
+            RestaurantId=visit.RestaurantId
+        }).ToList();
+
+        return new Result<List<VisitSummaryVM>>(resultList);
+    }
+
+    /// <summary>
+    /// Gets the visist oof provided id
+    /// </summary>
+    /// <param name="visitId"></param>
+    /// <returns></returns>
+    public async Task<VisitSummaryVM?> GetVisitByIdAsync(int visitId)
+    {
+        var visit = await dbContext.Visits
+            .Where(x => x.Id == visitId)
+            .FirstOrDefaultAsync();
+
+        if (visit == null)
+        {
+            return null;
+        }
+
+        var result = new VisitSummaryVM
+        {
+            Id = visit.Id,
+            Date = visit.Date,
+            NumberOfPeople = visit.NumberOfGuests + 1,
+            Takeaway = visit.Takeaway,
+            ClientId = visit.ClientId,
+            RestaurantId = visit.RestaurantId
+        };
+
+        return result;
+    }
 }
+
