@@ -207,78 +207,80 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
         /// <param name="employerId">ID of the current user (restaurant owner)</param>
         /// <returns>The bool returned inside the result does not mean anything</returns>
-        public async Task<Result<bool>> AddEmployeeAsync(AddEmployeeRequest request, int restaurantId, string employerId)
+        public async Task<Result<bool>> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId, string employerId)
         {
-            if (!request.IsBackdoorEmployee && !request.IsHallEmployee)
+            foreach (var request in listRequest)
             {
-                return new List<ValidationResult>
+                if (!request.IsBackdoorEmployee && !request.IsHallEmployee)
+                {
+                    return new List<ValidationResult>
                 {
                     new($"Employee must have at least one role",
                         [nameof(request.IsBackdoorEmployee), nameof(request.IsHallEmployee)])
                 };
-            }
+                }
 
-            var restaurantOwnerId = await context.Restaurants
-                .Where(r => r.Id == restaurantId)
-                .Select(r => r.Group!.OwnerId)
-                .FirstOrDefaultAsync();
-            if (restaurantOwnerId is null)
-            {
-                return new List<ValidationResult>
+                var restaurantOwnerId = await context.Restaurants
+                    .Where(r => r.Id == restaurantId)
+                    .Select(r => r.Group!.OwnerId)
+                    .FirstOrDefaultAsync();
+                if (restaurantOwnerId is null)
+                {
+                    return new List<ValidationResult>
                 {
                     new($"Restaurant with ID {restaurantId} not found")
                 };
-            }
+                }
 
-            if (restaurantOwnerId != employerId)
-            {
-                return new List<ValidationResult>
+                if (restaurantOwnerId != employerId)
+                {
+                    return new List<ValidationResult>
                 {
                     new("User is not the owner of the restaurant")
                 };
-            }
+                }
 
-            var employee = await context.Users.FindAsync(request.Id);
-            if (employee is null)
-            {
-                return new List<ValidationResult>
+                var employee = await context.Users.FindAsync(request.Id);
+                if (employee is null)
+                {
+                    return new List<ValidationResult>
                 {
                     new($"User with ID {request.Id} not found",
                         [nameof(request.Id)])
                 };
-            }
+                }
 
-            if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
-                || employee.EmployerId != employerId)
-            {
-                return new List<ValidationResult>
+                if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
+                    || employee.EmployerId != employerId)
+                {
+                    return new List<ValidationResult>
                 {
                     new($"User with ID {request.Id} is not current user's employee",
                         [nameof(request.Id)])
                 };
-            }
+                }
 
-            var currentEmployment = await context.Employments
-                .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId && e.DateUntil == null)
-                .FirstOrDefaultAsync();
+                var currentEmployment = await context.Employments
+                    .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId && e.DateUntil == null)
+                    .FirstOrDefaultAsync();
 
-            if (currentEmployment != null)
-            {
-                return new List<ValidationResult>
+                if (currentEmployment != null)
+                {
+                    return new List<ValidationResult>
                 {
                     new ("Employee is currently employed at this restaurant")
                 };
+                }
+
+                context.Employments.Add(new Employment
+                {
+                    EmployeeId = request.Id,
+                    RestaurantId = restaurantId,
+                    IsBackdoorEmployee = request.IsBackdoorEmployee,
+                    IsHallEmployee = request.IsHallEmployee,
+                    DateFrom = DateOnly.FromDateTime(DateTime.Now)
+                });
             }
-
-            context.Employments.Add(new Employment
-            {
-                EmployeeId = request.Id,
-                RestaurantId = restaurantId,
-                IsBackdoorEmployee = request.IsBackdoorEmployee,
-                IsHallEmployee = request.IsHallEmployee,
-                DateFrom = DateOnly.FromDateTime(DateTime.Now)
-            });
-
             await context.SaveChangesAsync();
             return true;
         }
