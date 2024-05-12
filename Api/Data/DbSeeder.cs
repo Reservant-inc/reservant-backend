@@ -78,6 +78,30 @@ public class DbSeeder(
         await CreateJohnDoesRestaurant(johnDoe, johnDoesGroup);
         await CreateJohnDoes2Restaurant(johnDoe, johnDoesGroup);
 
+
+        var kowalski = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Krzysztof",
+            LastName = "Kowalski",
+            Login = "OK",
+            Email = "krzysztof.kowalski@gmail.com",
+            PhoneNumber = "+48999999999",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(2002, 1, 1)
+        })).OrThrow();
+
+        await userService.MakeRestaurantOwnerAsync(kowalski.Id);
+
+        var kowalskisGroup = new RestaurantGroup
+        {
+            Name = "Krzysztof Kowalski's Restaurant Group",
+            OwnerId = kowalski.Id
+        };
+
+        context.RestaurantGroups.Add(kowalskisGroup);
+
+        await CreateKowalskisRestaurant(kowalski, kowalskisGroup);
+
         (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             Login = "customer",
@@ -473,5 +497,114 @@ public class DbSeeder(
             },
             johnDoes2.Id,
             johnDoe.Id);
+    }
+
+    private async Task CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup)
+    {
+        var kowalskisRestaurant = new Restaurant
+        {
+            Name = "Kowalski's",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "0000000000",
+            Address = "ul. Konstruktorska 5",
+            PostalIndex = "00-000",
+            City = "Warszawa",
+            Group = kowalskisGroup,
+            RentalContractFileName = null!,
+            RentalContract = new FileUpload
+            {
+                UserId = kowalski.Id,
+                FileName = "kowalskis-rental-contract.pdf",
+                ContentType = "application/pdf"
+            },
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = new FileUpload
+            {
+                UserId = kowalski.Id,
+                FileName = "kowalskis-alcohol-license.pdf",
+                ContentType = "application/pdf"
+            },
+            BusinessPermissionFileName = null!,
+            BusinessPermission = new FileUpload
+            {
+                UserId = kowalski.Id,
+                FileName = "kowalskis-business-permission.pdf",
+                ContentType = "application/pdf"
+            },
+            IdCardFileName = null!,
+            IdCard = new FileUpload
+            {
+                UserId = kowalski.Id,
+                FileName = "kowalskis-id-card.pdf",
+                ContentType = "application/pdf"
+            },
+            LogoFileName = null!,
+            Logo = new FileUpload
+            {
+                UserId = kowalski.Id,
+                FileName = "kowalskis-logo.png",
+                ContentType = "image/png"
+            },
+            ProvideDelivery = false,
+            Description = "Fake restaurant",
+            Photos = [],
+            Tags = context.RestaurantTags
+                .Where(rt => rt.Name == "Asian" || rt.Name == "Takeaway")
+                .ToList(),
+            VerifierId = null!,
+            IsDeleted = false
+        };
+        kowalskisRestaurant.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = kowalskisRestaurant,
+                Id = 1,
+                Capacity = 3
+            },
+            new()
+            {
+                Restaurant = kowalskisRestaurant,
+                Id = 2,
+                Capacity = 2
+            },
+        };
+
+        context.Restaurants.Add(kowalskisRestaurant);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzenie",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            Restaurant = kowalskisRestaurant,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Pad thai",
+                    Price = 29m,
+                    AlcoholPercentage = null,
+                    Restaurant = kowalskisRestaurant,
+                },
+                new MenuItem
+                {
+                    Name = "Ryż smażony",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = kowalskisRestaurant,
+                },
+                new MenuItem
+                {
+                    Name = "Udon",
+                    Price = 35m,
+                    AlcoholPercentage = null,
+                    Restaurant = kowalskisRestaurant,
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
     }
 }
