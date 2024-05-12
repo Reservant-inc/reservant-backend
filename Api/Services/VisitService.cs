@@ -26,6 +26,7 @@ public class VisitService(
             .Where(v => v.ClientId == user.Id)
             .Select(v => new VisitSummaryVM
             {
+                Id = v.Id,
                 ClientId = user.Id,
                 Date = v.Date,
                 Takeaway = v.Takeaway,
@@ -88,11 +89,12 @@ public class VisitService(
         
         return new VisitSummaryVM()
         {
-            ClientId = user.Id,
-            Date = request.Date,
-            Takeaway = request.Takeaway,
-            RestaurantId = request.RestaurantId,
-            NumberOfPeople = request.NumberOfGuests
+            Id = visit.Id,
+            ClientId = visit.ClientId,
+            Date = visit.Date,
+            Takeaway = visit.Takeaway,
+            RestaurantId = visit.RestaurantId,
+            NumberOfPeople = visit.NumberOfGuests
         };
     }
     
