@@ -51,6 +51,7 @@ public class RestaurantMenuService(ApiDbContext context)
                 {
                     Id = mi.Id,
                     Name = mi.Name,
+                    AlternateName = mi.AlternateName,
                     Price = mi.Price,
                     AlcoholPercentage = mi.AlcoholPercentage
                 }).ToList()
@@ -192,6 +193,7 @@ public class RestaurantMenuService(ApiDbContext context)
             {
                 Id = mi.Id,
                 Name = mi.Name,
+                AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage
             }).ToList()
@@ -248,6 +250,7 @@ public class RestaurantMenuService(ApiDbContext context)
             {
                 Id = mi.Id,
                 Name = mi.Name,
+                AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage
             }).ToList(),

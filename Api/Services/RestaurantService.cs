@@ -687,6 +687,7 @@ namespace Reservant.Api.Services
                 {
                     Id = i.Id,
                     Name = i.Name,
+                    AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
                 }).ToListAsync();
