@@ -74,7 +74,7 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
-        /// Adds an employee to the restaurant
+        /// Adds a list of employees to the restaurant
         /// </summary>
         /// <param name="request"></param>
         /// <param name="id"></param>
