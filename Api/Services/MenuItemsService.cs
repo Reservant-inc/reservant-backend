@@ -35,7 +35,7 @@ namespace Reservant.Api.Services
             var menuItem = new MenuItem()
             {
                 Price = req.Price,
-                Name = req.Name,
+                Name = req.Name.Trim(),
                 AlcoholPercentage = req.AlcoholPercentage,
                 RestaurantId = req.RestaurantId,
             };
