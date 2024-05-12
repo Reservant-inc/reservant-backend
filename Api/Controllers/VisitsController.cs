@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
@@ -18,8 +19,9 @@ public class VisitsController(VisitService visitService) : Controller
     {
         var result = await visitService.CreateVisitAsync(request);
 
+        if (!result.IsError) return Ok(result.Value);
 
-        return Ok();
+        return result.ToValidationProblem();
     }
     
     
