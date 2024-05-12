@@ -1,11 +1,17 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Visit;
 
 namespace Reservant.Api.Validators.Visit;
 
+/// <summary>
+/// Validator for CreateVisitRequest
+/// </summary>
 public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
 {
-    public CreateVisitRequestValidator()
+    /// <inheritdoc />
+    public CreateVisitRequestValidator(UserManager<User> userManager)
     {
         RuleFor(v => v.Date)
             .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
@@ -34,5 +40,15 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
         RuleForEach(v => v.Participants)
             .NotEmpty()
             .WithMessage("Participant names must not be empty.");
+        
+        RuleForEach(r => r.Participants)
+            .MustAsync(async (id, cancellation) => await UserExistsAsync(userManager, id))
+            .WithMessage("User with ID {PropertyValue} does not exist.");
+    }
+    
+    private static async Task<bool> UserExistsAsync(UserManager<User> userManager, string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        return user != null;
     }
 }
