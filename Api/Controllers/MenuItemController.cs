@@ -103,8 +103,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         if (res.IsError)
         {
-            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
-            return ValidationProblem();
+            return res.ToValidationProblem();
         }
 
         return NoContent();

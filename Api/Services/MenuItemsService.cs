@@ -3,7 +3,9 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
 {
@@ -173,14 +175,13 @@ namespace Reservant.Api.Services
 
         }
         /// <summary>
-        /// service that deletes a menu item 
+        /// service that deletes a menu item
         /// </summary>
         /// <param name="id">id of the menu item</param>
         /// <param name="user">owner of the item</param>
         /// <returns></returns>
         public async Task<Result<bool>> DeleteMenuItemByIdAsync(int id, User user)
         {
-            var errors = new List<ValidationResult>();
             var menuItem = await context.MenuItems.Where(m => m.Id == id)
                 .Include(item => item.Restaurant)
                 .ThenInclude(restaurant => restaurant.Group)
@@ -188,12 +189,18 @@ namespace Reservant.Api.Services
 
             if (menuItem == null)
             {
-                errors.Add(new ValidationResult("No item found."));
-                return errors;
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "No item found."
+                };
             }
             if (menuItem.Restaurant.Group.OwnerId != user.Id) {
-                errors.Add(new ValidationResult("Item does not belong to the user."));
-                return errors;
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.AccessDenied,
+                    ErrorMessage = "Item does not belong to the user."
+                };
             }
 
             context.Remove(menuItem);
