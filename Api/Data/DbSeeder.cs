@@ -119,7 +119,7 @@ public class DbSeeder(
 
         context.RestaurantGroups.Add(kowalskisGroup);
 
-        await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
+        var kowalskisRestaurant = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
         (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -154,7 +154,114 @@ public class DbSeeder(
             BirthDate = new DateOnly(2000, 1, 1)
         })).OrThrow();
 
+        var visits = new List<Visit>
+        {
+            new Visit
+            {
+                Date = new DateOnly(2024, 1, 1),
+                NumberOfGuests = 1,
+                PaymentTime = new DateTime(2024, 1, 1, 19, 32, 00),
+                Deposit = null,
+                ReservationDate = null,
+                Tip = null,
+                Takeaway = true,
+                TableRestaurantId = 3,
+                TableId = 1,
+                ClientId = customer1.Id,
+                Client = customer1,
+                IsDeleted = false,
+            },
+            new Visit
+            {
+                Date = new DateOnly(2024, 1, 1),
+                NumberOfGuests = 1,
+                PaymentTime = new DateTime(2024, 1, 1, 22, 32, 00),
+                Deposit = null,
+                ReservationDate = null,
+                Tip = 10m,
+                Takeaway = false,
+                TableRestaurantId = 3,
+                TableId = 2,
+                ClientId = customer2.Id,
+                Client = customer2,
+                IsDeleted = false,
+            },
+            new Visit
+            {
+                Date = new DateOnly(2024, 1, 1),
+                NumberOfGuests = 1,
+                PaymentTime = new DateTime(2024, 1, 1, 15, 32, 00),
+                Deposit = null,
+                ReservationDate = null,
+                Tip = 25m,
+                Takeaway = false,
+                TableRestaurantId = 3,
+                TableId = 1,
+                ClientId = customer2.Id,
+                Client = customer2,
+                IsDeleted = false,
+            },
+        };
 
+        context.Visits.AddRange(visits);
+
+        var orders = new List<Order>
+        {
+            new Order
+            {
+                VisitId = visits.First().Id,
+                IsDeleted = false,
+                OrderItems = new List<OrderItem>
+                {
+                    new OrderItem
+                    {
+                        Amount = 1,
+                        MenuItemId = 8,
+                        Status = OrderStatus.Taken,
+                    }
+                },
+                Visit = visits.First()
+            },
+            new Order
+            {
+                VisitId = visits[1].Id,
+                IsDeleted = false,
+                OrderItems = new List<OrderItem>
+                {
+                    new OrderItem
+                    {
+                        Amount = 1,
+                        MenuItemId = 6,
+                        Status = OrderStatus.Cancelled,
+                    }
+                },
+                Visit = visits[1]
+            },
+            new Order
+            {
+                VisitId = visits[2].Id,
+                IsDeleted = false,
+                OrderItems = new List<OrderItem>
+                {
+                    new OrderItem
+                    {
+                        Amount = 1,
+                        MenuItemId = 6,
+                        Status = OrderStatus.Taken,
+                    },
+                    new OrderItem
+                    {
+                        Amount = 1,
+                        MenuItemId = 7,
+                        Status = OrderStatus.Taken,
+                    }
+                },
+                Visit = visits[2]
+            }
+        };
+
+
+        context.Orders.AddRange(orders);
 
 
         await context.SaveChangesAsync();
@@ -524,7 +631,7 @@ public class DbSeeder(
             johnDoe.Id);
     }
 
-    private async Task CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup, User verifier)
+    private async Task<Restaurant> CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup, User verifier)
     {
         var kowalskisRestaurant = new Restaurant
         {
@@ -631,5 +738,7 @@ public class DbSeeder(
         });
 
         await context.SaveChangesAsync();
+
+        return kowalskisRestaurant;
     }
 }
