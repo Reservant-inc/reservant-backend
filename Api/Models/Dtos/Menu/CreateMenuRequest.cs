@@ -12,6 +12,12 @@ public class CreateMenuRequest
     /// </summary>
     [Required]
     public int RestaurantId { get; set; }
+    
+    /// <summary>
+    /// Name of the menu
+    /// </summary>
+    [Required]
+    public required string Name { get; set; }
 
     /// <summary>
     /// Typ menu

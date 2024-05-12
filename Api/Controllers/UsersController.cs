@@ -22,8 +22,7 @@ namespace Reservant.Api.Controllers
             var result = await userService.MakeRestaurantOwnerAsync(id);
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
             User user = result.Value;
             if (user == null){ return NotFound(); }
@@ -45,8 +44,7 @@ namespace Reservant.Api.Controllers
 
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
            
             var emp = result.Value;
@@ -81,8 +79,7 @@ namespace Reservant.Api.Controllers
 
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
 
             var emp = result.Value;

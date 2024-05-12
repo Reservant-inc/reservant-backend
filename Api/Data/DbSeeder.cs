@@ -262,6 +262,7 @@ public class DbSeeder(
 
         context.Menus.Add(new Menu
         {
+            Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
@@ -287,6 +288,7 @@ public class DbSeeder(
 
         context.Menus.Add(new Menu
         {
+            Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
             MenuType = MenuType.Alcohol,
@@ -428,6 +430,7 @@ public class DbSeeder(
 
         context.Menus.Add(new Menu
         {
+            Name = "Menu jedzeniowe 2",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,

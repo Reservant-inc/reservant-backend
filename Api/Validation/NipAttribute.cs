@@ -13,15 +13,12 @@ public sealed class NipAttribute : ValidationAttribute
     private static readonly Regex Regex1 = new(@"^\d{10}$", RegexOptions.Compiled);
     private static readonly int[] Weights = new[] { 6, 5, 7, 2, 3, 4, 5, 6, 7 };
 
-    /// <inheritdoc />
-    public override bool IsValid(object? value)
+    /// <summary>
+    /// Returns true if <paramref name="value"/> is a valid NIP, false otherwise
+    /// </summary>
+    public static bool IsValidNip(string value)
     {
-        if (value is not string strValue)
-        {
-            return false;
-        }
-        
-        if (!Regex1.IsMatch(strValue))
+        if (!Regex1.IsMatch(value))
         {
             return false;
         }
@@ -41,6 +38,17 @@ public sealed class NipAttribute : ValidationAttribute
         // }
         //
         // return checksum == (strValue[9] - '0');
+    }
+
+    /// <inheritdoc />
+    public override bool IsValid(object? value)
+    {
+        if (value is not string strValue)
+        {
+            return false;
+        }
+
+        return IsValidNip(strValue);
     }
 
     /// <inheritdoc />

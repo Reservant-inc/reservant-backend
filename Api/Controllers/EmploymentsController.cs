@@ -28,8 +28,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         var result = await employmentService.DeleteEmploymentAsync(employmentId, userId);
         if (result.IsError)
         {
-            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-            return ValidationProblem();
+            return result.ToValidationProblem();
         }
 
         return Ok();

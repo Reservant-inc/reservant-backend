@@ -43,8 +43,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
 
         if (result.IsError)
         {
-            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return ValidationProblem();
+            return result.ToValidationProblem();
         }
 
         return Created(result.Value.Id.ToString(), "");
@@ -116,8 +115,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return Ok(result.Value);
         }
 
-        ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-        return BadRequest(ModelState);
+        return result.ToValidationProblem();
     }
 
     /// <summary>
@@ -134,8 +132,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
 
         if (result.IsError)
         {
-            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-            return BadRequest(ModelState);
+            return result.ToValidationProblem();
         }
 
         return NoContent();

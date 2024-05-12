@@ -13,6 +13,12 @@ public class Menu : ISoftDeletable
     /// </summary>
     [Key]
     public int Id { get; set; }
+    
+    /// <summary>
+    /// Name of the menu
+    /// </summary>
+    [Required, StringLength(20)]
+    public required string Name { get; set; }
 
     /// <summary>
     /// Typ menu
