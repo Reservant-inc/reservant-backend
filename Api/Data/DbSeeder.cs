@@ -132,7 +132,30 @@ public class DbSeeder(
             BirthDate = new DateOnly(2000, 1, 1)
         }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
 
-        
+        var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            Login = "cust1",
+            Email = "customer@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Ewa",
+            LastName = "Przykładowska",
+            PhoneNumber = "+48123456789",
+            BirthDate = new DateOnly(2000, 1, 1)
+        })).OrThrow();
+
+        var customer2 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            Login = "cust2",
+            Email = "customer@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Kacper",
+            LastName = "Testowy",
+            PhoneNumber = "+48123456789",
+            BirthDate = new DateOnly(2000, 1, 1)
+        })).OrThrow();
+
+
+
 
         await context.SaveChangesAsync();
     }
