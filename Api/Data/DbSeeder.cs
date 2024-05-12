@@ -56,6 +56,25 @@ public class DbSeeder(
             }
         );
 
+        var bok1 = (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
+        {
+            Email = "support@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Pracownik BOK",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789"
+        }, "fced96c1-dad9-49ff-a598-05e1c5e433aa")).OrThrow();
+
+        var bok2 = (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
+        {
+            Email = "manager@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Kierownik BOK",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456789",
+            IsManager = true
+        }, "3f97a9d9-21b5-40ae-b178-bfe071de723c")).OrThrow();
+
         var johnDoe = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             FirstName = "John",
@@ -75,8 +94,8 @@ public class DbSeeder(
         };
         context.RestaurantGroups.Add(johnDoesGroup);
 
-        await CreateJohnDoesRestaurant(johnDoe, johnDoesGroup);
-        await CreateJohnDoes2Restaurant(johnDoe, johnDoesGroup);
+        await CreateJohnDoesRestaurant(johnDoe, johnDoesGroup, bok1);
+        await CreateJohnDoes2Restaurant(johnDoe, johnDoesGroup, bok2);
 
 
         var kowalski = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -100,7 +119,7 @@ public class DbSeeder(
 
         context.RestaurantGroups.Add(kowalskisGroup);
 
-        await CreateKowalskisRestaurant(kowalski, kowalskisGroup);
+        await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
         (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -113,29 +132,12 @@ public class DbSeeder(
             BirthDate = new DateOnly(2000, 1, 1)
         }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
 
-        (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
-        {
-            Email = "support@mail.com",
-            Password = "Pa$$w0rd",
-            FirstName = "Pracownik BOK",
-            LastName = "Przykładowski",
-            PhoneNumber = "+48123456789"
-        }, "fced96c1-dad9-49ff-a598-05e1c5e433aa")).OrThrow();
-
-        (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
-        {
-            Email = "manager@mail.com",
-            Password = "Pa$$w0rd",
-            FirstName = "Kierownik BOK",
-            LastName = "Przykładowski",
-            PhoneNumber = "+48123456789",
-            IsManager = true
-        }, "3f97a9d9-21b5-40ae-b178-bfe071de723c")).OrThrow();
+        
 
         await context.SaveChangesAsync();
     }
 
-    private async Task CreateJohnDoesRestaurant(User johnDoe, RestaurantGroup johnDoesGroup)
+    private async Task CreateJohnDoesRestaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
         var johnDoes = new Restaurant
         {
@@ -186,7 +188,7 @@ public class DbSeeder(
             Tags = await context.RestaurantTags
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
-            VerifierId = null!,
+            VerifierId = verifier.Id,
             IsDeleted = false
         };
 
@@ -368,7 +370,7 @@ public class DbSeeder(
             johnDoe.Id);
     }
 
-    private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup)
+    private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
         var johnDoes2 = new Restaurant
         {
@@ -420,7 +422,7 @@ public class DbSeeder(
             Tags = context.RestaurantTags
                 .Where(rt => rt.Name == "OnSite")
                 .ToList(),
-            VerifierId = null!,
+            VerifierId = verifier.Id,
             IsDeleted = false
         };
         johnDoes2.Tables = new List<Table>
@@ -499,7 +501,7 @@ public class DbSeeder(
             johnDoe.Id);
     }
 
-    private async Task CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup)
+    private async Task CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup, User verifier)
     {
         var kowalskisRestaurant = new Restaurant
         {
@@ -551,7 +553,7 @@ public class DbSeeder(
             Tags = context.RestaurantTags
                 .Where(rt => rt.Name == "Asian" || rt.Name == "Takeaway")
                 .ToList(),
-            VerifierId = null!,
+            VerifierId = verifier.Id,
             IsDeleted = false
         };
         kowalskisRestaurant.Tables = new List<Table>
