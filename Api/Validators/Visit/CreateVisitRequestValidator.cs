@@ -22,7 +22,7 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
             .WithMessage("There must be at least one guest.");
 
         RuleFor(v => v.Tip)
-            .Must(tip => tip == null || tip >= 0)
+            .Must(tip => tip is null or >= 0)
             .WithMessage("Tip must be a non-negative value.");
 
         RuleFor(v => v.Takeaway)
