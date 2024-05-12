@@ -6,6 +6,8 @@ using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
+using Azure.Core;
+using Reservant.Api.Validators.Restaurant;
 
 namespace Reservant.Api.Services
 {
@@ -13,7 +15,7 @@ namespace Reservant.Api.Services
     /// Service for creating and finding menu items
     /// </summary>
     /// <param name="context"></param>
-    public class MenuItemsService(ApiDbContext context, FileUploadService uploadService)
+    public class MenuItemsService(ApiDbContext context, FileUploadService uploadService, ValidationService validationService)
     {
         /// <summary>
         /// Validates and creates given menuItems
@@ -21,12 +23,22 @@ namespace Reservant.Api.Services
         /// <param name="user">The current user, must be a restaurant owner</param>
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
-        public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
+        public async Task<Result<MenuItem>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
-            var errors = new List<ValidationResult>();
+            Restaurant? restaurant;
 
-            var isRestaurantValid = await ValidateRestaurant(user, req.RestaurantId);
-            
+            restaurant = await context.Restaurants.FindAsync(req.RestaurantId);
+
+            if (restaurant is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(req.RestaurantId),
+                    ErrorMessage = $"Restaurant with ID {req.RestaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
             var photo = await uploadService.ProcessUploadNameAsync(
                 req.PhotoFileName,
                 user.Id,
@@ -34,12 +46,18 @@ namespace Reservant.Api.Services
                 nameof(req.PhotoFileName));
             if (photo.IsError)
             {
-                return photo.Errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(req.PhotoFileName),
+                    ErrorMessage = "Error processing the photo upload.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
-            if (isRestaurantValid.IsError)
+            var result = await validationService.ValidateAsync(req);
+            if (!result.IsValid)
             {
-                return isRestaurantValid.Errors;
+                return result;
             }
 
             var menuItem = new MenuItem()
@@ -53,25 +71,16 @@ namespace Reservant.Api.Services
             };
 
 
-
-            if (!ValidationUtils.TryValidate(menuItem, errors))
+            result = await validationService.ValidateAsync(menuItem);
+            if (!result.IsValid)
             {
-                return errors;
+                return result;
             }
-
 
             await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
 
-            return new MenuItemVM()
-            {
-                Id = menuItem.Id,
-                Name = menuItem.Name,
-                AlternateName = menuItem.AlternateName,
-                Price = menuItem.Price,
-                AlcoholPercentage = menuItem.AlcoholPercentage,
-                Photo = photo.Value
-            };
+            return menuItem;
 
         }
 
