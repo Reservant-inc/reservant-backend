@@ -653,6 +653,7 @@ namespace Reservant.Api.Services
                 {
                     Id = menu.Id,
                     Name = menu.Name,
+                    AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,
                     DateFrom = menu.DateFrom,
                     DateUntil = menu.DateUntil
