@@ -15,7 +15,7 @@ public class VisitsController(VisitService visitService) : Controller
     [HttpPost()]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult<VisitVM>> CreateVisit(CreateVisitRequest request)
+    public async Task<ActionResult<VisitSummaryVM>> CreateVisit(CreateVisitRequest request)
     {
         var result = await visitService.CreateVisitAsync(request);
 
