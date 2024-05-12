@@ -1,3 +1,6 @@
+using Reservant.Api.Models.Dtos.Visit;
+using Reservant.Api.Validation;
+
 namespace Reservant.Api.Services;
 
 /// <summary>
@@ -5,4 +8,12 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class VisitService
 {
+
+    public Task<Result<VisitVM>> CreateVisitAsync(CreateVisitRequest request)
+    {
+        return null;
+    }
+    
+    
+    
 }
