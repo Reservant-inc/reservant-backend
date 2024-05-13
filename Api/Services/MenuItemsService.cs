@@ -15,7 +15,10 @@ namespace Reservant.Api.Services
     /// Service for creating and finding menu items
     /// </summary>
     /// <param name="context"></param>
-    public class MenuItemsService(ApiDbContext context, FileUploadService uploadService, ValidationService validationService)
+    public class MenuItemsService(
+        ApiDbContext context,
+        FileUploadService uploadService,
+        ValidationService validationService)
     {
         /// <summary>
         /// Validates and creates given menuItems
@@ -35,21 +38,6 @@ namespace Reservant.Api.Services
                 {
                     PropertyName = nameof(req.RestaurantId),
                     ErrorMessage = $"Restaurant with ID {req.RestaurantId} not found",
-                    ErrorCode = ErrorCodes.NotFound
-                };
-            }
-
-            var photo = await uploadService.ProcessUploadNameAsync(
-                req.PhotoFileName,
-                user.Id,
-                FileClass.Image,
-                nameof(req.PhotoFileName));
-            if (photo.IsError)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(req.PhotoFileName),
-                    ErrorMessage = "Error processing the photo upload.",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
@@ -81,7 +69,6 @@ namespace Reservant.Api.Services
             await context.SaveChangesAsync();
 
             return menuItem;
-
         }
 
 
@@ -102,7 +89,7 @@ namespace Reservant.Api.Services
             if (item == null)
             {
                 errors.Add(new ValidationResult(
-                   $"MenuItem: {menuItemId} not found"
+                    $"MenuItem: {menuItemId} not found"
                 ));
                 return errors;
             }
@@ -116,7 +103,6 @@ namespace Reservant.Api.Services
                 AlcoholPercentage = item.AlcoholPercentage,
                 Photo = uploadService.GetPathForFileName(item.PhotoFileName)
             };
-
         }
 
         public async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
@@ -153,40 +139,39 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<Result<MenuItemVM>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
+        public async Task<Result<MenuItem>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
         {
-            var errors = new List<ValidationResult>();
-
             var item = await context.MenuItems
                 .Include(r => r.Restaurant)
                 .Include(r => r.Restaurant!.Group)
                 .FirstOrDefaultAsync(i => i.Id == id);
-            
-            var photo = await uploadService.ProcessUploadNameAsync(
-                request.PhotoFileName,
-                user.Id,
-                FileClass.Image,
-                nameof(request.PhotoFileName));
-            if (photo.IsError)
-            {
-                return photo.Errors;
-            }
 
-            if (item == null)
+
+            if (item is null)
             {
-                errors.Add(new ValidationResult(
-                   $"MenuItem: {id} not found"
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(item.Id),
+                    ErrorMessage = $"MenuItem: {id} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             //check if menuitem belongs to a restaurant owned by user
             if (item.Restaurant!.Group!.OwnerId != user.Id)
             {
-                errors.Add(new ValidationResult(
-                   $"MenuItem: {id} doesn't belong to a restaurant owned by the user"
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(item.Id),
+                    ErrorMessage = $"MenuItem: {id} doesn't belong to a restaurant owned by the user",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            var result = await validationService.ValidateAsync(request);
+            if (!result.IsValid)
+            {
+                return result;
             }
 
             item.Price = request.Price;
@@ -195,24 +180,19 @@ namespace Reservant.Api.Services
             item.AlcoholPercentage = request.AlcoholPercentage;
             item.PhotoFileName = request.PhotoFileName;
 
-            if (!ValidationUtils.TryValidate(item, errors))
+
+            result = await validationService.ValidateAsync(item);
+            if (!result.IsValid)
             {
-                return errors;
+                return result;
             }
 
+            await context.MenuItems.AddRangeAsync(item);
             await context.SaveChangesAsync();
 
-            return new MenuItemVM()
-            {
-                Id = item.Id,
-                Price = item.Price,
-                Name = item.Name,
-                AlternateName = item.AlternateName,
-                AlcoholPercentage = item.AlcoholPercentage,
-                Photo = photo.Value,
-            };
-
+            return item;
         }
+
         /// <summary>
         /// service that deletes a menu item
         /// </summary>
@@ -234,7 +214,9 @@ namespace Reservant.Api.Services
                     ErrorMessage = "No item found."
                 };
             }
-            if (menuItem.Restaurant.Group.OwnerId != user.Id) {
+
+            if (menuItem.Restaurant.Group.OwnerId != user.Id)
+            {
                 return new ValidationFailure
                 {
                     ErrorCode = ErrorCodes.AccessDenied,
