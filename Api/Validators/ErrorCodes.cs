@@ -35,4 +35,9 @@ public static class ErrorCodes
     /// Must be a valid postal code (e.g. 00-000)
     /// </summary>
     public const string PostalCode = "PostalCode";
+
+    /// <summary>
+    /// There is an error in the logic of the given argument
+    /// </summary>
+    public const string LogicError = "LogicalError";
 }

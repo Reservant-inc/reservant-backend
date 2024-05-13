@@ -211,13 +211,14 @@ namespace Reservant.Api.Services
         {
             foreach (var request in listRequest)
             {
-                if (!request.IsBackdoorEmployee && !request.IsHallEmployee)
+
+                if (!(request.IsBackdoorEmployee && request.IsHallEmployee))
                 {
-                    return new List<ValidationResult>
-                {
-                    new($"Employee must have at least one role",
-                        [nameof(request.IsBackdoorEmployee), nameof(request.IsHallEmployee)])
-                };
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request),
+                        ErrorCode = ErrorCodes.LogicError
+                    };
                 }
 
                 var restaurantOwnerId = await context.Restaurants
@@ -226,38 +227,40 @@ namespace Reservant.Api.Services
                     .FirstOrDefaultAsync();
                 if (restaurantOwnerId is null)
                 {
-                    return new List<ValidationResult>
-                {
-                    new($"Restaurant with ID {restaurantId} not found")
-                };
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(restaurantOwnerId),
+                        ErrorCode = ErrorCodes.NotFound
+                    };
                 }
 
                 if (restaurantOwnerId != employerId)
                 {
-                    return new List<ValidationResult>
-                {
-                    new("User is not the owner of the restaurant")
-                };
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(employerId),
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
                 }
 
                 var employee = await context.Users.FindAsync(request.Id);
                 if (employee is null)
                 {
-                    return new List<ValidationResult>
-                {
-                    new($"User with ID {request.Id} not found",
-                        [nameof(request.Id)])
-                };
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(employee),
+                        ErrorCode = ErrorCodes.NotFound
+                    };
                 }
 
                 if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
                     || employee.EmployerId != employerId)
                 {
-                    return new List<ValidationResult>
-                {
-                    new($"User with ID {request.Id} is not current user's employee",
-                        [nameof(request.Id)])
-                };
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(employerId),
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
                 }
 
                 var currentEmployment = await context.Employments
@@ -266,21 +269,22 @@ namespace Reservant.Api.Services
 
                 if (currentEmployment != null)
                 {
-                    return new List<ValidationResult>
-                {
-                    new ("Employee is currently employed at this restaurant")
-                };
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(currentEmployment),
+                        ErrorCode = ErrorCodes.LogicError
+                    };
                 }
-
-                context.Employments.Add(new Employment
-                {
-                    EmployeeId = request.Id,
-                    RestaurantId = restaurantId,
-                    IsBackdoorEmployee = request.IsBackdoorEmployee,
-                    IsHallEmployee = request.IsHallEmployee,
-                    DateFrom = DateOnly.FromDateTime(DateTime.Now)
-                });
             }
+
+            await context.Employments.AddRangeAsync(listRequest.Select(r => new Employment
+            {
+                EmployeeId = r.Id,
+                RestaurantId = restaurantId,
+                IsBackdoorEmployee = r.IsBackdoorEmployee,
+                IsHallEmployee = r.IsHallEmployee,
+                DateFrom = DateOnly.FromDateTime(DateTime.Now)
+            }));
             await context.SaveChangesAsync();
             return true;
         }
