@@ -26,6 +26,11 @@ public class MenuItemSummaryVM
     public required string Name { get; set; }
 
     /// <summary>
+    /// Name in another language
+    /// </summary>
+    public required string? AlternateName { get; set; }
+
+    /// <summary>
     /// Zawartość alkoholu
     /// </summary>
     [Range(0, 100)]

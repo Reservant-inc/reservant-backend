@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers;
 /// <param name="service"></param>
 
 [ApiController, Route("/menu-items")]
-public class MenuItemController(UserManager<User> userManager, MenuItemsService service): Controller
+public class MenuItemController(UserManager<User> userManager, MenuItemsService service) : Controller
 {
 
     /// <summary>
@@ -35,8 +35,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         if (res.IsError)
         {
-            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
-            return ValidationProblem();
+            return res.ToValidationProblem();
         }
 
         return Created("", res.Value);
@@ -59,8 +58,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         if (res.IsError)
         {
-            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
-            return ValidationProblem();
+            return res.ToValidationProblem();
         }
 
 
@@ -84,11 +82,31 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         if (res.IsError)
         {
-            ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
-            return ValidationProblem();
+            return res.ToValidationProblem();
         }
 
         return Ok(res.Value);
+    }
+    /// <summary>
+    /// Deletes chosen menu item
+    /// </summary>
+    /// <param name="id">id of the menu item to delete</param>
+    /// <returns></returns>
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    public async Task<ActionResult> DeleteMenuItemByIdAsync(int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var res = await service.DeleteMenuItemByIdAsync(id, user);
+
+        if (res.IsError)
+        {
+            return res.ToValidationProblem();
+        }
+
+        return NoContent();
     }
 
 }

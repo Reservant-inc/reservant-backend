@@ -3,7 +3,11 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
+using Azure.Core;
+using Reservant.Api.Validators.Restaurant;
 
 namespace Reservant.Api.Services
 {
@@ -11,7 +15,7 @@ namespace Reservant.Api.Services
     /// Service for creating and finding menu items
     /// </summary>
     /// <param name="context"></param>
-    public class MenuItemsService(ApiDbContext context, FileUploadService uploadService)
+    public class MenuItemsService(ApiDbContext context, FileUploadService uploadService, ValidationService validationService)
     {
         /// <summary>
         /// Validates and creates given menuItems
@@ -19,12 +23,22 @@ namespace Reservant.Api.Services
         /// <param name="user">The current user, must be a restaurant owner</param>
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
-        public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
+        public async Task<Result<MenuItem>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
-            var errors = new List<ValidationResult>();
+            Restaurant? restaurant;
 
-            var isRestaurantValid = await ValidateRestaurant(user, req.RestaurantId);
-            
+            restaurant = await context.Restaurants.FindAsync(req.RestaurantId);
+
+            if (restaurant is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(req.RestaurantId),
+                    ErrorMessage = $"Restaurant with ID {req.RestaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
             var photo = await uploadService.ProcessUploadNameAsync(
                 req.PhotoFileName,
                 user.Id,
@@ -32,42 +46,41 @@ namespace Reservant.Api.Services
                 nameof(req.PhotoFileName));
             if (photo.IsError)
             {
-                return photo.Errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(req.PhotoFileName),
+                    ErrorMessage = "Error processing the photo upload.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
-            if (isRestaurantValid.IsError)
+            var result = await validationService.ValidateAsync(req);
+            if (!result.IsValid)
             {
-                return isRestaurantValid.Errors;
+                return result;
             }
 
             var menuItem = new MenuItem()
             {
                 Price = req.Price,
-                Name = req.Name,
+                Name = req.Name.Trim(),
+                AlternateName = req.AlternateName?.Trim(),
                 AlcoholPercentage = req.AlcoholPercentage,
                 RestaurantId = req.RestaurantId,
                 PhotoFileName = req.PhotoFileName
             };
 
 
-  
-            if (!ValidationUtils.TryValidate(menuItem, errors))
+            result = await validationService.ValidateAsync(menuItem);
+            if (!result.IsValid)
             {
-                return errors;
+                return result;
             }
-            
 
             await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
 
-            return new MenuItemVM()
-            {
-                Id = menuItem.Id,
-                Name = menuItem.Name,
-                Price = menuItem.Price,
-                AlcoholPercentage = menuItem.AlcoholPercentage,
-                Photo = photo.Value
-            };
+            return menuItem;
 
         }
 
@@ -96,8 +109,9 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id= item.Id,
+                Id = item.Id,
                 Name = item.Name,
+                AlternateName = item.AlternateName,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
                 Photo = uploadService.GetPathForFileName(item.PhotoFileName)
@@ -177,6 +191,7 @@ namespace Reservant.Api.Services
 
             item.Price = request.Price;
             item.Name = request.Name.Trim();
+            item.AlternateName = request.AlternateName?.Trim();
             item.AlcoholPercentage = request.AlcoholPercentage;
             item.PhotoFileName = request.PhotoFileName;
 
@@ -192,10 +207,44 @@ namespace Reservant.Api.Services
                 Id = item.Id,
                 Price = item.Price,
                 Name = item.Name,
+                AlternateName = item.AlternateName,
                 AlcoholPercentage = item.AlcoholPercentage,
                 Photo = photo.Value,
             };
-            
+
+        }
+        /// <summary>
+        /// service that deletes a menu item
+        /// </summary>
+        /// <param name="id">id of the menu item</param>
+        /// <param name="user">owner of the item</param>
+        /// <returns></returns>
+        public async Task<Result<bool>> DeleteMenuItemByIdAsync(int id, User user)
+        {
+            var menuItem = await context.MenuItems.Where(m => m.Id == id)
+                .Include(item => item.Restaurant)
+                .ThenInclude(restaurant => restaurant.Group)
+                .FirstOrDefaultAsync();
+
+            if (menuItem == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "No item found."
+                };
+            }
+            if (menuItem.Restaurant.Group.OwnerId != user.Id) {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.AccessDenied,
+                    ErrorMessage = "Item does not belong to the user."
+                };
+            }
+
+            context.Remove(menuItem);
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

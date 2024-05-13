@@ -38,8 +38,7 @@ namespace Reservant.Api.Controllers
             var result = await restaurantService.CreateRestaurantAsync(request, user);
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
 
             return Ok();
@@ -88,8 +87,7 @@ namespace Reservant.Api.Controllers
             var result = await restaurantService.AddEmployeeAsync(request, id, userId!);
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
 
             return Ok();
@@ -103,8 +101,7 @@ namespace Reservant.Api.Controllers
             var result = await restaurantService.MoveRestaurantToGroupAsync(id, request, user);
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
 
             return Ok(result.Value);
@@ -127,8 +124,7 @@ namespace Reservant.Api.Controllers
             var result = await restaurantService.GetEmployeesAsync(id, userId);
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
 
             return Ok(result.Value);
@@ -153,8 +149,8 @@ namespace Reservant.Api.Controllers
             {
                 return Ok(result.Value);
             }
-            ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-            return ValidationProblem();
+
+            return result.ToValidationProblem();
         }
 
         /// <summary>
@@ -171,8 +167,7 @@ namespace Reservant.Api.Controllers
 
             if (result.IsError)
             {
-                ValidationUtils.AddErrorsToModel(result.Errors, ModelState);
-                return ValidationProblem();
+                return result.ToValidationProblem();
             }
 
             return Ok();
@@ -189,7 +184,10 @@ namespace Reservant.Api.Controllers
         {
             var result = await restaurantService.GetMenusAsync(id);
 
-            if (result.IsNullOrEmpty()) return NotFound($"Menus with id {id} not found.");
+            if (result == null)
+            {
+                return NotFound();
+            }
 
             return Ok(result);
         }
@@ -209,8 +207,7 @@ namespace Reservant.Api.Controllers
 
             if (res.IsError)
             {
-                ValidationUtils.AddErrorsToModel(res.Errors!, ModelState);
-                return ValidationProblem();
+                return res.ToValidationProblem();
             }
 
             return Ok(res.Value);

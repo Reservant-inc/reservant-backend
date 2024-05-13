@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// File upload
 /// </summary>
-public class FileUpload
+public class FileUpload : ISoftDeletable
 {
     /// <summary>
     /// Name of the file on disk
@@ -29,4 +30,7 @@ public class FileUpload
     /// Navigation property for the user who uploaded the file
     /// </summary>
     public User? User { get; set; }
+
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }

@@ -47,8 +47,7 @@ public class AuthController(
         var user = await userManager.GetUserAsync(User);
         var result = await userService.RegisterRestaurantEmployeeAsync(request, user);
         if (result.IsError) {
-            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return ValidationProblem();
+            return result.ToValidationProblem();
         }
 
         var employee = result.Value;
@@ -70,8 +69,7 @@ public class AuthController(
         var result = await userService.RegisterCustomerSupportAgentAsync(request);
         if (result.IsError)
         {
-            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return ValidationProblem();
+            return result.ToValidationProblem();
         }
 
         var user = result.Value;
@@ -134,8 +132,7 @@ public class AuthController(
         var result = await userService.RegisterCustomerAsync(request);
         if (result.IsError)
         {
-            ValidationUtils.AddErrorsToModel(result.Errors!, ModelState);
-            return ValidationProblem();
+            return result.ToValidationProblem();
         }
 
         var user = result.Value;

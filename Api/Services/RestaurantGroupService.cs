@@ -140,9 +140,10 @@ public class RestaurantGroupService(
 
         if (restaurantGroup == null)
         {
-            return new Result<RestaurantGroupVM>([
-                new ValidationResult($"RestaurantGroup with ID {groupId} not found.")
-            ]);
+            return new List<ValidationResult>
+            {
+                new($"RestaurantGroup with ID {groupId} not found.")
+            };
         }
 
         return new Result<RestaurantGroupVM>(new RestaurantGroupVM

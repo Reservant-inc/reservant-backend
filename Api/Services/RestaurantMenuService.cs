@@ -8,6 +8,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
+using Reservant.Api.Validators;
+using ValidationFailure = FluentValidation.Results.ValidationFailure;
 
 namespace Reservant.Api.Services;
 
@@ -18,7 +20,7 @@ namespace Reservant.Api.Services;
 /// <param name="context">context</param>
 public class RestaurantMenuService(ApiDbContext context, FileUploadService uploadService)
 {
-    
+
     /// <summary>
     /// Returns a menu with given Id 
     /// </summary>
@@ -27,19 +29,21 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     public async Task<Result<MenuVM?>> GetSingleMenuAsync(int menuId)
     {
         var errors = new List<ValidationResult>();
-        
+
         var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId);
         if (!menuExists)
             errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
 
         if (!errors.IsNullOrEmpty()) return errors;
-             
+
         var menu = await context.Menus
             .Include(m => m.MenuItems)
             .Where(m => m.Id == menuId)
             .Select(m => new MenuVM
             {
                 Id = m.Id,
+                Name = m.Name,
+                AlternateName = m.AlternateName,
                 MenuType = m.MenuType,
                 DateFrom = m.DateFrom,
                 DateUntil = m.DateUntil,
@@ -47,13 +51,14 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
                 {
                     Id = mi.Id,
                     Name = mi.Name,
+                    AlternateName = mi.AlternateName,
                     Price = mi.Price,
                     AlcoholPercentage = mi.AlcoholPercentage,
                     Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
                 }).ToList()
             })
             .FirstOrDefaultAsync();
-        
+
         return menu;
     }
 
@@ -73,19 +78,20 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         if (restaurant == null)
         {
-            errors.Add(new ValidationResult($"Restaurant with ID: {req.RestaurantId} not found.", [nameof(req.RestaurantId) ]));
+            errors.Add(new ValidationResult($"Restaurant with ID: {req.RestaurantId} not found.", [nameof(req.RestaurantId)]));
         }
         else
         {
             if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
                 errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {req.RestaurantId}.", [nameof(req.RestaurantId)]));
         }
-        
-        if(!errors.IsNullOrEmpty()) return errors;
+
+        if (!errors.IsNullOrEmpty()) return errors;
 
 
         var newMenu = new Menu
         {
+            Name = req.Name.Trim(),
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
@@ -102,6 +108,8 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
         var menuSummary = new MenuSummaryVM
         {
             Id = newMenu.Id,
+            Name = newMenu.Name,
+            AlternateName = newMenu.AlternateName,
             MenuType = newMenu.MenuType,
             DateFrom = newMenu.DateFrom,
             DateUntil = newMenu.DateUntil
@@ -109,22 +117,22 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         return menuSummary;
     }
-    
-    
+
+
     public async Task<Result<MenuVM>> AddItemsToMenuAsync(int menuId, AddItemsRequest request, User user)
     {
-        
+
         var errors = new List<ValidationResult>();
-        
+
         var menuToUpdate = await context.Menus
             .Include(m => m.MenuItems)
             .Include(m => m.Restaurant!)
             .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync(m => m.Id == menuId);
-        
+
         if (menuToUpdate == null)
         {
-            errors.Add(new ValidationResult($"Menu with id ${menuId} not found.", [nameof(menuId) ]));
+            errors.Add(new ValidationResult($"Menu with id ${menuId} not found.", [nameof(menuId)]));
             return errors;
         }
 
@@ -135,7 +143,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             errors.Add(new ValidationResult($"User is not the owner of the restaurant that contains menu ID: {menuToUpdate.Id}.", [nameof(menuToUpdate.Id)]));
             return errors;
         }
-        
+
         var menuItemsToAdd = await context.MenuItems
             .Where(item => request.ItemIds.Contains(item.Id))
             .ToListAsync();
@@ -151,7 +159,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
                 [nameof(request.ItemIds)]));
             return errors;
         }
-        
+
         var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.Id)).ToList();
         if (nonExistentItemIds.Any())
         {
@@ -168,15 +176,17 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
                 menuToUpdate.MenuItems.Add(item);
             }
         }
-        
+
         if (!ValidationUtils.TryValidate(menuToUpdate, errors))
             return errors;
-        
+
         await context.SaveChangesAsync();
-    
+
         return new MenuVM
         {
             Id = menuToUpdate.Id,
+            Name = menuToUpdate.Name,
+            AlternateName = menuToUpdate.AlternateName,
             MenuType = menuToUpdate.MenuType,
             DateFrom = menuToUpdate.DateFrom,
             DateUntil = menuToUpdate.DateUntil,
@@ -184,6 +194,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             {
                 Id = mi.Id,
                 Name = mi.Name,
+                AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage,
                 Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
@@ -194,7 +205,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
         var errors = new List<ValidationResult>();
-        
+
         // Getting menu
         var menu = await context.Menus
             .Where(m => m.Id == menuId)
@@ -209,7 +220,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
             return errors;
         }
-        
+
         // Checking ownership of menu
         if (menu.Restaurant!.Group!.OwnerId != user.Id)
         {
@@ -217,6 +228,8 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             return errors;
         }
 
+        menu.Name = request.Name.Trim();
+        menu.AlternateName = request.AlternateName?.Trim();
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
@@ -230,6 +243,8 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         return new MenuVM()
         {
+            Name = menu.Name,
+            AlternateName = menu.AlternateName,
             DateFrom = menu.DateFrom,
             DateUntil = menu.DateUntil,
             Id = menu.Id,
@@ -237,11 +252,41 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             {
                 Id = mi.Id,
                 Name = mi.Name,
+                AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage,
                 Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
             }).ToList(),
             MenuType = menu.MenuType
         };
+    }
+    public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
+    {
+        var menu = await context.Menus.Where(m => m.Id == id)
+            .Include(m => m.Restaurant)
+            .ThenInclude(r => r.Group)
+            .FirstOrDefaultAsync();
+
+        if (menu == null)
+        {
+            return new ValidationFailure
+            {
+                ErrorMessage = "Menu not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (menu.Restaurant.Group.OwnerId != user.Id)
+        {
+            return new ValidationFailure
+            {
+                ErrorMessage = "Menu is not owned by user",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        context.Remove(menu);
+        await context.SaveChangesAsync();
+        return true;
     }
 }

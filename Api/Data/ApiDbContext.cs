@@ -28,6 +28,12 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
     public DbSet<MenuItem> MenuItems { get; init; } = null!;
 
+    public DbSet<Visit> Visits { get; init; } = null!;
+
+    public DbSet<Order> Orders { get; init; } = null!;
+
+    public DbSet<OrderItem> OrderItems { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
@@ -52,6 +58,11 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
             new RestaurantTag { Name = "Tag1" },
             new RestaurantTag { Name = "Tag2" }
         ]);
+
+        builder.Entity<OrderItem>(eb =>
+        {
+            eb.HasKey(oi => new { oi.MenuItemId, oi.OrderId });
+        });
 
         var softDeletableEntities =
             from prop in GetType().GetProperties()

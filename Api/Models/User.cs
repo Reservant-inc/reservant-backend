@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// One class for all user classes.
 /// </summary>
-public class User : IdentityUser
+public class User : IdentityUser, ISoftDeletable
 {
     /// <summary>
     /// Imię.
@@ -75,4 +76,7 @@ public class User : IdentityUser
     /// </summary>
     /// <returns></returns>
     public ICollection<Employment>? Employments { get; set; }
+
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }

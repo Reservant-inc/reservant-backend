@@ -7,6 +7,18 @@ namespace Reservant.Api.Models.Dtos.Menu;
 /// </summary>
 public class UpdateMenuRequest
 {
+    
+    /// <summary>
+    /// Name of the menu
+    /// </summary>
+    [Required]
+    public required string Name { get; set; }
+
+    /// <summary>
+    /// Name of the menu in another language
+    /// </summary>
+    public string? AlternateName { get; set; }
+
     /// <summary>
     /// Typ menu
     /// </summary>
