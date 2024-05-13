@@ -37,7 +37,7 @@ public static class ErrorCodes
     public const string PostalCode = "PostalCode";
 
     /// <summary>
-    /// There is an error in the logic of the given argument
+    /// Employee needs at least one role selected
     /// </summary>
-    public const string LogicError = "LogicalError";
+    public const string AtLeastOneRoleSelected = "AtLeastOneRoleSelected";
 }

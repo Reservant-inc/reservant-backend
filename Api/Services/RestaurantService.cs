@@ -212,19 +212,18 @@ namespace Reservant.Api.Services
             foreach (var request in listRequest)
             {
 
-                if (!(request.IsBackdoorEmployee && request.IsHallEmployee))
+                var result = await validationService.ValidateAsync(request);
+                if (!result.IsValid)
                 {
-                    return new ValidationFailure
-                    {
-                        PropertyName = nameof(request),
-                        ErrorCode = ErrorCodes.LogicError
-                    };
+                    return result;
                 }
 
                 var restaurantOwnerId = await context.Restaurants
                     .Where(r => r.Id == restaurantId)
                     .Select(r => r.Group!.OwnerId)
                     .FirstOrDefaultAsync();
+
+
                 if (restaurantOwnerId is null)
                 {
                     return new ValidationFailure
@@ -272,7 +271,7 @@ namespace Reservant.Api.Services
                     return new ValidationFailure
                     {
                         PropertyName = nameof(currentEmployment),
-                        ErrorCode = ErrorCodes.LogicError
+                        ErrorCode = ErrorCodes.AtLeastOneRoleSelected
                     };
                 }
             }
