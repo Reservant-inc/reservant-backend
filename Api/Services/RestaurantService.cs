@@ -202,7 +202,7 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Add the given employee to the given restaurant, acting as the given employer (restaurant owner)
+        /// Add employees to the given restaurant, acting as the given employer (restaurant owner)
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
         /// <param name="employerId">ID of the current user (restaurant owner)</param>

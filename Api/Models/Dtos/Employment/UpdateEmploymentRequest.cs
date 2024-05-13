@@ -6,6 +6,10 @@ namespace Reservant.Api.Models.Dtos.Employment;
 public class UpdateEmploymentRequest
 {
     /// <summary>
+    /// Id of the employment
+    /// </summary>
+    public int Id { get; set; }
+    /// <summary>
     /// Whether the employee is a hall employee (Pracownik sali)
     /// </summary>
     public bool IsHallEmployee { get; set; }
