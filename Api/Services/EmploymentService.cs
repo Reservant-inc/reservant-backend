@@ -52,7 +52,12 @@ public class EmploymentService(ApiDbContext context)
 
         return true;
     }
-
+    /// <summary>
+    /// Terminates all employments specified through ids in the list
+    /// </summary>
+    /// <param name="employmentIds"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public async Task<Result<bool>> DeleteBulkEmploymentAsync(List<int> employmentIds, User user)
     {
 
@@ -84,8 +89,10 @@ public class EmploymentService(ApiDbContext context)
 
             employments.Add(employment);
         }
-
-        context.RemoveRange(employments);
+        foreach (var employment in employments)
+        {
+            employment.DateUntil = DateOnly.FromDateTime(DateTime.Now);
+        }
         await context.SaveChangesAsync();
         return true;
     }

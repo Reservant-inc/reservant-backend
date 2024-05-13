@@ -34,6 +34,11 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         return Ok();
     }
 
+    /// <summary>
+    /// Terminate multiple employments by specifying a list of employment Ids.
+    /// </summary>
+    /// <param name="employmentIds"></param>
+    /// <returns></returns>
     [HttpDelete]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
