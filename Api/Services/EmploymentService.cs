@@ -1,7 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Validation;
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -25,23 +30,63 @@ public class EmploymentService(ApiDbContext context)
 
         if (employment == null)
         {
-            return new List<ValidationResult> {
-                new ValidationResult($"Employment with ID {employmentId} not found or already terminated")
+            return new ValidationFailure
+            {
+                PropertyName = nameof(Employment),
+                ErrorCode = ErrorCodes.NotFound
             };
         }
 
         var restaurantOwnerId = employment.Restaurant!.Group!.OwnerId;
         if (restaurantOwnerId != userId)
         {
-            return new List<ValidationResult>
+            return new ValidationFailure
             {
-                new("User is not the owner of the restaurant")
+                PropertyName = nameof(Employment),
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
         employment.DateUntil = DateOnly.FromDateTime(DateTime.Now);
         await context.SaveChangesAsync();
 
+        return true;
+    }
+
+    public async Task<Result<bool>> DeleteBulkEmploymentAsync(List<int> employmentIds, User user)
+    {
+
+        var employments = new List<Employment>();
+        foreach (var employmentId in employmentIds)
+        {
+            var employment = await context.Employments
+            .Include(e => e.Restaurant)
+            .ThenInclude(r => r.Group)
+            .FirstOrDefaultAsync(e => e.Id == employmentId && e.DateUntil == null);
+
+            if (employment == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(Employment),
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (employment.Restaurant.Group.OwnerId != user.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(Employment),
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            employments.Add(employment);
+        }
+
+        context.RemoveRange(employments);
+        await context.SaveChangesAsync();
         return true;
     }
 }

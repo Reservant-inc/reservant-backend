@@ -33,4 +33,17 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
 
         return Ok();
     }
+
+    [HttpDelete]
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) { 
+        var user = await userManager.GetUserAsync(User);
+        var result = await employmentService.DeleteBulkEmploymentAsync(employmentIds, user);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        return NoContent();
+    }
 }
