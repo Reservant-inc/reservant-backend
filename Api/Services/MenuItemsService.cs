@@ -26,7 +26,7 @@ namespace Reservant.Api.Services
         /// <param name="user">The current user, must be a restaurant owner</param>
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
-        public async Task<Result<MenuItem>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
+        public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
             Restaurant? restaurant;
 
@@ -68,7 +68,15 @@ namespace Reservant.Api.Services
             await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
 
-            return menuItem;
+            return new MenuItemVM()
+            {
+                Id = menuItem.Id,
+                Name = menuItem.Name,
+                AlternateName = menuItem.AlternateName,
+                Price = menuItem.Price,
+                AlcoholPercentage = menuItem.AlcoholPercentage,
+                Photo = menuItem.PhotoFileName
+            };
         }
 
 
@@ -139,7 +147,7 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<Result<MenuItem>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
+        public async Task<Result<MenuItemVM>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
         {
             var item = await context.MenuItems
                 .Include(r => r.Restaurant)
@@ -190,7 +198,15 @@ namespace Reservant.Api.Services
             await context.MenuItems.AddRangeAsync(item);
             await context.SaveChangesAsync();
 
-            return item;
+            return new MenuItemVM()
+            {
+                Id = item.Id,
+                Name = item.Name,
+                AlternateName = item.AlternateName,
+                Price = item.Price,
+                AlcoholPercentage = item.AlcoholPercentage,
+                Photo = item.PhotoFileName
+            };
         }
 
         /// <summary>
