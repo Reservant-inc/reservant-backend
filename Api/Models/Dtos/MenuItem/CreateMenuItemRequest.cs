@@ -28,6 +28,11 @@ namespace Reservant.Api.Models.Dtos.MenuItem
         public string Name { get; set; }
 
         /// <summary>
+        /// Name in another language
+        /// </summary>
+        public string? AlternateName { get; set; }
+
+        /// <summary>
         /// Zawartość alkoholu
         /// </summary>
         [Range(0, 100)]

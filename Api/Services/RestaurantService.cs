@@ -393,80 +393,34 @@ namespace Reservant.Api.Services
         /// <param name="user">User requesting a update</param>
         public async Task<Result<RestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
         {
-            var errors = new List<ValidationFailure>();
-
             var restaurant = await context.Restaurants
                 .Include(restaurant => restaurant.Group)
+                .Include(restaurant => restaurant.Tables!)
+                .Include(restaurant => restaurant.Photos!)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (restaurant == null)
             {
-                errors.Add(new ValidationFailure
+                return new ValidationFailure
                 {
-                    ErrorMessage = $"Restaurant with ID {id} not found."
-                });
-                return errors;
+                    ErrorMessage = $"Restaurant with ID {id} not found.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             if (restaurant.Group?.OwnerId != user.Id)
             {
-                errors.Add(new ValidationFailure
+                return new ValidationFailure
                 {
-                    ErrorMessage = "User is not the owner of this restaurant."
-                });
-                return errors;
+                    ErrorMessage = "User is not the owner of this restaurant.",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
             }
 
-            // Process file uploads directly
-            string? rentalContract = null;
-            if (request.RentalContract != null)
+            var result = await validationService.ValidateAsync(request);
+            if (!result.IsValid)
             {
-                var result = await uploadService.ProcessUploadNameAsync(request.RentalContract, user.Id, FileClass.Document, nameof(request.RentalContract));
-                if (result.IsError)
-                {
-                    errors.AddRange(result.Errors);
-                }
-                else
-                {
-                    rentalContract = result.Value;
-                }
-            }
-
-            string? alcoholLicense = null;
-            if (request.AlcoholLicense != null)
-            {
-                var result = await uploadService.ProcessUploadNameAsync(request.AlcoholLicense, user.Id, FileClass.Document, nameof(request.AlcoholLicense));
-                if (result.IsError)
-                {
-                    errors.AddRange(result.Errors);
-                }
-                else
-                {
-                    alcoholLicense = result.Value;
-                }
-            }
-
-            var businessPermissionResult = await uploadService.ProcessUploadNameAsync(request.BusinessPermission, user.Id, FileClass.Document, nameof(request.BusinessPermission));
-            if (businessPermissionResult.IsError)
-            {
-                errors.AddRange(businessPermissionResult.Errors);
-            }
-
-            var idCardResult = await uploadService.ProcessUploadNameAsync(request.IdCard, user.Id, FileClass.Document, nameof(request.IdCard));
-            if (idCardResult.IsError)
-            {
-                errors.AddRange(idCardResult.Errors);
-            }
-
-            var logoResult = await uploadService.ProcessUploadNameAsync(request.Logo, user.Id, FileClass.Image, nameof(request.Logo));
-            if (logoResult.IsError)
-            {
-                errors.AddRange(logoResult.Errors);
-            }
-
-            if (errors.Any())
-            {
-                return errors;
+                return result;
             }
 
             restaurant.Name = request.Name;
@@ -478,11 +432,11 @@ namespace Reservant.Api.Services
             restaurant.ProvideDelivery = request.ProvideDelivery;
             restaurant.Description = request.Description;
 
-            restaurant.RentalContractFileName = rentalContract;
-            restaurant.AlcoholLicenseFileName = alcoholLicense;
-            restaurant.BusinessPermissionFileName = businessPermissionResult.Value;
-            restaurant.IdCardFileName = idCardResult.Value;
-            restaurant.LogoFileName = logoResult.Value;
+            restaurant.RentalContractFileName = request.RentalContract;
+            restaurant.AlcoholLicenseFileName = request.AlcoholLicense;
+            restaurant.BusinessPermissionFileName = request.BusinessPermission;
+            restaurant.IdCardFileName = request.IdCard;
+            restaurant.LogoFileName = request.Logo;
 
 
             restaurant.Tags = await context.RestaurantTags
@@ -491,25 +445,12 @@ namespace Reservant.Api.Services
 
 
             // Update photos
-            var photos = new List<RestaurantPhoto>();
-            foreach (var (photo, order) in request.Photos.Select((photo, index) => (photo, index + 1)))
-            {
-                var result = await uploadService.ProcessUploadNameAsync(
-                    photo,
-                    user.Id,
-                    FileClass.Image,
-                    nameof(request.Photos));
-                if (result.IsError)
+            var photos = request.Photos
+                .Select((photo, index) => new RestaurantPhoto
                 {
-                    return result.Errors;
-                }
-
-                photos.Add(new RestaurantPhoto
-                {
-                    PhotoFileName = result.Value,
-                    Order = order
+                    PhotoFileName = photo,
+                    Order = index + 1
                 });
-            }
 
             restaurant.Photos!.Clear();
             foreach (var photo in photos)
@@ -517,51 +458,46 @@ namespace Reservant.Api.Services
                 restaurant.Photos.Add(photo);
             }
 
-            if (!ValidationUtils.TryValidate(restaurant, errors))
+            result = await validationService.ValidateAsync(restaurant);
+            if (!result.IsValid)
             {
-                return errors;
+                return result;
             }
 
             await context.SaveChangesAsync();
-            var newRestaurant = await context.Restaurants
-                .Where(r => r.Group!.OwnerId == user.Id)
-                .Where(r => r.Id == id)
-                .Select(r => new RestaurantVM
-                {
-                    Id = r.Id,
-                    Name = r.Name,
-                    RestaurantType = r.RestaurantType,
-                    Nip = r.Nip,
-                    Address = r.Address,
-                    PostalIndex = r.PostalIndex,
-                    City = r.City,
-                    GroupId = r.Group!.Id,
-                    GroupName = r.Group!.Name,
-                    RentalContract = r.RentalContractFileName == null
-                        ? null : uploadService.GetPathForFileName(r.RentalContractFileName),
-                    AlcoholLicense = r.AlcoholLicenseFileName == null
-                        ? null : uploadService.GetPathForFileName(r.AlcoholLicenseFileName),
-                    BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
-                    IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
-                    Tables = r.Tables!.Select(t => new TableVM
-                    {
-                        Id = t.Id,
-                        Capacity = t.Capacity
-                    }),
-                    Photos = r.Photos!
-                        .OrderBy(rp => rp.Order)
-                        .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
-                        .ToList(),
-                    ProvideDelivery = r.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                    Description = r.Description,
-                    Tags = r.Tags!.Select(t => t.Name).ToList(),
-                    IsVerified = r.VerifierId != null
-                })
-                .AsSplitQuery()
-                .FirstOrDefaultAsync();
 
-            return newRestaurant;
+            return new RestaurantVM
+            {
+                Id = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Nip = restaurant.Nip,
+                Address = restaurant.Address,
+                PostalIndex = restaurant.PostalIndex,
+                City = restaurant.City,
+                GroupId = restaurant.Group!.Id,
+                GroupName = restaurant.Group!.Name,
+                RentalContract = restaurant.RentalContractFileName == null
+                    ? null : uploadService.GetPathForFileName(restaurant.RentalContractFileName),
+                AlcoholLicense = restaurant.AlcoholLicenseFileName == null
+                    ? null : uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
+                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
+                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
+                Tables = restaurant.Tables!.Select(t => new TableVM
+                {
+                    Id = t.Id,
+                    Capacity = t.Capacity
+                }),
+                Photos = restaurant.Photos!
+                    .OrderBy(rp => rp.Order)
+                    .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
+                    .ToList(),
+                ProvideDelivery = restaurant.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Description = restaurant.Description,
+                Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
+                IsVerified = restaurant.VerifierId != null
+            };
         }
 
 
@@ -653,6 +589,7 @@ namespace Reservant.Api.Services
                 {
                     Id = menu.Id,
                     Name = menu.Name,
+                    AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,
                     DateFrom = menu.DateFrom,
                     DateUntil = menu.DateUntil
@@ -686,6 +623,7 @@ namespace Reservant.Api.Services
                 {
                     Id = i.Id,
                     Name = i.Name,
+                    AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
                 }).ToListAsync();

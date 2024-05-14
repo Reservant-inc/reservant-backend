@@ -28,6 +28,12 @@ public class MenuItem : ISoftDeletable
     public required string Name { get; set; }
 
     /// <summary>
+    /// Name in another language
+    /// </summary>
+    [StringLength(20)]
+    public string? AlternateName { get; set; }
+
+    /// <summary>
     /// Zawartość alkoholu
     /// </summary>
     [Range(0, 100), Column(TypeName = "decimal(4, 1)")]
