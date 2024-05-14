@@ -95,17 +95,6 @@ public class DbSeeder(
         }, "e5779baf-5c9b-4638-b9e7-ec285e57b367")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
-        var johnDoesGroup = new RestaurantGroup
-        {
-            Name = "John Doe's Restaurant Group",
-            OwnerId = johnDoe.Id
-        };
-        context.RestaurantGroups.Add(johnDoesGroup);
-
-        await CreateJohnDoesRestaurant(johnDoe, johnDoesGroup, bok1);
-        await CreateJohnDoes2Restaurant(johnDoe, johnDoesGroup, bok2);
-
-
         var kowalski = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             FirstName = "Krzysztof",
@@ -116,18 +105,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(2002, 1, 1)
         })).OrThrow();
-
         await userService.MakeRestaurantOwnerAsync(kowalski.Id);
-
-        var kowalskisGroup = new RestaurantGroup
-        {
-            Name = "Krzysztof Kowalski's Restaurant Group",
-            OwnerId = kowalski.Id
-        };
-
-        context.RestaurantGroups.Add(kowalskisGroup);
-
-        var kowalskisRestaurant = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
         (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -139,8 +117,6 @@ public class DbSeeder(
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
         }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
-
-        await AddExampleUploads();
 
         var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -163,6 +139,26 @@ public class DbSeeder(
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
         })).OrThrow();
+
+        var johnDoesGroup = new RestaurantGroup
+        {
+            Name = "John Doe's Restaurant Group",
+            OwnerId = johnDoe.Id
+        };
+        context.RestaurantGroups.Add(johnDoesGroup);
+
+        await CreateJohnDoesRestaurant(johnDoe, johnDoesGroup, bok1);
+        await CreateJohnDoes2Restaurant(johnDoe, johnDoesGroup, bok2);
+
+        var kowalskisGroup = new RestaurantGroup
+        {
+            Name = "Krzysztof Kowalski's Restaurant Group",
+            OwnerId = kowalski.Id
+        };
+
+        context.RestaurantGroups.Add(kowalskisGroup);
+
+        var kowalskisRestaurant = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
         var visits = new List<Visit>
         {
