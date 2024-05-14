@@ -102,7 +102,7 @@ public class DbSeeder(
         {
             FirstName = "Krzysztof",
             LastName = "Kowalski",
-            Login = "OK",
+            Login = "KK",
             Email = "krzysztof.kowalski@gmail.com",
             PhoneNumber = "+48999999999",
             Password = "Pa$$w0rd",
@@ -134,7 +134,7 @@ public class DbSeeder(
 
         var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
-            Login = "cust1",
+            Login = "customer2",
             Email = "customer@mail.com",
             Password = "Pa$$w0rd",
             FirstName = "Ewa",
@@ -145,7 +145,7 @@ public class DbSeeder(
 
         var customer2 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
-            Login = "cust2",
+            Login = "customer3",
             Email = "customer@mail.com",
             Password = "Pa$$w0rd",
             FirstName = "Kacper",
