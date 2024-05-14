@@ -1,6 +1,8 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -67,6 +69,23 @@ public static class CustomValidators
             .WithMessage("Must be a valid NIP");
     }
 
+    /// <summary>
+    /// Validates that the user exists in the database.
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> UserExists<T>(
+        this IRuleBuilder<T, string> builder,
+        UserManager<User> userManager)
+    {
+        return builder
+            .MustAsync(async (userId, cancellation) => 
+            {
+                var user = await userManager.FindByIdAsync(userId);
+                return user != null;
+            })
+            .WithErrorCode(ErrorCodes.Participants)
+            .WithMessage("User with ID {PropertyValue} does not exist.");
+    }
+    
     /// <summary>
     /// Validates that the property contains a valid postal code (e.g. 00-000).
     /// </summary>

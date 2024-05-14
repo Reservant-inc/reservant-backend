@@ -41,14 +41,9 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
             .NotEmpty()
             .WithMessage("Participant names must not be empty.");
         
-        RuleForEach(r => r.Participants)
-            .MustAsync(async (id, cancellation) => await UserExistsAsync(userManager, id))
+        RuleForEach(v => v.Participants)
+            .UserExists(userManager)
             .WithMessage("User with ID {PropertyValue} does not exist.");
     }
     
-    private static async Task<bool> UserExistsAsync(UserManager<User> userManager, string userId)
-    {
-        var user = await userManager.FindByIdAsync(userId);
-        return user != null;
-    }
 }

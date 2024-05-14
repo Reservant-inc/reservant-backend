@@ -35,4 +35,9 @@ public static class ErrorCodes
     /// Must be a valid postal code (e.g. 00-000)
     /// </summary>
     public const string PostalCode = "PostalCode";
+    
+    /// <summary>
+    /// Must be a valid postal code (e.g. 00-000)
+    /// </summary>
+    public const string Participants = "Participants";
 }
