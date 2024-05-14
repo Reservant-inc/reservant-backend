@@ -16,19 +16,6 @@ public class VisitsController(
     UserManager<User> userManager
     ) : Controller
 {
-    
-    [HttpGet()]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    public async Task<ActionResult<VisitSummaryVM>> GetVisits()
-    {
-        var user = await userManager.GetUserAsync(User);
-        var result = await visitService.GetVisitsAsync(user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
-    }
 
     [HttpPost()]
     [ProducesResponseType(200)]

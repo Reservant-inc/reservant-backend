@@ -20,22 +20,6 @@ public class VisitService(
     )
 {
 
-    public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync(User user)
-    {
-        return await context.Visits
-            .Where(v => v.ClientId == user.Id)
-            .Select(v => new VisitSummaryVM
-            {
-                Id = v.Id,
-                ClientId = user.Id,
-                Date = v.Date,
-                Takeaway = v.Takeaway,
-                RestaurantId = v.RestaurantId,
-                NumberOfPeople = v.NumberOfGuests
-            })
-            .ToListAsync();
-    }
-
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
         var restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
