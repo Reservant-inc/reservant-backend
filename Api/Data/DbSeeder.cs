@@ -140,6 +140,8 @@ public class DbSeeder(
             BirthDate = new DateOnly(2000, 1, 1)
         })).OrThrow();
 
+        await AddExampleUploads();
+
         var johnDoesGroup = new RestaurantGroup
         {
             Name = "John Doe's Restaurant Group",
@@ -321,8 +323,23 @@ public class DbSeeder(
         await context.SaveChangesAsync();
     }
 
+    private async Task<FileUpload> RequireFileUpload(string fileName, User owner)
+    {
+        var upload = await context.FileUploads.FirstOrDefaultAsync(x => x.FileName == fileName) ??
+               throw new InvalidDataException($"Upload {fileName} not found");
+        if (upload.UserId != owner.Id)
+        {
+            throw new InvalidDataException($"Upload {fileName} is not owned by {owner.UserName}");
+        }
+
+        return upload;
+    }
+
     private async Task CreateJohnDoesRestaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
+        var exampleImage = await RequireFileUpload("test-jd.png", johnDoe);
+        var exampleDocument = await RequireFileUpload("test-jd.pdf", johnDoe);
+
         var johnDoes = new Restaurant
         {
             Name = "John Doe's",
@@ -332,41 +349,15 @@ public class DbSeeder(
             PostalIndex = "00-000",
             City = "Warszawa",
             Group = johnDoesGroup,
-            RentalContractFileName = null!,
-            RentalContract = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "rental-contract-1.pdf",
-                ContentType = "application/pdf"
-            },
+            RentalContractFileName = null,
             AlcoholLicenseFileName = null!,
-            AlcoholLicense = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "alcohol-license-1.pdf",
-                ContentType = "application/pdf"
-            },
+            AlcoholLicense = exampleDocument,
             BusinessPermissionFileName = null!,
-            BusinessPermission = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "business-permission-1.pdf",
-                ContentType = "application/pdf"
-            },
+            BusinessPermission = exampleDocument,
             IdCardFileName = null!,
-            IdCard = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "id-card-1.pdf",
-                ContentType = "application/pdf"
-            },
+            IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "logo-1.png",
-                ContentType = "image/png"
-            },
+            Logo = exampleImage,
             ProvideDelivery = true,
             Description = "The first example restaurant",
             Tags = await context.RestaurantTags
@@ -411,60 +402,35 @@ public class DbSeeder(
                 Restaurant = johnDoes,
                 Order = 1,
                 PhotoFileName = null!,
-                Photo = new FileUpload
-                {
-                    UserId = johnDoe.Id,
-                    FileName = "photo-1.png",
-                    ContentType = "image/png"
-                }
+                Photo = exampleImage
             },
             new()
             {
                 Restaurant = johnDoes,
                 Order = 2,
                 PhotoFileName = null!,
-                Photo = new FileUpload
-                {
-                    UserId = johnDoe.Id,
-                    FileName = "photo-2.png",
-                    ContentType = "image/png"
-                }
+                Photo = exampleImage
             },
             new()
             {
                 Restaurant = johnDoes,
                 Order = 3,
                 PhotoFileName = null!,
-                Photo = new FileUpload
-                {
-                    UserId = johnDoe.Id,
-                    FileName = "photo-3.png",
-                    ContentType = "image/png"
-                }
+                Photo = exampleImage
             },
             new()
             {
                 Restaurant = johnDoes,
                 Order = 4,
                 PhotoFileName = null!,
-                Photo = new FileUpload
-                {
-                    UserId = johnDoe.Id,
-                    FileName = "photo-4.png",
-                    ContentType = "image/png"
-                }
+                Photo = exampleImage
             },
             new()
             {
                 Restaurant = johnDoes,
                 Order = 5,
                 PhotoFileName = null!,
-                Photo = new FileUpload
-                {
-                    UserId = johnDoe.Id,
-                    FileName = "photo-5.png",
-                    ContentType = "image/png"
-                }
+                Photo = exampleImage
             },
         };
 
@@ -556,6 +522,9 @@ public class DbSeeder(
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
+        var exampleImage = await RequireFileUpload("test-jd.png", johnDoe);
+        var exampleDocument = await RequireFileUpload("test-jd.pdf", johnDoe);
+
         var johnDoes2 = new Restaurant
         {
             Name = "John Doe's 2",
@@ -565,41 +534,14 @@ public class DbSeeder(
             PostalIndex = "00-000",
             City = "Warszawa",
             Group = johnDoesGroup,
-            RentalContractFileName = null!,
-            RentalContract = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "rental-contract-2.pdf",
-                ContentType = "application/pdf"
-            },
-            AlcoholLicenseFileName = null!,
-            AlcoholLicense = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "alcohol-license-2.pdf",
-                ContentType = "application/pdf"
-            },
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null,
             BusinessPermissionFileName = null!,
-            BusinessPermission = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "business-permission-2.pdf",
-                ContentType = "application/pdf"
-            },
+            BusinessPermission = exampleDocument,
             IdCardFileName = null!,
-            IdCard = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "id-card-2.pdf",
-                ContentType = "application/pdf"
-            },
+            IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = new FileUpload
-            {
-                UserId = johnDoe.Id,
-                FileName = "logo-2.png",
-                ContentType = "image/png"
-            },
+            Logo = exampleImage,
             ProvideDelivery = false,
             Description = "Another example restaurant",
             Photos = [],
@@ -687,6 +629,9 @@ public class DbSeeder(
 
     private async Task<Restaurant> CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup, User verifier)
     {
+        var exampleImage = await RequireFileUpload("test-kk.png", kowalski);
+        var exampleDocument = await RequireFileUpload("test-kk.pdf", kowalski);
+
         var kowalskisRestaurant = new Restaurant
         {
             Name = "Kowalski's",
@@ -696,41 +641,16 @@ public class DbSeeder(
             PostalIndex = "00-000",
             City = "Warszawa",
             Group = kowalskisGroup,
-            RentalContractFileName = null!,
-            RentalContract = new FileUpload
-            {
-                UserId = kowalski.Id,
-                FileName = "kowalskis-rental-contract.pdf",
-                ContentType = "application/pdf"
-            },
-            AlcoholLicenseFileName = null!,
-            AlcoholLicense = new FileUpload
-            {
-                UserId = kowalski.Id,
-                FileName = "kowalskis-alcohol-license.pdf",
-                ContentType = "application/pdf"
-            },
+            RentalContractFileName = null,
+            RentalContract = exampleDocument,
+            AlcoholLicenseFileName = null,
+            AlcoholLicense = exampleDocument,
             BusinessPermissionFileName = null!,
-            BusinessPermission = new FileUpload
-            {
-                UserId = kowalski.Id,
-                FileName = "kowalskis-business-permission.pdf",
-                ContentType = "application/pdf"
-            },
+            BusinessPermission = exampleDocument,
             IdCardFileName = null!,
-            IdCard = new FileUpload
-            {
-                UserId = kowalski.Id,
-                FileName = "kowalskis-id-card.pdf",
-                ContentType = "application/pdf"
-            },
+            IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = new FileUpload
-            {
-                UserId = kowalski.Id,
-                FileName = "kowalskis-logo.png",
-                ContentType = "image/png"
-            },
+            Logo = exampleImage,
             ProvideDelivery = false,
             Description = "Fake restaurant",
             Photos = [],
