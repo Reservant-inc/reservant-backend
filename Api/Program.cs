@@ -144,15 +144,15 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var debugService = scope.ServiceProvider.GetRequiredService<DebugService>();
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 
     if (app.Environment.IsProduction())
     {
-        await context.DropAllTablesAsync();
+        await debugService.RecreateDatabase();
     }
-
-    if (await context.Database.EnsureCreatedAsync())
+    else if (await context.Database.EnsureCreatedAsync())
     {
         await seeder.SeedDataAsync();
     }
