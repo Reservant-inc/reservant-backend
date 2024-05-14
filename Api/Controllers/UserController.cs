@@ -111,15 +111,15 @@ public class UserController(UserManager<User> userManager, UserService userServi
     /// <returns></returns>
     [HttpGet("visits")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<List<VisitSummaryVM>>> getVisits()
+    public async Task<ActionResult<List<VisitSummaryVM>>> GetVisits()
     {
-        var userId = userManager.GetUserId(User);
-        if (userId is null)
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
         {
             return Unauthorized();
         }
 
-        var result = await userService.getVisitsAsync(userId);
+        var result = await userService.GetVisitsAsync(user);
 
         if (result.IsError)
         {
@@ -129,24 +129,5 @@ public class UserController(UserManager<User> userManager, UserService userServi
         {
             return Ok(result.Value);
         }
-    }
-
-    /// <summary>
-    /// Get visit of provided id
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("visits/{id:int}")]
-    [ProducesResponseType(200)]
-    public async Task<ActionResult<List<VisitSummaryVM>>> getVisits(int id)
-    {
-        var result = await userService.GetVisitByIdAsync(id);
-
-        // if (result.IsError)
-        // {
-        //     return result.ToValidationProblem();
-        // }
-        if(result!=null)
-            return Ok(result);
-        return NotFound();
     }
 }

@@ -326,17 +326,23 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Result<List<VisitSummaryVM>>> getVisitsAsync( string? userId)
+    public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
     {
+        var errors = new List<ValidationResult>();
+        if (!ValidationUtils.TryValidate(user, errors))
+                {
+                    return errors;
+                }
+
         var list = await dbContext.Visits
-            .Where(x => x.ClientId == userId || (x.Participants != null && x.Participants.Any(p => p.Id == userId)))
+            .Where(x => x.ClientId == user.Id || (x.Participants != null && x.Participants.Any(p => p.Id == user.Id)))
             .ToListAsync();
 
         var resultList = list.Select(visit => new VisitSummaryVM
         {    
             Id=visit.Id,
             Date=visit.Date,
-            NumberOfPeople=visit.NumberOfGuests+1,
+            NumberOfPeople=visit.NumberOfGuests+(visit.Participants?.Count ?? 0)+1,
             Takeaway=visit.Takeaway,
             ClientId=visit.ClientId,
             RestaurantId=visit.RestaurantId
@@ -345,33 +351,5 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         return new Result<List<VisitSummaryVM>>(resultList);
     }
 
-    /// <summary>
-    /// Gets the visist oof provided id
-    /// </summary>
-    /// <param name="visitId"></param>
-    /// <returns></returns>
-    public async Task<VisitSummaryVM?> GetVisitByIdAsync(int visitId)
-    {
-        var visit = await dbContext.Visits
-            .Where(x => x.Id == visitId)
-            .FirstOrDefaultAsync();
-
-        if (visit == null)
-        {
-            return null;
-        }
-
-        var result = new VisitSummaryVM
-        {
-            Id = visit.Id,
-            Date = visit.Date,
-            NumberOfPeople = visit.NumberOfGuests + 1,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId
-        };
-
-        return result;
-    }
 }
 
