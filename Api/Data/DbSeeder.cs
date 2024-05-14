@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Options;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Data;
@@ -13,8 +16,13 @@ public class DbSeeder(
     ApiDbContext context,
     RoleManager<IdentityRole> roleManager,
     UserService userService,
-    RestaurantService restaurantService)
+    RestaurantService restaurantService,
+    ILogger<DbSeeder> logger,
+    IOptions<FileUploadsOptions> fileUploadsOptions)
 {
+    private const string ExampleUploadsPath = "./example-uploads";
+    private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
+
     public async Task SeedDataAsync()
     {
         await roleManager.CreateAsync(new IdentityRole(Roles.Customer));
@@ -131,6 +139,8 @@ public class DbSeeder(
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
         }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
+
+        await AddExampleUploads();
 
         var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -263,6 +273,54 @@ public class DbSeeder(
 
         context.Orders.AddRange(orders);
 
+
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Add file uploads for each file in <see cref="ExampleUploadsPath"/>
+    /// </summary>
+    /// <remarks>
+    /// The directory is expected to contain folders named after user logins
+    /// containing files to add for the respective user.
+    /// The files are uploaded with the same name.
+    /// </remarks>
+    private async Task AddExampleUploads()
+    {
+        foreach (var userFolder in Directory.GetDirectories(ExampleUploadsPath))
+        {
+            var userLogin = Path.GetFileName(userFolder);
+            var userId = await context.Users
+                .Where(u => u.UserName == userLogin)
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+
+            if (userId is null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot add example uploads for the user {userLogin}: no such user");
+            }
+
+            foreach (var filePath in Directory.GetFiles(userFolder))
+            {
+                if (!_contentTypeProvider.TryGetContentType(filePath, out var contentType))
+                {
+                    continue;
+                }
+
+                var fileName = Path.GetFileName(filePath);
+                File.Copy(filePath, Path.Combine(fileUploadsOptions.Value.SavePath, fileName));
+                context.Add(new FileUpload
+                {
+                    UserId = userId,
+                    FileName = fileName,
+                    ContentType = contentType
+                });
+
+                logger.LogInformation("Added example upload {} for user {} (Id: {})",
+                    fileName, userLogin, userId);
+            }
+        }
 
         await context.SaveChangesAsync();
     }
