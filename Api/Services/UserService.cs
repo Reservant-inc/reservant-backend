@@ -324,16 +324,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// <summary>
     /// Gets the list of visists of user of provided id
     /// </summary>
-    /// <param name="userId"></param>
+    /// <param name="user"></param>
     /// <returns></returns>
     public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
     {
-        var errors = new List<ValidationResult>();
-        if (!ValidationUtils.TryValidate(user, errors))
-                {
-                    return errors;
-                }
-
         var list = await dbContext.Visits
             .Where(x => x.ClientId == user.Id || (x.Participants != null && x.Participants.Any(p => p.Id == user.Id)))
             .ToListAsync();
