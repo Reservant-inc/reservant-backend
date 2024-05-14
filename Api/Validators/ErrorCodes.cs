@@ -37,7 +37,13 @@ public static class ErrorCodes
     public const string PostalCode = "PostalCode";
     
     /// <summary>
-    /// Must be a valid postal code (e.g. 00-000)
+    /// Must be a valid participants list
     /// </summary>
     public const string Participants = "Participants";
+    
+    /// <summary>
+    /// Must be a valid date (date >= Date.Now)
+    /// </summary>
+    public const string Date = "Date";
+    
 }

@@ -87,6 +87,16 @@ public static class CustomValidators
     }
     
     /// <summary>
+    /// Validates that the date is today or in the future.
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly> Date<T>(this IRuleBuilder<T, DateOnly> builder)
+    {
+        return builder
+            .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
+            .WithMessage("The date must be today or in the future.");
+    }
+    
+    /// <summary>
     /// Validates that the property contains a valid postal code (e.g. 00-000).
     /// </summary>
     public static IRuleBuilderOptions<T, string> PostalCode<T>(this IRuleBuilder<T, string> builder)

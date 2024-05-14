@@ -14,7 +14,8 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
     public CreateVisitRequestValidator(UserManager<User> userManager)
     {
         RuleFor(v => v.Date)
-            .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
+            .Date()
+            .WithErrorCode(ErrorCodes.Date)
             .WithMessage("The date must be today or in the future.");
 
         RuleFor(v => v.NumberOfGuests)
