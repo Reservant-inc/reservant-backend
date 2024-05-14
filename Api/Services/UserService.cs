@@ -19,7 +19,9 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Stuff for working with user records.
 /// </summary>
-public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
+public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
+    FileUploadService uploadService,
+    ValidationService validationService)
 {
     /// <summary>
     /// Used to generate restaurant employee's logins:
@@ -114,14 +116,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// <returns></returns>
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
     {
-        var errors = new List<ValidationResult>();
-        if (request.Login.Contains(RestaurantEmployeeLoginSeparator))
+        var result = await validationService.ValidateAsync(request);
+        if (!result.IsValid)
         {
-            errors.Add(new ValidationResult(
-                $"Login can't contain '{RestaurantEmployeeLoginSeparator}'.", [nameof(request.Login)]));
-            return errors;
+            return result;
         }
-
+        
         var user = new User
         {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -131,21 +131,16 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
-            RegisteredAt = DateTime.UtcNow
+            RegisteredAt = DateTime.UtcNow,
+            PhotoFileName = request.PhotoFileName
         };
-
-
-        if (!ValidationUtils.TryValidate(user, errors))
+        
+        result = await validationService.ValidateAsync(user);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
-
-        var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
-        {
-            return ValidationUtils.AsValidationErrors("", result);
-        }
-
+        
         await userManager.AddToRoleAsync(user, Roles.Customer);
 
         return user;
@@ -299,7 +294,11 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// <returns></returns>
     public async Task<Result<User>> PutUserAsync(UpdateUserDetailsRequest request, User user)
     {
-        var errors = new List<ValidationResult>();
+        var result = await validationService.ValidateAsync(request);
+        if (!result.IsValid)
+        {
+            return result;
+        }
 
         user.Email = request.Email.Trim();
         user.PhoneNumber = request.PhoneNumber.Trim();
@@ -307,9 +306,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
         user.LastName = request.LastName.Trim();
         user.BirthDate = request.BirthDate;
 
-        if (!ValidationUtils.TryValidate(user, errors))
+        result = await validationService.ValidateAsync(user);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await userManager.UpdateAsync(user);
