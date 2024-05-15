@@ -120,7 +120,7 @@ public static class CustomValidators
             }
 
             var userId = (string)context.RootContextData["UserId"];
-            return user.EmployerId == userId;
+            return userId is null || user.EmployerId == userId;
         })
         .WithErrorCode(ErrorCodes.MustBeCurrentUsersEmployee)
         .WithMessage(ErrorCodes.MustBeCurrentUsersEmployee);
