@@ -237,16 +237,19 @@ namespace Reservant.Api.Services
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(request.Id),
+                        PropertyName = null,
                         ErrorCode = ErrorCodes.AccessDenied
                     };
                 }
 
                 var employee = await context.Users.FindAsync(request.Id);
-                result = await validationService.ValidateAsync(employee);
-                if (!result.IsValid)
+                if (employee is null)
                 {
-                    return result;
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.Id),
+                        ErrorCode = ErrorCodes.NotFound
+                    };
                 }
 
                 if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
@@ -254,7 +257,7 @@ namespace Reservant.Api.Services
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(employerId),
+                        PropertyName = nameof(request.Id),
                         ErrorCode = ErrorCodes.AccessDenied
                     };
                 }
@@ -280,7 +283,7 @@ namespace Reservant.Api.Services
                 IsBackdoorEmployee = r.IsBackdoorEmployee,
                 IsHallEmployee = r.IsHallEmployee,
                 DateFrom = DateOnly.FromDateTime(DateTime.Now)
-            }));
+            }).Select(x => { Console.WriteLine(x.Id); return x;}));
             await context.SaveChangesAsync();
             return true;
         }
