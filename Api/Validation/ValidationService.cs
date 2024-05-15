@@ -22,10 +22,9 @@ public class ValidationService(
     public async Task<ValidationResult> ValidateAsync<T>(T instance)
     {
         var validationContext = new ValidationContext<T>(instance);
-        if (accessor.HttpContext is not null)
-        {
-            validationContext.RootContextData["UserId"] = userManager.GetUserId(accessor.HttpContext.User);
-        }
+        validationContext.RootContextData["UserId"] = accessor.HttpContext is not null
+            ? userManager.GetUserId(accessor.HttpContext.User)
+            : null;
 
         return await serviceProvider
             .GetRequiredService<IValidator<T>>()
