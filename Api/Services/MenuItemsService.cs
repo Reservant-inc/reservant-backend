@@ -159,7 +159,6 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(item.Id),
                     ErrorMessage = $"MenuItem: {id} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
@@ -170,7 +169,6 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(item.Id),
                     ErrorMessage = $"MenuItem: {id} doesn't belong to a restaurant owned by the user",
                     ErrorCode = ErrorCodes.AccessDenied
                 };
