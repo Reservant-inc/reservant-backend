@@ -311,6 +311,7 @@ public class RestaurantMenuService(ApiDbContext context)
             .Include(m => m.Menus)
             .ThenInclude(m => m.Restaurant)
             .ThenInclude(r => r.Group)
+            .Include(menuItem => menuItem.Restaurant)
             .Where(r => menuItemIds.Contains(r.Id))
             .ToListAsync();
 
@@ -319,7 +320,7 @@ public class RestaurantMenuService(ApiDbContext context)
         if (menu == null)
             return RemoveMenuItemResult.MenuNotFound;
 
-        var validMenuItems = menuItems.Where(m => m.Restaurant != null && m.Restaurant.Group != null && m.Restaurant.Group.Owner != null && m.Restaurant.Group.Owner.Id == user.Id);
+        var validMenuItems = menuItems.Where(m => m.Restaurant != null && m.Restaurant.Group != null && m.Restaurant.Group.OwnerId == user.Id);
 
         if (!validMenuItems.Any())
             return RemoveMenuItemResult.NoValidMenuItems;
