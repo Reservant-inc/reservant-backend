@@ -22,7 +22,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 {
 
     /// <summary>
-    /// Returns a menu with given Id 
+    /// Returns a menu with given Id
     /// </summary>
     /// <param name="menuId"> Id of the menu.</param>
     /// <returns></returns>
@@ -288,5 +288,53 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
         context.Remove(menu);
         await context.SaveChangesAsync();
         return true;
+    }
+
+
+    public enum RemoveMenuItemResult
+    {
+        Success,
+        MenuNotFound,
+        NoValidMenuItems
+    }
+
+    /// <summary>
+    /// Deletes Menue item from provided menue with given id
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="menueId"></param>
+    /// <param name="menuItemId"></param>
+    /// <returns>MenuItem</returns>
+    public async Task<RemoveMenuItemResult> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
+    {
+        var menuItemIds = req.ItemIds;
+
+        var menuItems = await context
+            .MenuItems
+            .Include(m => m.Menus)
+            .ThenInclude(m => m.Restaurant)
+            .ThenInclude(r => r.Group)
+            .Include(menuItem => menuItem.Restaurant)
+            .Where(r => menuItemIds.Contains(r.Id))
+            .ToListAsync();
+
+        var menu = await context.Menus.FirstOrDefaultAsync(m => m.Id == menuId);
+
+        if (menu == null)
+            return RemoveMenuItemResult.MenuNotFound;
+
+        var validMenuItems = menuItems.Where(m => m.Restaurant != null && m.Restaurant.Group != null && m.Restaurant.Group.OwnerId == user.Id);
+
+        if (!validMenuItems.Any())
+            return RemoveMenuItemResult.NoValidMenuItems;
+
+        foreach (var menuItem in validMenuItems)
+        {
+            menuItem.Menus.Remove(menu);
+        }
+
+        await context.SaveChangesAsync();
+
+        return RemoveMenuItemResult.Success;
     }
 }
