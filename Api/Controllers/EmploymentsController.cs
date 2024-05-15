@@ -44,7 +44,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [HttpPut]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests) { 
+    public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests) {
         var user = await userManager.GetUserAsync(User);
         var result = await employmentService.UpdateBulkEmploymentAsync(requests, user);
         if (result.IsError)
@@ -53,5 +53,23 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         }
 
         return Ok();
+    }
+
+    /// <summary>
+    /// Terminate multiple employments by specifying a list of employment Ids.
+    /// </summary>
+    /// <param name="employmentIds"></param>
+    /// <returns></returns>
+    [HttpDelete]
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) {
+        var user = await userManager.GetUserAsync(User);
+        var result = await employmentService.DeleteBulkEmploymentAsync(employmentIds, user);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        return NoContent();
     }
 }

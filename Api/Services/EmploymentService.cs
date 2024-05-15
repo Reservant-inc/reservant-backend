@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Reservant.Api.Data;
@@ -47,6 +49,51 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         }
 
         employment.DateUntil = DateOnly.FromDateTime(DateTime.Now);
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+    /// <summary>
+    /// Terminates all employments specified through ids in the list
+    /// </summary>
+    /// <param name="employmentIds"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<bool>> DeleteBulkEmploymentAsync(List<int> employmentIds, User user)
+    {
+
+        var employments = new List<Employment>();
+        foreach (var employmentId in employmentIds)
+        {
+            var employment = await context.Employments
+            .Include(e => e.Restaurant)
+            .ThenInclude(r => r.Group)
+            .FirstOrDefaultAsync(e => e.Id == employmentId && e.DateUntil == null);
+
+            if (employment == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = $"{employmentId}",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (employment.Restaurant.Group.OwnerId != user.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = $"{employmentId}",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            employments.Add(employment);
+        }
+        foreach (var employment in employments)
+        {
+            employment.DateUntil = DateOnly.FromDateTime(DateTime.Now);
+        }
         await context.SaveChangesAsync();
 
         return true;
