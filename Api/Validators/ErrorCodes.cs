@@ -42,8 +42,7 @@ public static class ErrorCodes
     public const string Participants = "Participants";
     
     /// <summary>
-    /// Must be a valid date (date >= Date.Now)
+    /// The date must be in the future
     /// </summary>
-    public const string Date = "Date";
-    
+    public const string DateMustBeInFuture = "DateMustBeInFuture";
 }
