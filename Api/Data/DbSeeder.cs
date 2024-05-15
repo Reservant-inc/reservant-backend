@@ -107,7 +107,7 @@ public class DbSeeder(
         })).OrThrow();
         await userService.MakeRestaurantOwnerAsync(kowalski.Id);
 
-        (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             Login = "customer",
             Email = "customer@mail.com",
@@ -118,7 +118,7 @@ public class DbSeeder(
             BirthDate = new DateOnly(2000, 1, 1)
         }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
 
-        var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        var customer2 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             Login = "customer2",
             Email = "customer@mail.com",
@@ -129,7 +129,7 @@ public class DbSeeder(
             BirthDate = new DateOnly(2000, 1, 1)
         })).OrThrow();
 
-        var customer2 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        var customer3 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             Login = "customer3",
             Email = "customer@mail.com",
@@ -178,6 +178,7 @@ public class DbSeeder(
                 ClientId = customer1.Id,
                 Client = customer1,
                 IsDeleted = false,
+                Participants = [customer2, customer3]
             },
             new Visit
             {
@@ -193,6 +194,7 @@ public class DbSeeder(
                 ClientId = customer2.Id,
                 Client = customer2,
                 IsDeleted = false,
+                Participants = [customer3]
             },
             new Visit
             {
