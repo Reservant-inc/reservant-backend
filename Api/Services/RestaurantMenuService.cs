@@ -43,6 +43,7 @@ public class RestaurantMenuService(ApiDbContext context)
             {
                 Id = m.Id,
                 Name = m.Name,
+                AlternateName = m.AlternateName,
                 MenuType = m.MenuType,
                 DateFrom = m.DateFrom,
                 DateUntil = m.DateUntil,
@@ -50,6 +51,7 @@ public class RestaurantMenuService(ApiDbContext context)
                 {
                     Id = mi.Id,
                     Name = mi.Name,
+                    AlternateName = mi.AlternateName,
                     Price = mi.Price,
                     AlcoholPercentage = mi.AlcoholPercentage
                 }).ToList()
@@ -106,6 +108,7 @@ public class RestaurantMenuService(ApiDbContext context)
         {
             Id = newMenu.Id,
             Name = newMenu.Name,
+            AlternateName = newMenu.AlternateName,
             MenuType = newMenu.MenuType,
             DateFrom = newMenu.DateFrom,
             DateUntil = newMenu.DateUntil
@@ -182,6 +185,7 @@ public class RestaurantMenuService(ApiDbContext context)
         {
             Id = menuToUpdate.Id,
             Name = menuToUpdate.Name,
+            AlternateName = menuToUpdate.AlternateName,
             MenuType = menuToUpdate.MenuType,
             DateFrom = menuToUpdate.DateFrom,
             DateUntil = menuToUpdate.DateUntil,
@@ -189,6 +193,7 @@ public class RestaurantMenuService(ApiDbContext context)
             {
                 Id = mi.Id,
                 Name = mi.Name,
+                AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage
             }).ToList()
@@ -222,6 +227,7 @@ public class RestaurantMenuService(ApiDbContext context)
         }
 
         menu.Name = request.Name.Trim();
+        menu.AlternateName = request.AlternateName?.Trim();
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
@@ -236,6 +242,7 @@ public class RestaurantMenuService(ApiDbContext context)
         return new MenuVM()
         {
             Name = menu.Name,
+            AlternateName = menu.AlternateName,
             DateFrom = menu.DateFrom,
             DateUntil = menu.DateUntil,
             Id = menu.Id,
@@ -243,6 +250,7 @@ public class RestaurantMenuService(ApiDbContext context)
             {
                 Id = mi.Id,
                 Name = mi.Name,
+                AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage
             }).ToList(),

@@ -3,7 +3,9 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
 {
@@ -33,18 +35,19 @@ namespace Reservant.Api.Services
             var menuItem = new MenuItem()
             {
                 Price = req.Price,
-                Name = req.Name,
+                Name = req.Name.Trim(),
+                AlternateName = req.AlternateName?.Trim(),
                 AlcoholPercentage = req.AlcoholPercentage,
                 RestaurantId = req.RestaurantId,
             };
 
 
-  
+
             if (!ValidationUtils.TryValidate(menuItem, errors))
             {
                 return errors;
             }
-            
+
 
             await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
@@ -53,6 +56,7 @@ namespace Reservant.Api.Services
             {
                 Id = menuItem.Id,
                 Name = menuItem.Name,
+                AlternateName = menuItem.AlternateName,
                 Price = menuItem.Price,
                 AlcoholPercentage = menuItem.AlcoholPercentage,
             };
@@ -84,8 +88,9 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id= item.Id,
+                Id = item.Id,
                 Name = item.Name,
+                AlternateName = item.AlternateName,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
             };
@@ -154,6 +159,7 @@ namespace Reservant.Api.Services
 
             item.Price = request.Price;
             item.Name = request.Name.Trim();
+            item.AlternateName = request.AlternateName?.Trim();
             item.AlcoholPercentage = request.AlcoholPercentage;
 
             if (!ValidationUtils.TryValidate(item, errors))
@@ -168,9 +174,43 @@ namespace Reservant.Api.Services
                 Id = item.Id,
                 Price = item.Price,
                 Name = item.Name,
+                AlternateName = item.AlternateName,
                 AlcoholPercentage = item.AlcoholPercentage,
             };
-            
+
+        }
+        /// <summary>
+        /// service that deletes a menu item
+        /// </summary>
+        /// <param name="id">id of the menu item</param>
+        /// <param name="user">owner of the item</param>
+        /// <returns></returns>
+        public async Task<Result<bool>> DeleteMenuItemByIdAsync(int id, User user)
+        {
+            var menuItem = await context.MenuItems.Where(m => m.Id == id)
+                .Include(item => item.Restaurant)
+                .ThenInclude(restaurant => restaurant.Group)
+                .FirstOrDefaultAsync();
+
+            if (menuItem == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "No item found."
+                };
+            }
+            if (menuItem.Restaurant.Group.OwnerId != user.Id) {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.AccessDenied,
+                    ErrorMessage = "Item does not belong to the user."
+                };
+            }
+
+            context.Remove(menuItem);
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

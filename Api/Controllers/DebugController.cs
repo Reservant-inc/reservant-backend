@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Reservant.Api.Data;
+using Reservant.Api.Services;
 
 namespace Reservant.Api.Controllers;
 
@@ -7,7 +7,7 @@ namespace Reservant.Api.Controllers;
 /// Debugging functions
 /// </summary>
 [ApiController, Route("/debug")]
-public class DebugController(ApiDbContext context, DbSeeder seeder)
+public class DebugController(DebugService debugService) : Controller
 {
     /// <summary>
     /// Use this if you get a "no such column" error
@@ -15,8 +15,6 @@ public class DebugController(ApiDbContext context, DbSeeder seeder)
     [HttpPost("recreate-database")]
     public async Task RecreateDatabase()
     {
-        await context.DropAllTablesAsync();
-        await context.Database.EnsureCreatedAsync();
-        await seeder.SeedDataAsync();
+        await debugService.RecreateDatabase();
     }
 }
