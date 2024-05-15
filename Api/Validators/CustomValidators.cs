@@ -101,7 +101,10 @@ public static class CustomValidators
             .WithMessage(ErrorCodes.AtLeastOneRoleSelected);
     }
 
-    public static IRuleBuilderOptions<T, string> UserExists<T>(this IRuleBuilder<T, string> builder, ApiDbContext db)
+    /// <summary>
+    /// Validate that the given ID corresponds to current user's employee
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> CurrentUsersEmployee<T>(this IRuleBuilder<T, string> builder, ApiDbContext db)
     {
         return builder.MustAsync(async (_, value, context, _) =>
         {
@@ -115,13 +118,11 @@ public static class CustomValidators
             {
                 return false;
             }
-            if (user.EmployerId is null) 
-            {
-                return true;
-            }
-            return false;
+
+            var userId = (string)context.RootContextData["UserId"];
+            return user.EmployerId == userId;
         })
-        .WithErrorCode(ErrorCodes.NotFound)
-        .WithMessage(ErrorCodes.NotFound);
+        .WithErrorCode(ErrorCodes.MustBeCurrentUsersEmployee)
+        .WithMessage(ErrorCodes.MustBeCurrentUsersEmployee);
     }
 }

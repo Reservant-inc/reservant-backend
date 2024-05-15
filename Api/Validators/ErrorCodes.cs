@@ -42,4 +42,9 @@ public static class ErrorCodes
     public const string AtLeastOneRoleSelected = "AtLeastOneRoleSelected";
 
     public const string EmployeeAlreadyEmployed = "EmployeeAlreadyEmployed";
+
+    /// <summary>
+    /// The user must be current user's employee
+    /// </summary>
+    public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
 }
