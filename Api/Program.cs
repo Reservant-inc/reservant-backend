@@ -148,6 +148,12 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 
+    var fileUploadsOptions = scope.ServiceProvider.GetRequiredService<IOptions<FileUploadsOptions>>().Value;
+    if (!Path.Exists(fileUploadsOptions.GetFullSavePath()))
+    {
+        Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
+    }
+
     if (app.Environment.IsProduction())
     {
         await debugService.RecreateDatabase();
@@ -166,11 +172,6 @@ app.UseSwaggerUI();
 using (var scope = app.Services.CreateScope())
 {
     var fileUploadsOptions = scope.ServiceProvider.GetRequiredService<IOptions<FileUploadsOptions>>().Value;
-    if (!Path.Exists(fileUploadsOptions.GetFullSavePath()))
-    {
-        Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
-    }
-
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(fileUploadsOptions.GetFullSavePath()),
