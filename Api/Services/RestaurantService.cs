@@ -209,6 +209,21 @@ namespace Reservant.Api.Services
         /// <returns>The bool returned inside the result does not mean anything</returns>
         public async Task<Result<bool>> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId, string employerId)
         {
+            var restaurantOwnerId = await context.Restaurants
+                    .Where(r => r.Id == restaurantId)
+                    .Select(r => r.Group!.OwnerId)
+                    .FirstOrDefaultAsync();
+
+
+            if (restaurantOwnerId is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
             foreach (var request in listRequest)
             {
 
@@ -218,38 +233,20 @@ namespace Reservant.Api.Services
                     return result;
                 }
 
-                var restaurantOwnerId = await context.Restaurants
-                    .Where(r => r.Id == restaurantId)
-                    .Select(r => r.Group!.OwnerId)
-                    .FirstOrDefaultAsync();
-
-
-                if (restaurantOwnerId is null)
-                {
-                    return new ValidationFailure
-                    {
-                        PropertyName = nameof(restaurantOwnerId),
-                        ErrorCode = ErrorCodes.NotFound
-                    };
-                }
-
                 if (restaurantOwnerId != employerId)
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(employerId),
+                        PropertyName = nameof(request.Id),
                         ErrorCode = ErrorCodes.AccessDenied
                     };
                 }
 
                 var employee = await context.Users.FindAsync(request.Id);
-                if (employee is null)
+                result = await validationService.ValidateAsync(employee);
+                if (!result.IsValid)
                 {
-                    return new ValidationFailure
-                    {
-                        PropertyName = nameof(employee),
-                        ErrorCode = ErrorCodes.NotFound
-                    };
+                    return result;
                 }
 
                 if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
@@ -270,8 +267,8 @@ namespace Reservant.Api.Services
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(currentEmployment),
-                        ErrorCode = ErrorCodes.AtLeastOneRoleSelected
+                        PropertyName = nameof(request.Id), // zwracane jest Id pracownika, jako wskaźnik gdzie jest błąd
+                        ErrorCode = ErrorCodes.EmployeeAlreadyEmployed
                     };
                 }
             }

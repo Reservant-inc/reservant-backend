@@ -40,4 +40,6 @@ public static class ErrorCodes
     /// Employee needs at least one role selected
     /// </summary>
     public const string AtLeastOneRoleSelected = "AtLeastOneRoleSelected";
+
+    public const string EmployeeAlreadyEmployed = "EmployeeAlreadyEmployed";
 }

@@ -1,8 +1,10 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Reservant.Api.Validators;
 
@@ -83,7 +85,7 @@ public static class CustomValidators
     /// <typeparam name="T"></typeparam>
     /// <param name="builder"></param>
     /// <returns></returns>
-    public static IRuleBuilderOptions<T, Tuple<bool,bool>> AtLeastOneEmployeeRole<T>(this IRuleBuilder<T, Tuple<bool,bool>> builder)
+    public static IRuleBuilderOptions<T, Tuple<bool, bool>> AtLeastOneEmployeeRole<T>(this IRuleBuilder<T, Tuple<bool, bool>> builder)
     {
         return builder
             .MustAsync(async (_, value, context, _) =>
@@ -97,5 +99,29 @@ public static class CustomValidators
             })
             .WithErrorCode(ErrorCodes.AtLeastOneRoleSelected)
             .WithMessage(ErrorCodes.AtLeastOneRoleSelected);
+    }
+
+    public static IRuleBuilderOptions<T, string> UserExists<T>(this IRuleBuilder<T, string> builder, ApiDbContext db)
+    {
+        return builder.MustAsync(async (_, value, context, _) =>
+        {
+            if (value is null)
+            {
+                return false;
+            }
+
+            var user = await db.Users.FindAsync(value);
+            if (user is null)
+            {
+                return false;
+            }
+            if (user.EmployerId is null) 
+            {
+                return true;
+            }
+            return false;
+        })
+        .WithErrorCode(ErrorCodes.NotFound)
+        .WithMessage(ErrorCodes.NotFound);
     }
 }

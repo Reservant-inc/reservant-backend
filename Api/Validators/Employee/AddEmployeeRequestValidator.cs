@@ -10,9 +10,10 @@ namespace Reservant.Api.Validators.Employee
     public class AddEmployeeRequestValidator : AbstractValidator<AddEmployeeRequest>
     {
 
-        public AddEmployeeRequestValidator() {
+        public AddEmployeeRequestValidator(ApiDbContext context) {
             RuleFor(e => e.Id)
-                .NotNull();
+                .NotNull()
+                .UserExists(context);
 
             RuleFor(e => new Tuple<bool,bool>(e.IsHallEmployee, e.IsBackdoorEmployee))
                 .AtLeastOneEmployeeRole();
