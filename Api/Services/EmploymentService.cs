@@ -32,7 +32,7 @@ public class EmploymentService(ApiDbContext context)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(Employment),
+                PropertyName = nameof(employment),
                 ErrorCode = ErrorCodes.NotFound
             };
         }
@@ -42,7 +42,7 @@ public class EmploymentService(ApiDbContext context)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(Employment),
+                PropertyName = nameof(employment),
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }
@@ -73,7 +73,7 @@ public class EmploymentService(ApiDbContext context)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(Employment),
+                    PropertyName = nameof(employment),
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
@@ -82,7 +82,7 @@ public class EmploymentService(ApiDbContext context)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(Employment),
+                    PropertyName = nameof(employment),
                     ErrorCode = ErrorCodes.AccessDenied
                 };
             }
