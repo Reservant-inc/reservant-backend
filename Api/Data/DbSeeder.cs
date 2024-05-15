@@ -494,11 +494,13 @@ public class DbSeeder(
             PhoneNumber = "+48123456789"
         }, johnDoe, "22781e02-d83a-44ef-8cf4-735e95d9a0b2")).OrThrow();
         await restaurantService.AddEmployeeAsync(
-            new AddEmployeeRequest
+            new List<AddEmployeeRequest> {
+                new AddEmployeeRequest
             {
                 Id = hallEmployee.Id,
                 IsBackdoorEmployee = false,
                 IsHallEmployee = true
+            }
             },
             johnDoes.Id,
             johnDoe.Id);
@@ -512,11 +514,13 @@ public class DbSeeder(
             PhoneNumber = "+48123456789"
         }, johnDoe, "06c12721-e59e-402f-aafb-2b43a4dd23f2")).OrThrow();
         await restaurantService.AddEmployeeAsync(
-            new AddEmployeeRequest
+            new List<AddEmployeeRequest> {
+                new AddEmployeeRequest
             {
                 Id = backdoorEmployee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = false
+            }
             },
             johnDoes.Id,
             johnDoe.Id);
@@ -619,12 +623,13 @@ public class DbSeeder(
             PhoneNumber = "+48123456789"
         }, johnDoe, "f1b1b494-85f2-4dc7-856d-d04d1ce50d65")).OrThrow();
         await restaurantService.AddEmployeeAsync(
-            new AddEmployeeRequest
+            new List<AddEmployeeRequest> {
+                new AddEmployeeRequest
             {
                 Id = employee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = true
-            },
+            } },
             johnDoes2.Id,
             johnDoe.Id);
     }

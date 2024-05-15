@@ -74,14 +74,14 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
-        /// Adds an employee to the restaurant
+        /// Adds a list of employees to the restaurant
         /// </summary>
         /// <param name="request"></param>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("{id:int}/employees")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult> AddEmployee(AddEmployeeRequest request, int id)
+        public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int id)
         {
             var userId = userManager.GetUserId(User);
             var result = await restaurantService.AddEmployeeAsync(request, id, userId!);
