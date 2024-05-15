@@ -86,7 +86,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <returns>The found menu item</returns>
     [HttpDelete]
     [Route("{id:int}/items")]
-    [ProducesResponseType(200), ProducesResponseType(404)]
+    [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
     public async Task<ActionResult> RemoveMenuItemFromMenu(int id, RemoveItemsRequest req)
     {
         var user = await userManager.GetUserAsync(User);
