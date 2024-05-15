@@ -329,6 +329,8 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
     {
         var list = await dbContext.Visits
+        .Include(r => r.Participants)
+        .Include(r => r.Orders)
             .Where(x => x.ClientId == user.Id || (x.Participants != null && x.Participants.Any(p => p.Id == user.Id)))
             .ToListAsync();
 

@@ -15,9 +15,9 @@ public class VisitsController(VisitService visitService) : Controller
     /// Get visit of provided id
     /// </summary>
     /// <returns></returns>
-    [HttpGet("visits/{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<VisitSummaryVM>> GetVisits(int id)
+    public async Task<ActionResult<VisitVM>> GetVisits(int id)
     {
         var result = await visitService.GetVisitByIdAsync(id);
 
