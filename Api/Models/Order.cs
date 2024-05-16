@@ -25,6 +25,11 @@ public class Order : ISoftDeletable
     public string? Note { get; set; }
 
     /// <summary>
+    /// Serving employee's ID
+    /// </summary>
+    public string? EmployeeId { get; set; }
+
+    /// <summary>
     /// Total cost of the order
     /// </summary>
     /// <remarks>
@@ -76,6 +81,11 @@ public class Order : ISoftDeletable
     /// Navigational collection for the order items
     /// </summary>
     public ICollection<OrderItem>? OrderItems { get; set; }
+
+    /// <summary>
+    /// Navigational property for the serving employee
+    /// </summary>
+    public User? Employee { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
