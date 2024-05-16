@@ -453,6 +453,13 @@ public class DbSeeder(
                     Price = 20m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
+                    PhotoFileName = "photo-6.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-6.png",
+                        ContentType = "image/png"
+                    }
                 },
                 new MenuItem
                 {
@@ -460,6 +467,13 @@ public class DbSeeder(
                     Price = 25m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
+                    PhotoFileName = "photo-7.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-7.png",
+                        ContentType = "image/png"
+                    }
                 }
             ]
         });
@@ -479,6 +493,8 @@ public class DbSeeder(
                     Price = 8m,
                     AlcoholPercentage = 4.6m,
                     Restaurant = johnDoes,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 }
             ]
         });
@@ -601,6 +617,8 @@ public class DbSeeder(
                     Price = 19m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 },
                 new MenuItem
                 {
@@ -608,6 +626,8 @@ public class DbSeeder(
                     Price = 7m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 }
             ]
         });
@@ -700,6 +720,8 @@ public class DbSeeder(
                     Price = 29m,
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 },
                 new MenuItem
                 {
@@ -707,6 +729,8 @@ public class DbSeeder(
                     Price = 25m,
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 },
                 new MenuItem
                 {
@@ -714,6 +738,8 @@ public class DbSeeder(
                     Price = 35m,
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 }
             ]
         });

@@ -631,6 +631,7 @@ namespace Reservant.Api.Services
                     AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName)
                 }).ToListAsync();
 
         }
