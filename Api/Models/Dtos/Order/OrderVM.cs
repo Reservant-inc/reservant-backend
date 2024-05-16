@@ -1,9 +1,11 @@
+using Reservant.Api.Models.Dtos.OrderItem;
+
 namespace Reservant.Api.Models.Dtos.Order;
 
 /// <summary>
-/// Basic info about an Order
+/// Information about an Order
 /// </summary>
-public class OrderSummaryVM
+public class OrderVM
 {
     /// <summary>
     /// Unique ID
@@ -16,11 +18,6 @@ public class OrderSummaryVM
     public required int VisitId { get; set; }
 
     /// <summary>
-    /// Optional note
-    /// </summary>
-    public string? Note { get; set; }
-
-    /// <summary>
     /// Total cost of the order
     /// </summary>
     public required decimal Cost { get; init; }
@@ -29,4 +26,14 @@ public class OrderSummaryVM
     /// Status of the whole order
     /// </summary>
     public required OrderStatus Status { get; init; }
+
+    /// <summary>
+    /// Ordered items
+    /// </summary>
+    public required List<OrderItemVM> Items { get; init; }
+
+    /// <summary>
+    /// Serving employee's ID
+    /// </summary>
+    public string? EmployeeId { get; set; }
 }
