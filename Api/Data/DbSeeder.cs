@@ -104,7 +104,7 @@ public class DbSeeder(
             PhoneNumber = "+48999999999",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(2002, 1, 1)
-        })).OrThrow();
+        }, "558614c5-ba9f-4c1a-ba1c-07b2b67c37e9")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(kowalski.Id);
 
         var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -127,7 +127,7 @@ public class DbSeeder(
             LastName = "Przykładowska",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        })).OrThrow();
+        }, "86a24e58-cb06-4db0-a346-f75125722edd")).OrThrow();
 
         var customer3 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -138,7 +138,7 @@ public class DbSeeder(
             LastName = "Testowy",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        })).OrThrow();
+        }, "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb")).OrThrow();
 
         await AddExampleUploads();
 
