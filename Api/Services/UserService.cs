@@ -182,7 +182,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             .Where(u => u.EmployerId == userId)
             .Select(u => new UserEmployeeVM
             {
-                Id = u.Id,
+                UserId = u.Id,
                 Login = u.UserName!,
                 FirstName = u.FirstName,
                 LastName = u.LastName,

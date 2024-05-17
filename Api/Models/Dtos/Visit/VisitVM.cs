@@ -13,7 +13,7 @@ public class VisitVM
     /// Unique ID
     /// </summary>
     [Key]
-    public required int Id { get; set; }
+    public required int VisitId { get; set; }
 
     /// <summary>
     /// Date of the visit

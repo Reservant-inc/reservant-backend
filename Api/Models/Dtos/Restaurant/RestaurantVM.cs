@@ -10,7 +10,7 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// Unique ID
         /// </summary>
         [Required]
-        public required int Id { get; init; }
+        public required int RestaurantId { get; init; }
 
         /// <summary>
         /// Nazwa

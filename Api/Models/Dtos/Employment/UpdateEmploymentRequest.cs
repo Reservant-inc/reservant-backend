@@ -8,7 +8,7 @@ public class UpdateEmploymentRequest
     /// <summary>
     /// Id of the employment
     /// </summary>
-    public int Id { get; set; }
+    public int EmploymentId { get; set; }
     /// <summary>
     /// Whether the employee is a hall employee (Pracownik sali)
     /// </summary>

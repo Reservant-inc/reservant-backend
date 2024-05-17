@@ -41,7 +41,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             .Where(m => m.Id == menuId)
             .Select(m => new MenuVM
             {
-                Id = m.Id,
+                MenueId = m.Id,
                 Name = m.Name,
                 AlternateName = m.AlternateName,
                 MenuType = m.MenuType,
@@ -49,7 +49,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
                 DateUntil = m.DateUntil,
                 MenuItems = m.MenuItems.Select(mi => new MenuItemSummaryVM
                 {
-                    Id = mi.Id,
+                    MenuItemId = mi.Id,
                     Name = mi.Name,
                     AlternateName = mi.AlternateName,
                     Price = mi.Price,
@@ -107,7 +107,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         var menuSummary = new MenuSummaryVM
         {
-            Id = newMenu.Id,
+            MenueId = newMenu.Id,
             Name = newMenu.Name,
             AlternateName = newMenu.AlternateName,
             MenuType = newMenu.MenuType,
@@ -184,7 +184,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         return new MenuVM
         {
-            Id = menuToUpdate.Id,
+            MenueId = menuToUpdate.Id,
             Name = menuToUpdate.Name,
             AlternateName = menuToUpdate.AlternateName,
             MenuType = menuToUpdate.MenuType,
@@ -192,7 +192,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             DateUntil = menuToUpdate.DateUntil,
             MenuItems = menuToUpdate.MenuItems.Select(mi => new MenuItemSummaryVM
             {
-                Id = mi.Id,
+                MenuItemId = mi.Id,
                 Name = mi.Name,
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
@@ -247,10 +247,10 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             AlternateName = menu.AlternateName,
             DateFrom = menu.DateFrom,
             DateUntil = menu.DateUntil,
-            Id = menu.Id,
+            MenueId = menu.Id,
             MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
             {
-                Id = mi.Id,
+                MenuItemId = mi.Id,
                 Name = mi.Name,
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,

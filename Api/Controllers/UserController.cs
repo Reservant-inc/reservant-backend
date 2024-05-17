@@ -51,7 +51,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         return Ok(new UserDetailsVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
@@ -89,7 +89,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         return Ok(new UserDetailsVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
