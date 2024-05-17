@@ -114,4 +114,34 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
         return NoContent();
     }
+
+
+    /// <summary>
+    /// removes menu item from given menue by given id
+    /// </summary>
+    /// <param name="req">request of removal</param>
+    /// <param name="id">id of the menu</param>
+    /// <returns>The found menu item</returns>
+    [HttpDelete]
+    [Route("{id:int}/items")]
+    [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
+    public async Task<ActionResult> RemoveMenuItemFromMenu(int id, RemoveItemsRequest req)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var res = await service.RemoveMenuItemFromMenuAsync(user!, id, req);
+
+        switch (res)
+        {
+            case RestaurantMenuService.RemoveMenuItemResult.Success:
+                return Ok();
+            case RestaurantMenuService.RemoveMenuItemResult.MenuNotFound:
+                return NotFound();
+            case RestaurantMenuService.RemoveMenuItemResult.NoValidMenuItems:
+                return BadRequest();
+            default:
+                return StatusCode(500, "Internal server error");
+        }
+    }
+
 }

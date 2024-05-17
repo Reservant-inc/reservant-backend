@@ -35,4 +35,16 @@ public static class ErrorCodes
     /// Must be a valid postal code (e.g. 00-000)
     /// </summary>
     public const string PostalCode = "PostalCode";
+
+    /// <summary>
+    /// Employee needs at least one role selected
+    /// </summary>
+    public const string AtLeastOneRoleSelected = "AtLeastOneRoleSelected";
+
+    public const string EmployeeAlreadyEmployed = "EmployeeAlreadyEmployed";
+
+    /// <summary>
+    /// The user must be current user's employee
+    /// </summary>
+    public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
 }

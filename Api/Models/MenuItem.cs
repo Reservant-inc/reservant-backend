@@ -28,6 +28,12 @@ public class MenuItem : ISoftDeletable
     public required string Name { get; set; }
 
     /// <summary>
+    /// Name in another language
+    /// </summary>
+    [StringLength(20)]
+    public string? AlternateName { get; set; }
+
+    /// <summary>
     /// Zawartość alkoholu
     /// </summary>
     [Range(0, 100), Column(TypeName = "decimal(4, 1)")]
@@ -47,6 +53,17 @@ public class MenuItem : ISoftDeletable
     /// Navigation property for the restaurant owning the menu
     /// </summary>
     public Restaurant? Restaurant { get; set; }
+
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string PhotoFileName { get; set; }
+
+    /// <summary>
+    /// Navigation property for the photo upload
+    /// </summary>
+    public FileUpload? Photo { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

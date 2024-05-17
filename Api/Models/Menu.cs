@@ -21,6 +21,12 @@ public class Menu : ISoftDeletable
     public required string Name { get; set; }
 
     /// <summary>
+    /// Name in another language
+    /// </summary>
+    [StringLength(20)]
+    public string? AlternateName { get; set; }
+
+    /// <summary>
     /// Typ menu
     /// </summary>
     public required MenuType MenuType { get; set; }

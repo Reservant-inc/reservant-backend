@@ -20,6 +20,11 @@ public class MenuSummaryVM
     public required string Name { get; set; }
 
     /// <summary>
+    /// Name of the menu in another language
+    /// </summary>
+    public required string? AlternateName { get; set; }
+
+    /// <summary>
     /// Typ menu
     /// </summary>
     [Required]
