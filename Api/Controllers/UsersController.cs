@@ -51,7 +51,7 @@ namespace Reservant.Api.Controllers
 
             return Ok(new UserDetailsVM
             {
-                Id = emp.Id,
+                UserId = emp.Id,
                 Login = emp.UserName!,
                 Email = emp.Email,
                 PhoneNumber = emp.PhoneNumber,
@@ -86,7 +86,7 @@ namespace Reservant.Api.Controllers
 
             return Ok(new UserDetailsVM
             {
-                Id = emp.Id,
+                UserId = emp.Id,
                 Login = emp.UserName!,
                 Email = emp.Email,
                 PhoneNumber = emp.PhoneNumber,

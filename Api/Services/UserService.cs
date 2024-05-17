@@ -184,7 +184,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             .Where(u => u.EmployerId == userId)
             .Select(u => new UserEmployeeVM
             {
-                Id = u.Id,
+                UserId = u.Id,
                 Login = u.UserName!,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
@@ -334,7 +334,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         var resultList = list.Select(visit => new VisitSummaryVM
         {    
-            Id=visit.Id,
+            VisitId=visit.Id,
             Date=visit.Date,
             NumberOfPeople=visit.NumberOfGuests+1,
             Takeaway=visit.Takeaway,
@@ -363,7 +363,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         var result = new VisitSummaryVM
         {
-            Id = visit.Id,
+            VisitId = visit.Id,
             Date = visit.Date,
             NumberOfPeople = visit.NumberOfGuests + 1,
             Takeaway = visit.Takeaway,

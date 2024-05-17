@@ -11,7 +11,7 @@ namespace Reservant.Api.Validators.Employee
     {
 
         public AddEmployeeRequestValidator(ApiDbContext context) {
-            RuleFor(e => e.Id)
+            RuleFor(e => e.EmployeeId)
                 .NotNull()
                 .CurrentUsersEmployee(context);
 

@@ -513,7 +513,7 @@ public class DbSeeder(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
             {
-                Id = hallEmployee.Id,
+                EmployeeId = hallEmployee.Id,
                 IsBackdoorEmployee = false,
                 IsHallEmployee = true
             }
@@ -533,7 +533,7 @@ public class DbSeeder(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
             {
-                Id = backdoorEmployee.Id,
+                EmployeeId = backdoorEmployee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = false
             }
@@ -646,7 +646,7 @@ public class DbSeeder(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
             {
-                Id = employee.Id,
+                EmployeeId = employee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = true
             } },

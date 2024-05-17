@@ -5,7 +5,7 @@ namespace Reservant.Api.Models.Dtos.RestaurantGroup;
 
 public class RestaurantGroupSummaryVM
 {
-    public required int Id { get; init; }
+    public required int RestaurantGroupId { get; init; }
 
     [Required, StringLength(50)]
     public required string Name { get; init; }

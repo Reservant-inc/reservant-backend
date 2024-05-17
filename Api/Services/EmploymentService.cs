@@ -117,13 +117,13 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             }
             var employment = context.Employments.Include(e => e.Restaurant)
                 .ThenInclude(r => r.Group)
-                .FirstOrDefault(e => e.Id == request.Id && e.Restaurant.Group.OwnerId == user.Id);
+                .FirstOrDefault(e => e.Id == request.EmploymentId && e.Restaurant.Group.OwnerId == user.Id);
 
             if (employment is null)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(request.Id),
+                    PropertyName = nameof(request.EmploymentId),
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
