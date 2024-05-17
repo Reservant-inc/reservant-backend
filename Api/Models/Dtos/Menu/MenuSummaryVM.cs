@@ -11,8 +11,8 @@ public class MenuSummaryVM
     /// Unique ID
     /// </summary>
     [Required]
-    public required int MenueId { get; set; }
-    
+    public required int MenuId { get; set; }
+
     /// <summary>
     /// Name of the menu
     /// </summary>

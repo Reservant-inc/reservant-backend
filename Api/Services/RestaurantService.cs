@@ -592,7 +592,7 @@ namespace Reservant.Api.Services
             var menus = restaurant.Menus
                 .Select(menu => new MenuSummaryVM
                 {
-                    MenueId = menu.Id,
+                    MenuId = menu.Id,
                     Name = menu.Name,
                     AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,

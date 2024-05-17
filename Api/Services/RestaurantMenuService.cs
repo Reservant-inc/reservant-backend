@@ -107,7 +107,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         var menuSummary = new MenuSummaryVM
         {
-            MenueId = newMenu.Id,
+            MenuId = newMenu.Id,
             Name = newMenu.Name,
             AlternateName = newMenu.AlternateName,
             MenuType = newMenu.MenuType,
