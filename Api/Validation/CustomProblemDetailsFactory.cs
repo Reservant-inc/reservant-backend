@@ -22,6 +22,7 @@ public class CustomProblemDetailsFactory : ProblemDetailsFactory
         return new ProblemDetails
         {
             Status = statusCode ?? 500,
+            Type = type,
             Title = title,
             Detail = detail,
             Instance = instance
@@ -47,6 +48,7 @@ public class CustomProblemDetailsFactory : ProblemDetailsFactory
         return new ValidationProblemDetails
         {
             Status = statusCode ?? 400,
+            Type = type,
             Title = title,
             Detail = detail,
             Instance = instance,
