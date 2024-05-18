@@ -21,7 +21,7 @@ public class CustomProblemDetailsFactory : ProblemDetailsFactory
     {
         return new ProblemDetails
         {
-            Status = statusCode ?? httpContext.Response.StatusCode,
+            Status = statusCode ?? 500,
             Title = title,
             Detail = detail,
             Instance = instance
@@ -46,7 +46,7 @@ public class CustomProblemDetailsFactory : ProblemDetailsFactory
 
         return new ValidationProblemDetails
         {
-            Status = statusCode ?? httpContext.Response.StatusCode,
+            Status = statusCode ?? 400,
             Title = title,
             Detail = detail,
             Instance = instance,
