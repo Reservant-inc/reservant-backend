@@ -7,36 +7,38 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models;
 using ValidationFailure = FluentValidation.Results.ValidationFailure;
 using Reservant.Api.Validators;
-
-
+using Reservant.Api.Validation;
 
 
 /// <summary>
 /// Service for managing visits
 /// </summary>
-public class VisitService(ApiDbContext dbContext)
+public class VisitService(ApiDbContext dbContext,ValidationService validationService)
 {
     /// <summary>
     /// Gets the visist oof provided id
     /// </summary>
     /// <param name="visitId"></param>
     /// <returns></returns>
-    public async Task<VisitVM?> GetVisitByIdAsync(int visitId, User user)
+    public async Task<Result<VisitVM>> GetVisitByIdAsync(int visitId, User user)
     {
         var visit = await dbContext.Visits
         .Include(r => r.Participants)
         .Include(r => r.Orders)
+            .ThenInclude(o=>o.OrderItems)
+                .ThenInclude(o1=>o1.MenuItem)
             .Where(x => x.Id == visitId)
             .FirstOrDefaultAsync();
 
+
         if (visit == null)
         {
-            return null;
+            return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
         }
 
-        if (visit.ClientId != user.Id)
+        if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
         {
-            new ValidationFailure { PropertyName = "Not authorized to acces this vist", ErrorCode = ErrorCodes.AccessDenied };
+            return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
 
         var result = new VisitVM

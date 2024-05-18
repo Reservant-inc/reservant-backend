@@ -3,6 +3,9 @@ using Reservant.Api.Services;
 using Reservant.Api.Models.Dtos.Visit;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Validation;
+
+
 
 namespace Reservant.Api.Controllers;
 
@@ -17,15 +20,18 @@ public class VisitsController(VisitService visitService, UserManager<User> userM
     /// </summary>
     /// <returns></returns>
     [HttpGet("{id:int}")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200),ProducesResponseType(404)]
     public async Task<ActionResult<VisitVM>> GetVisits(int id)
     {
         var user = await userManager.GetUserAsync(User);
 
-        var result = await visitService.GetVisitByIdAsync(id,user);
+        var result = await visitService.GetVisitByIdAsync(id, user);
 
-        if(result!=null)
-            return Ok(result);
-        return NotFound();
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
     }
 }
