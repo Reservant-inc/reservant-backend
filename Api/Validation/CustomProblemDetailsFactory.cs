@@ -1,3 +1,4 @@
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -53,6 +54,49 @@ public class CustomProblemDetailsFactory : ProblemDetailsFactory
             Detail = detail,
             Instance = instance,
             Errors = errors
+        };
+    }
+
+    /// <summary>
+    /// Create problem details reporting Fluent Validation errors with error codes
+    /// </summary>
+    public ProblemDetails CreateFluentValidationProblemDetails(
+        List<ValidationFailure> failures,
+        int? statusCode = null,
+        string? title = null,
+        string? type = null,
+        string? detail = null,
+        string? instance = null)
+    {
+        var errors = new Dictionary<string, List<string>>();
+        var errorCodes = new Dictionary<string, List<string>>();
+
+        foreach (var error in failures)
+        {
+            var key = Utils.PropertyPathToCamelCase((error.PropertyName ?? ""));
+
+            errors.TryAdd(key, []);
+            errors[key].Add(error.ErrorMessage!);
+
+            if (error.ErrorCode is not null)
+            {
+                errorCodes.TryAdd(key, []);
+                errorCodes[key].Add(error.ErrorCode!);
+            }
+        }
+
+        return new ProblemDetails
+        {
+            Status = statusCode ?? 400,
+            Type = type,
+            Title = title,
+            Detail = detail,
+            Instance = instance,
+            Extensions =
+            {
+                ["errors"] = errors,
+                ["errorCodes"] = errorCodes
+            }
         };
     }
 }
