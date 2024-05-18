@@ -36,7 +36,7 @@ public class VisitService(ApiDbContext dbContext)
 
         if (visit.ClientId != user.Id)
         {
-            new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
+            new ValidationFailure { PropertyName = "Not authorized to acces this vist", ErrorCode = ErrorCodes.AccessDenied };
         }
 
         var result = new VisitVM
