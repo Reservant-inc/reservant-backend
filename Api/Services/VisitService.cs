@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models;
+using ValidationFailure = FluentValidation.Results.ValidationFailure;
+using Reservant.Api.Validators;
+
+
 
 
 /// <summary>
@@ -16,7 +21,7 @@ public class VisitService(ApiDbContext dbContext)
     /// </summary>
     /// <param name="visitId"></param>
     /// <returns></returns>
-    public async Task<VisitVM?> GetVisitByIdAsync(int visitId)
+    public async Task<VisitVM?> GetVisitByIdAsync(int visitId, User user)
     {
         var visit = await dbContext.Visits
         .Include(r => r.Participants)
@@ -27,6 +32,11 @@ public class VisitService(ApiDbContext dbContext)
         if (visit == null)
         {
             return null;
+        }
+
+        if (visit.ClientId != user.Id)
+        {
+            new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
 
         var result = new VisitVM

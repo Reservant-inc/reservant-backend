@@ -110,7 +110,8 @@ public class UserController(UserManager<User> userManager, UserService userServi
     /// </summary>
     /// <returns></returns>
     [HttpGet("visits")]
-    [ProducesResponseType(200)]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200),ProducesResponseType(400)]
     public async Task<ActionResult<List<VisitSummaryVM>>> GetVisits()
     {
         var user = await userManager.GetUserAsync(User);
