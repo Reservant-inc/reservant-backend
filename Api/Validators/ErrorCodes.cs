@@ -62,4 +62,9 @@ public static class ErrorCodes
     /// VisitId cannot be negative value
     /// </summary>
     public const string VisitId = "VisitId";
+    
+    /// <summary>
+    /// Amount of orderItem cannot be less than 1
+    /// </summary>
+    public const string AmountLessThanOne = "AmountLessThanOne";
 }
