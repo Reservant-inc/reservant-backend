@@ -45,4 +45,19 @@ public static class ErrorCodes
     /// The date must be in the future
     /// </summary>
     public const string DateMustBeInFuture = "DateMustBeInFuture";
+    
+    /// <summary>
+    /// Table does not exist
+    /// </summary>
+    public const string TableDoesNotExists = "TableDoesNotExists";
+
+    /// <summary>
+    /// NumberOfGuests must be greater of equal to 0
+    /// </summary>
+    public const string NumberOfGuests = "NumberOfGuests";
+    
+    /// <summary>
+    /// Tip cannot be a negative value
+    /// </summary>
+    public const string Tip = "Tip";
 }

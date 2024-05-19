@@ -9,7 +9,7 @@ public class VisitValidator: AbstractValidator<Models.Visit>
     public VisitValidator(UserManager<User> userManager)
     {
         RuleFor(v => v.Date)
-            .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
+            .DateInFuture()
             .WithMessage("The date must be today or in the future.");
 
         RuleFor(v => v.NumberOfGuests)

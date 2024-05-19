@@ -107,4 +107,20 @@ public static class CustomValidators
             .WithErrorCode(ErrorCodes.PostalCode)
             .WithMessage("Must be a valid postal code");
     }
+    
+    /// <summary>
+    /// Validates that the given Table ID exists within the specified Restaurant ID.
+    /// </summary>
+    public static IRuleBuilderOptions<T, Tuple<int, int>> TableExistsInRestaurant<T>(this IRuleBuilder<T, Tuple<int, int>> builder, ApiDbContext dbContext)
+    {
+        return builder
+            .MustAsync(async (tuple, cancellationToken) =>
+            {
+                var (restaurantId, tableId) = tuple;
+                return await dbContext.Tables
+                    .AnyAsync(t => t.Id == tableId && t.RestaurantId == restaurantId, cancellationToken);
+            })
+            .WithMessage($"The specified Table ID does not exist within the given Restaurant ID.")
+            .WithErrorCode(ErrorCodes.TableDoesNotExists);
+    }
 }
