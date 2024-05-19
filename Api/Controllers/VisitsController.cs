@@ -36,6 +36,9 @@ public class VisitsController(
         return Ok(result.Value);
     }
 
+    /// <summary>
+    /// Create visit
+    /// </summary>
     [HttpPost()]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
