@@ -39,7 +39,7 @@ public static class ErrorCodes
     /// <summary>
     /// Must be a valid participants list
     /// </summary>
-    public const string Participants = "Participants";
+    public const string ParticipantDoesNotExist = "ParticipantDoesNotExist";
     
     /// <summary>
     /// The date must be in the future
@@ -54,7 +54,12 @@ public static class ErrorCodes
     /// <summary>
     /// NumberOfGuests must be greater of equal to 0
     /// </summary>
-    public const string NumberOfGuests = "NumberOfGuests";
+    public const string NumberOfGuests = "NumberOfGuests";    
+    
+    /// <summary>
+    /// NumberOfGuests must be greater of equal to 0
+    /// </summary>
+    public const string RestaurantDoesNotExist = "RestaurantDoesNotExist";
     
     /// <summary>
     /// Tip cannot be a negative value

@@ -32,6 +32,9 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
             .NotNull()
             .WithMessage("Takeaway field must be specified.");
 
+        RuleFor(v => v.RestaurantId)
+            .RestaurantExists(dbContext);
+
         RuleFor(v => new Tuple<int, int>(v.RestaurantId, v.TableId))
             .TableExistsInRestaurant(dbContext)
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.");
