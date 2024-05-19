@@ -35,7 +35,7 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.");
         
         RuleForEach(v => v.Participants)
-            .UserExists(userManager);
+            .CustomerExists(userManager);
     }
     
 }

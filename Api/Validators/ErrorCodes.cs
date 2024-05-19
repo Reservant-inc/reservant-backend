@@ -37,10 +37,10 @@ public static class ErrorCodes
     public const string PostalCode = "PostalCode";
     
     /// <summary>
-    /// Must be a valid participants list
+    /// Must be a valid customer ID
     /// </summary>
-    public const string ParticipantDoesNotExist = "ParticipantDoesNotExist";
-    
+    public const string MustBeCustomerId = "MustBeCustomerId";
+
     /// <summary>
     /// The date must be in the future
     /// </summary>

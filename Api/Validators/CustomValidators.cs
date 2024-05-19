@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -72,18 +73,18 @@ public static class CustomValidators
     /// <summary>
     /// Validates that the user exists in the database.
     /// </summary>
-    public static IRuleBuilderOptions<T, string> UserExists<T>(
+    public static IRuleBuilderOptions<T, string> CustomerExists<T>(
         this IRuleBuilder<T, string> builder,
         UserManager<User> userManager)
     {
         return builder
-            .MustAsync(async (userId, cancellation) => 
+            .MustAsync(async (userId, cancellation) =>
             {
                 var user = await userManager.FindByIdAsync(userId);
-                return user != null;
+                return user != null && await userManager.IsInRoleAsync(user, Roles.Customer);
             })
-            .WithErrorCode(ErrorCodes.ParticipantDoesNotExist)
-            .WithMessage("User with ID {PropertyValue} does not exist.");
+            .WithErrorCode(ErrorCodes.MustBeCustomerId)
+            .WithMessage("Customer with ID {PropertyValue} does not exist.");
     }
     
     /// <summary>
