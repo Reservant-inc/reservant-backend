@@ -20,7 +20,7 @@ public class VisitsController(VisitService visitService, UserManager<User> userM
     /// </summary>
     /// <returns></returns>
     [HttpGet("{id:int}")]
-    [ProducesResponseType(200),ProducesResponseType(404)]
+    [ProducesResponseType(200),ProducesResponseType(400)]
     public async Task<ActionResult<VisitVM>> GetVisits(int id)
     {
         var user = await userManager.GetUserAsync(User);
