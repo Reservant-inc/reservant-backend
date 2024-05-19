@@ -5,6 +5,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using System.Reflection.Metadata.Ecma335;
+using Reservant.Api.Models.Dtos.OrderItem;
 
 namespace Reservant.Api.Validators;
 
@@ -124,5 +125,30 @@ public static class CustomValidators
         })
         .WithErrorCode(ErrorCodes.MustBeCurrentUsersEmployee)
         .WithMessage(ErrorCodes.MustBeCurrentUsersEmployee);
+    }
+    
+    /// <summary>
+    /// Validates that all orderItems exist in the database.
+    /// </summary>
+    public static IRuleBuilderOptions<T, List<CreateOrderItemRequest>> OrderItemsExist<T>(
+        this IRuleBuilder<T, List<CreateOrderItemRequest>> builder, ApiDbContext context)
+    {
+        return builder
+            .MustAsync(async (items, cancellationToken) => 
+            {
+                foreach (var item in items)
+                {
+                    var itemExists = await context.MenuItems
+                        .AnyAsync(m => m.Id == item.MenuItemId, cancellationToken);
+
+                    if (!itemExists)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            })
+            .WithErrorCode(ErrorCodes.OrderItemDoesNotExists)
+            .WithMessage("One or more order items do not exist in the database.");
     }
 }
