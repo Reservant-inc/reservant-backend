@@ -61,7 +61,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
                 Amount = orderItem.Amount,
                 Status = orderItem.Status,
                 MenuItemId = orderItem.MenuItemId,
-                Cost = 0
+                Cost = orderItem.MenuItem.Price * orderItem.Amount
             })
         };
         //is it in the correct restaurant? request.Visit.RestaurantId == user.RestaurantId
