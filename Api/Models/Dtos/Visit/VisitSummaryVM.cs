@@ -8,7 +8,7 @@ public class VisitSummaryVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int VisitId { get; set; }
 
     /// <summary>
     /// Date of the visit

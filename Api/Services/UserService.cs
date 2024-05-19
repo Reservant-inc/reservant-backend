@@ -336,7 +336,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         var resultList = list.Select(visit => new VisitSummaryVM
         {
-            Id=visit.Id,
+            VisitId=visit.Id,
             Date=visit.Date,
             NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
             Takeaway=visit.Takeaway,
