@@ -12,7 +12,11 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class OrderService(ApiDbContext context)
 {
-
+    /// <summary>
+    /// Gets the order with the given id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     public async Task<Result<OrderVM>> GetOrderById(int id)
     {
 

@@ -12,7 +12,11 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/orders")]
 public class OrdersController(OrderService orderService) : Controller
 {
-
+    /// <summary>
+    /// Gets order with the given id
+    /// </summary>
+    /// <param name="id">Id of the order</param>
+    /// <returns>OrderVM or NotFound if order wasn't found</returns>
     [HttpGet("{id:int}")]
     [Authorize]
     public async Task<ActionResult<OrderVM>> GetOrderById(int id)
