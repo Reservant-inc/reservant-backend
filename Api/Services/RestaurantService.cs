@@ -202,83 +202,88 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Add the given employee to the given restaurant, acting as the given employer (restaurant owner)
+        /// Add employees to the given restaurant, acting as the given employer (restaurant owner)
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
         /// <param name="employerId">ID of the current user (restaurant owner)</param>
         /// <returns>The bool returned inside the result does not mean anything</returns>
-        public async Task<Result<bool>> AddEmployeeAsync(AddEmployeeRequest request, int restaurantId, string employerId)
+        public async Task<Result<bool>> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId, string employerId)
         {
-            if (!request.IsBackdoorEmployee && !request.IsHallEmployee)
-            {
-                return new List<ValidationResult>
-                {
-                    new($"Employee must have at least one role",
-                        [nameof(request.IsBackdoorEmployee), nameof(request.IsHallEmployee)])
-                };
-            }
-
             var restaurantOwnerId = await context.Restaurants
-                .Where(r => r.Id == restaurantId)
-                .Select(r => r.Group!.OwnerId)
-                .FirstOrDefaultAsync();
+                    .Where(r => r.Id == restaurantId)
+                    .Select(r => r.Group!.OwnerId)
+                    .FirstOrDefaultAsync();
+
+
             if (restaurantOwnerId is null)
             {
-                return new List<ValidationResult>
+                return new ValidationFailure
                 {
-                    new($"Restaurant with ID {restaurantId} not found")
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound
                 };
             }
 
-            if (restaurantOwnerId != employerId)
+            foreach (var request in listRequest)
             {
-                return new List<ValidationResult>
+
+                var result = await validationService.ValidateAsync(request);
+                if (!result.IsValid)
                 {
-                    new("User is not the owner of the restaurant")
-                };
+                    return result;
+                }
+
+                if (restaurantOwnerId != employerId)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+
+                var employee = await context.Users.FindAsync(request.Id);
+                if (employee is null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.Id),
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                }
+
+                if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
+                    || employee.EmployerId != employerId)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.Id),
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+
+                var currentEmployment = await context.Employments
+                    .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId && e.DateUntil == null)
+                    .FirstOrDefaultAsync();
+
+                if (currentEmployment != null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.Id), // zwracane jest Id pracownika, jako wskaźnik gdzie jest błąd
+                        ErrorCode = ErrorCodes.EmployeeAlreadyEmployed
+                    };
+                }
             }
 
-            var employee = await context.Users.FindAsync(request.Id);
-            if (employee is null)
+            await context.Employments.AddRangeAsync(listRequest.Select(r => new Employment
             {
-                return new List<ValidationResult>
-                {
-                    new($"User with ID {request.Id} not found",
-                        [nameof(request.Id)])
-                };
-            }
-
-            if (!await userManager.IsInRoleAsync(employee, Roles.RestaurantEmployee)
-                || employee.EmployerId != employerId)
-            {
-                return new List<ValidationResult>
-                {
-                    new($"User with ID {request.Id} is not current user's employee",
-                        [nameof(request.Id)])
-                };
-            }
-
-            var currentEmployment = await context.Employments
-                .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId && e.DateUntil == null)
-                .FirstOrDefaultAsync();
-
-            if (currentEmployment != null)
-            {
-                return new List<ValidationResult>
-                {
-                    new ("Employee is currently employed at this restaurant")
-                };
-            }
-
-            context.Employments.Add(new Employment
-            {
-                EmployeeId = request.Id,
+                EmployeeId = r.Id,
                 RestaurantId = restaurantId,
-                IsBackdoorEmployee = request.IsBackdoorEmployee,
-                IsHallEmployee = request.IsHallEmployee,
+                IsBackdoorEmployee = r.IsBackdoorEmployee,
+                IsHallEmployee = r.IsHallEmployee,
                 DateFrom = DateOnly.FromDateTime(DateTime.Now)
-            });
-
+            }).Select(x => { Console.WriteLine(x.Id); return x;}));
             await context.SaveChangesAsync();
             return true;
         }
@@ -626,6 +631,7 @@ namespace Reservant.Api.Services
                     AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName)
                 }).ToListAsync();
 
         }

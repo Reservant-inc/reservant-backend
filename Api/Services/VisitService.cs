@@ -62,7 +62,7 @@ public class VisitService(ApiDbContext dbContext,ValidationService validationSer
             }).ToList(),
             Orders = visit.Orders!.Select(o => new OrderSummaryVM
             {
-                Id = o.Id,
+                OrderId = o.Id,
                 VisitId = o.VisitId,
                 Cost = o.Cost,
                 Status = o.Status

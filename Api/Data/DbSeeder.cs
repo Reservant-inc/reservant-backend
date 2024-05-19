@@ -104,7 +104,7 @@ public class DbSeeder(
             PhoneNumber = "+48999999999",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(2002, 1, 1)
-        })).OrThrow();
+        }, "558614c5-ba9f-4c1a-ba1c-07b2b67c37e9")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(kowalski.Id);
 
         var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -127,7 +127,7 @@ public class DbSeeder(
             LastName = "Przykładowska",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        })).OrThrow();
+        }, "86a24e58-cb06-4db0-a346-f75125722edd")).OrThrow();
 
         var customer3 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -138,7 +138,7 @@ public class DbSeeder(
             LastName = "Testowy",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        })).OrThrow();
+        }, "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb")).OrThrow();
 
         await AddExampleUploads();
 
@@ -453,6 +453,13 @@ public class DbSeeder(
                     Price = 20m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
+                    PhotoFileName = "photo-6.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-6.png",
+                        ContentType = "image/png"
+                    }
                 },
                 new MenuItem
                 {
@@ -460,6 +467,13 @@ public class DbSeeder(
                     Price = 25m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
+                    PhotoFileName = "photo-7.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = johnDoe.Id,
+                        FileName = "photo-7.png",
+                        ContentType = "image/png"
+                    }
                 }
             ]
         });
@@ -479,6 +493,8 @@ public class DbSeeder(
                     Price = 8m,
                     AlcoholPercentage = 4.6m,
                     Restaurant = johnDoes,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 }
             ]
         });
@@ -493,15 +509,17 @@ public class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
         }, johnDoe, "22781e02-d83a-44ef-8cf4-735e95d9a0b2")).OrThrow();
-        await restaurantService.AddEmployeeAsync(
-            new AddEmployeeRequest
+        (await restaurantService.AddEmployeeAsync(
+            new List<AddEmployeeRequest> {
+                new AddEmployeeRequest
             {
                 Id = hallEmployee.Id,
                 IsBackdoorEmployee = false,
                 IsHallEmployee = true
+            }
             },
             johnDoes.Id,
-            johnDoe.Id);
+            johnDoe.Id)).OrThrow();
 
         var backdoorEmployee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
         {
@@ -511,15 +529,17 @@ public class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
         }, johnDoe, "06c12721-e59e-402f-aafb-2b43a4dd23f2")).OrThrow();
-        await restaurantService.AddEmployeeAsync(
-            new AddEmployeeRequest
+        (await restaurantService.AddEmployeeAsync(
+            new List<AddEmployeeRequest> {
+                new AddEmployeeRequest
             {
                 Id = backdoorEmployee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = false
+            }
             },
             johnDoes.Id,
-            johnDoe.Id);
+            johnDoe.Id)).OrThrow();
     }
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
@@ -597,6 +617,8 @@ public class DbSeeder(
                     Price = 19m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 },
                 new MenuItem
                 {
@@ -604,6 +626,8 @@ public class DbSeeder(
                     Price = 7m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 }
             ]
         });
@@ -618,15 +642,16 @@ public class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
         }, johnDoe, "f1b1b494-85f2-4dc7-856d-d04d1ce50d65")).OrThrow();
-        await restaurantService.AddEmployeeAsync(
-            new AddEmployeeRequest
+        (await restaurantService.AddEmployeeAsync(
+            new List<AddEmployeeRequest> {
+                new AddEmployeeRequest
             {
                 Id = employee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = true
-            },
+            } },
             johnDoes2.Id,
-            johnDoe.Id);
+            johnDoe.Id)).OrThrow();
     }
 
     private async Task<Restaurant> CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup, User verifier)
@@ -695,6 +720,8 @@ public class DbSeeder(
                     Price = 29m,
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 },
                 new MenuItem
                 {
@@ -702,6 +729,8 @@ public class DbSeeder(
                     Price = 25m,
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 },
                 new MenuItem
                 {
@@ -709,6 +738,8 @@ public class DbSeeder(
                     Price = 35m,
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
                 }
             ]
         });
