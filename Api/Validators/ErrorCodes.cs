@@ -65,4 +65,9 @@ public static class ErrorCodes
     /// Tip cannot be a negative value
     /// </summary>
     public const string Tip = "Tip";
+    
+    /// <summary>
+    /// The value must be greater than or equal to zero.
+    /// </summary>
+    public const string ValueLessThanZero = "ValueLessThanZero";
 }

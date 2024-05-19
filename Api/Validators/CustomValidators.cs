@@ -138,4 +138,16 @@ public static class CustomValidators
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.")
             .WithErrorCode(ErrorCodes.TableDoesNotExists);
     }
+    
+    /// <summary>
+    /// Validates that the value is greater than or equal to zero.
+    /// </summary>
+    public static IRuleBuilderOptions<T, double> GreaterOrEqualToZero<T>(
+        this IRuleBuilder<T, double> builder)
+    {
+        return builder
+            .Must(value => value >= 0)
+            .WithErrorCode(ErrorCodes.ValueLessThanZero)
+            .WithMessage("The value must be greater than or equal to zero.");
+    }
 }

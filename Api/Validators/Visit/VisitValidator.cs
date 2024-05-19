@@ -13,15 +13,11 @@ public class VisitValidator: AbstractValidator<Models.Visit>
             .DateInFuture()
             .WithMessage("The date must be today or in the future.");
 
-        RuleFor(v => v.NumberOfGuests)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Number of guests must be a non-negative value.")
-            .WithErrorCode(ErrorCodes.NumberOfGuests);
+        RuleFor(v => (double) v.NumberOfGuests)
+            .GreaterOrEqualToZero();
 
-        RuleFor(v => v.Tip)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Tip must be a non-negative value.")
-            .WithErrorCode(ErrorCodes.Tip);
+        RuleFor(v => (double) v.Tip!)
+            .GreaterOrEqualToZero();
 
         RuleFor(v => v.Takeaway)
             .NotNull()
