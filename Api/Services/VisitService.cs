@@ -23,10 +23,10 @@ public class VisitService(ApiDbContext dbContext,ValidationService validationSer
     public async Task<Result<VisitVM>> GetVisitByIdAsync(int visitId, User user)
     {
         var visit = await dbContext.Visits
-        .Include(r => r.Participants)
-        .Include(r => r.Orders)
-            .ThenInclude(o=>o.OrderItems)
-                .ThenInclude(o1=>o1.MenuItem)
+        .Include(r => r.Participants!)
+        .Include(r => r.Orders!)
+            .ThenInclude(o=>o.OrderItems!)
+                .ThenInclude(o1=>o1.MenuItem!)
             .Where(x => x.Id == visitId)
             .FirstOrDefaultAsync();
 
@@ -36,7 +36,7 @@ public class VisitService(ApiDbContext dbContext,ValidationService validationSer
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
         }
 
-        if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
+        if (visit.ClientId != user.Id && !visit.Participants!.Contains(user))
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
@@ -54,21 +54,21 @@ public class VisitService(ApiDbContext dbContext,ValidationService validationSer
             ClientId = visit.ClientId,
             RestaurantId = visit.RestaurantId,
             TableId = visit.TableId,
-            Participants = visit.Participants?.Select(p => new UserSummaryVM
+            Participants = visit.Participants!.Select(p => new UserSummaryVM
             {
                 Id = p.Id,
                 FirstName = p.FirstName,
                 LastName = p.LastName
-            }).ToList() ?? new List<UserSummaryVM>(),
-            Orders = visit.Orders?.Select(o => new OrderSummaryVM
+            }).ToList(),
+            Orders = visit.Orders!.Select(o => new OrderSummaryVM
             {
                 Id = o.Id,
                 VisitId = o.VisitId,
                 Cost = o.Cost,
                 Status = o.Status
-            }).ToList() ?? new List<OrderSummaryVM>()
+            }).ToList()
         };
 
-        return result; 
+        return result;
     }
 }

@@ -318,7 +318,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
 
         return user;
     }
-    
+
 
 
     /// <summary>
@@ -329,16 +329,16 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
     {
         var list = await dbContext.Visits
-        .Include(r => r.Participants)
-        .Include(r => r.Orders)
-            .Where(x => x.ClientId == user.Id || (x.Participants != null && x.Participants.Any(p => p.Id == user.Id)))
+        .Include(r => r.Participants!)
+        .Include(r => r.Orders!)
+            .Where(x => x.ClientId == user.Id || x.Participants!.Any(p => p.Id == user.Id))
             .ToListAsync();
 
         var resultList = list.Select(visit => new VisitSummaryVM
-        {    
+        {
             Id=visit.Id,
             Date=visit.Date,
-            NumberOfPeople=visit.NumberOfGuests+(visit.Participants?.Count ?? 0)+1,
+            NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
             Takeaway=visit.Takeaway,
             ClientId=visit.ClientId,
             RestaurantId=visit.RestaurantId
