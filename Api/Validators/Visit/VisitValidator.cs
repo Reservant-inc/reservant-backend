@@ -10,9 +10,8 @@ public class VisitValidator: AbstractValidator<Models.Visit>
     public VisitValidator(UserManager<User> userManager, ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)
-            .DateInFuture()
-            .WithMessage("The date must be today or in the future.");
-
+            .DateInFuture();
+        
         RuleFor(v => (double) v.NumberOfGuests)
             .GreaterOrEqualToZero();
 
@@ -24,8 +23,7 @@ public class VisitValidator: AbstractValidator<Models.Visit>
             .WithMessage("Takeaway field must be specified.");
 
         RuleFor(v => new Tuple<int, int>(v.RestaurantId, v.TableId))
-            .TableExistsInRestaurant(dbContext)
-            .WithMessage("The specified Table ID does not exist within the given Restaurant ID.");
+            .TableExistsInRestaurant(dbContext);
         
     }
 }
