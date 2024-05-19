@@ -22,17 +22,6 @@ public class VisitService(
 
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
-        var restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
-
-        if (restaurant is null)
-        {
-            return new ValidationFailure()
-            {
-                PropertyName = nameof(request.RestaurantId),
-                ErrorCode = $"Restaurant with ID {request.RestaurantId} not found.",
-                ErrorMessage = ErrorCodes.NotFound
-            };
-        }
         
         var result = await validationService.ValidateAsync(request);
         if (!result.IsValid)
