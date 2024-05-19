@@ -69,6 +69,9 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
             eb.HasOne<FileUpload>(u => u.Photo)
                 .WithOne()
                 .HasForeignKey<User>(u => u.PhotoFileName);
+
+            eb.HasMany<FileUpload>(u => u.Uploads)
+                .WithOne(fu => fu.User);
         });
 
         var softDeletableEntities =

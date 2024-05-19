@@ -86,7 +86,12 @@ public class User : IdentityUser, ISoftDeletable
     /// Navigation property for the photo upload
     /// </summary>
     public FileUpload? Photo { get; set; }
-    
+
+    /// <summary>
+    /// Navigational property for the user's file uploads
+    /// </summary>
+    public ICollection<FileUpload>? Uploads { get; set; }
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }
