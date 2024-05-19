@@ -47,4 +47,19 @@ public static class ErrorCodes
     /// The user must be current user's employee
     /// </summary>
     public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
+    
+    /// <summary>
+    /// Item list cannot be empty
+    /// </summary>
+    public const string EmptyItemList = "EmptyItemList";
+    
+    /// <summary>
+    /// OrderItem does not exists
+    /// </summary>
+    public const string OrderItemDoesNotExists = "OrderItemDoesNotExists";
+    
+    /// <summary>
+    /// VisitId cannot be negative value
+    /// </summary>
+    public const string VisitId = "VisitId";
 }
