@@ -137,7 +137,7 @@ public static class CustomValidators
                     .AnyAsync(t => t.Id == tableId && t.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.")
-            .WithErrorCode(ErrorCodes.TableDoesNotExists);
+            .WithErrorCode(ErrorCodes.TableDoesNotExist);
     }
     
     /// <summary>

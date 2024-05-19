@@ -49,7 +49,7 @@ public static class ErrorCodes
     /// <summary>
     /// Table does not exist
     /// </summary>
-    public const string TableDoesNotExists = "TableDoesNotExists";
+    public const string TableDoesNotExist = "TableDoesNotExist";
 
     /// <summary>
     /// NumberOfGuests must be greater of equal to 0
