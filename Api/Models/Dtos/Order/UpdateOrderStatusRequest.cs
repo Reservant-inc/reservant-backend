@@ -13,5 +13,7 @@ public class UpdateOrderStatusRequest
     /// <summary>
     /// Serving employee's ID
     /// </summary>
-    public string? EmployeeId { get; set; }
+    public ICollection<string> EmployeeId { get; set; }
+
+    public required List<UpdateOrderItemStatusRequest> Items { get; set; }
 }
