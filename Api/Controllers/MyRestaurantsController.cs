@@ -224,9 +224,9 @@ namespace Reservant.Api.Controllers
             var user = await userManager.GetUserAsync(User);
             var result = await restaurantService.SoftDeleteRestaurantAsync(id, user);
 
-            if (!result)
+            if (result.IsError)
             {
-                return NotFound();
+                return result.ToValidationProblem();
             }
 
             return NoContent();

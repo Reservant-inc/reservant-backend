@@ -283,7 +283,7 @@ namespace Reservant.Api.Services
                 IsBackdoorEmployee = r.IsBackdoorEmployee,
                 IsHallEmployee = r.IsHallEmployee,
                 DateFrom = DateOnly.FromDateTime(DateTime.Now)
-            }).Select(x => { Console.WriteLine(x.Id); return x;}));
+            }).Select(x => { Console.WriteLine(x.Id); return x; }));
             await context.SaveChangesAsync();
             return true;
         }
@@ -642,7 +642,7 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
+        public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
@@ -657,20 +657,25 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
             if (restaurant == null)
             {
-                return false;
-            }
-
-            context.Remove(restaurant);
-            if (restaurant.Group!.Restaurants!.Count == 0)
-            {
-                context.Remove(restaurant.Group);
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = ErrorCodes.NotFound
+                };
             }
 
             context.RemoveRange(restaurant.Tables!);
             context.RemoveRange(restaurant.Employments!);
             context.RemoveRange(restaurant.Photos!);
-            context.RemoveRange(restaurant.Menus!);
             context.RemoveRange(restaurant.MenuItems!);
+            context.RemoveRange(restaurant.Menus!);
+
+            context.Remove(restaurant);
+/*            if (restaurant.Group!.Restaurants!.Count == 0)
+            {
+                context.Remove(restaurant.Group);
+            }*/
 
             await context.SaveChangesAsync();
             return true;
