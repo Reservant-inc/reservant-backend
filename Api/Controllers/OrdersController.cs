@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers;
 public class OrdersController(OrderService orderService, UserManager<User> userManager) : Controller
 {
     [HttpPut("{id:int}/status")]
-    [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<OrderVM>> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequest request) 
     {

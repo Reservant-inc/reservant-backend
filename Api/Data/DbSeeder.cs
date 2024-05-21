@@ -173,7 +173,7 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = null,
                 Takeaway = true,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 1,
                 ClientId = customer1.Id,
                 Client = customer1,

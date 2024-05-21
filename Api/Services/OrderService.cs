@@ -29,7 +29,6 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
         var order = await context.Orders
             .Where(o => o.Id == id)
             .Include(o => o.Employees)
-            .Include(o => o.EmployeeId)
             .Include(o => o.Visit)
             .ThenInclude(v => v.Restaurant)
             .FirstOrDefaultAsync();
@@ -40,7 +39,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound
+                ErrorMessage = "Order not found"
             };
         }
         if (order.Visit.Restaurant is null)
@@ -49,7 +48,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound
+                ErrorMessage = "Restaurant not found"
             };
         }
 
@@ -80,7 +79,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
                 {
                     PropertyName = request.EmployeeIds.ElementAt(i),
                     ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = ErrorCodes.NotFound
+                    ErrorMessage = "Employee not found"
                 };
             }
             if (employee.EmployerId != user.EmployerId) {
