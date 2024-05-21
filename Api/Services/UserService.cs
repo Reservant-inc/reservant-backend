@@ -131,8 +131,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
-            RegisteredAt = DateTime.UtcNow,
-            PhotoFileName = request.PhotoFileName
+            RegisteredAt = DateTime.UtcNow
         };
         
         result = await validationService.ValidateAsync(user);
@@ -140,7 +139,13 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
         {
             return result;
         }
-        
+
+        var result2 = await userManager.CreateAsync(user, request.Password);
+        if (!result2.Succeeded)
+        {
+            return ValidationUtils.AsValidationErrors("", result2);
+        }
+
         await userManager.AddToRoleAsync(user, Roles.Customer);
 
         return user;
@@ -305,6 +310,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.BirthDate = request.BirthDate;
+        user.PhotoFileName = request.PhotoFileName;
 
         result = await validationService.ValidateAsync(user);
         if (!result.IsValid)

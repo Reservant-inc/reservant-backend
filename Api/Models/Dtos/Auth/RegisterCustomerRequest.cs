@@ -17,6 +17,4 @@ public class RegisterCustomerRequest
     public DateOnly BirthDate { get; init; }
     
     public required string Password { get; init; }
-    
-    public required string PhotoFileName { get; init; }
 }

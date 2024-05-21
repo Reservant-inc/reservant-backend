@@ -38,10 +38,5 @@ public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustom
         RuleFor(r => r.Password)
             .NotEmpty()
             .MaximumLength(50);
-
-        RuleFor(r => r.PhotoFileName)
-            .MaximumLength(50)
-            .FileUploadName(FileClass.Image, uploadService)
-            .When(r => !string.IsNullOrEmpty(r.PhotoFileName));
     }
 }

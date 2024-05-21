@@ -64,8 +64,7 @@ public class DbSeeder(
             Email = "john@doe.pl",
             PhoneNumber = "+48123456789",
             Password = "Pa$$w0rd",
-            BirthDate = new DateOnly(1990, 2, 3),
-            PhotoFileName = "photo-11.png"
+            BirthDate = new DateOnly(1990, 2, 3)
         }, "e5779baf-5c9b-4638-b9e7-ec285e57b367")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
@@ -87,8 +86,7 @@ public class DbSeeder(
             FirstName = "Customer",
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789",
-            BirthDate = new DateOnly(2000, 1, 1),
-            PhotoFileName = "photo-12.png"
+            BirthDate = new DateOnly(2000, 1, 1)
         }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
 
         (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
