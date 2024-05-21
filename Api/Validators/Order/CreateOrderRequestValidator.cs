@@ -13,10 +13,17 @@ public class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
     public CreateOrderRequestValidator(ApiDbContext context)
     {
         RuleFor(o => o.VisitId)
-            .GreaterThanOrEqualTo(0)
-            .VisitExist(context)
+            .VisitExist(context);
+        
+        RuleFor(o => o.VisitId)
+            .GreaterThanOrEqualTo(0)            
             .WithMessage("Visit id must be non-negative")
             .WithErrorCode(ErrorCodes.VisitId);
+
+        RuleFor(o => o.Note)
+            .MinimumLength(1)
+            .WithMessage("Note cannot be shorter than 1 character")
+            .WithErrorCode(ErrorCodes.NoteTooShort);
 
         RuleFor(o => o.Items)
             .NotEmptyList();
