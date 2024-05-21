@@ -65,18 +65,16 @@ namespace Reservant.Api.Services
                 .ThenInclude(orderItem => orderItem.MenuItem)
                 .Where(order => order.Visit.TableRestaurantId == restaurantId);
 
-            var orders = await ordersQuery.ToListAsync();
-
-            var filteredOrders = orders.Where(order => returnFinished
-                                        ? order.Status == OrderStatus.Taken || order.Status == OrderStatus.Cancelled
-                                        : order.Status == OrderStatus.InProgress || order.Status == OrderStatus.Ready)
+            var filteredOrders = ordersQuery.Where(order => returnFinished
+                                        ? order.OrderItems.Max(oi => oi.Status) == OrderStatus.Taken || order.OrderItems.Max(oi => oi.Status) == OrderStatus.Cancelled
+                                        : order.OrderItems.Max(oi => oi.Status) == OrderStatus.InProgress || order.OrderItems.Max(oi => oi.Status) == OrderStatus.Ready)
                                        .Select(order => new OrderSummaryVM
                                        {
                                            OrderId = order.Id,
                                            VisitId = order.VisitId,
                                            Note = order.Note,
-                                           Cost = order.Cost,
-                                           Status = order.Status
+                                           Cost = order.OrderItems.Sum(oi => oi.MenuItem.Price * oi.Amount),
+                                           Status = (OrderStatus)order.OrderItems.Max(oi => oi.Status)
                                        });
 
             filteredOrders = orderBy switch
@@ -88,7 +86,17 @@ namespace Reservant.Api.Services
                 _ => filteredOrders
             };
 
-            var totalRecords = filteredOrders.Count();
+            var totalRecords = await filteredOrders.CountAsync();
+
+            if (totalRecords <= 0)
+            {
+                return new ValidationFailure
+                {
+                    ErrorMessage = "No orders found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
             var totalPages = (int)Math.Ceiling((double)totalRecords / perPage);
 
             if (page < 0 || perPage <= 0 || page >= totalPages)
@@ -106,6 +114,7 @@ namespace Reservant.Api.Services
                 .Take(perPage)
                 .ToList();
 
+
             return new Pagination<OrderSummaryVM>
             {
                 Items = paginatedResults,
@@ -114,6 +123,5 @@ namespace Reservant.Api.Services
                 PerPage = perPage
             };
         }
-
     }
 }
