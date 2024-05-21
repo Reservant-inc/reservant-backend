@@ -29,9 +29,9 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
         var order = await context.Orders
             .Where(o => o.Id == id)
             .Include(o => o.Employees)
-            .Include(o => o.EmployeeIds)
+            .Include(o => o.EmployeeId)
             .Include(o => o.Visit)
-            .ThenInclude(o => o.RestaurantId)
+            .ThenInclude(v => v.Restaurant)
             .FirstOrDefaultAsync();
         //does order with id exist?
         if (order is null)
@@ -43,11 +43,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
                 ErrorMessage = ErrorCodes.NotFound
             };
         }
-        var restaurant = await context.Restaurants
-            .Where(r => r.Id == order.Visit.RestaurantId)
-            .Include(r => r.Group)
-            .FirstOrDefaultAsync();
-        if (restaurant is null)
+        if (order.Visit.Restaurant is null)
         {
             return new ValidationFailure
             {
@@ -58,7 +54,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
         }
 
         //is it in the correct restaurant group?
-        if (restaurant.Group.OwnerId != user.EmployerId)
+        if (order.Visit.Restaurant.Group.OwnerId != user.EmployerId)
         {
             return new ValidationFailure
             {
@@ -72,7 +68,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
 
         foreach (UpdateOrderItemStatusRequest item in request.Items)
         {
-            order.OrderItems.FirstOrDefaultAsync(oi => oi.MenuItemId == item.MenuItemId).Select(oi => oi.Status = item.Status);
+            order.OrderItems.FirstOrDefault(i => i.MenuItemId == item.MenuItemId).Status = item.Status;
         }
         //assign employees to the order and check if they exist/belong to the correct restaurant group
         for (int i = 0; i < request.EmployeeIds.Count; i++)
@@ -97,7 +93,6 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
             }
             if (!(order.Employees.Contains(employee))) { 
                 order.Employees.Add(employee);
-                order.EmployeeIds.Add(employee.Id);
             }
         }
         await context.SaveChangesAsync();
