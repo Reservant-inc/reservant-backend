@@ -5,6 +5,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using System.Reflection.Metadata.Ecma335;
+using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.OrderItem;
 
 namespace Reservant.Api.Validators;
@@ -128,27 +129,64 @@ public static class CustomValidators
     }
     
     /// <summary>
-    /// Validates that all orderItems exist in the database.
+    /// Validates that the orderItem exists in the database.
     /// </summary>
-    public static IRuleBuilderOptions<T, List<CreateOrderItemRequest>> OrderItemsExist<T>(
-        this IRuleBuilder<T, List<CreateOrderItemRequest>> builder, ApiDbContext context)
+    public static IRuleBuilderOptions<T, CreateOrderItemRequest> OrderItemExist<T>(
+        this IRuleBuilder<T, CreateOrderItemRequest> builder, ApiDbContext context)
     {
         return builder
-            .MustAsync(async (items, cancellationToken) => 
+            .MustAsync(async (item, cancellationToken) => 
             {
-                foreach (var item in items)
-                {
-                    var itemExists = await context.MenuItems
-                        .AnyAsync(m => m.Id == item.MenuItemId, cancellationToken);
+                var itemExists = await context.MenuItems
+                    .AnyAsync(m => m.Id == item.MenuItemId, cancellationToken);
 
-                    if (!itemExists)
-                    {
-                        return false;
-                    }
-                }
-                return true;
+                return itemExists;
             })
             .WithErrorCode(ErrorCodes.OrderItemDoesNotExists)
-            .WithMessage("One or more order items do not exist in the database.");
+            .WithMessage("The order item with MenuItemId {PropertyValue} does not exist in the database.");
     }
-}
+    
+    
+    /// <summary>
+    /// Validates that the visit exists in the database.
+    /// </summary>
+    public static IRuleBuilderOptions<T, int> VisitExist<T>(
+        this IRuleBuilder<T, int> builder, ApiDbContext context)
+    {
+        return builder
+            .MustAsync(async (visitId, cancellationToken) => 
+            {
+                var visitExists = await context.Visits
+                    .AnyAsync(v => v.Id == visitId, cancellationToken);
+
+                return visitExists;
+            })
+            .WithErrorCode(ErrorCodes.VisitNotFound)
+            .WithMessage("Visit with Id {PropertyValue} does not exist in the database.");
+    }
+    
+    
+    /// <summary>
+    /// Validates that the value is greater than or equal to zero.
+    /// </summary>
+    public static IRuleBuilderOptions<T, double> GreaterOrEqualToZero<T>(
+        this IRuleBuilder<T, double> builder)
+    {
+        return builder
+            .Must(value => value >= 0)
+            .WithErrorCode(ErrorCodes.ValueLessThanZero)
+            .WithMessage("The value must be greater than or equal to zero.");
+    }
+    
+    /// <summary>
+    /// Validates that the list is not empty.
+    /// </summary>
+    public static IRuleBuilderOptions<T, List<TElement>> NotEmptyList<T, TElement>(
+        this IRuleBuilder<T, List<TElement>> builder)
+    {
+        return builder
+            .NotEmpty()
+            .WithErrorCode(ErrorCodes.EmptyList)
+            .WithMessage("List cannot be empty.");
+    }
+} 

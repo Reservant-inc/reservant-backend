@@ -14,20 +14,26 @@ public class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
     {
         RuleFor(o => o.VisitId)
             .GreaterThanOrEqualTo(0)
+            .VisitExist(context)
             .WithMessage("Visit id must be non-negative")
             .WithErrorCode(ErrorCodes.VisitId);
 
         RuleFor(o => o.Items)
-            .NotEmpty()
-            .WithMessage("Items cannot be empty")
-            .WithErrorCode(ErrorCodes.EmptyItemList);
-
-        RuleFor(o => o.Items)
-            .OrderItemsExist(context);
+            .NotEmptyList();
 
         RuleForEach(o => o.Items)
-            .Must(item => item.Amount > 0)
-            .WithMessage("The amount of each item must be greater than 0.")
-            .WithErrorCode(ErrorCodes.AmountLessThanOne);
+            .OrderItemExist(context)
+            .WithMessage("One or more order items do not exist in the database.")
+            .WithErrorCode(ErrorCodes.OrderItemDoesNotExists);
+
+        // Problem z castowaniem doubli (Amount = int), dlatego ChildRules
+        RuleForEach(o => o.Items)
+            .ChildRules(items =>
+            {
+                items.RuleFor(i => (double) i.Amount)
+                    .GreaterOrEqualToZero()
+                    .WithMessage("The amount of each item must be greater than or equal to zero.")
+                    .WithErrorCode(ErrorCodes.AmountLessThanOne);
+            });
     }
 }

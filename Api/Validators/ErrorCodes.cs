@@ -49,9 +49,9 @@ public static class ErrorCodes
     public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
     
     /// <summary>
-    /// Item list cannot be empty
+    /// List cannot be empty
     /// </summary>
-    public const string EmptyItemList = "EmptyItemList";
+    public const string EmptyList = "EmptyList";
     
     /// <summary>
     /// OrderItem does not exists
@@ -67,4 +67,21 @@ public static class ErrorCodes
     /// Amount of orderItem cannot be less than 1
     /// </summary>
     public const string AmountLessThanOne = "AmountLessThanOne";
+    
+    /// <summary>
+    /// The value must be greater than or equal to zero.
+    /// </summary>
+    public const string ValueLessThanZero = "ValueLessThanZero";
+    
+    /// <summary>
+    /// The value must be greater than or equal to zero.
+    /// </summary>
+    public const string NoteTooShort = "NoteTooShort";
+    
+    /// <summary>
+    /// Visit does not exist.
+    /// </summary>
+    public const string VisitNotFound = "VisitNotFound";
+    
+    
 }
