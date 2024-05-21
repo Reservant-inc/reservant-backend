@@ -83,5 +83,9 @@ public static class ErrorCodes
     /// </summary>
     public const string VisitNotFound = "VisitNotFound";
     
+    /// <summary>
+    /// User not associated with this visit.
+    /// </summary>
+    public const string UserNotAssociatedWithVisit = "UserNotAssociatedWithVisit";
     
 }

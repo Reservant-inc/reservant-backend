@@ -1,8 +1,10 @@
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Validation;
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -18,7 +20,7 @@ public class OrderService(
     /// <summary>
     /// Creating new order
     /// </summary>
-    public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request)
+    public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
     {
         var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
         var menuItems = await context.MenuItems
@@ -31,6 +33,22 @@ public class OrderService(
         {
             return result;
         }
+
+        var visit = await context.Visits
+            .Where(v => v.Id == request.VisitId)
+            .Include(visit => visit.Participants)
+            .FirstOrDefaultAsync();
+            
+        if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(user.Id),
+                AttemptedValue = user.Id,
+                ErrorCode = ErrorCodes.UserNotAssociatedWithVisit
+            };
+        }
+        
 
         var orderItems = request.Items.Select(c => new OrderItem
         {
