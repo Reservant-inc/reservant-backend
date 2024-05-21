@@ -25,9 +25,9 @@ public class Order : ISoftDeletable
     public string? Note { get; set; }
 
     /// <summary>
-    /// Serving employee IDs
+    /// Serving employee ID
     /// </summary>
-    public ICollection<string>? EmployeeIds { get; set; }
+    public string? EmployeeId { get; set; }
 
     /// <summary>
     /// Total cost of the order

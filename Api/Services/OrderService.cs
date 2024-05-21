@@ -72,7 +72,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
 
         foreach (UpdateOrderItemStatusRequest item in request.Items)
         {
-            order.OrderItems.Where(oi => oi.MenuItemId == item.MenuItemId).Select(oi => oi.Status = item.Status);
+            order.OrderItems.FirstOrDefaultAsync(oi => oi.MenuItemId == item.MenuItemId).Select(oi => oi.Status = item.Status);
         }
         //assign employees to the order and check if they exist/belong to the correct restaurant group
         for (int i = 0; i < request.EmployeeIds.Count; i++)
@@ -91,8 +91,8 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
                 return new ValidationFailure
                 {
                     PropertyName = request.EmployeeIds.ElementAt(i),
-                    ErrorCode = ErrorCodes.AccessDenied,
-                    ErrorMessage = ErrorCodes.AccessDenied
+                    ErrorCode = ErrorCodes.MustBeRestaurantEmployee,
+                    ErrorMessage = ErrorCodes.MustBeRestaurantEmployee
                 };
             }
             if (!(order.Employees.Contains(employee))) { 

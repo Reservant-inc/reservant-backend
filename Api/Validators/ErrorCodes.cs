@@ -82,4 +82,9 @@ public static class ErrorCodes
     /// The value must be greater than or equal to zero.
     /// </summary>
     public const string ValueLessThanZero = "ValueLessThanZero";
+
+    /// <summary>
+    /// to access this value you need to be employed by specific restaurant
+    /// </summary>
+    public const string MustBeRestaurantEmployee = "MustBeRestaurantEmployee";
 }
