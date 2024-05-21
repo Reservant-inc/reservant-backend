@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
+
 
 
 /// <summary>
@@ -25,12 +28,26 @@ public class OrderService(ApiDbContext context)
             .Orders
             .Include(o => o.Visit)
             .Include(o => o.OrderItems)
-            .Where(o => o.Id == id && o.Visit!=null?o.Visit.ClientId == userId:false)
-            .Where(o => o.OrderItems!=null?(!o.OrderItems.Any(oi => oi.Status == OrderStatus.Taken) && !o.OrderItems.Any(oi => oi.Status == OrderStatus.Cancelled)):false)
+            .Where(o => o.Id == id)
             .FirstOrDefaultAsync();
 
         if (result == null)
-            return false;
+              return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound
+                };
+
+        if (result.Visit!=null?result.Visit.ClientId != userId:false)
+            return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+
+        if (result.OrderItems == null || result.OrderItems.Any(oi => oi.Status == OrderStatus.Taken || oi.Status == OrderStatus.Cancelled))
+            return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
 
         foreach (var orderItem in result.OrderItems)
         {

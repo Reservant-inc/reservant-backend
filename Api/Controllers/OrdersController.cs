@@ -33,8 +33,6 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
             return result.ToValidationProblem();
         }
 
-        if (result.Value)
-            return Ok();
-        return NotFound();     
+        return Ok();
     }
 }
