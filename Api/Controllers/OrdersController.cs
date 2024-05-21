@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Order;
@@ -22,7 +23,7 @@ public class OrdersController(OrderService orderService) : Controller
     [Authorize(Roles = $"{Roles.Customer},{Roles.RestaurantEmployee}")]
     public async Task<ActionResult<OrderVM>> GetOrderById(int id)
     {
-        var order = await orderService.GetOrderById(id);
+        var order = await orderService.GetOrderById(id, User);
 
         if (order.IsError)
         {

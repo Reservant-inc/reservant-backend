@@ -19,8 +19,7 @@ namespace Reservant.Api.Services;
 public class OrderService(
     UserManager<User> userManager,
     ApiDbContext context
-    )
-{
+){
     /// <summary>
     /// Gets the order with the given id
     /// </summary>
@@ -48,7 +47,6 @@ public class OrderService(
             .FirstOrDefaultAsync(v => v.Orders!.Contains(order));
 
         var user = await userManager.GetUserAsync(claim);
-        
         var roles = await userManager.GetRolesAsync(user!);
 
         if (roles.Contains(Roles.Customer)
@@ -65,9 +63,10 @@ public class OrderService(
         if (roles.Contains(Roles.RestaurantEmployee))
         {
             var employment = await context.Employments
-                .FirstOrDefaultAsync(e => e.EmployeeId == user!.Id);
+                .Where(e => e.EmployeeId == user!.Id)
+                .ToListAsync();
 
-            if (employment == null || visit!.RestaurantId != employment.RestaurantId)
+            if (employment == null || !employment.Any(e => e.RestaurantId == visit!.RestaurantId))
             {
                 return new ValidationFailure
                 {
