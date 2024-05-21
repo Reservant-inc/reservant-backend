@@ -1,4 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Identity;
+using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -9,7 +13,8 @@ namespace Reservant.Api.Controllers;
 /// Managing orders
 /// </summary>
 [ApiController, Route("/orders")]
-public class OrdersController(OrderService orderService) : Controller
+[Authorize(Roles = Roles.Customer)]
+public class OrdersController(OrderService orderService, UserManager<User> userManager) : Controller
 {
 
     /// <summary>
@@ -21,8 +26,9 @@ public class OrdersController(OrderService orderService) : Controller
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<OrderSummaryVM>> CreateOrder(CreateOrderRequest request)
     {
+        var user = await userManager.GetUserAsync(User);
         
-        var result = await orderService.CreateOrderAsync(request);
+        var result = await orderService.CreateOrderAsync(request, user);
 
         if (!result.IsError) return Ok(result.Value);
 
