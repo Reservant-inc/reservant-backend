@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -18,7 +19,7 @@ public class OrdersController(OrderService orderService) : Controller
     /// <param name="id">Id of the order</param>
     /// <returns>OrderVM or NotFound if order wasn't found</returns>
     [HttpGet("{id:int}")]
-    [Authorize]
+    [Authorize(Roles = $"{Roles.Customer},{Roles.RestaurantEmployee}")]
     public async Task<ActionResult<OrderVM>> GetOrderById(int id)
     {
         var order = await orderService.GetOrderById(id);
