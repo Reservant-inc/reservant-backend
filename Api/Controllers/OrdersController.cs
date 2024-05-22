@@ -20,10 +20,8 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <summary>
     /// Controller responsible for canceling orders
     /// </summary>
-    /// <request code="404"> Order doesnt exist among unrealised orders </request>
-    /// <request code="200"> Succesful cancelation </request>
     [HttpPost("{id:int}/cancel")]
-    [ProducesResponseType(200), ProducesResponseType(404)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult> CancelOrder(int id)
     {
         var user = await userManager.GetUserAsync(User);
