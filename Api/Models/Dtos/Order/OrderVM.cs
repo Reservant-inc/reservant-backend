@@ -1,4 +1,5 @@
 using Reservant.Api.Models.Dtos.OrderItem;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Models.Dtos.Order;
 

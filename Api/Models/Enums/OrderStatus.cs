@@ -1,4 +1,4 @@
-namespace Reservant.Api.Models;
+namespace Reservant.Api.Models.Enums;
 
 // The order of the values matters, so that min order item status
 // is the whole order's status:

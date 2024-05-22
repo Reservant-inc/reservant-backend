@@ -9,6 +9,7 @@ using Reservant.Api.Models.Dtos.OrderItem;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Security.Claims;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Services;
 
