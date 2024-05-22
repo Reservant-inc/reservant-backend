@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Data;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 
 namespace Reservant.Api.Models;

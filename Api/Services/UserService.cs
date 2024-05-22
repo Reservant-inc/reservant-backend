@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
@@ -11,6 +12,7 @@ using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Models.Dtos.User;
+using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
 
 
@@ -19,7 +21,9 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Stuff for working with user records.
 /// </summary>
-public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
+public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
+    FileUploadService uploadService,
+    ValidationService validationService)
 {
     /// <summary>
     /// Used to generate restaurant employee's logins:
@@ -114,14 +118,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// <returns></returns>
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
     {
-        var errors = new List<ValidationResult>();
-        if (request.Login.Contains(RestaurantEmployeeLoginSeparator))
+        var result = await validationService.ValidateAsync(request);
+        if (!result.IsValid)
         {
-            errors.Add(new ValidationResult(
-                $"Login can't contain '{RestaurantEmployeeLoginSeparator}'.", [nameof(request.Login)]));
-            return errors;
+            return result;
         }
-
+        
         var user = new User
         {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -133,17 +135,17 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
             BirthDate = request.BirthDate,
             RegisteredAt = DateTime.UtcNow
         };
-
-
-        if (!ValidationUtils.TryValidate(user, errors))
+        
+        result = await validationService.ValidateAsync(user);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
-        var result = await userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
+        var result2 = await userManager.CreateAsync(user, request.Password);
+        if (!result2.Succeeded)
         {
-            return ValidationUtils.AsValidationErrors("", result);
+            return ValidationUtils.AsValidationErrors("", result2);
         }
 
         await userManager.AddToRoleAsync(user, Roles.Customer);
@@ -299,21 +301,57 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext)
     /// <returns></returns>
     public async Task<Result<User>> PutUserAsync(UpdateUserDetailsRequest request, User user)
     {
-        var errors = new List<ValidationResult>();
+        var result = await validationService.ValidateAsync(request);
+        if (!result.IsValid)
+        {
+            return result;
+        }
 
         user.Email = request.Email.Trim();
         user.PhoneNumber = request.PhoneNumber.Trim();
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.BirthDate = request.BirthDate;
+        user.PhotoFileName = request.PhotoFileName;
 
-        if (!ValidationUtils.TryValidate(user, errors))
+        result = await validationService.ValidateAsync(user);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await userManager.UpdateAsync(user);
 
         return user;
     }
+
+
+
+    /// <summary>
+    /// Gets the list of visists of user of provided id
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
+    {
+        var list = await dbContext.Visits
+        .Include(r => r.Participants!)
+        .Include(r => r.Orders!)
+            .Where(x => x.ClientId == user.Id || x.Participants!.Any(p => p.Id == user.Id))
+            .ToListAsync();
+
+        var resultList = list.Select(visit => new VisitSummaryVM
+        {
+            VisitId=visit.Id,
+            Date=visit.Date,
+            NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
+            Takeaway=visit.Takeaway,
+            ClientId=visit.ClientId,
+            RestaurantId=visit.RestaurantId
+        }).ToList();
+
+        return new Result<List<VisitSummaryVM>>(resultList);
+    }
+
 }
+

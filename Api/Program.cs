@@ -77,21 +77,6 @@ builder.Services
     .AddEntityFrameworkStores<ApiDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(o =>
-{
-    o.Events.OnRedirectToLogin = ctx =>
-    {
-        ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
-    };
-
-    o.Events.OnRedirectToAccessDenied = ctx =>
-    {
-        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return Task.CompletedTask;
-    };
-});
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

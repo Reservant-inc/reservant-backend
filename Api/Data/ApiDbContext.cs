@@ -64,6 +64,16 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
             eb.HasKey(oi => new { oi.MenuItemId, oi.OrderId });
         });
 
+        builder.Entity<User>(eb =>
+        {
+            eb.HasOne<FileUpload>(u => u.Photo)
+                .WithOne()
+                .HasForeignKey<User>(u => u.PhotoFileName);
+
+            eb.HasMany<FileUpload>(u => u.Uploads)
+                .WithOne(fu => fu.User);
+        });
+
         var softDeletableEntities =
             from prop in GetType().GetProperties()
             where prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)

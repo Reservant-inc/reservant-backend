@@ -7,6 +7,7 @@ using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Dtos.Visit;
 
 namespace Reservant.Api.Controllers;
 
@@ -14,7 +15,11 @@ namespace Reservant.Api.Controllers;
 /// Manage the current user
 /// </summary>
 [ApiController, Route("/user")]
-public class UserController(UserManager<User> userManager, UserService userService) : Controller
+public class UserController(
+    UserManager<User> userManager,
+    UserService userService,
+    FileUploadService uploadService
+    ) : Controller
 {
     /// <summary>
     /// Get list of users employed by the current user. For restaurant owners only
@@ -61,6 +66,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
+            Photo = user.PhotoFileName == null ? null : uploadService.GetPathForFileName(user.PhotoFileName)
         });
     }
     /// <summary>
@@ -99,6 +105,36 @@ public class UserController(UserManager<User> userManager, UserService userServi
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
+            Photo = user.PhotoFileName == null ? null : uploadService.GetPathForFileName(user.PhotoFileName)
         });
+    }
+
+
+
+    /// <summary>
+    /// Get list of visits of logged in user
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("visits")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200),ProducesResponseType(400)]
+    public async Task<ActionResult<List<VisitSummaryVM>>> GetVisits()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.GetVisitsAsync(user);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        else
+        {
+            return Ok(result.Value);
+        }
     }
 }

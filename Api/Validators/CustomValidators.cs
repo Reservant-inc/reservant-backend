@@ -1,7 +1,9 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using System.Reflection.Metadata.Ecma335;
@@ -70,6 +72,34 @@ public static class CustomValidators
     }
 
     /// <summary>
+    /// Validates that the user exists in the database.
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> CustomerExists<T>(
+        this IRuleBuilder<T, string> builder,
+        UserManager<Models.User> userManager)
+    {
+        return builder
+            .MustAsync(async (userId, cancellation) =>
+            {
+                var user = await userManager.FindByIdAsync(userId);
+                return user != null && await userManager.IsInRoleAsync(user, Roles.Customer);
+            })
+            .WithErrorCode(ErrorCodes.MustBeCustomerId)
+            .WithMessage("Customer with ID {PropertyValue} does not exist.");
+    }
+
+    /// <summary>
+    /// Validates that the date is today or in the future.
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly> DateInFuture<T>(this IRuleBuilder<T, DateOnly> builder)
+    {
+        return builder
+            .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
+            .WithErrorCode(ErrorCodes.DateMustBeInFuture)
+            .WithMessage("The date must be today or in the future.");
+    }
+
+    /// <summary>
     /// Validates that the property contains a valid postal code (e.g. 00-000).
     /// </summary>
     public static IRuleBuilderOptions<T, string> PostalCode<T>(this IRuleBuilder<T, string> builder)
@@ -124,5 +154,48 @@ public static class CustomValidators
         })
         .WithErrorCode(ErrorCodes.MustBeCurrentUsersEmployee)
         .WithMessage(ErrorCodes.MustBeCurrentUsersEmployee);
+    }
+
+    /// <summary>
+    /// Validates that the given Restaurant ID exists.
+    /// </summary>
+    public static IRuleBuilderOptions<T, int> RestaurantExists<T>(this IRuleBuilder<T, int> builder, ApiDbContext dbContext)
+    {
+        return builder
+            .MustAsync(async (restaurantId, cancellationToken) =>
+            {
+                return await dbContext.Restaurants
+                    .AnyAsync(r => r.Id == restaurantId, cancellationToken);
+            })
+            .WithMessage("The specified Restaurant ID does not exist.")
+            .WithErrorCode(ErrorCodes.RestaurantDoesNotExist);
+    }
+
+    /// <summary>
+    /// Validates that the given Table ID exists within the specified Restaurant ID.
+    /// </summary>
+    public static IRuleBuilderOptions<T, Tuple<int, int>> TableExistsInRestaurant<T>(this IRuleBuilder<T, Tuple<int, int>> builder, ApiDbContext dbContext)
+    {
+        return builder
+            .MustAsync(async (tuple, cancellationToken) =>
+            {
+                var (restaurantId, tableId) = tuple;
+                return await dbContext.Tables
+                    .AnyAsync(t => t.Id == tableId && t.RestaurantId == restaurantId, cancellationToken);
+            })
+            .WithMessage("The specified Table ID does not exist within the given Restaurant ID.")
+            .WithErrorCode(ErrorCodes.TableDoesNotExist);
+    }
+
+    /// <summary>
+    /// Validates that the value is greater than or equal to zero.
+    /// </summary>
+    public static IRuleBuilderOptions<T, double> GreaterOrEqualToZero<T>(
+        this IRuleBuilder<T, double> builder)
+    {
+        return builder
+            .Must(value => value >= 0)
+            .WithErrorCode(ErrorCodes.ValueLessThanZero)
+            .WithMessage("The value must be greater than or equal to zero.");
     }
 }

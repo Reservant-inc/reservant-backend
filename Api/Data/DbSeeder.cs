@@ -7,6 +7,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
 
@@ -173,7 +174,7 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = null,
                 Takeaway = true,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 1,
                 ClientId = customer1.Id,
                 Client = customer1,
@@ -189,7 +190,7 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = 10m,
                 Takeaway = false,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 2,
                 ClientId = customer2.Id,
                 Client = customer2,
@@ -205,7 +206,7 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = 25m,
                 Takeaway = false,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 1,
                 ClientId = customer2.Id,
                 Client = customer2,
@@ -226,7 +227,7 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 8,
+                        MenuItemId = 3,
                         Status = OrderStatus.Taken,
                     }
                 },
@@ -241,7 +242,7 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 6,
+                        MenuItemId = 1,
                         Status = OrderStatus.Cancelled,
                     }
                 },
@@ -256,13 +257,13 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 6,
+                        MenuItemId = 1,
                         Status = OrderStatus.Taken,
                     },
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 7,
+                        MenuItemId = 2,
                         Status = OrderStatus.Taken,
                     }
                 },
