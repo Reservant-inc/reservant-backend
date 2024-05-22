@@ -8,7 +8,6 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.OrderItem;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace Reservant.Api.Services;
@@ -74,7 +73,7 @@ public class OrderService(
                     ErrorCode = ErrorCodes.AccessDenied
                 };
             }
-            
+
         }
 
         var orderItems = order.OrderItems?.Select(i => new OrderItemVM()
@@ -94,6 +93,51 @@ public class OrderService(
             Items = orderItems ?? [],
             EmployeeId = order.EmployeeId
         };
+    }
+
+    /// <summary>
+    /// Returns a list of restaurants owned by the user.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<bool>> CancelOrderAsync(int id, User user)
+    {
+        var userId = user.Id;
+
+        var result = await context
+            .Orders
+            .Include(o => o.Visit)
+            .Include(o => o.OrderItems)
+            .Where(o => o.Id == id)
+            .FirstOrDefaultAsync();
+
+        if (result == null)
+              return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound
+                };
+
+        if (result.Visit != null && result.Visit.ClientId != userId)
+            return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+
+        if (result.OrderItems == null || result.OrderItems.Any(oi => oi.Status == OrderStatus.Taken || oi.Status == OrderStatus.Cancelled))
+            return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.SomeOfItemsAreTaken
+                };
+
+        foreach (var orderItem in result.OrderItems)
+        {
+            orderItem.Status = OrderStatus.Cancelled;
+        }
+
+        await context.SaveChangesAsync();
+
+        return true;
     }
 
 }

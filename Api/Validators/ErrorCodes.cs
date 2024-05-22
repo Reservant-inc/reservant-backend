@@ -47,4 +47,44 @@ public static class ErrorCodes
     /// The user must be current user's employee
     /// </summary>
     public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
+
+    /// <summary>
+    /// Must be a valid customer ID
+    /// </summary>
+    public const string MustBeCustomerId = "MustBeCustomerId";
+
+    /// <summary>
+    /// The date must be in the future
+    /// </summary>
+    public const string DateMustBeInFuture = "DateMustBeInFuture";
+
+    /// <summary>
+    /// Table does not exist
+    /// </summary>
+    public const string TableDoesNotExist = "TableDoesNotExist";
+
+    /// <summary>
+    /// NumberOfGuests must be greater of equal to 0
+    /// </summary>
+    public const string NumberOfGuests = "NumberOfGuests";
+
+    /// <summary>
+    /// NumberOfGuests must be greater of equal to 0
+    /// </summary>
+    public const string RestaurantDoesNotExist = "RestaurantDoesNotExist";
+
+    /// <summary>
+    /// Tip cannot be a negative value
+    /// </summary>
+    public const string Tip = "Tip";
+
+    /// <summary>
+    /// The value must be greater than or equal to zero.
+    /// </summary>
+    public const string ValueLessThanZero = "ValueLessThanZero";
+
+    /// <summary>
+    /// The order cannot be cancelled because some of the items have been received by the customer
+    /// </summary>
+    public const string SomeOfItemsAreTaken = "SomeOfItemsWereTaken";
 }

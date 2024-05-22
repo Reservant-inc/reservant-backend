@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Services;
+using Reservant.Api.Models;
 using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
@@ -12,7 +13,7 @@ namespace Reservant.Api.Controllers;
 /// Managing orders
 /// </summary>
 [ApiController, Route("/orders")]
-public class OrdersController(OrderService orderService) : Controller
+public class OrdersController(OrderService orderService, UserManager<User> userManager) : Controller
 {
     /// <summary>
     /// Gets order with the given id
@@ -33,4 +34,21 @@ public class OrdersController(OrderService orderService) : Controller
         return Ok(order.Value);
     }
 
+    /// <summary>
+    /// Controller responsible for canceling orders
+    /// </summary>
+    [HttpPost("{id:int}/cancel")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult> CancelOrder(int id)
+    {
+        var user = await userManager.GetUserAsync(User);
+        var result = await orderService.CancelOrderAsync(id, user);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok();
+    }
 }
