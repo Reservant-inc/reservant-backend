@@ -226,7 +226,7 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 8,
+                        MenuItemId = 3,
                         Status = OrderStatus.Taken,
                     }
                 },
@@ -241,7 +241,7 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 6,
+                        MenuItemId = 1,
                         Status = OrderStatus.Cancelled,
                     }
                 },
@@ -256,13 +256,13 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 6,
+                        MenuItemId = 1,
                         Status = OrderStatus.Taken,
                     },
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 7,
+                        MenuItemId = 2,
                         Status = OrderStatus.Taken,
                     }
                 },
