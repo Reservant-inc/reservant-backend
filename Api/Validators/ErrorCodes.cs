@@ -82,4 +82,9 @@ public static class ErrorCodes
     /// The value must be greater than or equal to zero.
     /// </summary>
     public const string ValueLessThanZero = "ValueLessThanZero";
+
+    /// <summary>
+    /// The order cannot be cancelled because some of the items have been received by the customer
+    /// </summary>
+    public const string SomeOfItemsAreTaken = "SomeOfItemsWereTaken";
 }
