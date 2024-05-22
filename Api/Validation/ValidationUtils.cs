@@ -12,6 +12,8 @@ namespace Reservant.Api.Validation;
 /// </summary>
 public static class ValidationUtils
 {
+    private static readonly CustomProblemDetailsFactory ProblemDetailsFactory = new();
+
     /// <summary>
     /// Convert C#'s default ValidationResults to Fluent Validation's ValidationFailures
     /// </summary>
@@ -66,34 +68,8 @@ public static class ValidationUtils
     /// </summary>
     public static ActionResult ToValidationProblem<T>(this Result<T> result)
     {
-        var errors = new Dictionary<string, List<string>>();
-        var errorCodes = new Dictionary<string, List<string>>();
-
-        foreach (var error in result.Errors)
-        {
-            var key = Utils.PropertyPathToCamelCase((error.PropertyName ?? ""));
-
-            errors.TryAdd(key, []);
-            errors[key].Add(error.ErrorMessage!);
-
-            if (error.ErrorCode is not null)
-            {
-                errorCodes.TryAdd(key, []);
-                errorCodes[key].Add(error.ErrorCode!);
-            }
-        }
-
-        return new ObjectResult(new ProblemDetails
-        {
-            Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
-            Title = "One or more validation errors occurred.",
-            Status = (int)HttpStatusCode.BadRequest,
-            Extensions =
-            {
-                ["errors"] = errors,
-                ["errorCodes"] = errorCodes
-            }
-        });
+        return new ObjectResult(
+            ProblemDetailsFactory.CreateFluentValidationProblemDetails(result.Errors));
     }
 
     /// <summary>

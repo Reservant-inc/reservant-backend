@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
@@ -11,6 +12,7 @@ using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Models.Dtos.User;
+using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
 
 
@@ -322,4 +324,34 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
 
         return user;
     }
+
+
+
+    /// <summary>
+    /// Gets the list of visists of user of provided id
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
+    {
+        var list = await dbContext.Visits
+        .Include(r => r.Participants!)
+        .Include(r => r.Orders!)
+            .Where(x => x.ClientId == user.Id || x.Participants!.Any(p => p.Id == user.Id))
+            .ToListAsync();
+
+        var resultList = list.Select(visit => new VisitSummaryVM
+        {
+            VisitId=visit.Id,
+            Date=visit.Date,
+            NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
+            Takeaway=visit.Takeaway,
+            ClientId=visit.ClientId,
+            RestaurantId=visit.RestaurantId
+        }).ToList();
+
+        return new Result<List<VisitSummaryVM>>(resultList);
+    }
+
 }
+

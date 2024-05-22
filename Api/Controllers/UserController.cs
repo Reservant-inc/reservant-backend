@@ -7,6 +7,7 @@ using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Dtos.Visit;
 
 namespace Reservant.Api.Controllers;
 
@@ -100,5 +101,34 @@ public class UserController(UserManager<User> userManager, UserService userServi
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
         });
+    }
+
+
+
+    /// <summary>
+    /// Get list of visits of logged in user
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("visits")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200),ProducesResponseType(400)]
+    public async Task<ActionResult<List<VisitSummaryVM>>> GetVisits()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.GetVisitsAsync(user);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        else
+        {
+            return Ok(result.Value);
+        }
     }
 }

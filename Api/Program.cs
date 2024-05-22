@@ -77,21 +77,6 @@ builder.Services
     .AddEntityFrameworkStores<ApiDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(o =>
-{
-    o.Events.OnRedirectToLogin = ctx =>
-    {
-        ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
-    };
-
-    o.Events.OnRedirectToAccessDenied = ctx =>
-    {
-        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return Task.CompletedTask;
-    };
-});
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -144,15 +129,21 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    var debugService = scope.ServiceProvider.GetRequiredService<DebugService>();
     var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
     var seeder = scope.ServiceProvider.GetRequiredService<DbSeeder>();
 
-    if (app.Environment.IsProduction())
+    var fileUploadsOptions = scope.ServiceProvider.GetRequiredService<IOptions<FileUploadsOptions>>().Value;
+    if (!Path.Exists(fileUploadsOptions.GetFullSavePath()))
     {
-        await context.DropAllTablesAsync();
+        Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
     }
 
-    if (await context.Database.EnsureCreatedAsync())
+    if (app.Environment.IsProduction())
+    {
+        await debugService.RecreateDatabase();
+    }
+    else if (await context.Database.EnsureCreatedAsync())
     {
         await seeder.SeedDataAsync();
     }
@@ -166,11 +157,6 @@ app.UseSwaggerUI();
 using (var scope = app.Services.CreateScope())
 {
     var fileUploadsOptions = scope.ServiceProvider.GetRequiredService<IOptions<FileUploadsOptions>>().Value;
-    if (!Path.Exists(fileUploadsOptions.GetFullSavePath()))
-    {
-        Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
-    }
-
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = new PhysicalFileProvider(fileUploadsOptions.GetFullSavePath()),
