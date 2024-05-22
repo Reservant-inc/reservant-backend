@@ -8,9 +8,8 @@ public class OrderValidator : AbstractValidator<Models.Order>
     public OrderValidator()
     {
         RuleFor(o => o.Note)
-            .MinimumLength(0)
-            .WithMessage("Note cannot be empty!")
-            .WithErrorCode(ErrorCodes.NoteTooShort);
+            .NotEmpty()
+            .When(o => o.Note is not null);
 
     }
 }

@@ -45,7 +45,7 @@ public class OrderService(
             {
                 PropertyName = nameof(user.Id),
                 AttemptedValue = user.Id,
-                ErrorCode = ErrorCodes.UserNotAssociatedWithVisit
+                ErrorCode = ErrorCodes.UserDoesNotParticipateInVisit
             };
         }
         
