@@ -19,10 +19,6 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
             .NotEmpty()
             .MaximumLength(30);
 
-        RuleFor(r => r.Login)
-            .NotEmpty()
-            .MaximumLength(50);
-
         RuleFor(r => r.Email)
             .NotEmpty()
             .EmailAddress()
@@ -40,5 +36,5 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
             .FileUploadName(FileClass.Image, uploadService)
             .When(u => !string.IsNullOrEmpty(u.PhotoFileName));
     }
-    
+
 }

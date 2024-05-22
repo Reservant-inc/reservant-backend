@@ -34,13 +34,7 @@ public class UpdateUserDetailsRequest
     /// </summary>
     /// <example>1999-12-31</example>
     public DateOnly? BirthDate { get; set; }
-    
-    /// <summary>
-    /// Login
-    /// </summary>
-    /// <example>JD</example>
-    public required string Login { get; init; }
-    
+
     /// <summary>
     /// File name of the photo
     /// </summary>
