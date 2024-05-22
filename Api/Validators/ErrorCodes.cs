@@ -82,4 +82,9 @@ public static class ErrorCodes
     /// The value must be greater than or equal to zero.
     /// </summary>
     public const string ValueLessThanZero = "ValueLessThanZero";
+
+    /// <summary>
+    /// Per page must be grater than 0, page can not be greater than number of pages
+    /// </summary>
+    public const string InvalidPageOrPerPageValue = "InvalidPageOrPerPageValue";
 }
