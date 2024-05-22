@@ -13,7 +13,6 @@ namespace Reservant.Api.Controllers;
 /// Managing orders
 /// </summary>
 [ApiController, Route("/orders")]
-[Authorize(Roles = Roles.Customer)]
 public class OrdersController(OrderService orderService, UserManager<User> userManager) : Controller
 {
 
@@ -23,19 +22,20 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost()]
+    [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<OrderSummaryVM>> CreateOrder(CreateOrderRequest request)
     {
         var user = await userManager.GetUserAsync(User);
-        
+
         var result = await orderService.CreateOrderAsync(request, user);
 
         if (!result.IsError) return Ok(result.Value);
 
         return result.ToValidationProblem();
     }
-    
-    
-    
-    
+
+
+
+
 }
