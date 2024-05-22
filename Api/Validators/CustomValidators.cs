@@ -146,7 +146,47 @@ public static class CustomValidators
             .WithErrorCode(ErrorCodes.NotFound)
             .WithMessage("The order item with MenuItemId {PropertyValue} does not exist in the database.");
     }
+    
+    /// <summary>
+    /// Validates that the order item belongs to the restaurant.
+    /// </summary>
+    public static IRuleBuilderOptions<T, CreateOrderRequest> OrderItemBelongsToRestaurant<T>(
+        this IRuleBuilder<T, CreateOrderRequest> builder, ApiDbContext context)
+    {
+        return builder
+            .MustAsync(async (request, cancellationToken) =>
+            {
 
+                var visit = await context.Visits
+                    .FirstOrDefaultAsync(v => v.Id == request.VisitId, cancellationToken);
+                
+                if (visit == null)
+                {
+                    return false;
+                }
+                
+                var restaurant = await context.Restaurants
+                    .Include(r => r.MenuItems)
+                    .FirstOrDefaultAsync(r => r.Id == visit.Id, cancellationToken);
+
+                if (restaurant == null)
+                {
+                    return false;
+                }
+
+                foreach (var item in request.Items)
+                {
+                    if (!restaurant.MenuItems.Any(mi => mi.Id == item.MenuItemId))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            })
+            .WithErrorCode(ErrorCodes.ItemsNotInRestaurant)
+            .WithMessage("One or more order items do not belong to the specified restaurant.");
+    }
 
     /// <summary>
     /// Validates that the visit exists in the database.

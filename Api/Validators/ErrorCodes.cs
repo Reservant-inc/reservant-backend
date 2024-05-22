@@ -67,5 +67,10 @@ public static class ErrorCodes
     /// User is not the creator nor a participant of the visit
     /// </summary>
     public const string UserDoesNotParticipateInVisit = "UserNotAssociatedWithVisit";
+    
+    /// <summary>
+    /// Menu not in restaurant MenuItems
+    /// </summary>
+    public const string ItemsNotInRestaurant = "ItemsNotInRestaurant";
 
 }
