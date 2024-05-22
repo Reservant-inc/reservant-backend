@@ -37,7 +37,7 @@ public class OrderService(ApiDbContext context)
                     ErrorCode = ErrorCodes.NotFound
                 };
 
-        if (result.Visit!=null?result.Visit.ClientId != userId:false)
+        if (result.Visit != null && result.Visit.ClientId != userId)
             return new ValidationFailure
                 {
                     ErrorCode = ErrorCodes.AccessDenied
