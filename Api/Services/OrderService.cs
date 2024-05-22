@@ -46,7 +46,7 @@ public class OrderService(ApiDbContext context)
         if (result.OrderItems == null || result.OrderItems.Any(oi => oi.Status == OrderStatus.Taken || oi.Status == OrderStatus.Cancelled))
             return new ValidationFailure
                 {
-                    ErrorCode = ErrorCodes.AccessDenied
+                    ErrorCode = ErrorCodes.SomeOfItemsAreTaken
                 };
 
         foreach (var orderItem in result.OrderItems)

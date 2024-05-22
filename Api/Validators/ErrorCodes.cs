@@ -47,4 +47,9 @@ public static class ErrorCodes
     /// The user must be current user's employee
     /// </summary>
     public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
+
+    /// <summary>
+    /// The order cannot be cancelled because some of the items have been received by the customer
+    /// </summary>
+    public const string SomeOfItemsAreTaken = "SomeOfItemsWereTaken";
 }
