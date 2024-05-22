@@ -41,7 +41,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             .Where(m => m.Id == menuId)
             .Select(m => new MenuVM
             {
-                MenueId = m.Id,
+                MenuId = m.Id,
                 Name = m.Name,
                 AlternateName = m.AlternateName,
                 MenuType = m.MenuType,
@@ -184,7 +184,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         return new MenuVM
         {
-            MenueId = menuToUpdate.Id,
+            MenuId = menuToUpdate.Id,
             Name = menuToUpdate.Name,
             AlternateName = menuToUpdate.AlternateName,
             MenuType = menuToUpdate.MenuType,
@@ -247,7 +247,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             AlternateName = menu.AlternateName,
             DateFrom = menu.DateFrom,
             DateUntil = menu.DateUntil,
-            MenueId = menu.Id,
+            MenuId = menu.Id,
             MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
             {
                 MenuItemId = mi.Id,
