@@ -178,7 +178,8 @@ public class DbSeeder(
                 ClientId = customer1.Id,
                 Client = customer1,
                 IsDeleted = false,
-                Participants = [customer2, customer3]
+                Participants = [customer2, customer3],
+                Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
             new Visit
             {
@@ -189,12 +190,13 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = 10m,
                 Takeaway = false,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 2,
                 ClientId = customer2.Id,
                 Client = customer2,
                 IsDeleted = false,
-                Participants = [customer3]
+                Participants = [customer3],
+                Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
             new Visit
             {
@@ -205,11 +207,12 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = 25m,
                 Takeaway = false,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 1,
                 ClientId = customer2.Id,
                 Client = customer2,
                 IsDeleted = false,
+                Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
         };
 
@@ -368,6 +371,14 @@ public class DbSeeder(
             VerifierId = verifier.Id,
             IsDeleted = false
         };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i< visits.Count; i++)
+        {
+            visits[i].Restaurant = johnDoes;
+        }
+        await context.SaveChangesAsync();
+        
 
         johnDoes.Tables = new List<Table>
         {
