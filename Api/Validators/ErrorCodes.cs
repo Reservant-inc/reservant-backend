@@ -47,45 +47,25 @@ public static class ErrorCodes
     /// The user must be current user's employee
     /// </summary>
     public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
-    
+
     /// <summary>
     /// List cannot be empty
     /// </summary>
     public const string EmptyList = "EmptyList";
-    
-    /// <summary>
-    /// OrderItem does not exists
-    /// </summary>
-    public const string OrderItemDoesNotExists = "OrderItemDoesNotExists";
-    
-    /// <summary>
-    /// VisitId cannot be negative value
-    /// </summary>
-    public const string VisitId = "VisitId";
-    
-    /// <summary>
-    /// Amount of orderItem cannot be less than 1
-    /// </summary>
-    public const string AmountLessThanOne = "AmountLessThanOne";
-    
+
     /// <summary>
     /// The value must be greater than or equal to zero.
     /// </summary>
     public const string ValueLessThanZero = "ValueLessThanZero";
-    
+
     /// <summary>
-    /// The value must be greater than or equal to zero.
+    /// The value must be greater than or equal to one.
     /// </summary>
-    public const string NoteTooShort = "NoteTooShort";
-    
+    public const string ValueLessThanOne = "ValueLessThanOne";
+
     /// <summary>
-    /// Visit does not exist.
+    /// User is not the creator nor a participant of the visit
     /// </summary>
-    public const string VisitNotFound = "VisitNotFound";
-    
-    /// <summary>
-    /// User not associated with this visit.
-    /// </summary>
-    public const string UserNotAssociatedWithVisit = "UserNotAssociatedWithVisit";
-    
+    public const string UserDoesNotParticipateInVisit = "UserNotAssociatedWithVisit";
+
 }
