@@ -84,7 +84,7 @@ public static class ErrorCodes
     public const string ValueLessThanZero = "ValueLessThanZero";
 
     /// <summary>
-    /// Per page must be grater than 0, page can not be greater than number of pages
+    /// Per page must be grater than 0 and less than a certain value, page can not be greater than number of pages
     /// </summary>
     public const string InvalidPageOrPerPageValue = "InvalidPageOrPerPageValue";
 

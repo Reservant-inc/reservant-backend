@@ -26,8 +26,18 @@ public static class Utils
     /// Return a single page of the query
     /// </summary>
     public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
-        this IQueryable<T> query, int page, int perPage)
+        this IQueryable<T> query, int page, int perPage, int maxPerPage)
     {
+        if (perPage > maxPerPage)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Too many items per page (Maximum: {maxPerPage})",
+                ErrorCode = ErrorCodes.InvalidPageOrPerPageValue
+            };
+        }
+
         var totalRecords = await query.CountAsync();
         var totalPages = (int)Math.Ceiling((double)totalRecords / perPage);
 
