@@ -61,7 +61,7 @@ public class VisitService(
             TableId = visit.TableId,
             Participants = visit.Participants!.Select(p => new UserSummaryVM
             {
-                Id = p.Id,
+                UserId = p.Id,
                 FirstName = p.FirstName,
                 LastName = p.LastName
             }).ToList(),
