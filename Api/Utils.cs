@@ -35,7 +35,7 @@ public static class Utils
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(page),
+                PropertyName = null,
                 ErrorMessage = "Invalid page or perPage value",
                 ErrorCode = ErrorCodes.InvalidPageOrPerPageValue
             };
