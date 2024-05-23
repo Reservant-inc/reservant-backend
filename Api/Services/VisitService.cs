@@ -48,7 +48,7 @@ public class VisitService(
 
         var result = new VisitVM
         {
-            Id = visit.Id,
+            VisitId = visit.Id,
             Date = visit.Date,
             NumberOfGuests = visit.NumberOfGuests,
             PaymentTime = visit.PaymentTime,

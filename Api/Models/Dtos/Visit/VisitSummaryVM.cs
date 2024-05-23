@@ -13,7 +13,7 @@ public class VisitSummaryVM
     /// <summary>
     /// Date of the visit
     /// </summary>
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
 
     /// <summary>
     /// Number of guests + number of clients

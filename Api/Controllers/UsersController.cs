@@ -9,7 +9,7 @@ using Reservant.Api.Validation;
 namespace Reservant.Api.Controllers
 {
     [ApiController, Route("/users")]
-    public class UsersController(UserService userService) : Controller
+    public class UsersController(UserService userService, FileUploadService uploadService) : Controller
     {
         /// <summary>
         /// Sets Restaurant Owner role for specified user
@@ -46,12 +46,12 @@ namespace Reservant.Api.Controllers
             {
                 return result.ToValidationProblem();
             }
-           
+
             var emp = result.Value;
 
             return Ok(new UserDetailsVM
             {
-                Id = emp.Id,
+                UserId = emp.Id,
                 Login = emp.UserName!,
                 Email = emp.Email,
                 PhoneNumber = emp.PhoneNumber,
@@ -61,6 +61,7 @@ namespace Reservant.Api.Controllers
                 BirthDate = emp.BirthDate,
                 Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
+                Photo = emp.PhotoFileName == null ? null : uploadService.GetPathForFileName(emp.PhotoFileName)
             });
 
         }
@@ -86,7 +87,7 @@ namespace Reservant.Api.Controllers
 
             return Ok(new UserDetailsVM
             {
-                Id = emp.Id,
+                UserId = emp.Id,
                 Login = emp.UserName!,
                 Email = emp.Email,
                 PhoneNumber = emp.PhoneNumber,
@@ -96,6 +97,7 @@ namespace Reservant.Api.Controllers
                 BirthDate = emp.BirthDate,
                 Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
+                Photo = emp.PhotoFileName == null ? null : uploadService.GetPathForFileName(emp.PhotoFileName)
             });
         }
     }

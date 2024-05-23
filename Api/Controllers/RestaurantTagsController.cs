@@ -47,7 +47,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
 
         return Ok(result.Select(r => new RestaurantSummaryVM()
         {
-            Id = r.Id,
+            RestaurantId = r.Id,
             Name = r.Name,
             Nip = r.Nip,
             RestaurantType = r.RestaurantType,

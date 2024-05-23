@@ -116,7 +116,7 @@ public class RestaurantGroupService(
             .Where(r => r.OwnerId == userId)
             .Select(r => new RestaurantGroupSummaryVM
             {
-                Id = r.Id,
+                RestaurantGroupId = r.Id,
                 Name = r.Name,
                 RestaurantCount = r.Restaurants != null ? r.Restaurants.Count() : 0
             })
@@ -148,11 +148,11 @@ public class RestaurantGroupService(
 
         return new Result<RestaurantGroupVM>(new RestaurantGroupVM
         {
-            Id = restaurantGroup.Id,
+            RestaurantGroupId = restaurantGroup.Id,
             Name = restaurantGroup.Name,
             Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
-                Id = r.Id,
+                RestaurantId = r.Id,
                 Name = r.Name,
                 Nip = r.Nip,
                 Address = r.Address,
@@ -208,11 +208,11 @@ public class RestaurantGroupService(
 
         return new RestaurantGroupVM
         {
-            Id = restaurantGroup.Id,
+            RestaurantGroupId = restaurantGroup.Id,
             Name = restaurantGroup.Name,
             Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
-                Id = r.Id,
+                RestaurantId = r.Id,
                 Name = r.Name,
                 Nip = r.Nip,
                 Address = r.Address,

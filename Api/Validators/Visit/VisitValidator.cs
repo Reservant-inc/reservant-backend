@@ -7,11 +7,11 @@ namespace Reservant.Api.Validators.Visit;
 
 public class VisitValidator: AbstractValidator<Models.Visit>
 {
-    public VisitValidator(UserManager<User> userManager, ApiDbContext dbContext)
+    public VisitValidator(UserManager<Models.User> userManager, ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)
-            .DateInFuture();
-        
+            .DateTimeInFuture();
+
         RuleFor(v => (double) v.NumberOfGuests)
             .GreaterOrEqualToZero();
 
@@ -24,6 +24,6 @@ public class VisitValidator: AbstractValidator<Models.Visit>
 
         RuleFor(v => new Tuple<int, int>(v.RestaurantId, v.TableId))
             .TableExistsInRestaurant(dbContext);
-        
+
     }
 }

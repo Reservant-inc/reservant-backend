@@ -70,7 +70,7 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id = menuItem.Id,
+                MenuItemId = menuItem.Id,
                 Name = menuItem.Name,
                 AlternateName = menuItem.AlternateName,
                 Price = menuItem.Price,
@@ -104,7 +104,7 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id = item.Id,
+                MenuItemId = item.Id,
                 Name = item.Name,
                 AlternateName = item.AlternateName,
                 Price = item.Price,
@@ -198,7 +198,7 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id = item.Id,
+                MenuItemId = item.Id,
                 Name = item.Name,
                 AlternateName = item.AlternateName,
                 Price = item.Price,

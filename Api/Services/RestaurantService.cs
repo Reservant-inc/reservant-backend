@@ -13,6 +13,7 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
@@ -138,7 +139,7 @@ namespace Reservant.Api.Services
                 .Where(r => r.Group!.OwnerId == userId)
                 .Select(r => new RestaurantSummaryVM
                 {
-                    Id = r.Id,
+                    RestaurantId = r.Id,
                     Name = r.Name,
                     Nip = r.Nip,
                     RestaurantType = r.RestaurantType,
@@ -169,7 +170,7 @@ namespace Reservant.Api.Services
                 .Where(r => r.Id == id)
                 .Select(r => new RestaurantVM
                 {
-                    Id = r.Id,
+                    RestaurantId = r.Id,
                     Name = r.Name,
                     RestaurantType = r.RestaurantType,
                     Nip = r.Nip,
@@ -188,7 +189,7 @@ namespace Reservant.Api.Services
                     IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
                     Tables = r.Tables!.Select(t => new TableVM
                     {
-                        Id = t.Id,
+                        TableId = t.Id,
                         Capacity = t.Capacity
                     }),
                     Photos = r.Photos!
@@ -248,12 +249,12 @@ namespace Reservant.Api.Services
                     };
                 }
 
-                var employee = await context.Users.FindAsync(request.Id);
+                var employee = await context.Users.FindAsync(request.EmployeeId);
                 if (employee is null)
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(request.Id),
+                        PropertyName = nameof(request.EmployeeId),
                         ErrorCode = ErrorCodes.NotFound
                     };
                 }
@@ -263,20 +264,20 @@ namespace Reservant.Api.Services
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(request.Id),
+                        PropertyName = nameof(request.EmployeeId),
                         ErrorCode = ErrorCodes.AccessDenied
                     };
                 }
 
                 var currentEmployment = await context.Employments
-                    .Where(e => e.EmployeeId == request.Id && e.RestaurantId == restaurantId && e.DateUntil == null)
+                    .Where(e => e.EmployeeId == request.EmployeeId && e.RestaurantId == restaurantId && e.DateUntil == null)
                     .FirstOrDefaultAsync();
 
                 if (currentEmployment != null)
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(request.Id), // zwracane jest Id pracownika, jako wskaźnik gdzie jest błąd
+                        PropertyName = nameof(request.EmployeeId), // zwracane jest Id pracownika, jako wskaźnik gdzie jest błąd
                         ErrorCode = ErrorCodes.EmployeeAlreadyEmployed
                     };
                 }
@@ -284,7 +285,7 @@ namespace Reservant.Api.Services
 
             await context.Employments.AddRangeAsync(listRequest.Select(r => new Employment
             {
-                EmployeeId = r.Id,
+                EmployeeId = r.EmployeeId,
                 RestaurantId = restaurantId,
                 IsBackdoorEmployee = r.IsBackdoorEmployee,
                 IsHallEmployee = r.IsHallEmployee,
@@ -339,7 +340,7 @@ namespace Reservant.Api.Services
             await context.SaveChangesAsync();
             return new RestaurantSummaryVM
             {
-                Id = restaurant.Id,
+                RestaurantId = restaurant.Id,
                 Name = restaurant.Name,
                 Nip = restaurant.Nip,
                 RestaurantType = restaurant.RestaurantType,
@@ -389,7 +390,7 @@ namespace Reservant.Api.Services
                 .Select(e => new RestaurantEmployeeVM
                 {
                     EmploymentId = e.Id,
-                    Id = e.EmployeeId,
+                    EmployeeId = e.EmployeeId,
                     Login = e.Employee!.UserName!,
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
@@ -487,7 +488,7 @@ namespace Reservant.Api.Services
 
             return new RestaurantVM
             {
-                Id = restaurant.Id,
+                RestaurantId = restaurant.Id,
                 Name = restaurant.Name,
                 RestaurantType = restaurant.RestaurantType,
                 Nip = restaurant.Nip,
@@ -506,7 +507,7 @@ namespace Reservant.Api.Services
                 IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
                 Tables = restaurant.Tables!.Select(t => new TableVM
                 {
-                    Id = t.Id,
+                    TableId = t.Id,
                     Capacity = t.Capacity
                 }),
                 Photos = restaurant.Photos!
@@ -606,7 +607,7 @@ namespace Reservant.Api.Services
             var menus = restaurant.Menus
                 .Select(menu => new MenuSummaryVM
                 {
-                    Id = menu.Id,
+                    MenuId = menu.Id,
                     Name = menu.Name,
                     AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,
@@ -640,7 +641,7 @@ namespace Reservant.Api.Services
                 .Where(i => i.RestaurantId == restaurantId)
                 .Select(i => new MenuItemVM()
                 {
-                    Id = i.Id,
+                    MenuItemId = i.Id,
                     Name = i.Name,
                     AlternateName = i.AlternateName,
                     Price = i.Price,

@@ -87,4 +87,9 @@ public static class ErrorCodes
     /// Per page must be grater than 0, page can not be greater than number of pages
     /// </summary>
     public const string InvalidPageOrPerPageValue = "InvalidPageOrPerPageValue";
+
+    /// <summary>
+    /// The order cannot be cancelled because some of the items have been received by the customer
+    /// </summary>
+    public const string SomeOfItemsAreTaken = "SomeOfItemsWereTaken";
 }

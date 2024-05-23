@@ -11,7 +11,7 @@ public class AddEmployeeRequest
     /// ID of the employee
     /// </summary>
     [Required]
-    public required string Id { get; init; }
+    public required string EmployeeId { get; init; }
 
     /// <summary>
     /// Whether the employee is a hall employee (Pracownik sali)

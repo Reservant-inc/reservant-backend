@@ -53,7 +53,7 @@ public class AuthController(
         var employee = result.Value;
         return Ok(new UserVM
         {
-            Id = employee.Id,
+            UserId = employee.Id,
             Login = employee.UserName!,
             Roles = await userManager.GetRolesAsync(employee)
         });
@@ -75,7 +75,7 @@ public class AuthController(
         var user = result.Value;
         return Ok(new UserVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Roles = await userManager.GetRolesAsync(user)
         });
@@ -138,7 +138,7 @@ public class AuthController(
         var user = result.Value;
         return Ok(new UserVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Roles = await userManager.GetRolesAsync(user)
         });

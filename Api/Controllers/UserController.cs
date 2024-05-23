@@ -15,7 +15,11 @@ namespace Reservant.Api.Controllers;
 /// Manage the current user
 /// </summary>
 [ApiController, Route("/user")]
-public class UserController(UserManager<User> userManager, UserService userService) : Controller
+public class UserController(
+    UserManager<User> userManager,
+    UserService userService,
+    FileUploadService uploadService
+    ) : Controller
 {
     /// <summary>
     /// Get list of users employed by the current user. For restaurant owners only
@@ -52,7 +56,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         return Ok(new UserDetailsVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
@@ -62,6 +66,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
+            Photo = user.PhotoFileName == null ? null : uploadService.GetPathForFileName(user.PhotoFileName)
         });
     }
     /// <summary>
@@ -90,7 +95,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
 
         return Ok(new UserDetailsVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
@@ -100,6 +105,7 @@ public class UserController(UserManager<User> userManager, UserService userServi
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
+            Photo = user.PhotoFileName == null ? null : uploadService.GetPathForFileName(user.PhotoFileName)
         });
     }
 

@@ -12,7 +12,7 @@ public class UserDetailsVM
     /// </summary>
     /// <example>e5779baf-5c9b-4638-b9e7-ec285e57b367</example>
     [Required]
-    public required string Id { get; init; }
+    public required string UserId { get; init; }
 
     /// <summary>
     /// User's login
@@ -72,4 +72,9 @@ public class UserDetailsVM
     /// </summary>
     /// <example>e5779baf-5c9b-4638-b9e7-ec285e57b367</example>
     public string? EmployerId { get; set; }
+
+    /// <summary>
+    /// User's profile picture
+    /// </summary>
+    public required string? Photo { get; set; }
 }

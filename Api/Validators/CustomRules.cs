@@ -13,7 +13,7 @@ namespace Reservant.Api.Validators;
 /// <summary>
 /// Custom Fluent Validation rules
 /// </summary>
-public static class CustomValidators
+public static class CustomRules
 {
     /// <summary>
     /// Validates that the property contains a valid file upload name.
@@ -76,7 +76,7 @@ public static class CustomValidators
     /// </summary>
     public static IRuleBuilderOptions<T, string> CustomerExists<T>(
         this IRuleBuilder<T, string> builder,
-        UserManager<User> userManager)
+        UserManager<Models.User> userManager)
     {
         return builder
             .MustAsync(async (userId, cancellation) =>
@@ -91,10 +91,10 @@ public static class CustomValidators
     /// <summary>
     /// Validates that the date is today or in the future.
     /// </summary>
-    public static IRuleBuilderOptions<T, DateOnly> DateInFuture<T>(this IRuleBuilder<T, DateOnly> builder)
+    public static IRuleBuilderOptions<T, DateTime> DateTimeInFuture<T>(this IRuleBuilder<T, DateTime> builder)
     {
         return builder
-            .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
+            .Must(date => date >= DateTime.Now)
             .WithErrorCode(ErrorCodes.DateMustBeInFuture)
             .WithMessage("The date must be today or in the future.");
     }
