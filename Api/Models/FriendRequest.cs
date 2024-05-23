@@ -1,12 +1,15 @@
-using Reservant.Api.Data;
-
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// Friend request
 /// </summary>
-public class FriendRequest : ISoftDeletable
+public class FriendRequest
 {
+    /// <summary>
+    /// Unique ID
+    /// </summary>
+    public int Id { get; set; }
+
     /// <summary>
     /// Date and time created
     /// </summary>
@@ -21,6 +24,11 @@ public class FriendRequest : ISoftDeletable
     /// Date and time when the request was accepted by the receiver
     /// </summary>
     public DateTime? DateAccepted { get; set; }
+
+    /// <summary>
+    /// Date the friend request was deleted
+    /// </summary>
+    public DateTime? DateDeleted { get; set; }
 
     /// <summary>
     /// ID of the sender
@@ -41,7 +49,4 @@ public class FriendRequest : ISoftDeletable
     /// Navigational property for the target user
     /// </summary>
     public User? Receiver { get; set; }
-
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
 }

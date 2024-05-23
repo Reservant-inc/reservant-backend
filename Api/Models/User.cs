@@ -92,6 +92,16 @@ public class User : IdentityUser, ISoftDeletable
     /// </summary>
     public ICollection<FileUpload>? Uploads { get; set; }
 
+    /// <summary>
+    /// Navigational property for the outgoing friend requests
+    /// </summary>
+    public ICollection<FriendRequest>? OutgoingRequests { get; set; }
+
+    /// <summary>
+    /// Navigational property for the incoming friend requests
+    /// </summary>
+    public ICollection<FriendRequest>? IncomingRequests { get; set; }
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }
