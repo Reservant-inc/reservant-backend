@@ -775,44 +775,7 @@ namespace Reservant.Api.Services
                 _ => filteredOrders
             };
 
-            var totalRecords = await filteredOrders.CountAsync();
-
-            if (totalRecords == 0)
-            {
-                return new Pagination<OrderSummaryVM>
-                {
-                    Items = new List<OrderSummaryVM>(),
-                    TotalPages = 0,
-                    Page = page,
-                    PerPage = perPage
-                };
-            }
-
-            var totalPages = (int)Math.Ceiling((double)totalRecords / perPage);
-
-            if (page < 0 || perPage <= 0 || page >= totalPages)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(page),
-                    ErrorMessage = "Invalid page or perPage value",
-                    ErrorCode = ErrorCodes.InvalidPageOrPerPageValue
-                };
-            }
-
-            var paginatedResults = filteredOrders
-                .Skip(page * perPage)
-                .Take(perPage)
-                .ToList();
-
-
-            return new Pagination<OrderSummaryVM>
-            {
-                Items = paginatedResults,
-                TotalPages = totalPages,
-                Page = page,
-                PerPage = perPage
-            };
+            return await filteredOrders.PaginateAsync(page, perPage);
         }
     }
 }
