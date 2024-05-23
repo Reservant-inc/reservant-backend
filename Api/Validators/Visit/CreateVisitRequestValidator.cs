@@ -15,7 +15,7 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
     public CreateVisitRequestValidator(UserManager<Models.User> userManager, ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)
-            .DateInFuture();
+            .DateTimeInFuture();
 
         RuleFor(v => (double) v.NumberOfGuests)
             .GreaterOrEqualToZero();

@@ -167,7 +167,7 @@ public class DbSeeder(
         {
             new Visit
             {
-                Date = new DateOnly(2024, 1, 1),
+                Date = new DateTime(2024, 1, 1, 17, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 19, 32, 00),
                 Deposit = null,
@@ -183,7 +183,7 @@ public class DbSeeder(
             },
             new Visit
             {
-                Date = new DateOnly(2024, 1, 1),
+                Date = new DateTime(2024, 1, 4, 18, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 22, 32, 00),
                 Deposit = null,
@@ -199,7 +199,7 @@ public class DbSeeder(
             },
             new Visit
             {
-                Date = new DateOnly(2024, 1, 1),
+                Date = new DateTime(2024, 1, 5, 18, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 15, 32, 00),
                 Deposit = null,

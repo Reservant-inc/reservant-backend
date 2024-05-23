@@ -91,10 +91,10 @@ public static class CustomValidators
     /// <summary>
     /// Validates that the date is today or in the future.
     /// </summary>
-    public static IRuleBuilderOptions<T, DateOnly> DateInFuture<T>(this IRuleBuilder<T, DateOnly> builder)
+    public static IRuleBuilderOptions<T, DateTime> DateTimeInFuture<T>(this IRuleBuilder<T, DateTime> builder)
     {
         return builder
-            .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
+            .Must(date => date >= DateTime.Now)
             .WithErrorCode(ErrorCodes.DateMustBeInFuture)
             .WithMessage("The date must be today or in the future.");
     }

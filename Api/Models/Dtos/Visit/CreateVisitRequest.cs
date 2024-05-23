@@ -8,7 +8,7 @@ public class CreateVisitRequest
     /// <summary>
     /// Date of the visit
     /// </summary>
-    public required DateOnly Date { get; init; }
+    public required DateTime Date { get; init; }
 
     /// <summary>
     /// Number of people who do not have an account
