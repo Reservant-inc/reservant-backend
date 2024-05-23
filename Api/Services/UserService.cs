@@ -118,12 +118,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// <returns></returns>
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
     {
-        var result = await validationService.ValidateAsync(request);
+        var result = await validationService.ValidateAsync(request, null);
         if (!result.IsValid)
         {
             return result;
         }
-        
+
         var user = new User
         {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -135,8 +135,8 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
             BirthDate = request.BirthDate,
             RegisteredAt = DateTime.UtcNow
         };
-        
-        result = await validationService.ValidateAsync(user);
+
+        result = await validationService.ValidateAsync(user, null);
         if (!result.IsValid)
         {
             return result;
@@ -301,7 +301,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// <returns></returns>
     public async Task<Result<User>> PutUserAsync(UpdateUserDetailsRequest request, User user)
     {
-        var result = await validationService.ValidateAsync(request);
+        var result = await validationService.ValidateAsync(request, user.Id);
         if (!result.IsValid)
         {
             return result;
@@ -314,7 +314,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
         user.BirthDate = request.BirthDate;
         user.PhotoFileName = request.PhotoFileName;
 
-        result = await validationService.ValidateAsync(user);
+        result = await validationService.ValidateAsync(user, user.Id);
         if (!result.IsValid)
         {
             return result;

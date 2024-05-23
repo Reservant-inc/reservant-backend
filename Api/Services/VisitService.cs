@@ -81,7 +81,7 @@ public class VisitService(
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
 
-        var result = await validationService.ValidateAsync(request);
+        var result = await validationService.ValidateAsync(request, user.Id);
         if (!result.IsValid)
         {
             return result;
@@ -109,7 +109,7 @@ public class VisitService(
             Participants = participants
         };
 
-        result = await validationService.ValidateAsync(visit);
+        result = await validationService.ValidateAsync(visit, user.Id);
         if (!result.IsValid)
         {
             return result;

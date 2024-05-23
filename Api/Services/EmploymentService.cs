@@ -110,7 +110,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         var employments = new List<Employment>();
         foreach (var request in listRequest)
         {
-            var res = await validationService.ValidateAsync(request);
+            var res = await validationService.ValidateAsync(request, user.Id);
             if (!res.IsValid)
             {
                 return res;

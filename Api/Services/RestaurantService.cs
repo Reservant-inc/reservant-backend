@@ -76,7 +76,7 @@ namespace Reservant.Api.Services
                 }
             }
 
-            var result = await validationService.ValidateAsync(request);
+            var result = await validationService.ValidateAsync(request, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -114,7 +114,7 @@ namespace Reservant.Api.Services
                     .ToList()
             };
 
-            result = await validationService.ValidateAsync(restaurant);
+            result = await validationService.ValidateAsync(restaurant, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -234,7 +234,7 @@ namespace Reservant.Api.Services
 
             foreach (var request in listRequest)
             {
-                var result = await validationService.ValidateAsync(request);
+                var result = await validationService.ValidateAsync(request, employerId);
                 if (!result.IsValid)
                 {
                     return result;
@@ -437,7 +437,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var result = await validationService.ValidateAsync(request);
+            var result = await validationService.ValidateAsync(request, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -478,7 +478,7 @@ namespace Reservant.Api.Services
                 restaurant.Photos.Add(photo);
             }
 
-            result = await validationService.ValidateAsync(restaurant);
+            result = await validationService.ValidateAsync(restaurant, user.Id);
             if (!result.IsValid)
             {
                 return result;

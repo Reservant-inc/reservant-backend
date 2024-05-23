@@ -42,7 +42,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var result = await validationService.ValidateAsync(req);
+            var result = await validationService.ValidateAsync(req, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -59,7 +59,7 @@ namespace Reservant.Api.Services
             };
 
 
-            result = await validationService.ValidateAsync(menuItem);
+            result = await validationService.ValidateAsync(menuItem, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -174,7 +174,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var result = await validationService.ValidateAsync(request);
+            var result = await validationService.ValidateAsync(request, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -187,7 +187,7 @@ namespace Reservant.Api.Services
             item.PhotoFileName = request.PhotoFileName;
 
 
-            result = await validationService.ValidateAsync(item);
+            result = await validationService.ValidateAsync(item, user.Id);
             if (!result.IsValid)
             {
                 return result;
