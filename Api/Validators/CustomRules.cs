@@ -13,7 +13,7 @@ namespace Reservant.Api.Validators;
 /// <summary>
 /// Custom Fluent Validation rules
 /// </summary>
-public static class CustomValidators
+public static class CustomRules
 {
     /// <summary>
     /// Validates that the property contains a valid file upload name.
