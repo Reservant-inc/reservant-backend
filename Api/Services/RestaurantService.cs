@@ -113,6 +113,7 @@ namespace Reservant.Api.Services
                 LogoFileName = request.Logo,
                 ProvideDelivery = request.ProvideDelivery,
                 Description = request.Description?.Trim(),
+                ReservationDeposit = request.ReservationDeposit,
                 Tags = await context.RestaurantTags
                     .Join(
                         request.Tags,
@@ -164,6 +165,7 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
+                    ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags!.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null
                 })
