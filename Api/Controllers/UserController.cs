@@ -112,7 +112,7 @@ public class UserController(
 
 
     /// <summary>
-    /// Get list of visits of logged in user
+    /// Get list of future visits of logged in user
     /// </summary>
     /// <returns></returns>
     [HttpGet("visits")]
@@ -127,6 +127,34 @@ public class UserController(
         }
 
         var result = await userService.GetVisitsAsync(user);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        else
+        {
+            return Ok(result.Value);
+        }
+    }
+
+
+    /// <summary>
+    /// Get list of past visits of logged in user
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("visit-history")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200),ProducesResponseType(400)]
+    public async Task<ActionResult<List<VisitSummaryVM>>> GetVisitHistory()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.GetVisitHistoryAsync(user);
 
         if (result.IsError)
         {

@@ -14,6 +14,26 @@ using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
+using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
+
+
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Data;
+using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Models.Dtos.Table;
+using Reservant.Api.Validation;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Identity;
+using Reservant.Api.Models.Dtos.Menu;
+using Reservant.Api.Models.Dtos.MenuItem;
+using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Enums;
+using Reservant.Api.Validators;
 
 
 namespace Reservant.Api.Services;
@@ -328,30 +348,62 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
 
 
     /// <summary>
-    /// Gets the list of visists of user of provided id
+    /// Gets the list of visists of user planned for the future
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page = 0, int perPage = 10)
     {
-        var list = await dbContext.Visits
-        .Include(r => r.Participants!)
-        .Include(r => r.Orders!)
-            .Where(x => x.ClientId == user.Id || x.Participants!.Any(p => p.Id == user.Id))
-            .ToListAsync();
+        var query = dbContext.Visits
+            .Include(r => r.Participants)
+            .Include(r => r.Orders)
+            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.Date > DateTime.UtcNow)
+            .OrderByDescending(x => x.Date);
 
-        var resultList = list.Select(visit => new VisitSummaryVM
+        var result = await query.Select(visit => new VisitSummaryVM
         {
-            VisitId=visit.Id,
-            Date=visit.Date,
-            NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
-            Takeaway=visit.Takeaway,
-            ClientId=visit.ClientId,
-            RestaurantId=visit.RestaurantId
-        }).ToList();
+            VisitId = visit.Id,
+            Date = visit.Date,
+            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
+            Takeaway = visit.Takeaway,
+            ClientId = visit.ClientId,
+            RestaurantId = visit.RestaurantId
+        })
+        .PaginateAsync(page, perPage);
 
-        return new Result<List<VisitSummaryVM>>(resultList);
+        return result;
     }
+
+
+    /// <summary>
+    /// Gets the list of visists of user from the past
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitHistoryAsync(User user, int page = 0, int perPage = 10)
+    {
+        var query = dbContext.Visits
+            .Include(r => r.Participants)
+            .Include(r => r.Orders)
+            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.Date < DateTime.UtcNow)
+            .OrderByDescending(x => x.Date);
+
+        var result = await query.Select(visit => new VisitSummaryVM
+        {
+            VisitId = visit.Id,
+            Date = visit.Date,
+            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
+            Takeaway = visit.Takeaway,
+            ClientId = visit.ClientId,
+            RestaurantId = visit.RestaurantId
+        })
+        .PaginateAsync(page, perPage);
+
+        return result;
+    }
+
 
 }
 
