@@ -13,7 +13,7 @@ namespace Reservant.Api.Controllers;
 /// Managing orders
 /// </summary>
 [ApiController, Route("/orders")]
-public class OrdersController(OrderService orderService, UserManager<User> userManager) : Controller
+public class OrdersController(OrderService orderService, UserManager<User> userManager) : StrictController
 {
     /// <summary>
     /// Gets order with the given id

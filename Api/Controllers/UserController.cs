@@ -19,7 +19,7 @@ public class UserController(
     UserManager<User> userManager,
     UserService userService,
     FileUploadService uploadService
-    ) : Controller
+    ) : StrictController
 {
     /// <summary>
     /// Get list of users employed by the current user. For restaurant owners only

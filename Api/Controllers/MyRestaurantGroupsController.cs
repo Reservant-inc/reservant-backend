@@ -19,7 +19,8 @@ namespace Reservant.Api.Controllers;
 /// <param name="service"></param>
 [ApiController, Route("/my-restaurant-groups")]
 [Authorize(Roles = Roles.RestaurantOwner)]
-public class MyRestaurantGroupsController(UserManager<User> userManager, RestaurantGroupService service) : Controller
+public class MyRestaurantGroupsController(UserManager<User> userManager, RestaurantGroupService service)
+    : StrictController
 {
 
     /// <summary>

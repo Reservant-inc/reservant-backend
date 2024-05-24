@@ -12,7 +12,8 @@ namespace Reservant.Api.Controllers;
 /// File uploading.
 /// </summary>
 [ApiController, Route("/uploads")]
-public class FileUploadsController(FileUploadService fileUploadService, UserManager<User> userManager) : Controller
+public class FileUploadsController(FileUploadService fileUploadService, UserManager<User> userManager)
+    : StrictController
 {
     /// <summary>
     /// Upload a file to the server

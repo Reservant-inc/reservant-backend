@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers;
 /// Restaurants from the perspective of other people than the owner
 /// </summary>
 [ApiController, Route("/restaurants")]
-public class RestaurantController(UserManager<User> userManager, RestaurantService service) : Controller
+public class RestaurantController(UserManager<User> userManager, RestaurantService service) : StrictController
 {
 
     /// <summary>

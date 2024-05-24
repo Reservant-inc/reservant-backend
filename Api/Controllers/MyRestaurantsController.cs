@@ -20,7 +20,8 @@ namespace Reservant.Api.Controllers
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
     [Authorize(Roles = Roles.Customer)]
-    public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager) : Controller
+    public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager)
+        : StrictController
     {
         /// <summary>
         /// Create a new restaurant (and optionally a new group)

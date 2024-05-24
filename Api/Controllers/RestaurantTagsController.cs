@@ -12,7 +12,7 @@ namespace Reservant.Api.Controllers;
 /// Restaurant tag management
 /// </summary>
 [ApiController, Route("/restaurant-tags")]
-public class RestaurantTagsController(ApiDbContext context, FileUploadService uploadService) : Controller
+public class RestaurantTagsController(ApiDbContext context, FileUploadService uploadService) : StrictController
 {
     /// <summary>
     /// Get all available tags
@@ -59,6 +59,6 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             ProvideDelivery = r.ProvideDelivery,
             Tags = (r.Tags ?? []).Select(t => t.Name).ToList(),
             IsVerified = r.VerifierId != null
-        }));
+        }).ToList());
     }
 }

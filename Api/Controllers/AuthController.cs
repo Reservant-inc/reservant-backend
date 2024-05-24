@@ -26,7 +26,7 @@ public class AuthController(
     UserManager<User> userManager,
     IOptions<JwtOptions> jwtOptions,
     AuthService authService)
-    : Controller
+    : StrictController
 {
     private readonly JwtSecurityTokenHandler _handler = new();
 
@@ -149,7 +149,7 @@ public class AuthController(
     /// </summary>
     [HttpGet("is-unique-login")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult> IsUniqueLogin(String login)
+    public async Task<ActionResult<bool>> IsUniqueLogin(String login)
     {
         var result = await userService.IsUniqueLoginAsync(login);
 

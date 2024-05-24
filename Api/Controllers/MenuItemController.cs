@@ -16,7 +16,7 @@ namespace Reservant.Api.Controllers;
 /// <param name="service"></param>
 
 [ApiController, Route("/menu-items")]
-public class MenuItemController(UserManager<User> userManager, MenuItemsService service) : Controller
+public class MenuItemController(UserManager<User> userManager, MenuItemsService service) : StrictController
 {
 
     /// <summary>

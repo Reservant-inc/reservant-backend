@@ -14,7 +14,8 @@ namespace Reservant.Api.Controllers;
 /// Employment managing
 /// </summary>
 [ApiController, Route("/employments")]
-public class EmploymentsController(UserManager<User> userManager, EmploymentService employmentService) : Controller
+public class EmploymentsController(UserManager<User> userManager, EmploymentService employmentService)
+    : StrictController
 {
     /// <summary>
     /// Terminate an employment by setting DateUntil to today's date.
