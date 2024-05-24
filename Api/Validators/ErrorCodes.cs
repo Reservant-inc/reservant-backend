@@ -84,9 +84,9 @@ public static class ErrorCodes
     public const string ValueLessThanZero = "ValueLessThanZero";
 
     /// <summary>
-    /// Per page must be grater than 0 and less than a certain value, page can not be greater than number of pages
+    /// Per page must be at least 1 and less than a certain value
     /// </summary>
-    public const string InvalidPageOrPerPageValue = "InvalidPageOrPerPageValue";
+    public const string InvalidPerPageValue = "InvalidPerPageValue";
 
     /// <summary>
     /// The order cannot be cancelled because some of the items have been received by the customer

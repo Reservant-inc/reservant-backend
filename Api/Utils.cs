@@ -34,20 +34,31 @@ public static class Utils
             {
                 PropertyName = null,
                 ErrorMessage = $"Too many items per page (Maximum: {maxPerPage})",
-                ErrorCode = ErrorCodes.InvalidPageOrPerPageValue
+                ErrorCode = ErrorCodes.InvalidPerPageValue
+            };
+        }
+
+        if (perPage < 1)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Items per page must be at least 1",
+                ErrorCode = ErrorCodes.InvalidPerPageValue
             };
         }
 
         var totalRecords = await query.CountAsync();
         var totalPages = (int)Math.Ceiling((double)totalRecords / perPage);
 
-        if (page < 0 || perPage <= 0 || page >= totalPages)
+        if (page < 0 || page >= totalPages)
         {
-            return new ValidationFailure
+            return new Pagination<T>
             {
-                PropertyName = null,
-                ErrorMessage = "Invalid page or perPage value",
-                ErrorCode = ErrorCodes.InvalidPageOrPerPageValue
+                Items = [],
+                TotalPages = totalPages,
+                Page = page,
+                PerPage = perPage
             };
         }
 
