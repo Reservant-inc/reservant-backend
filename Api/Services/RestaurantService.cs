@@ -580,9 +580,10 @@ namespace Reservant.Api.Services
         {
             var errors = new List<ValidationResult>();
 
-            if (!ValidationUtils.TryValidate(dto, errors))
+            var result = await validationService.ValidateAsync(dto, user.Id);
+            if (!result.IsValid)
             {
-                return errors;
+                return result;
             }
 
             if (dto.GroupId != null)

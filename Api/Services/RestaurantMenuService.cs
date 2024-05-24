@@ -97,8 +97,11 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             RestaurantId = req.RestaurantId
         };
 
-        if (!ValidationUtils.TryValidate(newMenu, errors))
-            return errors;
+        var result = await validationService.ValidateAsync(newMenu, user.Id);
+        if (!result.IsValid)
+        {
+            return result;
+        }
 
         context.Menus.Add(newMenu);
         await context.SaveChangesAsync();
@@ -182,8 +185,11 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             }
         }
 
-        if (!ValidationUtils.TryValidate(menuToUpdate, errors))
-            return errors;
+        var result = await validationService.ValidateAsync(menuToUpdate, user.Id);
+        if (!result.IsValid)
+        {
+            return result;
+        }
 
         await context.SaveChangesAsync();
 
@@ -246,9 +252,10 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
 
-        if (!ValidationUtils.TryValidate(menu, errors))
+        var result = await validationService.ValidateAsync(menu, user.Id);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await context.SaveChangesAsync();

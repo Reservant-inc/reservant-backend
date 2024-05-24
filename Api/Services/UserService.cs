@@ -48,10 +48,10 @@ public class UserService(
             RegisteredAt = DateTime.UtcNow
         };
 
-        var errors = new List<ValidationResult>();
-        if (!ValidationUtils.TryValidate(user, errors))
+        var validationResult = await validationService.ValidateAsync(user, null);
+        if (!validationResult.IsValid)
         {
-            return errors;
+            return validationResult;
         }
 
         var result = await userManager.CreateAsync(user, request.Password);
@@ -78,9 +78,6 @@ public class UserService(
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
         RegisterRestaurantEmployeeRequest request, User employer, string? id = null)
     {
-
-        var errors = new List<ValidationResult>();
-
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
         var employee = new User {
@@ -93,9 +90,10 @@ public class UserService(
             Employer = employer
         };
 
-        if (!ValidationUtils.TryValidate(employee, errors))
+        var validationResult = await validationService.ValidateAsync(username, employer.Id);
+        if (!validationResult.IsValid)
         {
-            return errors;
+            return validationResult;
         }
 
         var result = await userManager.CreateAsync(employee, request.Password);
@@ -284,9 +282,10 @@ public class UserService(
         employee.LastName = request.LastName.Trim();
         employee.BirthDate = request.BirthDate;
 
-        if (!ValidationUtils.TryValidate(employee, errors))
+        var result = await validationService.ValidateAsync(employee, empId);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await userManager.UpdateAsync(employee);

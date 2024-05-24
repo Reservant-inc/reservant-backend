@@ -67,9 +67,10 @@ public class RestaurantGroupService(
             Restaurants = restaurants
         };
 
-        if (!ValidationUtils.TryValidate(group, errors))
+        var result = await validationService.ValidateAsync(group, user.Id);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await context.RestaurantGroups.AddAsync(group);
@@ -199,9 +200,10 @@ public class RestaurantGroupService(
 
         restaurantGroup.Name = request.Name.Trim();
 
-        if (!ValidationUtils.TryValidate(restaurantGroup, errors))
+        var result = await validationService.ValidateAsync(restaurantService, userId);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await context.SaveChangesAsync();
