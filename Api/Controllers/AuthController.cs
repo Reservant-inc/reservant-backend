@@ -114,6 +114,7 @@ public class AuthController(
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
         {
+            UserId = user.Id,
             Token = jwt,
             Login = request.Login,
             FirstName = user.FirstName,
@@ -170,6 +171,7 @@ public class AuthController(
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
         {
+            UserId = user.Id,
             Token = jwt,
             Login = user.UserName,
             FirstName = user.FirstName,
