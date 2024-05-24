@@ -9,6 +9,7 @@ namespace Reservant.Api.Validators.User;
 /// </summary>
 public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustomerRequest>
 {
+    /// <inheritdoc />
     public RegisterCustomerRequestValidator(FileUploadService uploadService)
     {
         RuleFor(r => r.FirstName)

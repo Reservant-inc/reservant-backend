@@ -8,6 +8,7 @@ namespace Reservant.Api.Validators.MenuItem;
 /// </summary>
 public class MenuItemValidator : AbstractValidator<Models.MenuItem>
 {
+    /// <inheritdoc />
     public MenuItemValidator(FileUploadService uploadService)
     {
         RuleFor(m => m.RestaurantId)

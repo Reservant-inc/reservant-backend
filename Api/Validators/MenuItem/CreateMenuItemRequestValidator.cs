@@ -10,6 +10,7 @@ namespace Reservant.Api.Validators.MenuItem;
 /// </summary>
 public class CreateMenuItemRequestValidator : AbstractValidator<CreateMenuItemRequest>
 {
+    /// <inheritdoc />
     public CreateMenuItemRequestValidator(FileUploadService uploadService, ApiDbContext dbContext)
     {
         RuleFor(m => m.RestaurantId)

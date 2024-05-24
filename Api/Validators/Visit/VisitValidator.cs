@@ -4,8 +4,12 @@ using Reservant.Api.Data;
 
 namespace Reservant.Api.Validators.Visit;
 
-public class VisitValidator: AbstractValidator<Models.Visit>
+/// <summary>
+/// Validator for Visit
+/// </summary>
+public class VisitValidator : AbstractValidator<Models.Visit>
 {
+    /// <inheritdoc />
     public VisitValidator(UserManager<Models.User> userManager, ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)

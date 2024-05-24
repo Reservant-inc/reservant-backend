@@ -10,6 +10,7 @@ namespace Reservant.Api.Validators.MenuItem;
 /// </summary>
 public class UpdateMenuItemRequestValidator : AbstractValidator<UpdateMenuItemRequest>
 {
+    /// <inheritdoc />
     public UpdateMenuItemRequestValidator(FileUploadService uploadService, ApiDbContext dbContext)
     {
         RuleFor(m => m.Price)

@@ -8,6 +8,7 @@ namespace Reservant.Api.Validators.User;
 /// </summary>
 public class UserValidator : AbstractValidator<Models.User>
 {
+    /// <inheritdoc />
     public UserValidator(FileUploadService uploadService)
     {
         RuleFor(u => u.FirstName)
