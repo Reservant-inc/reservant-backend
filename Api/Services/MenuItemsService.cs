@@ -81,9 +81,6 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Validates and gets menu item by given id
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="restaurantId"></param>
-        /// <param name="menuItemId"></param>
         /// <returns>MenuItem</returns>
         public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int menuItemId)
         {
@@ -111,6 +108,12 @@ namespace Reservant.Api.Services
             };
         }
 
+        /// <summary>
+        /// Check if the restaurant with the given ID exists and the given user is its owner
+        /// </summary>
+        /// <param name="user">User supposed to be the owner</param>
+        /// <param name="restaurantId">ID of the restaurant to check</param>
+        /// <returns>The bool returned is meaningless, errors are returned using the result</returns>
         public async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
         {
             var errors = new List<ValidationResult>();

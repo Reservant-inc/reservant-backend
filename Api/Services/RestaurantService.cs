@@ -17,13 +17,30 @@ using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
 {
+    /// <summary>
+    /// Indicates the status code returned by <see cref="RestaurantService.SetVerifiedIdAsync"/>
+    /// </summary>
     public enum VerificationResult
     {
+        /// <summary>
+        /// Restaurant not found
+        /// </summary>
         RestaurantNotFound,
+
+        /// <summary>
+        /// Restaurant is already verified
+        /// </summary>
         VerifierAlreadyExists,
+
+        /// <summary>
+        /// Success
+        /// </summary>
         VerifierSetSuccessfully,
     }
 
+    /// <summary>
+    /// Service responsible for managing restaurants
+    /// </summary>
     public class RestaurantService(
         ApiDbContext context,
         FileUploadService uploadService,
@@ -209,6 +226,7 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Add employees to the given restaurant, acting as the given employer (restaurant owner)
         /// </summary>
+        /// <param name="listRequest">Information about the employees to add</param>
         /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
         /// <param name="employerId">ID of the current user (restaurant owner)</param>
         /// <returns>The bool returned inside the result does not mean anything</returns>
@@ -297,6 +315,12 @@ namespace Reservant.Api.Services
             return true;
         }
 
+        /// <summary>
+        /// Move a restaurant to another group
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant</param>
+        /// <param name="request">Request details</param>
+        /// <param name="user">Currently logged-in user</param>
         public async Task<Result<RestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId,
             MoveToGroupRequest request, User user)
         {
@@ -524,7 +548,7 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Returns a specific restaurant owned by the user.
         /// </summary>
-        /// <param name="idUser"></param>
+        /// <param name="user">Currently logged-in user</param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
         public async Task<VerificationResult> SetVerifiedIdAsync(User user, int idRestaurant)
@@ -688,6 +712,16 @@ namespace Reservant.Api.Services
             return true;
         }
 
+        /// <summary>
+        /// Get orders in a restaurant
+        /// </summary>
+        /// <param name="userId">Currently logged-in user, must be an employee in the restaurant</param>
+        /// <param name="restaurantId">ID of the restaurant</param>
+        /// <param name="returnFinished">Return finished orders, return current orders if false</param>
+        /// <param name="page">Page to return</param>
+        /// <param name="perPage">Items per page</param>
+        /// <param name="orderBy">Sorting order</param>
+        /// <returns>Paginated order list</returns>
         public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(string userId, int restaurantId,
             bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null)
         {

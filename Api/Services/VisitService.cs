@@ -20,9 +20,8 @@ public class VisitService(
     ValidationService validationService)
 {
     /// <summary>
-    /// Gets the visist oof provided id
+    /// Gets the visit with the provided ID
     /// </summary>
-    /// <param name="visitId"></param>
     /// <returns></returns>
     public async Task<Result<VisitVM>> GetVisitByIdAsync(int visitId, User user)
     {
@@ -77,6 +76,12 @@ public class VisitService(
         return result;
     }
 
+    /// <summary>
+    /// Create a Visit
+    /// </summary>
+    /// <param name="request">Description of the new visit</param>
+    /// <param name="user">Owner of the visit</param>
+    /// <returns></returns>
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
 

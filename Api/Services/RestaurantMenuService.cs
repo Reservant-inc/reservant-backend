@@ -65,6 +65,7 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     /// Posts menu to the restaurant
     /// </summary>
     /// <param name="req">Request for Menu to be created.</param>
+    /// <param name="user">Currently logged-in user</param>
     /// <returns></returns>
     public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(CreateMenuRequest req, User user)
     {
@@ -117,6 +118,12 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     }
 
 
+    /// <summary>
+    /// Add MenuItems to a Menu
+    /// </summary>
+    /// <param name="menuId">ID of the Menu</param>
+    /// <param name="request">Information about the items</param>
+    /// <param name="user">Currently logged-in user</param>
     public async Task<Result<MenuVM>> AddItemsToMenuAsync(int menuId, AddItemsRequest request, User user)
     {
 
@@ -200,6 +207,13 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
         };
     }
 
+    /// <summary>
+    /// Update a Menu
+    /// </summary>
+    /// <param name="request">New values for the attributes</param>
+    /// <param name="menuId">ID of the Menu to update</param>
+    /// <param name="user">Currently logged-in user</param>
+    /// <returns></returns>
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
         var errors = new List<ValidationResult>();
@@ -258,6 +272,12 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             MenuType = menu.MenuType
         };
     }
+
+    /// <summary>
+    /// Delete a Menu
+    /// </summary>
+    /// <param name="id">ID of the menu to delete</param>
+    /// <param name="user">Currently logged-in user</param>
     public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
     {
         var menu = await context.Menus.Where(m => m.Id == id)
@@ -288,20 +308,30 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
         return true;
     }
 
-
+    /// <summary>
+    /// Indicates an error returned from RemoveMenuItemFromMenuAsync
+    /// </summary>
     public enum RemoveMenuItemResult
     {
+        /// <summary>
+        /// Success
+        /// </summary>
         Success,
+
+        /// <summary>
+        /// Menu not found
+        /// </summary>
         MenuNotFound,
+
+        /// <summary>
+        /// Bad request
+        /// </summary>
         NoValidMenuItems
     }
 
     /// <summary>
-    /// Deletes Menue item from provided menue with given id
+    /// Remove a MenuItem from a Menu
     /// </summary>
-    /// <param name="user"></param>
-    /// <param name="menueId"></param>
-    /// <param name="menuItemId"></param>
     /// <returns>MenuItem</returns>
     public async Task<RemoveMenuItemResult> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
     {

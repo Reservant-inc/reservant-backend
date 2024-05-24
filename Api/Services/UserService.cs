@@ -151,6 +151,10 @@ public class UserService(
         return user;
     }
 
+    /// <summary>
+    /// Add the RestaurantOwner role to a user
+    /// </summary>
+    /// <param name="id">ID of the user</param>
     public async Task<Result<User>> MakeRestaurantOwnerAsync(string id) {
         var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
         if (user == null) { return user; }
@@ -161,7 +165,6 @@ public class UserService(
     /// <summary>
     /// returns whether login provided is unique among registered users
     /// </summary>
-    /// <returns>Task<bool></returns>
     public async Task<bool> IsUniqueLoginAsync(string login)
     {
         var result = await dbContext
