@@ -41,6 +41,9 @@ public static class ErrorCodes
     /// </summary>
     public const string AtLeastOneRoleSelected = "AtLeastOneRoleSelected";
 
+    /// <summary>
+    /// The user is already currently employed at the restaurant
+    /// </summary>
     public const string EmployeeAlreadyEmployed = "EmployeeAlreadyEmployed";
 
     /// <summary>
