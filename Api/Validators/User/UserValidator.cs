@@ -11,6 +11,10 @@ public class UserValidator : AbstractValidator<Models.User>
     /// <inheritdoc />
     public UserValidator(FileUploadService uploadService)
     {
+        RuleFor(u => u.UserName)
+            .NotEmpty()
+            .MaximumLength(50);
+
         RuleFor(u => u.FirstName)
             .NotEmpty()
             .MaximumLength(30);
