@@ -3,10 +3,10 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Restaurant;
-
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -15,7 +15,10 @@ namespace Reservant.Api.Services;
 /// </summary>
 /// <param name="context">context</param>
 public class RestaurantGroupService(
-    ApiDbContext context, FileUploadService uploadService, RestaurantService restaurantService)
+    ApiDbContext context,
+    FileUploadService uploadService,
+    RestaurantService restaurantService,
+    ValidationService validationService)
 {
 
     /// <summary>
@@ -26,16 +29,17 @@ public class RestaurantGroupService(
     /// <returns></returns>
     public async Task<Result<RestaurantGroup>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user)
     {
-
-        var errors = new List<ValidationResult>();
-
         //check if all restaurantIds from request exist
         foreach (var id in req.RestaurantIds)
         {
             if (!await context.Restaurants.AnyAsync(x => x.Id == id))
             {
-                errors.Add(new ValidationResult($"Restaurant: {id} not found", [nameof(req.RestaurantIds)]));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(req.RestaurantIds),
+                    ErrorMessage = $"Restaurant: {id} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
         }
@@ -52,11 +56,13 @@ public class RestaurantGroupService(
 
         if (notOwnedRestaurants.Any())
         {
-            errors.Add(new ValidationResult(
-                $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}",
-                [nameof(req.RestaurantIds)]
-            ));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = nameof(req.RestaurantIds),
+                ErrorMessage =
+                    $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         var group = new RestaurantGroup
@@ -141,9 +147,11 @@ public class RestaurantGroupService(
 
         if (restaurantGroup == null)
         {
-            return new List<ValidationResult>
+            return new ValidationFailure
             {
-                new($"RestaurantGroup with ID {groupId} not found.")
+                PropertyName = null,
+                ErrorMessage = $"RestaurantGroup with ID {groupId} not found.",
+                ErrorCode = ErrorCodes.NotFound
             };
         }
 
@@ -177,7 +185,6 @@ public class RestaurantGroupService(
     /// <param name="userId">Id of user calling the method</param>
     public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
     {
-        var errors = new List<ValidationResult>();
         var restaurantGroup = await context.RestaurantGroups
             .Include(restaurantGroup => restaurantGroup.Restaurants)!
             .ThenInclude(restaurant => restaurant.Tags!)
@@ -186,14 +193,22 @@ public class RestaurantGroupService(
 
         if (restaurantGroup == null)
         {
-            errors.Add(new ValidationResult($"RestaurantGroup with ID {groupId} not found."));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"RestaurantGroup with ID {groupId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (restaurantGroup.OwnerId != userId)
         {
-            errors.Add(new ValidationResult($"User with ID {userId} is not an Owner of group {groupId}."));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"User with ID {userId} is not an Owner of group {groupId}.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
         }
 
 
@@ -238,19 +253,28 @@ public class RestaurantGroupService(
     /// <returns></returns>
     public async Task<Result<bool>> SoftDeleteRestaurantGroupAsync(int id, User user)
     {
-        var errors = new List<ValidationResult>();
         var group = await context.RestaurantGroups
             .Where(g => g.Id == id)
             .Include(g => g.Restaurants)
             .FirstOrDefaultAsync();
         if (group == null)
         {
-            errors.Add(new ValidationResult("Restaurant group not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Restaurant group not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
-        if (group.OwnerId != user.Id) {
-            errors.Add(new ValidationResult("Restaurant group does not belong to the current user"));
-            return errors; }
+        if (group.OwnerId != user.Id)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Restaurant group does not belong to the current user",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
 
         foreach (Restaurant restaurant in group.Restaurants)
         {
@@ -259,8 +283,12 @@ public class RestaurantGroupService(
                 continue;
             }
 
-            errors.Add(new ValidationResult($"Unable to delete restaurant with ID {restaurant.Id}"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Unable to delete restaurant with ID {restaurant.Id}",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         context.Remove(group);

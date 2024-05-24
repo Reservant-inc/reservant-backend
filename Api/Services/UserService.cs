@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
@@ -11,7 +11,7 @@ using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
-
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -209,22 +209,27 @@ public class UserService(
     /// <returns></returns>
     public async Task<Result<User>> GetEmployeeAsync(string empId, ClaimsPrincipal user)
     {
-
-        var errors = new List<ValidationResult>();
-
         var owner = (await userManager.GetUserAsync(user))!;
         var emp = await userManager.FindByIdAsync(empId);
 
         if (emp is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (emp.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} is not employed by {owner.Id}",
+                ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee
+            };
         }
 
         return emp;
@@ -259,21 +264,27 @@ public class UserService(
     /// <returns></returns>
     public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, string empId, ClaimsPrincipal user)
     {
-        var errors = new List<ValidationResult>();
-
         var owner = (await userManager.GetUserAsync(user))!;
         var employee = await userManager.FindByIdAsync(empId);
 
         if (employee is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (employee.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} is not employed by {owner.Id}",
+                ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee
+            };
         }
 
         employee.Email = request.Email.Trim();

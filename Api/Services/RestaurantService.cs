@@ -13,7 +13,6 @@ using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
-using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
 {
@@ -324,15 +323,16 @@ namespace Reservant.Api.Services
         public async Task<Result<RestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId,
             MoveToGroupRequest request, User user)
         {
-            var errors = new List<ValidationResult>();
             var newRestaurantGroup = await context.RestaurantGroups.Include(rg => rg.Restaurants)
                 .FirstOrDefaultAsync(rg => rg.Id == request.GroupId && rg.OwnerId == user.Id);
             if (newRestaurantGroup == null)
             {
-                errors.Add(new ValidationResult(
-                    $"RestaurantGroup with ID {request.GroupId} not found.",
-                    [nameof(request.GroupId)]));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.GroupId),
+                    ErrorMessage = $"RestaurantGroup with ID {request.GroupId} not found.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             var restaurant = await context.Restaurants
@@ -342,10 +342,12 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
             if (restaurant == null)
             {
-                errors.Add(new ValidationResult(
-                    $"Restaurant with ID {restaurantId} not found.",
-                    [nameof(restaurantId)]));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             var oldGroup = restaurant.Group;
@@ -393,17 +395,21 @@ namespace Reservant.Api.Services
 
             if (restaurant == null)
             {
-                return new List<ValidationResult>
+                return new ValidationFailure
                 {
-                    new($"Restaurant with ID {id} not found")
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {id} not found",
+                    ErrorCode = ErrorCodes.NotFound
                 };
             }
 
             if (restaurant.Group!.OwnerId != userId)
             {
-                return new List<ValidationResult>
+                return new ValidationFailure
                 {
-                    new($"Restaurant with ID {id} is not owned by the current user")
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {id} is not owned by the current user",
+                    ErrorCode = ErrorCodes.AccessDenied
                 };
             }
 
@@ -578,8 +584,6 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<bool>> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
         {
-            var errors = new List<ValidationResult>();
-
             var result = await validationService.ValidateAsync(dto, user.Id);
             if (!result.IsValid)
             {
@@ -592,18 +596,22 @@ namespace Reservant.Api.Services
 
                 if (group is null)
                 {
-                    errors.Add(new ValidationResult(
-                        $"Group with ID {dto.GroupId} not found",
-                        [nameof(dto.GroupId)]));
-                    return errors;
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(dto.GroupId),
+                        ErrorMessage = $"Group with ID {dto.GroupId} not found",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
                 }
 
                 if (group.OwnerId != user.Id)
                 {
-                    errors.Add(new ValidationResult(
-                        $"Group with ID {dto.GroupId} is not owned by the current user",
-                        [nameof(dto.GroupId)]));
-                    return errors;
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(dto.GroupId),
+                        ErrorMessage = $"Group with ID {dto.GroupId} is not owned by the current user",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
                 }
             }
 
@@ -651,8 +659,6 @@ namespace Reservant.Api.Services
         /// <returns>MenuItems</returns>
         public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
         {
-            var errors = new List<ValidationResult>();
-
             var isRestaurantValid = await menuItemsServiceservice.ValidateRestaurant(user, restaurantId);
 
             if (isRestaurantValid.IsError)

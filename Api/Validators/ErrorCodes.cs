@@ -100,4 +100,19 @@ public static class ErrorCodes
     /// Error returned by Identity Framework
     /// </summary>
     public const string IdentityError = "IdentityError";
+
+    /// <summary>
+    /// Uploaded file is too big
+    /// </summary>
+    public const string FileTooBig = "FileTooBig";
+
+    /// <summary>
+    /// Upload content type is not accepted
+    /// </summary>
+    public const string UnacceptedContentType = "UnacceptedContentType";
+
+    /// <summary>
+    /// An object does not belong to the current restaurant
+    /// </summary>
+    public const string BelongsToAnotherRestaurant = "BelongsToAnotherRestaurant";
 }
