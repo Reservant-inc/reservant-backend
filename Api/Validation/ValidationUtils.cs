@@ -13,7 +13,7 @@ public static class ValidationUtils
     private static readonly CustomProblemDetailsFactory ProblemDetailsFactory = new();
 
     /// <summary>
-    /// Add errors to ModelState.
+    /// Create an ActionResult containing errors from the given result
     /// </summary>
     public static ActionResult ToValidationProblem<T>(this Result<T> result)
     {
