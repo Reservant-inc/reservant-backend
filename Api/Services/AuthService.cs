@@ -2,7 +2,6 @@
 using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
-using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;

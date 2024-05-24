@@ -1,8 +1,6 @@
-using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 

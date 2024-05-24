@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators.Visit;
 

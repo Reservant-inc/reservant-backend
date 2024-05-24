@@ -6,8 +6,6 @@ using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-using Azure.Core;
-using Reservant.Api.Validators.Restaurant;
 
 namespace Reservant.Api.Services
 {

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 

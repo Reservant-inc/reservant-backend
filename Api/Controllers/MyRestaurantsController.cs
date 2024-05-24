@@ -7,7 +7,6 @@ using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Models.Dtos.MenuItem;
 
 

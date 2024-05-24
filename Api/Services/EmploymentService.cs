@@ -1,9 +1,5 @@
-using System.ComponentModel.DataAnnotations;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Employment;

@@ -2,11 +2,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Reservant.Api.Validators;
 
