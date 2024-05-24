@@ -70,7 +70,7 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// Deposit
         /// </summary>
         [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
-        public decimal? ReservationDeposit { get; init; }
+        public required decimal? ReservationDeposit { get; init; }
 
         /// <summary>
         /// Whether we provide delivery for the restaurant

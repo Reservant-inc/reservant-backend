@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
@@ -116,6 +117,12 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// </summary>
         [MinLength(1), StringLength(200)]
         public required string? Description { get; init; }
+        
+        /// <summary>
+        /// Deposit
+        /// </summary>
+        [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
+        public required decimal? ReservationDeposit { get; init; }
 
         /// <summary>
         /// Restaurant tags
