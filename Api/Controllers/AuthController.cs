@@ -2,12 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
-using Reservant.Api.Options;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -20,7 +18,6 @@ namespace Reservant.Api.Controllers;
 public class AuthController(
     UserService userService,
     UserManager<User> userManager,
-    IOptions<JwtOptions> jwtOptions,
     AuthService authService)
     : StrictController
 {

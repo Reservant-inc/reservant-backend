@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Reservant.Api.Data;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Services;
 
@@ -11,7 +10,7 @@ namespace Reservant.Api.Validators.MenuItem;
 public class UpdateMenuItemRequestValidator : AbstractValidator<UpdateMenuItemRequest>
 {
     /// <inheritdoc />
-    public UpdateMenuItemRequestValidator(FileUploadService uploadService, ApiDbContext dbContext)
+    public UpdateMenuItemRequestValidator(FileUploadService uploadService)
     {
         RuleFor(m => m.Price)
             .InclusiveBetween(0, 500);

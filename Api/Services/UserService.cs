@@ -18,8 +18,9 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Stuff for working with user records.
 /// </summary>
-public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
-    FileUploadService uploadService,
+public class UserService(
+    UserManager<User> userManager,
+    ApiDbContext dbContext,
     ValidationService validationService)
 {
     /// <summary>

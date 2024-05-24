@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Data;
 
 namespace Reservant.Api.Validators.Visit;
@@ -10,7 +9,7 @@ namespace Reservant.Api.Validators.Visit;
 public class VisitValidator : AbstractValidator<Models.Visit>
 {
     /// <inheritdoc />
-    public VisitValidator(UserManager<Models.User> userManager, ApiDbContext dbContext)
+    public VisitValidator(ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)
             .DateTimeInFuture();
