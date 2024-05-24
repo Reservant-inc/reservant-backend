@@ -118,15 +118,7 @@ public static class CustomRules
     public static IRuleBuilderOptions<T, Tuple<bool, bool>> AtLeastOneEmployeeRole<T>(this IRuleBuilder<T, Tuple<bool, bool>> builder)
     {
         return builder
-            .MustAsync(async (_, value, context, _) =>
-            {
-
-                if (value.Item1 || value.Item2)
-                {
-                    return true;
-                }
-                return false;
-            })
+            .Must((_, value, _) => value.Item1 || value.Item2)
             .WithErrorCode(ErrorCodes.AtLeastOneRoleSelected)
             .WithMessage(ErrorCodes.AtLeastOneRoleSelected);
     }
