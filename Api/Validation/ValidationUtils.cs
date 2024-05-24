@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Validators;
 using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Validation;
@@ -74,10 +75,15 @@ public static class ValidationUtils
     /// <summary>
     /// Convert an IdentityResult to a list of validation errors.
     /// </summary>
-    public static List<ValidationResult> AsValidationErrors(string member, IdentityResult result)
+    public static List<ValidationFailure> AsValidationErrors(string member, IdentityResult result)
     {
         return result.Errors
-            .Select(x => new ValidationResult(x.Description, [member]))
+            .Select(x => new ValidationFailure
+            {
+                PropertyName = member,
+                ErrorMessage = x.Description,
+                ErrorCode = ErrorCodes.IdentityError
+            })
             .ToList();
     }
 }

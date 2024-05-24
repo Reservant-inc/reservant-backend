@@ -95,4 +95,9 @@ public static class ErrorCodes
     /// The order cannot be cancelled because some of the items have been received by the customer
     /// </summary>
     public const string SomeOfItemsAreTaken = "SomeOfItemsWereTaken";
+
+    /// <summary>
+    /// Error returned by Identity Framework
+    /// </summary>
+    public const string IdentityError = "IdentityError";
 }
