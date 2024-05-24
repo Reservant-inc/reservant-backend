@@ -47,7 +47,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return result.ToValidationProblem();
         }
 
-        return Created(result.Value.Id.ToString(), "");
+        return Created();
 
     }
 
