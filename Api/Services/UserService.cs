@@ -90,7 +90,7 @@ public class UserService(
             Employer = employer
         };
 
-        var validationResult = await validationService.ValidateAsync(username, employer.Id);
+        var validationResult = await validationService.ValidateAsync(employee, employer.Id);
         if (!validationResult.IsValid)
         {
             return validationResult;
