@@ -96,7 +96,7 @@ public readonly struct Result<TValue>
     {
         if (IsError)
         {
-            throw new InvalidOperationException("Validation failed: " + string.Join(", ", Errors!));
+            throw new InvalidOperationException("Validation failed: " + string.Join(", ", Errors));
         }
 
         return Value!;
