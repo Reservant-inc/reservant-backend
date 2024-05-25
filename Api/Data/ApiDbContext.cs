@@ -6,7 +6,7 @@ using Reservant.Api.Models;
 
 namespace Reservant.Api.Data;
 
-public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbContext<User>(options)
+public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration configuration) : IdentityDbContext<User>(options)
 {
     public required DbSet<WeatherForecast> WeatherForecasts { get; init; }
 
@@ -41,10 +41,23 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
     {
         await Database.ExecuteSqlRawAsync("EXEC DropAllTables");
     }
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        var connString = configuration.GetConnectionString("Default");
+        
+        optionsBuilder.UseSqlServer(
+            connString,
+            x => x.UseNetTopologySuite());
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        
+        builder.Entity<Restaurant>()
+            .Property(r => r.Location)
+            .HasColumnType("geography");
 
         builder.Entity<Table>().HasKey(t => new { t.RestaurantId, t.Id });
 
