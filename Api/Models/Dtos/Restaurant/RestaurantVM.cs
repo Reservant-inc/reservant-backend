@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using NetTopologySuite.Geometries;
 using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
@@ -52,6 +53,20 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// <example>Warszawa</example>
         [Required, StringLength(15)]
         public required string City { get; init; }
+        
+        /// <summary>
+        /// Restaurant Latitude
+        /// </summary>
+        /// <example>52.39625635</example>
+        [Required]
+        public required double Latitude { get; init; }
+    
+        /// <summary>
+        /// Restaurant Longitude
+        /// </summary>
+        /// <example>20.91364863552046</example>
+        [Required]
+        public required double Longitude { get; init; }
 
         /// <summary>
         /// Restaurant group ID
