@@ -51,6 +51,8 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             RestaurantType = r.RestaurantType,
             Address = r.Address,
             City = r.City,
+            Longitude = r.Location.X,
+            Latitude = r.Location.Y,
             GroupId = r.GroupId,
             Logo = uploadService.GetPathForFileName(r.LogoFileName),
             Description = r.Description,
