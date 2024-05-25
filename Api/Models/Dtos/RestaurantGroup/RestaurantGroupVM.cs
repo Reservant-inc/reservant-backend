@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Models.Dtos.Restaurant;
 
-namespace Reservant.Api.Models.Dtos;
+namespace Reservant.Api.Models.Dtos.RestaurantGroup;
 
 public class RestaurantGroupVM
 {
