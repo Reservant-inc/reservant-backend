@@ -57,7 +57,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
         
         builder.Entity<Restaurant>()
             .Property(r => r.Location)
-            .HasColumnType("geography");
+            .HasColumnType("geometry");
 
         builder.Entity<Table>().HasKey(t => new { t.RestaurantId, t.Id });
 
