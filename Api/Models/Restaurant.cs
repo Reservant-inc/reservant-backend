@@ -42,7 +42,7 @@ public class Restaurant : ISoftDeletable
 
 
     /// <summary>
-    /// Localization
+    /// Restaurant location
     /// </summary>
     public required Point Location { get; set; }
 
