@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -357,6 +358,7 @@ public class DbSeeder(
             Address = "ul. Marszałkowska 2",
             PostalIndex = "00-000",
             City = "Warszawa",
+            Location = new Point(20.91364863552046,52.39625635),
             Group = johnDoesGroup,
             RentalContractFileName = null,
             AlcoholLicenseFileName = null!,
@@ -562,6 +564,7 @@ public class DbSeeder(
             Address = "ul. Koszykowa 10",
             PostalIndex = "00-000",
             City = "Warszawa",
+            Location = new Point(20.91364863552046, 52.39625635),
             Group = johnDoesGroup,
             RentalContractFileName = null,
             AlcoholLicenseFileName = null,
@@ -674,6 +677,7 @@ public class DbSeeder(
             Address = "ul. Konstruktorska 5",
             PostalIndex = "00-000",
             City = "Warszawa",
+            Location = new Point(20.91364863552046, 52.39625635),
             Group = kowalskisGroup,
             RentalContractFileName = null,
             RentalContract = exampleDocument,
