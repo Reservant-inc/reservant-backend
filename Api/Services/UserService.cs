@@ -351,15 +351,17 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// Gets the list of visists of user planned for the future
     /// </summary>
     /// <param name="user"></param>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page = 0, int perPage = 10)
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
         var query = dbContext.Visits
             .Include(r => r.Participants)
             .Include(r => r.Orders)
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Date > DateTime.UtcNow)
-            .OrderByDescending(x => x.Date);
+            .OrderBy(x => x.Date);
 
         var result = await query.Select(visit => new VisitSummaryVM
         {
@@ -380,15 +382,17 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// Gets the list of visists of user from the past
     /// </summary>
     /// <param name="user"></param>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitHistoryAsync(User user, int page = 0, int perPage = 10)
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitHistoryAsync(User user, int page, int perPage)
     {
         var query = dbContext.Visits
             .Include(r => r.Participants)
             .Include(r => r.Orders)
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Date < DateTime.UtcNow)
-            .OrderByDescending(x => x.Date);
+            .OrderBy(x => x.Date);
 
         var result = await query.Select(visit => new VisitSummaryVM
         {
