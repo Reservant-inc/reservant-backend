@@ -133,7 +133,8 @@ public class VisitService(
             Date = visit.Date,
             Takeaway = visit.Takeaway,
             RestaurantId = visit.RestaurantId,
-            NumberOfPeople = visit.NumberOfGuests
+            NumberOfPeople = visit.NumberOfGuests,
+            Deposit = visit.Deposit
         };
     }
 }

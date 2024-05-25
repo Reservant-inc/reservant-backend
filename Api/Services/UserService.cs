@@ -348,7 +348,8 @@ public class UserService(
             NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
             Takeaway=visit.Takeaway,
             ClientId=visit.ClientId,
-            RestaurantId=visit.RestaurantId
+            RestaurantId=visit.RestaurantId,
+            Deposit = visit.Deposit
         }).ToList();
 
         return new Result<List<VisitSummaryVM>>(resultList);
