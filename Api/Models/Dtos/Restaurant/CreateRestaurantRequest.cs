@@ -42,7 +42,19 @@ public class CreateRestaurantRequest
     /// </summary>
     /// <example>Warszawa</example>
     public required string City { get; init; }
-
+    
+    /// <summary>
+    /// Restaurant Latitude
+    /// </summary>
+    /// <example>52.39625635</example>
+    public required double Latitude { get; init; }
+    
+    /// <summary>
+    /// Restaurant Longitude
+    /// </summary>
+    /// <example>20.91364863552046</example>
+    public required double Longitude { get; init; }
+    
     /// <summary>
     /// File name of the rental contract upload (umowa najmu lokalu)
     /// </summary>
