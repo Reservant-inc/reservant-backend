@@ -6,6 +6,7 @@ using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
+using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
@@ -44,7 +45,7 @@ namespace Reservant.Api.Services
         ApiDbContext context,
         FileUploadService uploadService,
         UserManager<User> userManager,
-        MenuItemsService menuItemsServiceservice,
+        MenuItemsService menuItemsService,
         ValidationService validationService)
     {
         /// <summary>
@@ -104,6 +105,7 @@ namespace Reservant.Api.Services
                 Nip = request.Nip,
                 PostalIndex = request.PostalIndex,
                 City = request.City.Trim(),
+                Location = new Point(request.Longitude,request.Latitude),
                 Group = group,
                 RentalContractFileName = request.RentalContract,
                 AlcoholLicenseFileName = request.AlcoholLicense,
@@ -659,7 +661,7 @@ namespace Reservant.Api.Services
         /// <returns>MenuItems</returns>
         public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
         {
-            var isRestaurantValid = await menuItemsServiceservice.ValidateRestaurant(user, restaurantId);
+            var isRestaurantValid = await menuItemsService.ValidateRestaurant(user, restaurantId);
 
             if (isRestaurantValid.IsError)
             {

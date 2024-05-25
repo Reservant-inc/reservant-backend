@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Data;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
+using NetTopologySuite.Geometries;
 
 namespace Reservant.Api.Models;
 
@@ -38,6 +39,12 @@ public class Restaurant : ISoftDeletable
     /// </summary>
     [Required, StringLength(70)]
     public required string Address { get; set; }
+
+
+    /// <summary>
+    /// Localization
+    /// </summary>
+    public required Point Location { get; set; }
 
     /// <summary>
     /// Postal index of the restaurant
