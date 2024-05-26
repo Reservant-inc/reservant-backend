@@ -112,6 +112,7 @@ namespace Reservant.Api.Services
                 LogoFileName = request.Logo,
                 ProvideDelivery = request.ProvideDelivery,
                 Description = request.Description?.Trim(),
+                ReservationDeposit = request.ReservationDeposit,
                 Tags = await context.RestaurantTags
                     .Join(
                         request.Tags,
@@ -163,6 +164,7 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
+                    ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags!.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null
                 })
@@ -213,6 +215,7 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
+                    ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags!.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null
                 })
@@ -372,6 +375,7 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 GroupId = restaurant.GroupId,
                 Description = restaurant.Description,
+                ReservationDeposit = restaurant.ReservationDeposit,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
@@ -479,6 +483,7 @@ namespace Reservant.Api.Services
             restaurant.City = request.City;
             restaurant.ProvideDelivery = request.ProvideDelivery;
             restaurant.Description = request.Description;
+            restaurant.ReservationDeposit = request.ReservationDeposit;
 
             restaurant.RentalContractFileName = request.RentalContract;
             restaurant.AlcoholLicenseFileName = request.AlcoholLicense;
@@ -545,6 +550,7 @@ namespace Reservant.Api.Services
                 ProvideDelivery = restaurant.ProvideDelivery,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Description = restaurant.Description,
+                ReservationDeposit = restaurant.ReservationDeposit,
                 Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
                 IsVerified = restaurant.VerifierId != null
             };
