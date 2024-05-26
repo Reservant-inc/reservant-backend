@@ -6,10 +6,10 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.OrderItem;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Security.Claims;
-using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Services;
 
@@ -18,8 +18,9 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class OrderService(
     UserManager<User> userManager,
-    ApiDbContext context
-){
+    ApiDbContext context,
+    ValidationService validationService)
+{
     /// <summary>
     /// Gets the order with the given id
     /// </summary>
@@ -141,4 +142,79 @@ public class OrderService(
         return true;
     }
 
+    /// <summary>
+    /// Creating new order
+    /// </summary>
+    public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
+    {
+        var result = await validationService.ValidateAsync(request, user.Id);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
+        var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
+        var menuItems = await context.MenuItems
+            .Where(mi => menuItemIds.Contains(mi.Id))
+            .ToListAsync();
+
+        var visit = await context.Visits
+            .Where(v => v.Id == request.VisitId)
+            .Include(visit => visit.Participants)
+            .FirstOrDefaultAsync();
+
+        if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                AttemptedValue = user.Id,
+                ErrorCode = ErrorCodes.UserDoesNotParticipateInVisit
+            };
+        }
+
+        if (menuItems.Any(mi => mi.RestaurantId != visit.RestaurantId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Items),
+                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant
+            };
+        }
+
+        var orderItems = request.Items.Select(c => new OrderItem
+        {
+            MenuItemId = c.MenuItemId,
+            Amount = c.Amount,
+            Status = OrderStatus.InProgress,
+            MenuItem = menuItems.First(mi => mi.Id == c.MenuItemId)
+        }).ToList();
+
+        var order = new Order
+        {
+            VisitId = request.VisitId,
+            Note = request.Note,
+            OrderItems = orderItems
+        };
+
+        result = await validationService.ValidateAsync(order, user.Id);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
+        context.Add(order);
+        await context.SaveChangesAsync();
+
+
+        return new OrderSummaryVM
+        {
+            OrderId = order.Id,
+            Cost = order.Cost,
+            Note = order.Note,
+            Status = order.Status,
+            VisitId = order.VisitId,
+            Date = visit.Date
+        };
+    }
 }

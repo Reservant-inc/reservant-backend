@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
@@ -11,7 +11,7 @@ using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
-
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -48,10 +48,10 @@ public class UserService(
             RegisteredAt = DateTime.UtcNow
         };
 
-        var errors = new List<ValidationResult>();
-        if (!ValidationUtils.TryValidate(user, errors))
+        var validationResult = await validationService.ValidateAsync(user, null);
+        if (!validationResult.IsValid)
         {
-            return errors;
+            return validationResult;
         }
 
         var result = await userManager.CreateAsync(user, request.Password);
@@ -78,9 +78,6 @@ public class UserService(
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
         RegisterRestaurantEmployeeRequest request, User employer, string? id = null)
     {
-
-        var errors = new List<ValidationResult>();
-
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
         var employee = new User {
@@ -93,9 +90,10 @@ public class UserService(
             Employer = employer
         };
 
-        if (!ValidationUtils.TryValidate(employee, errors))
+        var validationResult = await validationService.ValidateAsync(employee, employer.Id);
+        if (!validationResult.IsValid)
         {
-            return errors;
+            return validationResult;
         }
 
         var result = await userManager.CreateAsync(employee, request.Password);
@@ -211,22 +209,27 @@ public class UserService(
     /// <returns></returns>
     public async Task<Result<User>> GetEmployeeAsync(string empId, ClaimsPrincipal user)
     {
-
-        var errors = new List<ValidationResult>();
-
         var owner = (await userManager.GetUserAsync(user))!;
         var emp = await userManager.FindByIdAsync(empId);
 
         if (emp is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (emp.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} is not employed by {owner.Id}",
+                ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee
+            };
         }
 
         return emp;
@@ -261,21 +264,27 @@ public class UserService(
     /// <returns></returns>
     public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, string empId, ClaimsPrincipal user)
     {
-        var errors = new List<ValidationResult>();
-
         var owner = (await userManager.GetUserAsync(user))!;
         var employee = await userManager.FindByIdAsync(empId);
 
         if (employee is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (employee.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} is not employed by {owner.Id}",
+                ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee
+            };
         }
 
         employee.Email = request.Email.Trim();
@@ -284,9 +293,10 @@ public class UserService(
         employee.LastName = request.LastName.Trim();
         employee.BirthDate = request.BirthDate;
 
-        if (!ValidationUtils.TryValidate(employee, errors))
+        var result = await validationService.ValidateAsync(employee, empId);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await userManager.UpdateAsync(employee);
@@ -329,30 +339,65 @@ public class UserService(
 
 
     /// <summary>
-    /// Gets the list of visists of user of provided id
+    /// Gets the list of visists of user planned for the future
     /// </summary>
     /// <param name="user"></param>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
-        var list = await dbContext.Visits
-        .Include(r => r.Participants!)
-        .Include(r => r.Orders!)
-            .Where(x => x.ClientId == user.Id || x.Participants!.Any(p => p.Id == user.Id))
-            .ToListAsync();
+        var query = dbContext.Visits
+            .Include(r => r.Participants)
+            .Include(r => r.Orders)
+            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.Date > DateTime.UtcNow)
+            .OrderBy(x => x.Date);
 
-        var resultList = list.Select(visit => new VisitSummaryVM
+        var result = await query.Select(visit => new VisitSummaryVM
         {
-            VisitId=visit.Id,
-            Date=visit.Date,
-            NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
-            Takeaway=visit.Takeaway,
-            ClientId=visit.ClientId,
-            RestaurantId=visit.RestaurantId,
-            Deposit = visit.Deposit
-        }).ToList();
+            VisitId = visit.Id,
+            Date = visit.Date,
+            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
+            Takeaway = visit.Takeaway,
+            ClientId = visit.ClientId,
+            RestaurantId = visit.RestaurantId
+        })
+        .PaginateAsync(page, perPage, maxPerPage: 10);
 
-        return new Result<List<VisitSummaryVM>>(resultList);
+        return result;
+    }
+
+
+    /// <summary>
+    /// Gets the list of visists of user from the past
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
+    /// <returns></returns>
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitHistoryAsync(User user, int page, int perPage)
+    {
+        var query = dbContext.Visits
+            .Include(r => r.Participants)
+            .Include(r => r.Orders)
+            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.Date < DateTime.UtcNow)
+            .OrderByDescending(x => x.Date);
+
+        var result = await query.Select(visit => new VisitSummaryVM
+        {
+            VisitId = visit.Id,
+            Date = visit.Date,
+            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
+            Takeaway = visit.Takeaway,
+            ClientId = visit.ClientId,
+            RestaurantId = visit.RestaurantId,
+            Deposit = visit.Deposit
+        })
+        .PaginateAsync(page, perPage, maxPerPage: 10);
+
+        return result;
     }
 
 }

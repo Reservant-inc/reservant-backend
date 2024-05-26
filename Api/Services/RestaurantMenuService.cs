@@ -1,13 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
-using ValidationFailure = FluentValidation.Results.ValidationFailure;
 
 namespace Reservant.Api.Services;
 
@@ -16,7 +14,10 @@ namespace Reservant.Api.Services;
 /// Util class for managing RestaurantMenus
 /// </summary>
 /// <param name="context">context</param>
-public class RestaurantMenuService(ApiDbContext context, FileUploadService uploadService)
+public class RestaurantMenuService(
+    ApiDbContext context,
+    FileUploadService uploadService,
+    ValidationService validationService)
 {
 
     /// <summary>
@@ -26,13 +27,16 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     /// <returns></returns>
     public async Task<Result<MenuVM?>> GetSingleMenuAsync(int menuId)
     {
-        var errors = new List<ValidationResult>();
-
         var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId);
         if (!menuExists)
-            errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
-
-        if (!errors.IsNullOrEmpty()) return errors;
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Menu with ID {menuId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
 
         var menu = await context.Menus
             .Include(m => m.MenuItems)
@@ -69,24 +73,29 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     /// <returns></returns>
     public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(CreateMenuRequest req, User user)
     {
-        var errors = new List<ValidationResult>();
-
         var restaurant = await context.Restaurants
             .Include(r => r.Group)
             .FirstOrDefaultAsync(r => r.Id == req.RestaurantId);
 
         if (restaurant == null)
         {
-            errors.Add(new ValidationResult($"Restaurant with ID: {req.RestaurantId} not found.", [nameof(req.RestaurantId)]));
+            return new ValidationFailure
+            {
+                PropertyName = nameof(req.RestaurantId),
+                ErrorMessage = $"Restaurant with ID: {req.RestaurantId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
-        else
+
+        if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
         {
-            if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
-                errors.Add(new ValidationResult($"User is not the owner of the restaurant with ID: {req.RestaurantId}.", [nameof(req.RestaurantId)]));
+            return new ValidationFailure
+            {
+                PropertyName = nameof(req.RestaurantId),
+                ErrorMessage = $"User is not the owner of the restaurant with ID: {req.RestaurantId}.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
         }
-
-        if (!errors.IsNullOrEmpty()) return errors;
-
 
         var newMenu = new Menu
         {
@@ -97,8 +106,11 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             RestaurantId = req.RestaurantId
         };
 
-        if (!ValidationUtils.TryValidate(newMenu, errors))
-            return errors;
+        var result = await validationService.ValidateAsync(newMenu, user.Id);
+        if (!result.IsValid)
+        {
+            return result;
+        }
 
         context.Menus.Add(newMenu);
         await context.SaveChangesAsync();
@@ -126,9 +138,6 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     /// <param name="user">Currently logged-in user</param>
     public async Task<Result<MenuVM>> AddItemsToMenuAsync(int menuId, AddItemsRequest request, User user)
     {
-
-        var errors = new List<ValidationResult>();
-
         var menuToUpdate = await context.Menus
             .Include(m => m.MenuItems)
             .Include(m => m.Restaurant!)
@@ -137,16 +146,24 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
 
         if (menuToUpdate == null)
         {
-            errors.Add(new ValidationResult($"Menu with id ${menuId} not found.", [nameof(menuId)]));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = nameof(menuId),
+                ErrorMessage = $"Menu with id ${menuId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         var restaurant = menuToUpdate.Restaurant!;
 
         if (restaurant.Group.OwnerId != user.Id)
         {
-            errors.Add(new ValidationResult($"User is not the owner of the restaurant that contains menu ID: {menuToUpdate.Id}.", [nameof(menuToUpdate.Id)]));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = nameof(menuToUpdate.Id),
+                ErrorMessage = $"User is not the owner of the restaurant that contains menu ID: {menuToUpdate.Id}.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
         }
 
         var menuItemsToAdd = await context.MenuItems
@@ -159,17 +176,23 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             .ToList();
         if (fromAnotherRestaurant.Count != 0)
         {
-            errors.Add(new ValidationResult(
-                $"MenuItems with IDs {string.Join(", ", fromAnotherRestaurant)} belong to another restaurant",
-                [nameof(request.ItemIds)]));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.ItemIds),
+                ErrorMessage = $"MenuItems with IDs {string.Join(", ", fromAnotherRestaurant)} belong to another restaurant",
+                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant
+            };
         }
 
         var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.Id)).ToList();
         if (nonExistentItemIds.Any())
         {
-            errors.Add(new ValidationResult($"MenuItems with IDs {string.Join(", ", nonExistentItemIds)} not found.", [nameof(request.ItemIds)]));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.ItemIds),
+                ErrorMessage = $"MenuItems with IDs {string.Join(", ", nonExistentItemIds)} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         // Adding items
@@ -182,8 +205,11 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
             }
         }
 
-        if (!ValidationUtils.TryValidate(menuToUpdate, errors))
-            return errors;
+        var result = await validationService.ValidateAsync(menuToUpdate, user.Id);
+        if (!result.IsValid)
+        {
+            return result;
+        }
 
         await context.SaveChangesAsync();
 
@@ -216,8 +242,6 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
     /// <returns></returns>
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
-        var errors = new List<ValidationResult>();
-
         // Getting menu
         var menu = await context.Menus
             .Where(m => m.Id == menuId)
@@ -229,15 +253,23 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
         // Checking if menu exists
         if (menu == null)
         {
-            errors.Add(new ValidationResult($"Menu with ID {menuId} not found."));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Menu with ID {menuId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         // Checking ownership of menu
         if (menu.Restaurant!.Group!.OwnerId != user.Id)
         {
-            errors.Add(new ValidationResult($"User not permitted to edit menu with ID {menuId}."));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"User not permitted to edit menu with ID {menuId}.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
         }
 
         menu.Name = request.Name.Trim();
@@ -246,9 +278,10 @@ public class RestaurantMenuService(ApiDbContext context, FileUploadService uploa
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
 
-        if (!ValidationUtils.TryValidate(menu, errors))
+        var result = await validationService.ValidateAsync(menu, user.Id);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await context.SaveChangesAsync();

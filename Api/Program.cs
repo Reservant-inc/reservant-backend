@@ -81,7 +81,8 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    var buildTime = Assembly.GetExecutingAssembly().GetCustomAttribute<BuildTimeAttribute>()?.BuildTime;
+    var assembly = Assembly.GetExecutingAssembly();
+    var buildTime = assembly.GetCustomAttribute<BuildTimeAttribute>()?.BuildTime;
 
     options.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -94,7 +95,7 @@ builder.Services.AddSwaggerGen(options =>
                        """
     });
 
-    var filePath = Path.Combine(AppContext.BaseDirectory, "Api.xml");
+    var filePath = Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml");
     options.IncludeXmlComments(filePath, includeControllerXmlComments: true);
 
     var jwtSecurityScheme = new OpenApiSecurityScheme

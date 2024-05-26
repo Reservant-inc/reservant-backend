@@ -107,6 +107,7 @@ public class AuthController(
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
         {
+            UserId = user.Id,
             Token = jwt,
             Login = request.Login,
             FirstName = user.FirstName,
@@ -138,7 +139,7 @@ public class AuthController(
     }
 
     /// <summary>
-    /// check if login is aviable
+    /// check if login is available
     /// </summary>
     [HttpGet("is-unique-login")]
     [ProducesResponseType(200)]
@@ -163,6 +164,7 @@ public class AuthController(
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
         {
+            UserId = user.Id,
             Token = jwt,
             Login = user.UserName,
             FirstName = user.FirstName,

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -111,13 +112,13 @@ public class UserController(
 
 
     /// <summary>
-    /// Get list of visits of logged in user
+    /// Get list of future visits of logged in user
     /// </summary>
     /// <returns></returns>
     [HttpGet("visits")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200),ProducesResponseType(400)]
-    public async Task<ActionResult<List<VisitSummaryVM>>> GetVisits()
+    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisits(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -125,7 +126,35 @@ public class UserController(
             return Unauthorized();
         }
 
-        var result = await userService.GetVisitsAsync(user);
+        var result = await userService.GetVisitsAsync(user, page, perPage);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        else
+        {
+            return Ok(result.Value);
+        }
+    }
+
+
+    /// <summary>
+    /// Get list of past visits of logged in user
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("visit-history")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200),ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisitHistory(int page = 0, int perPage = 10)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.GetVisitHistoryAsync(user, page, perPage);
 
         if (result.IsError)
         {

@@ -5,7 +5,6 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
-using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace Reservant.Api.Services
 {
@@ -84,17 +83,17 @@ namespace Reservant.Api.Services
         /// <returns>MenuItem</returns>
         public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int menuItemId)
         {
-            var errors = new List<ValidationResult>();
-
             var item = await context.MenuItems
                 .FirstOrDefaultAsync(i => i.Id == menuItemId);
 
             if (item == null)
             {
-                errors.Add(new ValidationResult(
-                    $"MenuItem: {menuItemId} not found"
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"MenuItem: {menuItemId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             return new MenuItemVM()
@@ -116,26 +115,28 @@ namespace Reservant.Api.Services
         /// <returns>The bool returned is meaningless, errors are returned using the result</returns>
         public async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
         {
-            var errors = new List<ValidationResult>();
-
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
                 .FirstOrDefaultAsync(r => r.Id == restaurantId);
 
             if (restaurant == null)
             {
-                errors.Add(new ValidationResult(
-                    $"Restaurant: {restaurantId} not found."
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant: {restaurantId} not found.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             if (restaurant.Group!.OwnerId != user.Id)
             {
-                errors.Add(new ValidationResult(
-                    $"Restaurant: {restaurantId} doesn't belong to the restautantOwner."
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant: {restaurantId} doesn't belong to the restautantOwner.",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
             }
 
             return true;
