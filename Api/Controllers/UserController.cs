@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -117,7 +118,7 @@ public class UserController(
     [HttpGet("visits")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200),ProducesResponseType(400)]
-    public async Task<ActionResult<List<VisitSummaryVM>>> GetVisits(int page, int perPage)
+    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisits(int page, int perPage)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -145,7 +146,7 @@ public class UserController(
     [HttpGet("visit-history")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200),ProducesResponseType(400)]
-    public async Task<ActionResult<List<VisitSummaryVM>>> GetVisitHistory(int page, int perPage)
+    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisitHistory(int page, int perPage)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
