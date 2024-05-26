@@ -118,7 +118,7 @@ public class UserController(
     [HttpGet("visits")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200),ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisits(int page, int perPage)
+    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisits(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -146,7 +146,7 @@ public class UserController(
     [HttpGet("visit-history")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200),ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisitHistory(int page, int perPage)
+    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisitHistory(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
