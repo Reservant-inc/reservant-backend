@@ -168,7 +168,7 @@ public class OrderService(
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(user.Id),
+                PropertyName = null,
                 AttemptedValue = user.Id,
                 ErrorCode = ErrorCodes.UserDoesNotParticipateInVisit
             };
