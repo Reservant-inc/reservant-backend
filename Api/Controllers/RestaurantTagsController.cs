@@ -1,8 +1,6 @@
-using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 
@@ -12,7 +10,7 @@ namespace Reservant.Api.Controllers;
 /// Restaurant tag management
 /// </summary>
 [ApiController, Route("/restaurant-tags")]
-public class RestaurantTagsController(ApiDbContext context, FileUploadService uploadService) : Controller
+public class RestaurantTagsController(ApiDbContext context, FileUploadService uploadService) : StrictController
 {
     /// <summary>
     /// Get all available tags
@@ -47,7 +45,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
 
         return Ok(result.Select(r => new RestaurantSummaryVM()
         {
-            Id = r.Id,
+            RestaurantId = r.Id,
             Name = r.Name,
             Nip = r.Nip,
             RestaurantType = r.RestaurantType,
@@ -59,6 +57,6 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             ProvideDelivery = r.ProvideDelivery,
             Tags = (r.Tags ?? []).Select(t => t.Name).ToList(),
             IsVerified = r.VerifierId != null
-        }));
+        }).ToList());
     }
 }

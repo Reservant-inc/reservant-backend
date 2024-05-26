@@ -8,12 +8,12 @@ public class VisitSummaryVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int VisitId { get; set; }
 
     /// <summary>
     /// Date of the visit
     /// </summary>
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
 
     /// <summary>
     /// Number of guests + number of clients

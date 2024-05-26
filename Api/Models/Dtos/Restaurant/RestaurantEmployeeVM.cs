@@ -6,9 +6,9 @@ namespace Reservant.Api.Models.Dtos.Restaurant;
 public class RestaurantEmployeeVM
 {
     /// <summary>
-    /// User ID
+    /// Employee ID
     /// </summary>
-    public required string Id { get; init; }
+    public required string EmployeeId { get; init; }
 
     /// <summary>
     /// User login

@@ -13,12 +13,12 @@ public class VisitVM
     /// Unique ID
     /// </summary>
     [Key]
-    public required int Id { get; set; }
+    public required int VisitId { get; set; }
 
     /// <summary>
     /// Date of the visit
     /// </summary>
-    public required DateOnly Date { get; set; }
+    public required DateTime Date { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account

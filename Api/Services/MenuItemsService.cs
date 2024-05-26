@@ -5,9 +5,6 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
-using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-using Azure.Core;
-using Reservant.Api.Validators.Restaurant;
 
 namespace Reservant.Api.Services
 {
@@ -42,7 +39,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var result = await validationService.ValidateAsync(req);
+            var result = await validationService.ValidateAsync(req, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -59,7 +56,7 @@ namespace Reservant.Api.Services
             };
 
 
-            result = await validationService.ValidateAsync(menuItem);
+            result = await validationService.ValidateAsync(menuItem, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -70,7 +67,7 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id = menuItem.Id,
+                MenuItemId = menuItem.Id,
                 Name = menuItem.Name,
                 AlternateName = menuItem.AlternateName,
                 Price = menuItem.Price,
@@ -83,28 +80,25 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Validates and gets menu item by given id
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="restaurantId"></param>
-        /// <param name="menuItemId"></param>
         /// <returns>MenuItem</returns>
         public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int menuItemId)
         {
-            var errors = new List<ValidationResult>();
-
             var item = await context.MenuItems
                 .FirstOrDefaultAsync(i => i.Id == menuItemId);
 
             if (item == null)
             {
-                errors.Add(new ValidationResult(
-                    $"MenuItem: {menuItemId} not found"
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"MenuItem: {menuItemId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             return new MenuItemVM()
             {
-                Id = item.Id,
+                MenuItemId = item.Id,
                 Name = item.Name,
                 AlternateName = item.AlternateName,
                 Price = item.Price,
@@ -113,28 +107,36 @@ namespace Reservant.Api.Services
             };
         }
 
+        /// <summary>
+        /// Check if the restaurant with the given ID exists and the given user is its owner
+        /// </summary>
+        /// <param name="user">User supposed to be the owner</param>
+        /// <param name="restaurantId">ID of the restaurant to check</param>
+        /// <returns>The bool returned is meaningless, errors are returned using the result</returns>
         public async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
         {
-            var errors = new List<ValidationResult>();
-
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
                 .FirstOrDefaultAsync(r => r.Id == restaurantId);
 
             if (restaurant == null)
             {
-                errors.Add(new ValidationResult(
-                    $"Restaurant: {restaurantId} not found."
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant: {restaurantId} not found.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             if (restaurant.Group!.OwnerId != user.Id)
             {
-                errors.Add(new ValidationResult(
-                    $"Restaurant: {restaurantId} doesn't belong to the restautantOwner."
-                ));
-                return errors;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant: {restaurantId} doesn't belong to the restautantOwner.",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
             }
 
             return true;
@@ -174,7 +176,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var result = await validationService.ValidateAsync(request);
+            var result = await validationService.ValidateAsync(request, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -187,7 +189,7 @@ namespace Reservant.Api.Services
             item.PhotoFileName = request.PhotoFileName;
 
 
-            result = await validationService.ValidateAsync(item);
+            result = await validationService.ValidateAsync(item, user.Id);
             if (!result.IsValid)
             {
                 return result;
@@ -198,7 +200,7 @@ namespace Reservant.Api.Services
 
             return new MenuItemVM()
             {
-                Id = item.Id,
+                MenuItemId = item.Id,
                 Name = item.Name,
                 AlternateName = item.AlternateName,
                 Price = item.Price,

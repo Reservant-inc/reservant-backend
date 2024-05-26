@@ -41,6 +41,9 @@ public static class ErrorCodes
     /// </summary>
     public const string AtLeastOneRoleSelected = "AtLeastOneRoleSelected";
 
+    /// <summary>
+    /// The user is already currently employed at the restaurant
+    /// </summary>
     public const string EmployeeAlreadyEmployed = "EmployeeAlreadyEmployed";
 
     /// <summary>
@@ -49,9 +52,34 @@ public static class ErrorCodes
     public const string MustBeCurrentUsersEmployee = "MustBeCurrentUsersEmployee";
 
     /// <summary>
-    /// List cannot be empty
+    /// Must be a valid customer ID
     /// </summary>
-    public const string EmptyList = "EmptyList";
+    public const string MustBeCustomerId = "MustBeCustomerId";
+
+    /// <summary>
+    /// The date must be in the future
+    /// </summary>
+    public const string DateMustBeInFuture = "DateMustBeInFuture";
+
+    /// <summary>
+    /// Table does not exist
+    /// </summary>
+    public const string TableDoesNotExist = "TableDoesNotExist";
+
+    /// <summary>
+    /// NumberOfGuests must be greater of equal to 0
+    /// </summary>
+    public const string NumberOfGuests = "NumberOfGuests";
+
+    /// <summary>
+    /// NumberOfGuests must be greater of equal to 0
+    /// </summary>
+    public const string RestaurantDoesNotExist = "RestaurantDoesNotExist";
+
+    /// <summary>
+    /// Tip cannot be a negative value
+    /// </summary>
+    public const string Tip = "Tip";
 
     /// <summary>
     /// The value must be greater than or equal to zero.
@@ -64,13 +92,42 @@ public static class ErrorCodes
     public const string ValueLessThanOne = "ValueLessThanOne";
 
     /// <summary>
+    /// Per page must be at least 1 and less than a certain value
+    /// </summary>
+    public const string InvalidPerPageValue = "InvalidPerPageValue";
+
+    /// <summary>
+    /// The order cannot be cancelled because some of the items have been received by the customer
+    /// </summary>
+    public const string SomeOfItemsAreTaken = "SomeOfItemsWereTaken";
+
+    /// <summary>
+    /// Error returned by Identity Framework
+    /// </summary>
+    public const string IdentityError = "IdentityError";
+
+    /// <summary>
+    /// Uploaded file is too big
+    /// </summary>
+    public const string FileTooBig = "FileTooBig";
+
+    /// <summary>
+    /// Upload content type is not accepted
+    /// </summary>
+    public const string UnacceptedContentType = "UnacceptedContentType";
+
+    /// <summary>
+    /// An object does not belong to the current restaurant
+    /// </summary>
+    public const string BelongsToAnotherRestaurant = "BelongsToAnotherRestaurant";
+
+    /// <summary>
+    /// List cannot be empty
+    /// </summary>
+    public const string EmptyList = "EmptyList";
+
+    /// <summary>
     /// User is not the creator nor a participant of the visit
     /// </summary>
     public const string UserDoesNotParticipateInVisit = "UserNotAssociatedWithVisit";
-    
-    /// <summary>
-    /// Menu not in restaurant MenuItems
-    /// </summary>
-    public const string ItemsNotInRestaurant = "ItemsNotInRestaurant";
-
 }

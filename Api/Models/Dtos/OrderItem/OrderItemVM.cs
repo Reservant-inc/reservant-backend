@@ -1,3 +1,5 @@
+using Reservant.Api.Models.Enums;
+
 namespace Reservant.Api.Models.Dtos.OrderItem;
 
 /// <summary>

@@ -2,15 +2,21 @@
 using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
-using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
 
 namespace Reservant.Api.Services
 {
+    /// <summary>
+    /// Service responsible for managing user authentication
+    /// </summary>
     public class AuthService(UserManager<User> userManager, IOptions<JwtOptions> jwtOptions)
     {
+        /// <summary>
+        /// Generate a new JWT
+        /// </summary>
+        /// <param name="user">The user to create the token for</param>
         public async Task<SecurityToken> GenerateSecurityToken(User user)
         {
             JwtSecurityTokenHandler _handler = new();

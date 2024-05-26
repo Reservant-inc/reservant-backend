@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Models.Dtos.Table;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 
 namespace Reservant.Api.Models.Dtos.Restaurant
@@ -10,7 +11,7 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// Unique ID
         /// </summary>
         [Required]
-        public required int Id { get; init; }
+        public required int RestaurantId { get; init; }
 
         /// <summary>
         /// Nazwa

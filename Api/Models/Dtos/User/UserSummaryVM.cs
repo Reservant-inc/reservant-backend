@@ -6,6 +6,11 @@ namespace Reservant.Api.Models.Dtos.User;
 public class UserSummaryVM
 {
     /// <summary>
+    /// Unique ID
+    /// </summary>
+    public required string UserId { get; init; }
+
+    /// <summary>
     /// First name
     /// </summary>
     public required string FirstName { get; init; }

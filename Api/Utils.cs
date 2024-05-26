@@ -1,3 +1,9 @@
+using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Models.Dtos;
+using Reservant.Api.Validation;
+using Reservant.Api.Validators;
+
 namespace Reservant.Api;
 
 /// <summary>
@@ -15,4 +21,58 @@ public static class Utils
                 .Select(name => name.Length == 0
                     ? name
                     : char.ToLower(name[0]) + name[1..]));
+
+    /// <summary>
+    /// Return a single page of the query
+    /// </summary>
+    public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
+        this IQueryable<T> query, int page, int perPage, int maxPerPage)
+    {
+        if (perPage > maxPerPage)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Too many items per page (Maximum: {maxPerPage})",
+                ErrorCode = ErrorCodes.InvalidPerPageValue
+            };
+        }
+
+        if (perPage < 1)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Items per page must be at least 1",
+                ErrorCode = ErrorCodes.InvalidPerPageValue
+            };
+        }
+
+        var totalRecords = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalRecords / perPage);
+
+        if (page < 0 || page >= totalPages)
+        {
+            return new Pagination<T>
+            {
+                Items = [],
+                TotalPages = totalPages,
+                Page = page,
+                PerPage = perPage
+            };
+        }
+
+        var paginatedResults = await query
+            .Skip(page * perPage)
+            .Take(perPage)
+            .ToListAsync();
+
+        return new Pagination<T>
+        {
+            Items = paginatedResults,
+            TotalPages = totalPages,
+            Page = page,
+            PerPage = perPage
+        };
+    }
 }

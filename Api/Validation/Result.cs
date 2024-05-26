@@ -58,12 +58,6 @@ public readonly struct Result<TValue>
     public static implicit operator Result<TValue>(TValue value) => new(value);
 
     /// <summary>
-    /// Convert a list of standard C# validation errors to Result
-    /// </summary>
-    public static implicit operator Result<TValue>(List<System.ComponentModel.DataAnnotations.ValidationResult> errors) =>
-        new(ValidationUtils.ConvertToValidationFailures(errors).ToList());
-
-    /// <summary>
     /// Allows to write <code>return result;</code> instead of <code>return new Result(result.Errors);</code>
     /// </summary>
     public static implicit operator Result<TValue>(ValidationResult result) => new(result.Errors);
@@ -96,7 +90,7 @@ public readonly struct Result<TValue>
     {
         if (IsError)
         {
-            throw new InvalidOperationException("Validation failed: " + string.Join(", ", Errors!));
+            throw new InvalidOperationException("Validation failed: " + string.Join(", ", Errors));
         }
 
         return Value!;

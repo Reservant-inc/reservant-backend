@@ -11,7 +11,7 @@ public class MenuItemSummaryVM
     /// Unique ID
     /// </summary>
     [Required]
-    public required int Id { get; set; }
+    public required int MenuItemId { get; set; }
 
     /// <summary>
     /// Cena

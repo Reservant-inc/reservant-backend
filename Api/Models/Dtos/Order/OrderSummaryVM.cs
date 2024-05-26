@@ -1,3 +1,5 @@
+using Reservant.Api.Models.Enums;
+
 namespace Reservant.Api.Models.Dtos.Order;
 
 /// <summary>
@@ -14,6 +16,11 @@ public class OrderSummaryVM
     /// ID of the visit
     /// </summary>
     public required int VisitId { get; set; }
+
+    /// <summary>
+    /// Date of the visit
+    /// </summary>
+    public required DateTime Date { get; set; }
 
     /// <summary>
     /// Optional note

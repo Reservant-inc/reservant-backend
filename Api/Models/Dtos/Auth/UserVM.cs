@@ -11,7 +11,7 @@ public class UserVM
     /// Unique ID
     /// </summary>
     [Required]
-    public required string Id { get; init; }
+    public required string UserId { get; init; }
 
     /// <summary>
     /// Login
