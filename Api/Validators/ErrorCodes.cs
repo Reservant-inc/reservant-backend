@@ -129,5 +129,5 @@ public static class ErrorCodes
     /// <summary>
     /// User is not the creator nor a participant of the visit
     /// </summary>
-    public const string UserDoesNotParticipateInVisit = "UserNotAssociatedWithVisit";
+    public const string UserDoesNotParticipateInVisit = "UserDoesNotParticipateInVisit";
 }
