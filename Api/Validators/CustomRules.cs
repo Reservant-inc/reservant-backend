@@ -181,18 +181,6 @@ public static class CustomRules
     }
 
     /// <summary>
-    /// Validates that the value is greater than or equal to zero.
-    /// </summary>
-    public static IRuleBuilderOptions<T, double> GreaterOrEqualToZero<T>(
-        this IRuleBuilder<T, double> builder)
-    {
-        return builder
-            .Must(value => value >= 0)
-            .WithErrorCode(ErrorCodes.ValueLessThanZero)
-            .WithMessage("The value must be greater than or equal to zero.");
-    }
-
-    /// <summary>
     /// Validates that the orderItem exists in the database.
     /// </summary>
     public static IRuleBuilderOptions<T, CreateOrderItemRequest> OrderItemExist<T>(
