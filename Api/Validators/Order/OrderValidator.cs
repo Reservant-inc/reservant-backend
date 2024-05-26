@@ -1,26 +1,18 @@
 ﻿using FluentValidation;
 
 namespace Reservant.Api.Validators.Order;
-    /// <summary>
-    /// Validator for Order
-    /// </summary>
+
+/// <summary>
+/// Validator for Order
+/// </summary>
 public class OrderValidator : AbstractValidator<Models.Order>
 {
     /// <inheritdoc />
     public OrderValidator()
     {
-        RuleFor(o => o.VisitId)
-            .NotNull()
-            .GreaterThan(0);
-
         RuleFor(o => o.Note)
-            .MaximumLength(100);
-
-        RuleFor(o => o.EmployeeId)
+            .MaximumLength(100)
             .NotEmpty()
-            .When(o => o.EmployeeId != null);
-
-        RuleFor(o => o.OrderItems)
-            .NotEmpty();
+            .When(o => o.Note is not null);
     }
 }
