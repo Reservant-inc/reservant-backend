@@ -25,9 +25,6 @@ public class CreateOrderRequestValidator : AbstractValidator<CreateOrderRequest>
         RuleForEach(o => o.Items)
             .OrderItemExist(context);
 
-        RuleFor(o => o)
-            .OrderItemBelongsToRestaurant(context);
-
         // Problem z castowaniem doubli (Amount = int), dlatego ChildRules
         RuleForEach(o => o.Items)
             .ChildRules(items =>

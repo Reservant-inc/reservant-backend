@@ -147,17 +147,16 @@ public class OrderService(
     /// </summary>
     public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
     {
-        var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
-        var menuItems = await context.MenuItems
-            .Where(mi => menuItemIds.Contains(mi.Id))
-            .ToListAsync();
-
         var result = await validationService.ValidateAsync(request, user.Id);
-
         if (!result.IsValid)
         {
             return result;
         }
+
+        var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
+        var menuItems = await context.MenuItems
+            .Where(mi => menuItemIds.Contains(mi.Id))
+            .ToListAsync();
 
         var visit = await context.Visits
             .Where(v => v.Id == request.VisitId)
@@ -174,6 +173,14 @@ public class OrderService(
             };
         }
 
+        if (menuItems.Any(mi => mi.RestaurantId != visit.RestaurantId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Items),
+                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant
+            };
+        }
 
         var orderItems = request.Items.Select(c => new OrderItem
         {
