@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -19,7 +18,8 @@ namespace Reservant.Api.Controllers;
 /// <param name="service"></param>
 [ApiController, Route("/my-restaurant-groups")]
 [Authorize(Roles = Roles.RestaurantOwner)]
-public class MyRestaurantGroupsController(UserManager<User> userManager, RestaurantGroupService service) : Controller
+public class MyRestaurantGroupsController(UserManager<User> userManager, RestaurantGroupService service)
+    : StrictController
 {
 
     /// <summary>
@@ -46,7 +46,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return result.ToValidationProblem();
         }
 
-        return Created(result.Value.Id.ToString(), "");
+        return Created();
 
     }
 

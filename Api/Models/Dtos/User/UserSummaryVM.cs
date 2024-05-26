@@ -8,7 +8,7 @@ public class UserSummaryVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    public required string Id { get; init; }
+    public required string UserId { get; init; }
 
     /// <summary>
     /// First name

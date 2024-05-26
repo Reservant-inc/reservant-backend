@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Reservant.Api.Models.Dtos;
-using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.User;
 
@@ -9,7 +8,8 @@ namespace Reservant.Api.Validators.User;
 /// </summary>
 public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustomerRequest>
 {
-    public RegisterCustomerRequestValidator(FileUploadService uploadService)
+    /// <inheritdoc />
+    public RegisterCustomerRequestValidator()
     {
         RuleFor(r => r.FirstName)
             .NotEmpty()

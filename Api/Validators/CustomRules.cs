@@ -2,11 +2,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Reservant.Api.Validators;
 
@@ -118,15 +116,7 @@ public static class CustomRules
     public static IRuleBuilderOptions<T, Tuple<bool, bool>> AtLeastOneEmployeeRole<T>(this IRuleBuilder<T, Tuple<bool, bool>> builder)
     {
         return builder
-            .MustAsync(async (_, value, context, _) =>
-            {
-
-                if (value.Item1 || value.Item2)
-                {
-                    return true;
-                }
-                return false;
-            })
+            .Must((_, value, _) => value.Item1 || value.Item2)
             .WithErrorCode(ErrorCodes.AtLeastOneRoleSelected)
             .WithMessage(ErrorCodes.AtLeastOneRoleSelected);
     }

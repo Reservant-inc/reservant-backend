@@ -16,29 +16,29 @@ namespace Reservant.Api.Controllers;
 /// <param name="service"></param>
 
 [ApiController, Route("/menu-items")]
-public class MenuItemController(UserManager<User> userManager, MenuItemsService service) : Controller
+public class MenuItemController(UserManager<User> userManager, MenuItemsService service) : StrictController
 {
 
     /// <summary>
-    /// Creates menu items in the given restaurant
+    /// Creates a menu item in the given restaurant
     /// </summary>
-    /// <param name="menuItems">Items to be created</param>
-    /// <returns>The created list of menuItems</returns>
+    /// <param name="menuItem">Item to be created</param>
+    /// <returns>The created menuItem</returns>
     [HttpPost]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult<List<MenuItemVM>>> CreateMenuItems(CreateMenuItemRequest menuItems)
+    public async Task<ActionResult<MenuItemVM>> CreateMenuItems(CreateMenuItemRequest menuItem)
     {
         var user = await userManager.GetUserAsync(User);
 
-        var res = await service.CreateMenuItemsAsync(user!, menuItems);
+        var res = await service.CreateMenuItemsAsync(user!, menuItem);
 
         if (res.IsError)
         {
             return res.ToValidationProblem();
         }
 
-        return Created("", res.Value);
+        return Created(null, res.Value);
     }
 
 

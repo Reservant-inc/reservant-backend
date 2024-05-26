@@ -6,7 +6,6 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Models.Dtos.Visit;
 
 namespace Reservant.Api.Controllers;
@@ -19,7 +18,7 @@ public class UserController(
     UserManager<User> userManager,
     UserService userService,
     FileUploadService uploadService
-    ) : Controller
+    ) : StrictController
 {
     /// <summary>
     /// Get list of users employed by the current user. For restaurant owners only

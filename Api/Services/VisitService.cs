@@ -1,7 +1,6 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Extensions;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.User;
@@ -21,9 +20,8 @@ public class VisitService(
     ValidationService validationService)
 {
     /// <summary>
-    /// Gets the visist oof provided id
+    /// Gets the visit with the provided ID
     /// </summary>
-    /// <param name="visitId"></param>
     /// <returns></returns>
     public async Task<Result<VisitVM>> GetVisitByIdAsync(int visitId, User user)
     {
@@ -61,7 +59,7 @@ public class VisitService(
             TableId = visit.TableId,
             Participants = visit.Participants!.Select(p => new UserSummaryVM
             {
-                Id = p.Id,
+                UserId = p.Id,
                 FirstName = p.FirstName,
                 LastName = p.LastName
             }).ToList(),
@@ -78,10 +76,16 @@ public class VisitService(
         return result;
     }
 
+    /// <summary>
+    /// Create a Visit
+    /// </summary>
+    /// <param name="request">Description of the new visit</param>
+    /// <param name="user">Owner of the visit</param>
+    /// <returns></returns>
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
 
-        var result = await validationService.ValidateAsync(request);
+        var result = await validationService.ValidateAsync(request, user.Id);
         if (!result.IsValid)
         {
             return result;
@@ -109,7 +113,7 @@ public class VisitService(
             Participants = participants
         };
 
-        result = await validationService.ValidateAsync(visit);
+        result = await validationService.ValidateAsync(visit, user.Id);
         if (!result.IsValid)
         {
             return result;

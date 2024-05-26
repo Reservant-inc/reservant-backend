@@ -9,7 +9,7 @@ using Reservant.Api.Validation;
 namespace Reservant.Api.Controllers
 {
     [ApiController, Route("/users")]
-    public class UsersController(UserService userService, FileUploadService uploadService) : Controller
+    public class UsersController(UserService userService, FileUploadService uploadService) : StrictController
     {
         /// <summary>
         /// Sets Restaurant Owner role for specified user

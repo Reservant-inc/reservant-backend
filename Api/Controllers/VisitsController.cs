@@ -14,7 +14,7 @@ namespace Reservant.Api.Controllers;
 public class VisitsController(
     VisitService visitService,
     UserManager<User> userManager
-    ) : Controller
+    ) : StrictController
 {
     /// <summary>
     /// Get visit of provided id

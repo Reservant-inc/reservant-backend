@@ -13,6 +13,9 @@ using Reservant.Api.Services;
 
 namespace Reservant.Api.Data;
 
+/// <summary>
+/// Service for adding sample data to the database
+/// </summary>
 public class DbSeeder(
     ApiDbContext context,
     RoleManager<IdentityRole> roleManager,
@@ -24,6 +27,9 @@ public class DbSeeder(
     private const string ExampleUploadsPath = "./example-uploads";
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
+    /// <summary>
+    /// Add sample data to the database
+    /// </summary>
     public async Task SeedDataAsync()
     {
         await roleManager.CreateAsync(new IdentityRole(Roles.Customer));

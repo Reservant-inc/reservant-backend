@@ -1,10 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices.JavaScript;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http.HttpResults;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
@@ -14,35 +11,16 @@ using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
-using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
-
-
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
-using Reservant.Api.Data;
-using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Restaurant;
-using Reservant.Api.Models.Dtos.Table;
-using Reservant.Api.Validation;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
-using Reservant.Api.Identity;
-using Reservant.Api.Models.Dtos.Menu;
-using Reservant.Api.Models.Dtos.MenuItem;
-using Microsoft.AspNetCore.Mvc;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
-
 
 namespace Reservant.Api.Services;
 
 /// <summary>
 /// Stuff for working with user records.
 /// </summary>
-public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
-    FileUploadService uploadService,
+public class UserService(
+    UserManager<User> userManager,
+    ApiDbContext dbContext,
     ValidationService validationService)
 {
     /// <summary>
@@ -70,10 +48,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
             RegisteredAt = DateTime.UtcNow
         };
 
-        var errors = new List<ValidationResult>();
-        if (!ValidationUtils.TryValidate(user, errors))
+        var validationResult = await validationService.ValidateAsync(user, null);
+        if (!validationResult.IsValid)
         {
-            return errors;
+            return validationResult;
         }
 
         var result = await userManager.CreateAsync(user, request.Password);
@@ -100,9 +78,6 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
         RegisterRestaurantEmployeeRequest request, User employer, string? id = null)
     {
-
-        var errors = new List<ValidationResult>();
-
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
         var employee = new User {
@@ -115,9 +90,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
             Employer = employer
         };
 
-        if (!ValidationUtils.TryValidate(employee, errors))
+        var validationResult = await validationService.ValidateAsync(employee, employer.Id);
+        if (!validationResult.IsValid)
         {
-            return errors;
+            return validationResult;
         }
 
         var result = await userManager.CreateAsync(employee, request.Password);
@@ -138,12 +114,12 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// <returns></returns>
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
     {
-        var result = await validationService.ValidateAsync(request);
+        var result = await validationService.ValidateAsync(request, null);
         if (!result.IsValid)
         {
             return result;
         }
-        
+
         var user = new User
         {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -155,8 +131,8 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
             BirthDate = request.BirthDate,
             RegisteredAt = DateTime.UtcNow
         };
-        
-        result = await validationService.ValidateAsync(user);
+
+        result = await validationService.ValidateAsync(user, null);
         if (!result.IsValid)
         {
             return result;
@@ -173,6 +149,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
         return user;
     }
 
+    /// <summary>
+    /// Add the RestaurantOwner role to a user
+    /// </summary>
+    /// <param name="id">ID of the user</param>
     public async Task<Result<User>> MakeRestaurantOwnerAsync(string id) {
         var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
         if (user == null) { return user; }
@@ -183,7 +163,6 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// <summary>
     /// returns whether login provided is unique among registered users
     /// </summary>
-    /// <returns>Task<bool></returns>
     public async Task<bool> IsUniqueLoginAsync(string login)
     {
         var result = await dbContext
@@ -230,22 +209,27 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// <returns></returns>
     public async Task<Result<User>> GetEmployeeAsync(string empId, ClaimsPrincipal user)
     {
-
-        var errors = new List<ValidationResult>();
-
         var owner = (await userManager.GetUserAsync(user))!;
         var emp = await userManager.FindByIdAsync(empId);
 
         if (emp is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (emp.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} is not employed by {owner.Id}",
+                ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee
+            };
         }
 
         return emp;
@@ -280,21 +264,27 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// <returns></returns>
     public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, string empId, ClaimsPrincipal user)
     {
-        var errors = new List<ValidationResult>();
-
         var owner = (await userManager.GetUserAsync(user))!;
         var employee = await userManager.FindByIdAsync(empId);
 
         if (employee is null)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} not found"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         if (employee.EmployerId != owner.Id)
         {
-            errors.Add(new ValidationResult($"Emp: {empId} is not employed by {owner.Id}"));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Emp: {empId} is not employed by {owner.Id}",
+                ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee
+            };
         }
 
         employee.Email = request.Email.Trim();
@@ -303,9 +293,10 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
         employee.LastName = request.LastName.Trim();
         employee.BirthDate = request.BirthDate;
 
-        if (!ValidationUtils.TryValidate(employee, errors))
+        var result = await validationService.ValidateAsync(employee, empId);
+        if (!result.IsValid)
         {
-            return errors;
+            return result;
         }
 
         await userManager.UpdateAsync(employee);
@@ -321,7 +312,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
     /// <returns></returns>
     public async Task<Result<User>> PutUserAsync(UpdateUserDetailsRequest request, User user)
     {
-        var result = await validationService.ValidateAsync(request);
+        var result = await validationService.ValidateAsync(request, user.Id);
         if (!result.IsValid)
         {
             return result;
@@ -334,7 +325,7 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
         user.BirthDate = request.BirthDate;
         user.PhotoFileName = request.PhotoFileName;
 
-        result = await validationService.ValidateAsync(user);
+        result = await validationService.ValidateAsync(user, user.Id);
         if (!result.IsValid)
         {
             return result;
@@ -407,7 +398,6 @@ public class UserService(UserManager<User> userManager, ApiDbContext dbContext,
 
         return result;
     }
-
 
 }
 

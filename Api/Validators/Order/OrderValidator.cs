@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators.Order;
     /// <summary>

@@ -10,6 +10,12 @@
         <UserSecretsId>71abd42b-36f0-4f9f-9166-bf4b4ee57b99</UserSecretsId>
     </PropertyGroup>
 
+    <ItemGroup>
+        <AssemblyAttribute Include="Reservant.Api.BuildTime">
+            <_Parameter1>$([System.DateTime]::Now.ToString("s"))</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
       <DocumentationFile>bin\Debug\net8.0\Api.xml</DocumentationFile>
     </PropertyGroup>

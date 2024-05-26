@@ -26,18 +26,39 @@ public static class Utils
     /// Return a single page of the query
     /// </summary>
     public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
-        this IQueryable<T> query, int page, int perPage)
+        this IQueryable<T> query, int page, int perPage, int maxPerPage)
     {
-        var totalRecords = await query.CountAsync();
-        var totalPages = (int)Math.Ceiling((double)totalRecords / perPage);
-
-        if (page < 0 || perPage <= 0 || page >= totalPages)
+        if (perPage > maxPerPage)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(page),
-                ErrorMessage = "Invalid page or perPage value",
-                ErrorCode = ErrorCodes.InvalidPageOrPerPageValue
+                PropertyName = null,
+                ErrorMessage = $"Too many items per page (Maximum: {maxPerPage})",
+                ErrorCode = ErrorCodes.InvalidPerPageValue
+            };
+        }
+
+        if (perPage < 1)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Items per page must be at least 1",
+                ErrorCode = ErrorCodes.InvalidPerPageValue
+            };
+        }
+
+        var totalRecords = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalRecords / perPage);
+
+        if (page < 0 || page >= totalPages)
+        {
+            return new Pagination<T>
+            {
+                Items = [],
+                TotalPages = totalPages,
+                Page = page,
+                PerPage = perPage
             };
         }
 

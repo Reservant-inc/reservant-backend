@@ -72,6 +72,12 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
 
             eb.HasMany<FileUpload>(u => u.Uploads)
                 .WithOne(fu => fu.User);
+
+            eb.HasMany<FriendRequest>(u => u.OutgoingRequests)
+                .WithOne(fr => fr.Sender);
+
+            eb.HasMany<FriendRequest>(u => u.IncomingRequests)
+                .WithOne(fr => fr.Receiver);
         });
 
         var softDeletableEntities =

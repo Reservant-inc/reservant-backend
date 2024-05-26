@@ -2,14 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 
 namespace Reservant.Api.Controllers;
 
 /// <inheritdoc />
 [ApiController, Route("/weatherforecast")]
-public class WeatherForecastController(ApiDbContext context) : Controller
+public class WeatherForecastController(ApiDbContext context) : StrictController
 {
     private static readonly string[] Summaries =
     [
@@ -27,7 +26,7 @@ public class WeatherForecastController(ApiDbContext context) : Controller
     [HttpGet]
     [ProducesResponseType(200)]
     [Authorize]
-    public async Task<ActionResult<List<WeatherForecast>>> GetAll()
+    public async Task<ActionResult<List<WeatherForecastVM>>> GetAll()
     {
         return Ok(await context.WeatherForecasts
             .Select(f => new WeatherForecastVM

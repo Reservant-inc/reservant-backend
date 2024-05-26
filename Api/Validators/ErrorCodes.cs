@@ -41,6 +41,9 @@ public static class ErrorCodes
     /// </summary>
     public const string AtLeastOneRoleSelected = "AtLeastOneRoleSelected";
 
+    /// <summary>
+    /// The user is already currently employed at the restaurant
+    /// </summary>
     public const string EmployeeAlreadyEmployed = "EmployeeAlreadyEmployed";
 
     /// <summary>
@@ -84,12 +87,32 @@ public static class ErrorCodes
     public const string ValueLessThanZero = "ValueLessThanZero";
 
     /// <summary>
-    /// Per page must be grater than 0, page can not be greater than number of pages
+    /// Per page must be at least 1 and less than a certain value
     /// </summary>
-    public const string InvalidPageOrPerPageValue = "InvalidPageOrPerPageValue";
+    public const string InvalidPerPageValue = "InvalidPerPageValue";
 
     /// <summary>
     /// The order cannot be cancelled because some of the items have been received by the customer
     /// </summary>
     public const string SomeOfItemsAreTaken = "SomeOfItemsWereTaken";
+
+    /// <summary>
+    /// Error returned by Identity Framework
+    /// </summary>
+    public const string IdentityError = "IdentityError";
+
+    /// <summary>
+    /// Uploaded file is too big
+    /// </summary>
+    public const string FileTooBig = "FileTooBig";
+
+    /// <summary>
+    /// Upload content type is not accepted
+    /// </summary>
+    public const string UnacceptedContentType = "UnacceptedContentType";
+
+    /// <summary>
+    /// An object does not belong to the current restaurant
+    /// </summary>
+    public const string BelongsToAnotherRestaurant = "BelongsToAnotherRestaurant";
 }

@@ -9,6 +9,7 @@ namespace Reservant.Api.Validators.User;
 /// </summary>
 public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsRequest>
 {
+    /// <inheritdoc />
     public UpdateUserDetailsValidator(FileUploadService uploadService)
     {
         RuleFor(u => u.FirstName)

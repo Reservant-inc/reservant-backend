@@ -5,7 +5,6 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -16,7 +15,7 @@ namespace Reservant.Api.Controllers;
 /// Restaurants from the perspective of other people than the owner
 /// </summary>
 [ApiController, Route("/restaurants")]
-public class RestaurantController(UserManager<User> userManager, RestaurantService service) : Controller
+public class RestaurantController(UserManager<User> userManager, RestaurantService service) : StrictController
 {
 
     /// <summary>

@@ -1,9 +1,5 @@
-using System.ComponentModel.DataAnnotations;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Employment;
@@ -110,7 +106,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         var employments = new List<Employment>();
         foreach (var request in listRequest)
         {
-            var res = await validationService.ValidateAsync(request);
+            var res = await validationService.ValidateAsync(request, user.Id);
             if (!res.IsValid)
             {
                 return res;
