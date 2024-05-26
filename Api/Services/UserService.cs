@@ -383,7 +383,7 @@ public class UserService(
             .Include(r => r.Orders)
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Date < DateTime.UtcNow)
-            .OrderBy(x => x.Date);
+            .OrderByDescending(x => x.Date);
 
         var result = await query.Select(visit => new VisitSummaryVM
         {
