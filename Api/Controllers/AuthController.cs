@@ -107,7 +107,7 @@ public class AuthController(
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
-        var token = await authService.GenerateSecurityToken(user);
+        var token = authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
@@ -169,7 +169,7 @@ public class AuthController(
             return Unauthorized();
         }
 
-        var token = await authService.GenerateSecurityToken(user);
+        var token = authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo

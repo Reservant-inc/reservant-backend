@@ -17,9 +17,9 @@ namespace Reservant.Api.Services
         /// Generate a new JWT
         /// </summary>
         /// <param name="user">The user to create the token for</param>
-        public async Task<SecurityToken> GenerateSecurityToken(User user)
+        public SecurityToken GenerateSecurityToken(User user)
         {
-            JwtSecurityTokenHandler _handler = new();
+            JwtSecurityTokenHandler handler = new();
             var claims = new List<Claim>
             {
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -41,7 +41,7 @@ namespace Reservant.Api.Services
                     SecurityAlgorithms.HmacSha256)
             };
 
-            var token = _handler.CreateToken(tokenDescriptor);
+            var token = handler.CreateToken(tokenDescriptor);
             return token;
         }
 
