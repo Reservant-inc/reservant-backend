@@ -52,8 +52,4 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="uploads\" />
-    </ItemGroup>
-
 </Project>
