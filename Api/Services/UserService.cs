@@ -194,7 +194,8 @@ public class UserService(
                     {
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
-                        IsHallEmployee = e.IsHallEmployee
+                        IsHallEmployee = e.IsHallEmployee,
+                        RestaurantName = e.Restaurant.Name
                     })
                     .ToList()
             })
