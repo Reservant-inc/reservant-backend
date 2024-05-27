@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 
@@ -51,8 +52,11 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             RestaurantType = r.RestaurantType,
             Address = r.Address,
             City = r.City,
-            Longitude = r.Location.X,
-            Latitude = r.Location.Y,
+            Location = new Geolocation()
+            {
+                Longitude = r.Location.X,
+                Latitude = r.Location.Y
+            },
             GroupId = r.GroupId,
             Logo = uploadService.GetPathForFileName(r.LogoFileName),
             Description = r.Description,

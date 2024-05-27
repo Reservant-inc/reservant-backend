@@ -5,6 +5,7 @@ using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Validators;
 
@@ -167,8 +168,11 @@ public class RestaurantGroupService(
                 Address = r.Address,
                 RestaurantType = r.RestaurantType,
                 City = r.City,
-                Longitude = r.Location.X,
-                Latitude = r.Location.Y,
+                Location = new Geolocation()
+                {
+                    Longitude = r.Location.X,
+                    Latitude = r.Location.Y
+                },
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
@@ -237,8 +241,11 @@ public class RestaurantGroupService(
                 Address = r.Address,
                 RestaurantType = r.RestaurantType,
                 City = r.City,
-                Longitude = r.Location.X,
-                Latitude = r.Location.Y,
+                Location = new Geolocation()
+                {
+                    Longitude = r.Location.X,
+                    Latitude = r.Location.Y
+                },
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,

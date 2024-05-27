@@ -11,6 +11,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
@@ -105,7 +106,7 @@ namespace Reservant.Api.Services
                 Nip = request.Nip,
                 PostalIndex = request.PostalIndex,
                 City = request.City.Trim(),
-                Location = new Point(request.Longitude,request.Latitude),
+                Location = new Point(request.Location.Longitude,request.Location.Latitude),
                 Group = group,
                 RentalContractFileName = request.RentalContract,
                 AlcoholLicenseFileName = request.AlcoholLicense,
@@ -161,8 +162,11 @@ namespace Reservant.Api.Services
                     RestaurantType = r.RestaurantType,
                     Address = r.Address,
                     City = r.City,
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y,
+                    Location = new Geolocation()
+                    {
+                        Longitude = r.Location.X,
+                        Latitude = r.Location.Y
+                    },
                     GroupId = r.GroupId,
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
@@ -195,8 +199,11 @@ namespace Reservant.Api.Services
                     Address = r.Address,
                     PostalIndex = r.PostalIndex,
                     City = r.City,
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y,
+                    Location = new Geolocation()
+                    {
+                        Longitude = r.Location.X,
+                        Latitude = r.Location.Y
+                    },
                     GroupId = r.Group!.Id,
                     GroupName = r.Group!.Name,
                     RentalContract = r.RentalContractFileName == null
@@ -376,8 +383,11 @@ namespace Reservant.Api.Services
                 RestaurantType = restaurant.RestaurantType,
                 Address = restaurant.Address,
                 City = restaurant.City,
-                Longitude = restaurant.Location.X,
-                Latitude = restaurant.Location.Y,
+                Location = new Geolocation()
+                {
+                    Longitude = restaurant.Location.X,
+                    Latitude = restaurant.Location.Y
+                },
                 GroupId = restaurant.GroupId,
                 Description = restaurant.Description,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
@@ -531,8 +541,11 @@ namespace Reservant.Api.Services
                 Address = restaurant.Address,
                 PostalIndex = restaurant.PostalIndex,
                 City = restaurant.City,
-                Longitude = restaurant.Location.X,
-                Latitude = restaurant.Location.Y,
+                Location = new Geolocation()
+                {
+                    Longitude = restaurant.Location.X,
+                    Latitude = restaurant.Location.Y
+                },
                 GroupId = restaurant.Group!.Id,
                 GroupName = restaurant.Group!.Name,
                 RentalContract = restaurant.RentalContractFileName == null
