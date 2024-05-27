@@ -288,7 +288,7 @@ public class RestaurantGroupService(
         var emptyGroup = await context.RestaurantGroups.FindAsync(group.Id);
         if (emptyGroup != null)
         {
-            context.Remove(group);
+            group.IsDeleted = true;
         }
         await context.SaveChangesAsync();
         return true;

@@ -672,10 +672,10 @@ namespace Reservant.Api.Services
             context.RemoveRange(restaurant.Menus!);
 
             context.Remove(restaurant);
-/*            if (restaurant.Group!.Restaurants!.Count == 0)
+            if (restaurant.Group!.Restaurants!.Count == 0)
             {
                 context.Remove(restaurant.Group);
-            }*/
+            }
 
             await context.SaveChangesAsync();
             return true;
