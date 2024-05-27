@@ -865,7 +865,7 @@ namespace Reservant.Api.Services
                 Date = order.Visit.Date,
                 Note = order.Note,
                 Cost = order.OrderItems.Sum(oi => oi.MenuItem.Price * oi.Amount),
-                Status = (OrderStatus)order.OrderItems.Max(oi => oi.Status)
+                Status = order.OrderItems.Max(oi => oi.Status)
             });
 
             filteredOrders = orderBy switch
