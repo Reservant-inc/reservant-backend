@@ -50,8 +50,9 @@ namespace Reservant.Api.Services
             return true;
         }
 
-        public async Task MarkFriendRequestAsReadAsync(string senderId, string receiverId)
+        public async Task MarkFriendRequestAsReadAsync(string receiverId, string senderId)
         {
+
             var friendRequest = await context.FriendRequests
                 .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
 
@@ -59,25 +60,34 @@ namespace Reservant.Api.Services
             {
                 friendRequest.DateRead = DateTime.UtcNow;
                 context.FriendRequests.Update(friendRequest);
-                await context.SaveChangesAsync();
+                var changes = await context.SaveChangesAsync();
+            }
+            else
+            {
+                Console.WriteLine("Friend request not found");
             }
         }
 
-        public async Task AcceptFriendRequestAsync(string senderId, string receiverId)
+
+        public async Task AcceptFriendRequestAsync(string receiverId, string senderId)
         {
             var friendRequest = await context.FriendRequests
-                .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
-
+            .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
             if (friendRequest != null)
             {
                 friendRequest.DateAccepted = DateTime.UtcNow;
                 context.FriendRequests.Update(friendRequest);
-                await context.SaveChangesAsync();
+                var changes = await context.SaveChangesAsync();
+            }
+            else
+            {
+                Console.WriteLine("Friend request not found");
             }
         }
 
 
-        public async Task DeleteFriendAsync(string senderId, string receiverId)
+
+                public async Task DeleteFriendAsync(string receiverId, string senderId)
         {
             var friendRequest = await context.FriendRequests
                 .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
@@ -92,7 +102,7 @@ namespace Reservant.Api.Services
         public async Task<Result<Pagination<FriendRequestVM>>> GetFriendsAsync(string userId, int page, int perPage)
         {
             var query = context.FriendRequests
-                .Where(fr => fr.SenderId == userId && fr.DateAccepted != null && fr.DateDeleted == null)
+                .Where(fr => fr.ReceiverId == userId && fr.DateAccepted != null && fr.DateDeleted == null)
                 .Select(fr => new FriendRequestVM
                 {
                     DateSent = fr.DateSent,
@@ -143,4 +153,4 @@ namespace Reservant.Api.Services
             return await query.PaginateAsync(page, perPage);
         }
     }
-}
+        }
