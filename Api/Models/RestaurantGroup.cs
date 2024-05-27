@@ -34,5 +34,5 @@ public class RestaurantGroup : ISoftDeletable
     public ICollection<Restaurant> Restaurants { get; set; } = null!;
 
     ///  <inheritdoc />
-    public bool IsDeleted { get; set; } = false;
+    public bool IsDeleted { get; set; }
 }
