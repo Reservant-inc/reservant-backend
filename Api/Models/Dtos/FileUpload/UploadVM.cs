@@ -19,6 +19,9 @@ public class UploadVM
     [Required]
     public required string FileName { get; init; }
 
+    /// <summary>
+    /// MIME content type of the file
+    /// </summary>
     [Required]
     public required string ContentType { get; init; }
 }

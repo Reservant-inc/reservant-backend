@@ -175,5 +175,7 @@ public class Restaurant : ISoftDeletable
     /// Proof of verification by specific CustomerSupportAgent
     /// </summary>
     public string? VerifierId { get; set; }
+
+    /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }

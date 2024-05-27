@@ -13,7 +13,7 @@ public class CreateMenuRequest
     /// </summary>
     [Required]
     public int RestaurantId { get; set; }
-    
+
     /// <summary>
     /// Name of the menu
     /// </summary>
@@ -42,10 +42,4 @@ public class CreateMenuRequest
     /// Last day the menu is valid
     /// </summary>
     public DateOnly? DateUntil { get; set; }
-
-    /// <summary>
-    /// ID of the restaurant owning the menu
-    /// </summary>
-    // [Required]
-    // public int RestaurantId { get; set; }
 }

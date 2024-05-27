@@ -1,10 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Reservant.Api.Models.Dtos.Table
+namespace Reservant.Api.Models.Dtos.Table;
+
+/// <summary>
+/// Request to create a table in a restaurant
+/// </summary>
+public class CreateTableRequest
 {
-    public class CreateTableRequest
-    {
-        [Required, Range(1, 10)]
-        public required int Capacity { get; init; }
-    }
+    /// <summary>
+    /// Table's capacity
+    /// </summary>
+    [Required, Range(1, 10)]
+    public required int Capacity { get; init; }
 }

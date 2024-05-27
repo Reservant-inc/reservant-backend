@@ -3,6 +3,9 @@ using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
+/// <summary>
+/// Group of restaurants
+/// </summary>
 public class RestaurantGroup : ISoftDeletable
 {
     /// <summary>
