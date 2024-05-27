@@ -31,7 +31,7 @@ public class OrderService(
     {
 
         var order = await context.Orders
-            .Include(o => o.OrderItems!)
+            .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
             .FirstOrDefaultAsync(o => o.Id == id);
 
@@ -46,14 +46,14 @@ public class OrderService(
 
         var visit = await context.Visits
             .Include(v => v.Participants)
-            .FirstOrDefaultAsync(v => v.Orders!.Contains(order));
+            .FirstOrDefaultAsync(v => v.Orders.Contains(order));
 
         var user = await userManager.GetUserAsync(claim);
         var roles = await userManager.GetRolesAsync(user!);
 
         if (roles.Contains(Roles.Customer)
             && visit!.ClientId != user!.Id
-            && !visit.Participants!.Contains(user))
+            && !visit.Participants.Contains(user))
         {
             return new ValidationFailure
             {
@@ -68,7 +68,7 @@ public class OrderService(
                 .Where(e => e.EmployeeId == user!.Id)
                 .ToListAsync();
 
-            if (employment == null || !employment.Any(e => e.RestaurantId == visit!.RestaurantId))
+            if (!employment.Any(e => e.RestaurantId == visit!.RestaurantId))
             {
                 return new ValidationFailure
                 {
@@ -79,11 +79,11 @@ public class OrderService(
 
         }
 
-        var orderItems = order.OrderItems?.Select(i => new OrderItemVM()
+        var orderItems = order.OrderItems.Select(i => new OrderItemVM()
         {
             MenuItemId = i.MenuItemId,
             Amount = i.Amount,
-            Cost = i.Amount * i.MenuItem!.Price,
+            Cost = i.Amount * i.MenuItem.Price,
             Status = i.Status,
         }).ToList();
 
@@ -93,7 +93,7 @@ public class OrderService(
             VisitId = order.VisitId,
             Cost = order.Cost,
             Status = order.Status,
-            Items = orderItems ?? [],
+            Items = orderItems,
             EmployeeId = order.EmployeeId
         };
     }
@@ -121,13 +121,13 @@ public class OrderService(
                     ErrorCode = ErrorCodes.NotFound
                 };
 
-        if (result.Visit != null && result.Visit.ClientId != userId)
+        if (result.Visit.ClientId != userId)
             return new ValidationFailure
                 {
                     ErrorCode = ErrorCodes.AccessDenied
                 };
 
-        if (result.OrderItems == null || result.OrderItems.Any(oi => oi.Status == OrderStatus.Taken || oi.Status == OrderStatus.Cancelled))
+        if (result.OrderItems.Any(oi => oi.Status == OrderStatus.Taken || oi.Status == OrderStatus.Cancelled))
             return new ValidationFailure
                 {
                     ErrorCode = ErrorCodes.SomeOfItemsAreTaken
@@ -162,7 +162,7 @@ public class OrderService(
         var visit = await context.Visits
             .Where(v => v.Id == request.VisitId)
             .Include(visit => visit.Participants)
-            .FirstOrDefaultAsync();
+            .FirstAsync();
 
         if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
         {

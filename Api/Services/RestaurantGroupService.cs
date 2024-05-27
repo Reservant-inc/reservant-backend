@@ -53,7 +53,7 @@ public class RestaurantGroupService(
 
 
         //check if all restaurantIds from request belong to current user
-        var notOwnedRestaurants = restaurants.Where(r => r.Group!.OwnerId != user.Id);
+        var notOwnedRestaurants = restaurants.Where(r => r.Group.OwnerId != user.Id);
 
         if (notOwnedRestaurants.Any())
         {
@@ -151,7 +151,7 @@ public class RestaurantGroupService(
             {
                 RestaurantGroupId = r.Id,
                 Name = r.Name,
-                RestaurantCount = r.Restaurants != null ? r.Restaurants.Count() : 0
+                RestaurantCount = r.Restaurants.Count
             })
             .ToListAsync();
 
@@ -167,8 +167,8 @@ public class RestaurantGroupService(
     public async Task<Result<RestaurantGroupVM>> GetRestaurantGroupAsync(int groupId, string userId)
     {
         var restaurantGroup = await context.RestaurantGroups
-            .Include(rg => rg.Restaurants!)
-            .ThenInclude(rg => rg.Tags!)
+            .Include(rg => rg.Restaurants)
+            .ThenInclude(rg => rg.Tags)
             .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId);
 
         if (restaurantGroup == null)
@@ -203,7 +203,7 @@ public class RestaurantGroupService(
                 Description = r.Description,
                 ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags!.Select(t => t.Name).ToList(),
+                Tags = r.Tags.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId != null
             }).ToList()
         });
@@ -218,8 +218,8 @@ public class RestaurantGroupService(
     public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
     {
         var restaurantGroup = await context.RestaurantGroups
-            .Include(restaurantGroup => restaurantGroup.Restaurants)!
-            .ThenInclude(restaurant => restaurant.Tags!)
+            .Include(restaurantGroup => restaurantGroup.Restaurants)
+            .ThenInclude(restaurant => restaurant.Tags)
             .FirstOrDefaultAsync(rg => rg.Id == groupId);
 
 
@@ -277,7 +277,7 @@ public class RestaurantGroupService(
                 Description = r.Description,
                 ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags!.Select(t => t.Name).ToList(),
+                Tags = r.Tags.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId != null
             }).ToList()
         };

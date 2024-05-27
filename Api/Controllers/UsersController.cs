@@ -19,12 +19,7 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(404)]
         [HttpPost("{id}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
         public async Task<ActionResult> MakeRestaurantOwner(string id) {
-            var result = await userService.MakeRestaurantOwnerAsync(id);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-            User user = result.Value;
+            var user = await userService.MakeRestaurantOwnerAsync(id);
             if (user == null){ return NotFound(); }
             return Ok();
         }
@@ -53,8 +48,8 @@ namespace Reservant.Api.Controllers
             {
                 UserId = emp.Id,
                 Login = emp.UserName!,
-                Email = emp.Email,
-                PhoneNumber = emp.PhoneNumber,
+                Email = emp.Email!,
+                PhoneNumber = emp.PhoneNumber!,
                 FirstName = emp.FirstName,
                 LastName = emp.LastName,
                 RegisteredAt = emp.RegisteredAt,
@@ -89,8 +84,8 @@ namespace Reservant.Api.Controllers
             {
                 UserId = emp.Id,
                 Login = emp.UserName!,
-                Email = emp.Email,
-                PhoneNumber = emp.PhoneNumber,
+                Email = emp.Email!,
+                PhoneNumber = emp.PhoneNumber!,
                 FirstName = emp.FirstName,
                 LastName = emp.LastName,
                 RegisteredAt = emp.RegisteredAt,

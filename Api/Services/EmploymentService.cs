@@ -22,7 +22,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     public async Task<Result<bool>> DeleteEmploymentAsync(int employmentId, string userId)
     {
         var employment = await context.Employments
-            .Include(e => e.Restaurant!)
+            .Include(e => e.Restaurant)
             .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync(e => e.Id == employmentId && e.DateUntil == null);
 
@@ -34,7 +34,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
                 ErrorCode = ErrorCodes.NotFound
             };
         }
-        var restaurantOwnerId = employment.Restaurant!.Group!.OwnerId;
+        var restaurantOwnerId = employment.Restaurant.Group.OwnerId;
         if (restaurantOwnerId != userId)
         {
             return new ValidationFailure

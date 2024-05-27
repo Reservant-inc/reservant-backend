@@ -166,7 +166,7 @@ public class AuthController(
         {
             UserId = user.Id,
             Token = jwt,
-            Login = user.UserName,
+            Login = user.UserName!,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Roles = roles.ToList()

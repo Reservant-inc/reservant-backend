@@ -49,10 +49,10 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             case VerificationResult.RestaurantNotFound:
                 return NotFound();
             default:
-                return null;
+                throw new InvalidOperationException();
         }
     }
-    
+
     /// <summary>
     /// Get orders with pagination and sorting
     /// </summary>

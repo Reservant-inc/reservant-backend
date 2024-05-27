@@ -153,9 +153,9 @@ public class UserService(
     /// Add the RestaurantOwner role to a user
     /// </summary>
     /// <param name="id">ID of the user</param>
-    public async Task<Result<User>> MakeRestaurantOwnerAsync(string id) {
+    public async Task<User?> MakeRestaurantOwnerAsync(string id) {
         var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
-        if (user == null) { return user; }
+        if (user == null) { return null; }
         await userManager.AddToRoleAsync(user, Roles.RestaurantOwner);
         return user;
     }
@@ -188,7 +188,7 @@ public class UserService(
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 PhoneNumber = u.PhoneNumber!,
-                Employments = u.Employments!
+                Employments = u.Employments
                     .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
                     {
@@ -253,7 +253,7 @@ public class UserService(
     /// <returns></returns>
     public async Task<List<string>> GetRolesAsync(User user)
     {
-        return [.. await userManager.GetRolesAsync(user!)];
+        return [.. await userManager.GetRolesAsync(user)];
     }
 
     /// <summary>

@@ -40,7 +40,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
         }
 
         var result = await context.Restaurants
-            .Where(r => r.Tags!.Contains(resultTag) && r.VerifierId != null)
+            .Where(r => r.Tags.Contains(resultTag) && r.VerifierId != null)
             .Include(r => r.Tags)
             .ToListAsync();
 
@@ -62,7 +62,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             Description = r.Description,
             ReservationDeposit = r.ReservationDeposit,
             ProvideDelivery = r.ProvideDelivery,
-            Tags = (r.Tags ?? []).Select(t => t.Name).ToList(),
+            Tags = r.Tags.Select(t => t.Name).ToList(),
             IsVerified = r.VerifierId != null
         }).ToList());
     }

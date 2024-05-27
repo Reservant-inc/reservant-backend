@@ -58,8 +58,8 @@ public class UserController(
         {
             UserId = user.Id,
             Login = user.UserName!,
-            Email = user.Email,
-            PhoneNumber = user.PhoneNumber,
+            Email = user.Email!,
+            PhoneNumber = user.PhoneNumber!,
             FirstName = user.FirstName,
             LastName = user.LastName,
             RegisteredAt = user.RegisteredAt,
@@ -97,8 +97,8 @@ public class UserController(
         {
             UserId = user.Id,
             Login = user.UserName!,
-            Email = user.Email,
-            PhoneNumber = user.PhoneNumber,
+            Email = user.Email!,
+            PhoneNumber = user.PhoneNumber!,
             FirstName = user.FirstName,
             LastName = user.LastName,
             RegisteredAt = user.RegisteredAt,

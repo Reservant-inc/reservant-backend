@@ -183,7 +183,7 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
-                .Where(r => r.Group!.OwnerId == userId)
+                .Where(r => r.Group.OwnerId == userId)
                 .Select(r => new RestaurantSummaryVM
                 {
                     RestaurantId = r.Id,
@@ -202,7 +202,7 @@ namespace Reservant.Api.Services
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
-                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    Tags = r.Tags.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null
                 })
                 .ToListAsync();
@@ -219,7 +219,7 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
-                .Where(r => r.Group!.OwnerId == userId)
+                .Where(r => r.Group.OwnerId == userId)
                 .Where(r => r.Id == id)
                 .Select(r => new RestaurantVM
                 {
@@ -235,8 +235,8 @@ namespace Reservant.Api.Services
                         Longitude = r.Location.X,
                         Latitude = r.Location.Y
                     },
-                    GroupId = r.Group!.Id,
-                    GroupName = r.Group!.Name,
+                    GroupId = r.Group.Id,
+                    GroupName = r.Group.Name,
                     RentalContract = r.RentalContractFileName == null
                         ? null
                         : uploadService.GetPathForFileName(r.RentalContractFileName),
@@ -245,12 +245,12 @@ namespace Reservant.Api.Services
                         : uploadService.GetPathForFileName(r.AlcoholLicenseFileName),
                     BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
                     IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
-                    Tables = r.Tables!.Select(t => new TableVM
+                    Tables = r.Tables.Select(t => new TableVM
                     {
                         TableId = t.Id,
                         Capacity = t.Capacity
                     }),
-                    Photos = r.Photos!
+                    Photos = r.Photos
                         .OrderBy(rp => rp.Order)
                         .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
                         .ToList(),
@@ -258,7 +258,7 @@ namespace Reservant.Api.Services
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
-                    Tags = r.Tags!.Select(t => t.Name).ToList(),
+                    Tags = r.Tags.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null
                 })
                 .AsSplitQuery()
@@ -279,7 +279,7 @@ namespace Reservant.Api.Services
         {
             var restaurantOwnerId = await context.Restaurants
                 .Where(r => r.Id == restaurantId)
-                .Select(r => r.Group!.OwnerId)
+                .Select(r => r.Group.OwnerId)
                 .FirstOrDefaultAsync();
 
 
@@ -424,7 +424,7 @@ namespace Reservant.Api.Services
                 Description = restaurant.Description,
                 ReservationDeposit = restaurant.ReservationDeposit,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-                Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
+                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
                 IsVerified = restaurant.VerifierId != null
             };
@@ -439,7 +439,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
-                .Include(r => r.Employments!)
+                .Include(r => r.Employments)
                 .ThenInclude(e => e.Employee)
                 .Where(r => r.Id == id)
                 .FirstOrDefaultAsync();
@@ -454,7 +454,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (restaurant.Group!.OwnerId != userId)
+            if (restaurant.Group.OwnerId != userId)
             {
                 return new ValidationFailure
                 {
@@ -464,13 +464,13 @@ namespace Reservant.Api.Services
                 };
             }
 
-            return restaurant.Employments!
+            return restaurant.Employments
                 .Where(e => e.DateUntil == null)
                 .Select(e => new RestaurantEmployeeVM
                 {
                     EmploymentId = e.Id,
                     EmployeeId = e.EmployeeId,
-                    Login = e.Employee!.UserName!,
+                    Login = e.Employee.UserName!,
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
                     PhoneNumber = e.Employee.PhoneNumber!,
@@ -494,8 +494,8 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(restaurant => restaurant.Group)
-                .Include(restaurant => restaurant.Tables!)
-                .Include(restaurant => restaurant.Photos!)
+                .Include(restaurant => restaurant.Tables)
+                .Include(restaurant => restaurant.Photos)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (restaurant == null)
@@ -507,7 +507,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (restaurant.Group?.OwnerId != user.Id)
+            if (restaurant.Group.OwnerId != user.Id)
             {
                 return new ValidationFailure
                 {
@@ -552,7 +552,7 @@ namespace Reservant.Api.Services
                     Order = index + 1
                 });
 
-            restaurant.Photos!.Clear();
+            restaurant.Photos.Clear();
             foreach (var photo in photos)
             {
                 restaurant.Photos.Add(photo);
@@ -580,8 +580,8 @@ namespace Reservant.Api.Services
                     Longitude = restaurant.Location.X,
                     Latitude = restaurant.Location.Y
                 },
-                GroupId = restaurant.Group!.Id,
-                GroupName = restaurant.Group!.Name,
+                GroupId = restaurant.Group.Id,
+                GroupName = restaurant.Group.Name,
                 RentalContract = restaurant.RentalContractFileName == null
                     ? null
                     : uploadService.GetPathForFileName(restaurant.RentalContractFileName),
@@ -590,12 +590,12 @@ namespace Reservant.Api.Services
                     : uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
                 BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
                 IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
-                Tables = restaurant.Tables!.Select(t => new TableVM
+                Tables = restaurant.Tables.Select(t => new TableVM
                 {
                     TableId = t.Id,
                     Capacity = t.Capacity
                 }),
-                Photos = restaurant.Photos!
+                Photos = restaurant.Photos
                     .OrderBy(rp => rp.Order)
                     .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
                     .ToList(),
@@ -603,7 +603,7 @@ namespace Reservant.Api.Services
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Description = restaurant.Description,
                 ReservationDeposit = restaurant.ReservationDeposit,
-                Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
+                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 IsVerified = restaurant.VerifierId != null
             };
         }
@@ -747,14 +747,14 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
-                .Include(r => r.Group!)
+                .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)
-                .Include(restaurant => restaurant.Tables!)
-                .Include(restaurant => restaurant.Employments!)
-                .Include(restaurant => restaurant.Photos!)
-                .Include(restaurant => restaurant.Menus!)
-                .Include(restaurant => restaurant.MenuItems!)
-                .Where(r => r.Id == id && r.Group!.OwnerId == user.Id)
+                .Include(restaurant => restaurant.Tables)
+                .Include(restaurant => restaurant.Employments)
+                .Include(restaurant => restaurant.Photos)
+                .Include(restaurant => restaurant.Menus)
+                .Include(restaurant => restaurant.MenuItems)
+                .Where(r => r.Id == id && r.Group.OwnerId == user.Id)
                 .FirstOrDefaultAsync();
             if (restaurant == null)
             {
@@ -766,14 +766,14 @@ namespace Reservant.Api.Services
                 };
             }
 
-            context.RemoveRange(restaurant.Tables!);
-            context.RemoveRange(restaurant.Employments!);
-            context.RemoveRange(restaurant.Photos!);
-            context.RemoveRange(restaurant.MenuItems!);
-            context.RemoveRange(restaurant.Menus!);
+            context.RemoveRange(restaurant.Tables);
+            context.RemoveRange(restaurant.Employments);
+            context.RemoveRange(restaurant.Photos);
+            context.RemoveRange(restaurant.MenuItems);
+            context.RemoveRange(restaurant.Menus);
 
             context.Remove(restaurant);
-            if (restaurant.Group!.Restaurants!.Count == 0)
+            if (restaurant.Group.Restaurants.Count == 0)
             {
                 context.Remove(restaurant.Group);
             }

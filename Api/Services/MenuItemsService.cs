@@ -129,7 +129,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (restaurant.Group!.OwnerId != user.Id)
+            if (restaurant.Group.OwnerId != user.Id)
             {
                 return new ValidationFailure
                 {
@@ -153,7 +153,7 @@ namespace Reservant.Api.Services
         {
             var item = await context.MenuItems
                 .Include(r => r.Restaurant)
-                .Include(r => r.Restaurant!.Group)
+                .Include(r => r.Restaurant.Group)
                 .FirstOrDefaultAsync(i => i.Id == id);
 
 
@@ -167,7 +167,7 @@ namespace Reservant.Api.Services
             }
 
             //check if menuitem belongs to a restaurant owned by user
-            if (item.Restaurant!.Group!.OwnerId != user.Id)
+            if (item.Restaurant.Group.OwnerId != user.Id)
             {
                 return new ValidationFailure
                 {

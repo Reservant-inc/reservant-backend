@@ -25,19 +25,8 @@ public class RestaurantMenuService(
     /// </summary>
     /// <param name="menuId"> Id of the menu.</param>
     /// <returns></returns>
-    public async Task<Result<MenuVM?>> GetSingleMenuAsync(int menuId)
+    public async Task<Result<MenuVM>> GetSingleMenuAsync(int menuId)
     {
-        var menuExists = await context.Menus.AnyAsync(m => m.Id == menuId);
-        if (!menuExists)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = $"Menu with ID {menuId} not found.",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
         var menu = await context.Menus
             .Include(m => m.MenuItems)
             .Where(m => m.Id == menuId)
@@ -60,6 +49,16 @@ public class RestaurantMenuService(
                 }).ToList()
             })
             .FirstOrDefaultAsync();
+
+        if (menu is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Menu with ID {menuId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
 
         return menu;
     }
@@ -87,7 +86,7 @@ public class RestaurantMenuService(
             };
         }
 
-        if (restaurant.Group == null || restaurant.Group.OwnerId != user.Id)
+        if (restaurant.Group.OwnerId != user.Id)
         {
             return new ValidationFailure
             {
@@ -140,7 +139,7 @@ public class RestaurantMenuService(
     {
         var menuToUpdate = await context.Menus
             .Include(m => m.MenuItems)
-            .Include(m => m.Restaurant!)
+            .Include(m => m.Restaurant)
             .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync(m => m.Id == menuId);
 
@@ -154,7 +153,7 @@ public class RestaurantMenuService(
             };
         }
 
-        var restaurant = menuToUpdate.Restaurant!;
+        var restaurant = menuToUpdate.Restaurant;
 
         if (restaurant.Group.OwnerId != user.Id)
         {
@@ -246,7 +245,7 @@ public class RestaurantMenuService(
         var menu = await context.Menus
             .Where(m => m.Id == menuId)
             .Include(menu => menu.Restaurant)
-            .ThenInclude(restaurant => restaurant!.Group)
+            .ThenInclude(restaurant => restaurant.Group)
             .Include(menu => menu.MenuItems)
             .FirstOrDefaultAsync();
 
@@ -262,7 +261,7 @@ public class RestaurantMenuService(
         }
 
         // Checking ownership of menu
-        if (menu.Restaurant!.Group!.OwnerId != user.Id)
+        if (menu.Restaurant.Group.OwnerId != user.Id)
         {
             return new ValidationFailure
             {
@@ -384,7 +383,7 @@ public class RestaurantMenuService(
         if (menu == null)
             return RemoveMenuItemResult.MenuNotFound;
 
-        var validMenuItems = menuItems.Where(m => m.Restaurant != null && m.Restaurant.Group != null && m.Restaurant.Group.OwnerId == user.Id);
+        var validMenuItems = menuItems.Where(m => m.Restaurant.Group.OwnerId == user.Id);
 
         if (!validMenuItems.Any())
             return RemoveMenuItemResult.NoValidMenuItems;
