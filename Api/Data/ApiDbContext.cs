@@ -47,7 +47,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
         var connString = configuration.GetConnectionString("Default");
         
         optionsBuilder.UseSqlServer(
-            connString,
+            connString ?? throw new InvalidOperationException("Connection string 'Default' not found"),
             x => x.UseNetTopologySuite());
     }
 
