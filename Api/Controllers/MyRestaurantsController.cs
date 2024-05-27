@@ -35,7 +35,12 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<RestaurantVM>> CreateRestaurant(CreateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
-            var result = await restaurantService.CreateRestaurantAsync(request, user!);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await restaurantService.CreateRestaurantAsync(request, user);
             if (result.IsError)
             {
                 return result.ToValidationProblem();
@@ -52,6 +57,11 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants()
         {
             var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
             var result = await restaurantService.GetMyRestaurantsAsync(user);
             return Ok(result);
         }
@@ -65,6 +75,11 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int id)
         {
             var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
             var result = await restaurantService.GetMyRestaurantByIdAsync(user, id);
             if (result == null)
             {
@@ -84,7 +99,12 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int id)
         {
             var userId = userManager.GetUserId(User);
-            var result = await restaurantService.AddEmployeeAsync(request, id, userId!);
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await restaurantService.AddEmployeeAsync(request, id, userId);
             if (result.IsError)
             {
                 return result.ToValidationProblem();
@@ -98,6 +118,11 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request)
         {
             var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
             var result = await restaurantService.MoveRestaurantToGroupAsync(id, request, user);
             if (result.IsError)
             {
@@ -142,6 +167,10 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<RestaurantVM>> EditRestaurantInfo(int id, UpdateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
 
             var result = await restaurantService.UpdateRestaurantAsync(id, request, user);
 
@@ -163,7 +192,12 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult> ValidateFirstStep(ValidateRestaurantFirstStepRequest dto)
         {
             var user = await userManager.GetUserAsync(User);
-            var result = await restaurantService.ValidateFirstStepAsync(dto, user!);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await restaurantService.ValidateFirstStepAsync(dto, user);
 
             if (result.IsError)
             {
@@ -202,8 +236,12 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int id)
         {
             var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
 
-            var res = await restaurantService.GetMenuItemsAsync(user!, id);
+            var res = await restaurantService.GetMenuItemsAsync(user, id);
 
             if (res.IsError)
             {
@@ -222,6 +260,11 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult> SoftDeleteRestaurant(int id)
         {
             var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
             var result = await restaurantService.SoftDeleteRestaurantAsync(id, user);
 
             if (result.IsError)

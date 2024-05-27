@@ -27,6 +27,11 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     public async Task<ActionResult> DeleteEmployment(int employmentId)
     {
         var userId = userManager.GetUserId(User);
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await employmentService.DeleteEmploymentAsync(employmentId, userId);
         if (result.IsError)
         {
@@ -46,6 +51,11 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests) {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await employmentService.UpdateBulkEmploymentAsync(requests, user);
         if (result.IsError)
         {
@@ -65,6 +75,11 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [ProducesResponseType(204), ProducesResponseType(400)]
     public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await employmentService.DeleteBulkEmploymentAsync(employmentIds, user);
         if (result.IsError)
         {

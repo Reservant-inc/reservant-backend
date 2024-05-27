@@ -44,6 +44,11 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     public async Task<ActionResult<MenuSummaryVM>> CreateMenu(CreateMenuRequest req)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await service.PostMenuToRestaurant(req, user);
 
         if (!result.IsError) return Ok(result.Value);
@@ -65,6 +70,10 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     public async Task<ActionResult<MenuVM>> AddToMenu(int id, AddItemsRequest request)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var result = await service.AddItemsToMenuAsync(id, request, user);
 
@@ -86,6 +95,10 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     public async Task<ActionResult<MenuVM>> UpdateMenu(UpdateMenuRequest request, int id)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var result = await service.UpdateMenuAsync(request, id, user);
 
@@ -103,6 +116,10 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     public async Task<ActionResult> DeleteMenu(int id)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var res = await service.DeleteMenuAsync(id, user);
 
@@ -127,8 +144,12 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     public async Task<ActionResult> RemoveMenuItemFromMenu(int id, RemoveItemsRequest req)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
-        var res = await service.RemoveMenuItemFromMenuAsync(user!, id, req);
+        var res = await service.RemoveMenuItemFromMenuAsync(user, id, req);
 
         switch (res)
         {

@@ -25,6 +25,10 @@ public class VisitsController(
     public async Task<ActionResult<VisitVM>> GetVisits(int id)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var result = await visitService.GetVisitByIdAsync(id, user);
 
@@ -45,6 +49,10 @@ public class VisitsController(
     public async Task<ActionResult<VisitSummaryVM>> CreateVisit(CreateVisitRequest request)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var result = await visitService.CreateVisitAsync(request, user);
 

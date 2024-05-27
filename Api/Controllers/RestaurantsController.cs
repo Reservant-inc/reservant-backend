@@ -68,6 +68,11 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int id, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null)
     {
         var userId = userManager.GetUserId(User);
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await service.GetOrdersAsync(userId, id, returnFinished, page, perPage, orderBy);
         if (result.IsError)
         {

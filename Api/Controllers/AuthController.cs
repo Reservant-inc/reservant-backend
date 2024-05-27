@@ -38,6 +38,11 @@ public class AuthController(
     public async Task<ActionResult<UserVM>> RegisterRestaurantEmployee(RegisterRestaurantEmployeeRequest request)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await userService.RegisterRestaurantEmployeeAsync(request, user);
         if (result.IsError) {
             return result.ToValidationProblem();
@@ -159,6 +164,11 @@ public class AuthController(
     [Authorize]
     public async Task<ActionResult<UserInfo>> RefreshTokenAsync() {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var token = await authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);

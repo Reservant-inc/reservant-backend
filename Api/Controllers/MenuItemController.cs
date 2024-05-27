@@ -30,8 +30,12 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     public async Task<ActionResult<MenuItemVM>> CreateMenuItems(CreateMenuItemRequest menuItem)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
-        var res = await service.CreateMenuItemsAsync(user!, menuItem);
+        var res = await service.CreateMenuItemsAsync(user, menuItem);
 
         if (res.IsError)
         {
@@ -53,8 +57,12 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int itemId)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
-        var res = await service.GetMenuItemByIdAsync(user!, itemId);
+        var res = await service.GetMenuItemByIdAsync(user, itemId);
 
         if (res.IsError)
         {
@@ -77,8 +85,12 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     public async Task<ActionResult<MenuItemVM>> PutMenuItemById(int id, UpdateMenuItemRequest request)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
-        var res = await service.PutMenuItemByIdAsync(user!, id, request);
+        var res = await service.PutMenuItemByIdAsync(user, id, request);
 
         if (res.IsError)
         {
@@ -98,6 +110,10 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     public async Task<ActionResult> DeleteMenuItemByIdAsync(int id)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var res = await service.DeleteMenuItemByIdAsync(id, user);
 

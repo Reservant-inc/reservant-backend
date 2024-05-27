@@ -44,6 +44,11 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     public async Task<ActionResult> CancelOrder(int id)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await orderService.CancelOrderAsync(id, user);
         if (result.IsError)
         {
@@ -64,6 +69,10 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     public async Task<ActionResult<OrderSummaryVM>> CreateOrder(CreateOrderRequest request)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var result = await orderService.CreateOrderAsync(request, user);
 
@@ -84,6 +93,11 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     public async Task<ActionResult<OrderVM>> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequest request)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await orderService.UpdateOrderStatusAsync(id, request, user);
         if (result.IsError) {
             return result.ToValidationProblem();

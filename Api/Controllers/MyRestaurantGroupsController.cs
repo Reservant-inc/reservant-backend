@@ -77,6 +77,11 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     public async Task<ActionResult<RestaurantGroupVM>> GetRestaurantGroup(int id)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await service.GetRestaurantGroupAsync(id, user.Id);
 
         try
@@ -107,6 +112,11 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     public async Task<ActionResult<RestaurantGroupVM>> UpdateRestaurantGroupInfo(int id, UpdateRestaurantGroupRequest request)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await service.UpdateRestaurantGroupAsync(id, request, user.Id);
 
         if (!result.IsError)
@@ -127,6 +137,11 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     public async Task<ActionResult> SoftDeleteRestaurantGroup(int id)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await service.SoftDeleteRestaurantGroupAsync(id, user);
 
         if (result.IsError)
