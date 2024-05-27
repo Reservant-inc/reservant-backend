@@ -80,7 +80,7 @@ public static class CustomRules
         UserManager<Models.User> userManager)
     {
         return builder
-            .MustAsync(async (userId, cancellation) =>
+            .MustAsync(async (userId, _) =>
             {
                 var user = await userManager.FindByIdAsync(userId);
                 return user != null && await userManager.IsInRoleAsync(user, Roles.Customer);
