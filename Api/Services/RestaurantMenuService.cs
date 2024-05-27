@@ -383,7 +383,9 @@ public class RestaurantMenuService(
         if (menu == null)
             return RemoveMenuItemResult.MenuNotFound;
 
-        var validMenuItems = menuItems.Where(m => m.Restaurant.Group.OwnerId == user.Id);
+        var validMenuItems = menuItems
+            .Where(m => m.Restaurant.Group.OwnerId == user.Id)
+            .ToList();
 
         if (!validMenuItems.Any())
             return RemoveMenuItemResult.NoValidMenuItems;

@@ -53,9 +53,11 @@ public class RestaurantGroupService(
 
 
         //check if all restaurantIds from request belong to current user
-        var notOwnedRestaurants = restaurants.Where(r => r.Group.OwnerId != user.Id);
+        var notOwnedRestaurants = restaurants
+            .Where(r => r.Group.OwnerId != user.Id)
+            .ToList();
 
-        if (notOwnedRestaurants.Any())
+        if (notOwnedRestaurants.Count != 0)
         {
             return new ValidationFailure
             {
