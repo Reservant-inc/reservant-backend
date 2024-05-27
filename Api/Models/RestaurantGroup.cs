@@ -26,12 +26,12 @@ public class RestaurantGroup : ISoftDeletable
     /// <summary>
     /// Navigation property for the owner
     /// </summary>
-    public User? Owner { get; set; }
+    public User Owner { get; set; } = null!;
 
     /// <summary>
     /// Navigation collection for the restaurants
     /// </summary>
-    public ICollection<Restaurant>? Restaurants { get; set; }
+    public ICollection<Restaurant> Restaurants { get; set; } = null!;
 
     ///  <inheritdoc />
     public bool IsDeleted { get; set; } = false;

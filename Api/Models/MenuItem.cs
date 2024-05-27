@@ -47,12 +47,12 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// Menus that contain the item
     /// </summary>
-    public ICollection<Menu>? Menus { get; set; }
+    public ICollection<Menu> Menus { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the restaurant owning the menu
     /// </summary>
-    public Restaurant? Restaurant { get; set; }
+    public Restaurant Restaurant { get; set; } = null!;
 
     /// <summary>
     /// File name of the photo
@@ -63,7 +63,7 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// Navigation property for the photo upload
     /// </summary>
-    public FileUpload? Photo { get; set; }
+    public FileUpload Photo { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

@@ -104,7 +104,7 @@ public class Restaurant : ISoftDeletable
     /// </summary>
     [MinLength(1), StringLength(200)]
     public string? Description { get; set; }
-    
+
     /// <summary>
     /// Deposit
     /// </summary>
@@ -114,12 +114,12 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// Navigation collection for the tables
     /// </summary>
-    public ICollection<Table>? Tables { get; set; }
+    public ICollection<Table> Tables { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the restaurant group
     /// </summary>
-    public RestaurantGroup? Group { get; set; }
+    public RestaurantGroup Group { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the rental contract
@@ -134,42 +134,42 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// Navigation property for the permission to conduct business
     /// </summary>
-    public FileUpload? BusinessPermission { get; set; }
+    public FileUpload BusinessPermission { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the ID card
     /// </summary>
-    public FileUpload? IdCard { get; set; }
+    public FileUpload IdCard { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the logo
     /// </summary>
-    public FileUpload? Logo { get; set; }
+    public FileUpload Logo { get; set; } = null!;
 
     /// <summary>
     /// Navigation collection for the photos. Ordered by the RestaurantPhoto.Order property.
     /// </summary>
-    public ICollection<RestaurantPhoto>? Photos { get; set; }
+    public ICollection<RestaurantPhoto> Photos { get; set; } = null!;
 
     /// <summary>
     /// Navigation collection for the restaurant tags
     /// </summary>
-    public ICollection<RestaurantTag>? Tags { get; set; }
+    public ICollection<RestaurantTag> Tags { get; set; } = null!;
 
     /// <summary>
     /// Navigational collection for the employees
     /// </summary>
-    public ICollection<Employment>? Employments { get; set; }
+    public ICollection<Employment> Employments { get; set; } = null!;
 
     /// <summary>
     /// Navigational collection for menus
     /// </summary>
-    public ICollection<Menu>? Menus { get; set; }
+    public ICollection<Menu> Menus { get; set; } = null!;
 
     /// <summary>
     /// Navigational collection for menu items
     /// </summary>
-    public ICollection<MenuItem>? MenuItems { get; set; }
+    public ICollection<MenuItem> MenuItems { get; set; } = null!;
 
     /// <summary>
     /// Proof of verification by specific CustomerSupportAgent

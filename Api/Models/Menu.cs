@@ -14,7 +14,7 @@ public class Menu : ISoftDeletable
     /// </summary>
     [Key]
     public int Id { get; set; }
-    
+
     /// <summary>
     /// Name of the menu
     /// </summary>
@@ -50,12 +50,12 @@ public class Menu : ISoftDeletable
     /// <summary>
     /// Navigation collection for the items
     /// </summary>
-    public ICollection<MenuItem>? MenuItems { get; set; }
+    public ICollection<MenuItem> MenuItems { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the restaurant owning the menu
     /// </summary>
-    public Restaurant? Restaurant { get; set; }
+    public Restaurant Restaurant { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

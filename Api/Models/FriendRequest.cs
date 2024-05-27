@@ -43,10 +43,10 @@ public class FriendRequest
     /// <summary>
     /// Navigational property for the user that sent the request
     /// </summary>
-    public User? Sender { get; set; }
+    public User Sender { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for the target user
     /// </summary>
-    public User? Receiver { get; set; }
+    public User Receiver { get; set; } = null!;
 }

@@ -245,15 +245,6 @@ public class OrderService(
                 ErrorMessage = "Order not found"
             };
         }
-        if (order.Visit.Restaurant is null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = $"Restaurant not found, visit: visitID - {order.VisitId}, restaurantID - {order.Visit.Restaurant?.Id}"
-            };
-        }
 
         //is it in the correct restaurant group?
         if (order.Visit.Restaurant.Group.OwnerId != user.EmployerId)

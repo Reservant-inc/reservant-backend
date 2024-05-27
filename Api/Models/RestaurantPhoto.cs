@@ -27,12 +27,12 @@ public class RestaurantPhoto : ISoftDeletable
     /// <summary>
     /// Navigation property for the restaurant
     /// </summary>
-    public Restaurant? Restaurant { get; set; }
+    public Restaurant Restaurant { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the photo upload
     /// </summary>
-    public FileUpload? Photo { get; set; }
+    public FileUpload Photo { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

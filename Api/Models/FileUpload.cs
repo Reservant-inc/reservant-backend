@@ -29,7 +29,7 @@ public class FileUpload : ISoftDeletable
     /// <summary>
     /// Navigation property for the user who uploaded the file
     /// </summary>
-    public User? User { get; set; }
+    public User User { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

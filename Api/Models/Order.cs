@@ -76,17 +76,17 @@ public class Order : ISoftDeletable
     /// <summary>
     /// Navigational collection for the visit
     /// </summary>
-    public Visit? Visit { get; set; }
+    public Visit Visit { get; set; } = null!;
 
     /// <summary>
     /// Navigational collection for the order items
     /// </summary>
-    public ICollection<OrderItem>? OrderItems { get; set; }
+    public ICollection<OrderItem> OrderItems { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for serving employees
     /// </summary>
-    public ICollection<User>? Employees { get; set; }
+    public ICollection<User> Employees { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

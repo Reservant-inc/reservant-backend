@@ -31,12 +31,12 @@ public class OrderItem : ISoftDeletable
     /// <summary>
     /// Navigational property for the order
     /// </summary>
-    public Order? Order { get; set; }
+    public Order Order { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for the menu item ordered
     /// </summary>
-    public MenuItem? MenuItem { get; set; }
+    public MenuItem MenuItem { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

@@ -80,7 +80,7 @@ public class User : IdentityUser, ISoftDeletable
     /// Navigational collection for the employments. For restaurant employees
     /// </summary>
     /// <returns></returns>
-    public ICollection<Employment>? Employments { get; set; }
+    public ICollection<Employment> Employments { get; set; } = null!;
 
     /// <summary>
     /// File name of the photo
@@ -95,17 +95,17 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// Navigational property for the user's file uploads
     /// </summary>
-    public ICollection<FileUpload>? Uploads { get; set; }
+    public ICollection<FileUpload> Uploads { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for the outgoing friend requests
     /// </summary>
-    public ICollection<FriendRequest>? OutgoingRequests { get; set; }
+    public ICollection<FriendRequest> OutgoingRequests { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for the incoming friend requests
     /// </summary>
-    public ICollection<FriendRequest>? IncomingRequests { get; set; }
+    public ICollection<FriendRequest> IncomingRequests { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

@@ -50,12 +50,12 @@ public class Employment : ISoftDeletable
     /// <summary>
     /// Navigational property for the employee
     /// </summary>
-    public User? Employee { get; set; }
+    public User Employee { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for the restaurant
     /// </summary>
-    public Restaurant? Restaurant { get; set; }
+    public Restaurant Restaurant { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

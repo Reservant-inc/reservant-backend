@@ -76,22 +76,22 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// Navigational property for the client who made the reservation
     /// </summary>
-    public User? Client { get; set; }
+    public User Client { get; set; } = null!;
 
     /// <summary>
     /// People who visited the restaurant
     /// </summary>
-    public ICollection<User>? Participants { get; set; }
+    public ICollection<User> Participants { get; set; } = null!;
 
     /// <summary>
     /// Orders made during the visit
     /// </summary>
-    public ICollection<Order>? Orders { get; set; }
+    public ICollection<Order> Orders { get; set; } = null!;
 
     /// <summary>
     /// Navigational collection for the table
     /// </summary>
-    public Table? Table { get; set; }
+    public Table Table { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
@@ -99,5 +99,5 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// Navigational property for restaurant
     /// </summary>
-    public Restaurant? Restaurant { get; set; }
+    public Restaurant Restaurant { get; set; } = null!;
 }
