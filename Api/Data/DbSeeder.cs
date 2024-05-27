@@ -168,7 +168,7 @@ public class DbSeeder(
 
         context.RestaurantGroups.Add(kowalskisGroup);
 
-        var kowalskisRestaurant = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
+        _ = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
         var visits = new List<Visit>
         {

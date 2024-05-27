@@ -103,7 +103,6 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <returns></returns>
     public async Task<Result<bool>> UpdateBulkEmploymentAsync(List<UpdateEmploymentRequest> listRequest, User user)
     {
-        var employments = new List<Employment>();
         foreach (var request in listRequest)
         {
             var res = await validationService.ValidateAsync(request, user.Id);
@@ -126,7 +125,6 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
 
             employment.IsBackdoorEmployee = request.IsBackdoorEmployee;
             employment.IsHallEmployee = request.IsHallEmployee;
-            employments.Add(employment);
         }
 
         await context.SaveChangesAsync();

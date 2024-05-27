@@ -405,7 +405,7 @@ namespace Reservant.Api.Services
             restaurant.GroupId = request.GroupId;
             restaurant.Group = newRestaurantGroup;
             newRestaurantGroup.Restaurants.Add(restaurant);
-            var result = context.RestaurantGroups.Update(newRestaurantGroup);
+            context.RestaurantGroups.Update(newRestaurantGroup);
             await context.SaveChangesAsync();
             return new RestaurantSummaryVM
             {
