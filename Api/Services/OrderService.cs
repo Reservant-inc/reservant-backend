@@ -26,6 +26,7 @@ public class OrderService(
     /// Gets the order with the given id
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="claim">User claims</param>
     /// <returns></returns>
     public async Task<Result<OrderVM>> GetOrderById(int id, ClaimsPrincipal claim)
     {
