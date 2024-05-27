@@ -26,7 +26,7 @@ public static class Utils
     /// Return a single page of the query
     /// </summary>
     public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
-        this IQueryable<T> query, int page, int perPage, int maxPerPage)
+        this IQueryable<T> query, int page, int perPage, int maxPerPage = 10)
     {
         if (perPage > maxPerPage)
         {
