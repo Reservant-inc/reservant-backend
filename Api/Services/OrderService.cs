@@ -25,7 +25,7 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
     /// <param name="request">request containing list of updated menu items and employees that work on them</param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<bool>> UpdateOrderStatusAsync(int id, UpdateOrderStatusRequest request, User user)
+    public async Task<Result<OrderVM>> UpdateOrderStatusAsync(int id, UpdateOrderStatusRequest request, User user)
     {
         var order = await context.Orders
             .Where(o => o.Id == id)
@@ -66,11 +66,32 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
             };
         }
 
+        //check if order items are in the order
+        var itemIdsDict = new Dictionary<int, int>();
+        for (int i = 0; i < order.OrderItems.Count; i++)
+        {
+            itemIdsDict.Add(order.OrderItems.ElementAt(i).MenuItemId, i);
+        }
+
         //update status of the order's menuitems
 
         foreach (UpdateOrderItemStatusRequest item in request.Items)
         {
-            order.OrderItems.First(oi => oi.MenuItemId == item.MenuItemId).Status = item.Status;
+            if (itemIdsDict.ContainsKey(item.MenuItemId))
+            {
+                int itemIndex;
+                itemIdsDict.TryGetValue(item.MenuItemId, out itemIndex);
+                order.OrderItems.ElementAt(itemIndex).Status = item.Status;
+            }
+            else
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.Items),
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "Menu item not found in the order"
+                };
+            }
         }
         //assign employees to the order and check if they exist/belong to the correct restaurant group
         for (int i = 0; i < request.EmployeeIds.Count; i++)
@@ -100,20 +121,21 @@ public class OrderService(ApiDbContext context, ValidationService validationServ
             }
         }
         await context.SaveChangesAsync();
-        /*        return new OrderVM
-                {
-                    OrderId = order.Id,
-                    VisitId = order.VisitId,
-                    Status = order.Status,
-                    Items = order.OrderItems.Select(orderItem => new OrderItemVM
-                    {
-                        Amount = orderItem.Amount,
-                        Status = orderItem.Status,
-                        MenuItemId = orderItem.MenuItemId,
-                        Cost = orderItem.MenuItem.Price * orderItem.Amount
-                    }).ToList(),
-                    Cost = order.Cost
-                };*/
-        return true;
+
+        return new OrderVM
+        {
+            OrderId = order.Id,
+            VisitId = order.VisitId,
+            Status = order.Status,
+            Items = order.OrderItems.Select(orderItem => new OrderItemVM
+            {
+                Amount = orderItem.Amount,
+                Status = orderItem.Status,
+                MenuItemId = orderItem.MenuItemId,
+                Cost = context.MenuItems.Find(orderItem.MenuItemId).Price * orderItem.Amount
+            }).ToList(),
+            Cost = order.Cost,
+            EmployeeId = order.EmployeeId
+        };
     }
 }

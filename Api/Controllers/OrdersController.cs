@@ -15,6 +15,12 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/orders")]
 public class OrdersController(OrderService orderService, UserManager<User> userManager) : Controller
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id">order id</param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPut("{id:int}/status")]
     [Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
