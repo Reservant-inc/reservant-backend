@@ -266,24 +266,12 @@ public class OrderService(
             };
         }
 
-        //check if order items are in the order
-        var itemIdsDict = new Dictionary<int, int>();
-        for (int i = 0; i < order.OrderItems.Count; i++)
-        {
-            itemIdsDict.Add(order.OrderItems.ElementAt(i).MenuItemId, i);
-        }
-
         //update status of the order's menuitems
 
         foreach (UpdateOrderItemStatusRequest item in request.Items)
         {
-            if (itemIdsDict.ContainsKey(item.MenuItemId))
-            {
-                int itemIndex;
-                itemIdsDict.TryGetValue(item.MenuItemId, out itemIndex);
-                order.OrderItems.ElementAt(itemIndex).Status = item.Status;
-            }
-            else
+            var menuItem = order.OrderItems.FirstOrDefault(x => x.MenuItemId == item.MenuItemId);
+            if (menuItem is null)
             {
                 return new ValidationFailure
                 {
@@ -292,6 +280,8 @@ public class OrderService(
                     ErrorMessage = "Menu item not found in the order"
                 };
             }
+
+            menuItem.Status = item.Status;
         }
         //assign employees to the order and check if they exist/belong to the correct restaurant group
         for (int i = 0; i < request.EmployeeIds.Count; i++)
