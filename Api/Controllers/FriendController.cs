@@ -14,7 +14,7 @@ namespace Reservant.Api.Controllers;
 /// Managing friends
 /// </summary>
 [ApiController, Route("/friends")]
-public class FriendController(UserManager<User> userManager, FriendService service) : ControllerBase
+public class FriendController(UserManager<User> userManager, FriendService service) : StrictController
 {
     /// <summary>
     /// Send a friend request
@@ -45,11 +45,11 @@ public class FriendController(UserManager<User> userManager, FriendService servi
     /// <summary>
     /// Mark friend request as read
     /// </summary>
-    /// <param name="userId">ID of the user</param>
-    [HttpPost("{userId}/mark-read")]
+    /// <param name="senderId">ID of the user</param>
+    [HttpPost("{senderId}/mark-read")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult> MarkFriendRequestAsRead(string userId)
+    public async Task<ActionResult> MarkFriendRequestAsRead(string senderId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -57,18 +57,18 @@ public class FriendController(UserManager<User> userManager, FriendService servi
             return Unauthorized();
         }
 
-        await service.MarkFriendRequestAsReadAsync(user.Id, userId);
+        await service.MarkFriendRequestAsReadAsync(user.Id, senderId);
         return Ok();
     }
 
     /// <summary>
     /// Accept a friend request
     /// </summary>
-    /// <param name="userId">ID of the user</param>
-    [HttpPost("{userId}/accept-request")]
+    /// <param name="senderId">ID of the user</param>
+    [HttpPost("{senderId}/accept-request")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult> AcceptFriendRequest(string userId)
+    public async Task<ActionResult> AcceptFriendRequest(string senderId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -76,7 +76,7 @@ public class FriendController(UserManager<User> userManager, FriendService servi
             return Unauthorized();
         }
 
-        await service.AcceptFriendRequestAsync(user.Id, userId);
+        await service.AcceptFriendRequestAsync(user.Id, senderId);
         return Ok();
     }
 
