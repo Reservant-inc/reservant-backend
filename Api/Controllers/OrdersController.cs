@@ -73,7 +73,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     }
 
     /// <summary>
-    ///
+    /// Update information about an Order as a restaurant employee
     /// </summary>
     /// <param name="id">order id</param>
     /// <param name="request"></param>
