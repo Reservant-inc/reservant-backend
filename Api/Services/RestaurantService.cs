@@ -156,8 +156,8 @@ namespace Reservant.Api.Services
                 IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
                 Tables = [], //restaurantVM ma required pole Tables, ale nie dodajemy Tables powyżej
                 ProvideDelivery = restaurant.ProvideDelivery,
-                Logo = restaurant.LogoFileName,
-                Photos = restaurant.Photos.Select(p => p.PhotoFileName).ToList(),
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Photos = restaurant.Photos.Select(p => uploadService.GetPathForFileName(p.PhotoFileName)).ToList(),
                 Description = restaurant.Description,
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 IsVerified = restaurant.VerifierId is not null

@@ -96,7 +96,7 @@ public class RestaurantGroupService(
                 Address = r.Address,
                 City = r.City,
                 GroupId = group.Id,
-                Logo = r.LogoFileName,
+                Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags?.Select(t => t.Name).ToList() ?? [],
