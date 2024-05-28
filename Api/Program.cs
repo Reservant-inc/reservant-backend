@@ -16,6 +16,8 @@ using Reservant.Api.Options;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
+Console.WriteLine("HELLO WORLD");
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOptions<JwtOptions>()
