@@ -7,7 +7,6 @@ using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Models.Dtos.MenuItem;
 
 
@@ -20,7 +19,8 @@ namespace Reservant.Api.Controllers
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
     [Authorize(Roles = Roles.Customer)]
-    public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager) : Controller
+    public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager)
+        : StrictController
     {
         /// <summary>
         /// Create a new restaurant (and optionally a new group)

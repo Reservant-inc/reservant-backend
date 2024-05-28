@@ -7,11 +7,15 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Data;
 
+/// <summary>
+/// Service for adding sample data to the database
+/// </summary>
 public class DbSeeder(
     ApiDbContext context,
     RoleManager<IdentityRole> roleManager,
@@ -23,6 +27,9 @@ public class DbSeeder(
     private const string ExampleUploadsPath = "./example-uploads";
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
+    /// <summary>
+    /// Add sample data to the database
+    /// </summary>
     public async Task SeedDataAsync()
     {
         await roleManager.CreateAsync(new IdentityRole(Roles.Customer));
@@ -166,14 +173,14 @@ public class DbSeeder(
         {
             new Visit
             {
-                Date = new DateOnly(2024, 1, 1),
+                Date = new DateTime(2024, 1, 1, 17, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 19, 32, 00),
                 Deposit = null,
                 ReservationDate = null,
                 Tip = null,
                 Takeaway = true,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 1,
                 ClientId = customer1.Id,
                 Client = customer1,
@@ -182,14 +189,14 @@ public class DbSeeder(
             },
             new Visit
             {
-                Date = new DateOnly(2024, 1, 1),
+                Date = new DateTime(2024, 1, 4, 18, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 22, 32, 00),
                 Deposit = null,
                 ReservationDate = null,
                 Tip = 10m,
                 Takeaway = false,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 2,
                 ClientId = customer2.Id,
                 Client = customer2,
@@ -198,14 +205,14 @@ public class DbSeeder(
             },
             new Visit
             {
-                Date = new DateOnly(2024, 1, 1),
+                Date = new DateTime(2024, 1, 5, 18, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 15, 32, 00),
                 Deposit = null,
                 ReservationDate = null,
                 Tip = 25m,
                 Takeaway = false,
-                TableRestaurantId = 3,
+                TableRestaurantId = 1,
                 TableId = 1,
                 ClientId = customer2.Id,
                 Client = customer2,
@@ -226,7 +233,7 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 8,
+                        MenuItemId = 3,
                         Status = OrderStatus.Taken,
                     }
                 },
@@ -241,7 +248,7 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 6,
+                        MenuItemId = 1,
                         Status = OrderStatus.Cancelled,
                     }
                 },
@@ -256,13 +263,13 @@ public class DbSeeder(
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 6,
+                        MenuItemId = 1,
                         Status = OrderStatus.Taken,
                     },
                     new OrderItem
                     {
                         Amount = 1,
-                        MenuItemId = 7,
+                        MenuItemId = 2,
                         Status = OrderStatus.Taken,
                     }
                 },
@@ -513,7 +520,7 @@ public class DbSeeder(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
             {
-                Id = hallEmployee.Id,
+                EmployeeId = hallEmployee.Id,
                 IsBackdoorEmployee = false,
                 IsHallEmployee = true
             }
@@ -533,7 +540,7 @@ public class DbSeeder(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
             {
-                Id = backdoorEmployee.Id,
+                EmployeeId = backdoorEmployee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = false
             }
@@ -646,7 +653,7 @@ public class DbSeeder(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
             {
-                Id = employee.Id,
+                EmployeeId = employee.Id,
                 IsBackdoorEmployee = true,
                 IsHallEmployee = true
             } },

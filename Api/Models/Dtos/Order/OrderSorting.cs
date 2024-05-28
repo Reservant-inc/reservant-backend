@@ -23,15 +23,5 @@ public enum OrderSorting
     /// <summary>
     /// By total cost descending
     /// </summary>
-    CostDesc,
-
-    /// <summary>
-    /// By employee's full name ascending
-    /// </summary>
-    EmployeeFullNameAsc,
-
-    /// <summary>
-    /// By employee's full name descending
-    /// </summary>
-    EmployeeFullNameDesc
+    CostDesc
 }

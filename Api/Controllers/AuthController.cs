@@ -1,19 +1,13 @@
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
-using Reservant.Api.Options;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Reservant.Api.Controllers;
 
@@ -24,9 +18,8 @@ namespace Reservant.Api.Controllers;
 public class AuthController(
     UserService userService,
     UserManager<User> userManager,
-    IOptions<JwtOptions> jwtOptions,
     AuthService authService)
-    : Controller
+    : StrictController
 {
     private readonly JwtSecurityTokenHandler _handler = new();
 
@@ -53,7 +46,7 @@ public class AuthController(
         var employee = result.Value;
         return Ok(new UserVM
         {
-            Id = employee.Id,
+            UserId = employee.Id,
             Login = employee.UserName!,
             Roles = await userManager.GetRolesAsync(employee)
         });
@@ -75,7 +68,7 @@ public class AuthController(
         var user = result.Value;
         return Ok(new UserVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Roles = await userManager.GetRolesAsync(user)
         });
@@ -114,6 +107,7 @@ public class AuthController(
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
         {
+            UserId = user.Id,
             Token = jwt,
             Login = request.Login,
             FirstName = user.FirstName,
@@ -138,18 +132,18 @@ public class AuthController(
         var user = result.Value;
         return Ok(new UserVM
         {
-            Id = user.Id,
+            UserId = user.Id,
             Login = user.UserName!,
             Roles = await userManager.GetRolesAsync(user)
         });
     }
 
     /// <summary>
-    /// check if login is aviable
+    /// check if login is available
     /// </summary>
     [HttpGet("is-unique-login")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult> IsUniqueLogin(String login)
+    public async Task<ActionResult<bool>> IsUniqueLogin(String login)
     {
         var result = await userService.IsUniqueLoginAsync(login);
 
@@ -163,13 +157,14 @@ public class AuthController(
     [HttpPost("refresh-token")]
     [ProducesResponseType(200)]
     [Authorize]
-    public async Task<ActionResult<UserInfo>> RefreshTokenAsync() { 
+    public async Task<ActionResult<UserInfo>> RefreshTokenAsync() {
         var user = await userManager.GetUserAsync(User);
         var token = await authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfo
         {
+            UserId = user.Id,
             Token = jwt,
             Login = user.UserName,
             FirstName = user.FirstName,

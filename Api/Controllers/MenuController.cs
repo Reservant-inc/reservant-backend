@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Menu;
@@ -14,7 +13,7 @@ namespace Reservant.Api.Controllers;
 /// Menu item controller.
 /// </summary>
 [ApiController, Route("/menus")]
-public class MenuController(RestaurantMenuService service, UserManager<User> userManager) : Controller
+public class MenuController(RestaurantMenuService service, UserManager<User> userManager) : StrictController
 {
 
     /// <summary>
@@ -42,7 +41,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult> CreateMenu(CreateMenuRequest req)
+    public async Task<ActionResult<MenuSummaryVM>> CreateMenu(CreateMenuRequest req)
     {
         var user = await userManager.GetUserAsync(User);
         var result = await service.PostMenuToRestaurant(req, user);

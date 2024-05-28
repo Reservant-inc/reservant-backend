@@ -18,7 +18,7 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// Date of the visit
     /// </summary>
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account

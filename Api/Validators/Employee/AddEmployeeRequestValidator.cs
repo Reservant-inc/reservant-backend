@@ -9,9 +9,9 @@ namespace Reservant.Api.Validators.Employee
     /// </summary>
     public class AddEmployeeRequestValidator : AbstractValidator<AddEmployeeRequest>
     {
-
+        /// <inheritdoc />
         public AddEmployeeRequestValidator(ApiDbContext context) {
-            RuleFor(e => e.Id)
+            RuleFor(e => e.EmployeeId)
                 .NotNull()
                 .CurrentUsersEmployee(context);
 

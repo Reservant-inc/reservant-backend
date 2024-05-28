@@ -1,4 +1,4 @@
-namespace Reservant.Api.Models;
+namespace Reservant.Api.Models.Enums;
 
 /// <summary>
 /// Typ menu

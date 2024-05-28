@@ -1,17 +1,19 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators.Visit;
 
-public class VisitValidator: AbstractValidator<Models.Visit>
+/// <summary>
+/// Validator for Visit
+/// </summary>
+public class VisitValidator : AbstractValidator<Models.Visit>
 {
-    public VisitValidator(UserManager<User> userManager, ApiDbContext dbContext)
+    /// <inheritdoc />
+    public VisitValidator(ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)
-            .DateInFuture();
-        
+            .DateTimeInFuture();
+
         RuleFor(v => (double) v.NumberOfGuests)
             .GreaterOrEqualToZero();
 
@@ -24,6 +26,6 @@ public class VisitValidator: AbstractValidator<Models.Visit>
 
         RuleFor(v => new Tuple<int, int>(v.RestaurantId, v.TableId))
             .TableExistsInRestaurant(dbContext);
-        
+
     }
 }

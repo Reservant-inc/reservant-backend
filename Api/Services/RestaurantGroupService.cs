@@ -3,13 +3,10 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Validation;
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Restaurant;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Reservant.Api.Validators;
-
 
 namespace Reservant.Api.Services;
 
@@ -18,7 +15,10 @@ namespace Reservant.Api.Services;
 /// </summary>
 /// <param name="context">context</param>
 public class RestaurantGroupService(
-    ApiDbContext context, FileUploadService uploadService, RestaurantService restaurantService, ValidationService validationService)
+    ApiDbContext context,
+    FileUploadService uploadService,
+    RestaurantService restaurantService,
+    ValidationService validationService)
 {
 
     /// <summary>
@@ -29,7 +29,6 @@ public class RestaurantGroupService(
     /// <returns></returns>
     public async Task<Result<RestaurantGroup>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user)
     {
-
         //check if all restaurantIds from request exist
         foreach (var id in req.RestaurantIds)
         {
@@ -38,8 +37,8 @@ public class RestaurantGroupService(
                 return new ValidationFailure
                 {
                     PropertyName = nameof(req.RestaurantIds),
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = ErrorCodes.NotFound
+                    ErrorMessage = $"Restaurant: {id} not found",
+                    ErrorCode = ErrorCodes.NotFound
                 };
             }
 
@@ -60,8 +59,9 @@ public class RestaurantGroupService(
             return new ValidationFailure
             {
                 PropertyName = nameof(req.RestaurantIds),
-                ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = ErrorCodes.AccessDenied
+                ErrorMessage =
+                    $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}",
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
@@ -73,12 +73,11 @@ public class RestaurantGroupService(
             Restaurants = restaurants
         };
 
-        var res = await validationService.ValidateAsync(group);
-        if (!res.IsValid)
+        var result = await validationService.ValidateAsync(group, user.Id);
+        if (!result.IsValid)
         {
-            return res;
+            return result;
         }
-
 
         await context.RestaurantGroups.AddAsync(group);
         await context.SaveChangesAsync();
@@ -124,7 +123,7 @@ public class RestaurantGroupService(
             .Where(r => r.OwnerId == userId)
             .Select(r => new RestaurantGroupSummaryVM
             {
-                Id = r.Id,
+                RestaurantGroupId = r.Id,
                 Name = r.Name,
                 RestaurantCount = r.Restaurants != null ? r.Restaurants.Count() : 0
             })
@@ -151,18 +150,18 @@ public class RestaurantGroupService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound
+                ErrorMessage = $"RestaurantGroup with ID {groupId} not found.",
+                ErrorCode = ErrorCodes.NotFound
             };
         }
 
         return new Result<RestaurantGroupVM>(new RestaurantGroupVM
         {
-            Id = restaurantGroup.Id,
+            RestaurantGroupId = restaurantGroup.Id,
             Name = restaurantGroup.Name,
             Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
-                Id = r.Id,
+                RestaurantId = r.Id,
                 Name = r.Name,
                 Nip = r.Nip,
                 Address = r.Address,
@@ -171,6 +170,7 @@ public class RestaurantGroupService(
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
+                ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags!.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId != null
@@ -197,8 +197,8 @@ public class RestaurantGroupService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound
+                ErrorMessage = $"RestaurantGroup with ID {groupId} not found.",
+                ErrorCode = ErrorCodes.NotFound
             };
         }
 
@@ -207,8 +207,8 @@ public class RestaurantGroupService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = ErrorCodes.AccessDenied
+                ErrorMessage = $"User with ID {userId} is not an Owner of group {groupId}.",
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
@@ -216,21 +216,21 @@ public class RestaurantGroupService(
 
         restaurantGroup.Name = request.Name.Trim();
 
-        var res = await validationService.ValidateAsync(restaurantGroup);
-        if (!res.IsValid)
+        var result = await validationService.ValidateAsync(restaurantService, userId);
+        if (!result.IsValid)
         {
-            return res;
+            return result;
         }
 
         await context.SaveChangesAsync();
 
         return new RestaurantGroupVM
         {
-            Id = restaurantGroup.Id,
+            RestaurantGroupId = restaurantGroup.Id,
             Name = restaurantGroup.Name,
             Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
-                Id = r.Id,
+                RestaurantId = r.Id,
                 Name = r.Name,
                 Nip = r.Nip,
                 Address = r.Address,
@@ -239,6 +239,7 @@ public class RestaurantGroupService(
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
+                ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags!.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId != null
@@ -263,8 +264,8 @@ public class RestaurantGroupService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound
+                ErrorMessage = "Restaurant group not found",
+                ErrorCode = ErrorCodes.NotFound
             };
         }
         if (group.OwnerId != user.Id)
@@ -272,8 +273,8 @@ public class RestaurantGroupService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = ErrorCodes.AccessDenied
+                ErrorMessage = "Restaurant group does not belong to the current user",
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 

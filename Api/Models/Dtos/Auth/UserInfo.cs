@@ -7,6 +7,9 @@ namespace Reservant.Api.Models.Dtos.Auth;
 public class UserInfo
 {
     [Required]
+    public required string UserId { get; init; }
+
+    [Required]
     public required string Token { get; init; }
 
     [Required, StringLength(50)]

@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Reservant.Api.Services;
-using Reservant.Api.Models.Dtos.MenuItem;
 
 namespace Reservant.Api.Validators.MenuItem;
 
@@ -9,6 +8,7 @@ namespace Reservant.Api.Validators.MenuItem;
 /// </summary>
 public class MenuItemValidator : AbstractValidator<Models.MenuItem>
 {
+    /// <inheritdoc />
     public MenuItemValidator(FileUploadService uploadService)
     {
         RuleFor(m => m.RestaurantId)
