@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Visit;
 
 namespace Reservant.Api.Validators.Visit;
@@ -12,10 +11,10 @@ namespace Reservant.Api.Validators.Visit;
 public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
 {
     /// <inheritdoc />
-    public CreateVisitRequestValidator(UserManager<User> userManager, ApiDbContext dbContext)
+    public CreateVisitRequestValidator(UserManager<Models.User> userManager, ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)
-            .DateInFuture();
+            .DateTimeInFuture();
 
         RuleFor(v => (double) v.NumberOfGuests)
             .GreaterOrEqualToZero();
@@ -33,9 +32,9 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
         RuleFor(v => new Tuple<int, int>(v.RestaurantId, v.TableId))
             .TableExistsInRestaurant(dbContext)
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.");
-        
+
         RuleForEach(v => v.Participants)
             .CustomerExists(userManager);
     }
-    
+
 }

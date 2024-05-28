@@ -77,6 +77,31 @@ public class User : IdentityUser, ISoftDeletable
     /// <returns></returns>
     public ICollection<Employment>? Employments { get; set; }
 
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    public string? PhotoFileName { get; set; }
+
+    /// <summary>
+    /// Navigation property for the photo upload
+    /// </summary>
+    public FileUpload? Photo { get; set; }
+
+    /// <summary>
+    /// Navigational property for the user's file uploads
+    /// </summary>
+    public ICollection<FileUpload>? Uploads { get; set; }
+
+    /// <summary>
+    /// Navigational property for the outgoing friend requests
+    /// </summary>
+    public ICollection<FriendRequest>? OutgoingRequests { get; set; }
+
+    /// <summary>
+    /// Navigational property for the incoming friend requests
+    /// </summary>
+    public ICollection<FriendRequest>? IncomingRequests { get; set; }
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }

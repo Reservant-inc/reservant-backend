@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Models.Dtos.Menu;
 
@@ -11,8 +12,8 @@ public class MenuSummaryVM
     /// Unique ID
     /// </summary>
     [Required]
-    public required int Id { get; set; }
-    
+    public required int MenuId { get; set; }
+
     /// <summary>
     /// Name of the menu
     /// </summary>

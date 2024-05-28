@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
@@ -6,6 +6,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.FileUpload;
 using Reservant.Api.Options;
 using Reservant.Api.Validation;
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -45,6 +46,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     private static readonly Dictionary<string, FileClass> FileClasses = new()
     {
         { ".png", FileClass.Image },
+        { ".jpg", FileClass.Image },
         { ".pdf", FileClass.Document }
     };
 
@@ -57,18 +59,22 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
         var fileSizeKb = request.File.Length / 1024;
         if (fileSizeKb > options.Value.MaxSizeKb)
         {
-            return new List<ValidationResult>
+            return new ValidationFailure
             {
-                new($"File too large ({fileSizeKb} Kb > {options.Value.MaxSizeKb} Kb)", [nameof(request.File)])
+                PropertyName = nameof(request.File),
+                ErrorMessage = $"File too large ({fileSizeKb} Kb > {options.Value.MaxSizeKb} Kb)",
+                ErrorCode = ErrorCodes.FileTooBig
             };
         }
 
         var contentType = request.File.ContentType;
         if (!FileExtensions.TryGetValue(contentType, out var fileExtension))
         {
-            return new List<ValidationResult>
+            return new ValidationFailure
             {
-                new($"File content type not accepted: {contentType}", [nameof(request.File)])
+                PropertyName = nameof(request.File),
+                ErrorMessage = $"File content type not accepted: {contentType}",
+                ErrorCode = ErrorCodes.UnacceptedContentType
             };
         }
 
@@ -119,23 +125,28 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     public async Task<Result<string>> ProcessUploadNameAsync(
         string fileName, string userId, FileClass expectedFileClass, string propertyName)
     {
-        var errors = new List<ValidationResult>();
-
         var upload = await context.FileUploads
             .Where(fu => fu.FileName == fileName && fu.UserId == userId)
             .FirstOrDefaultAsync();
         if (upload is null)
         {
-            errors.Add(new ValidationResult("Upload not found", [propertyName]));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = propertyName,
+                ErrorMessage = "Upload not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
         var fileClass = GetFileClass(Path.GetExtension(fileName));
         if (fileClass != expectedFileClass)
         {
-            errors.Add(new ValidationResult(
-                $"Expected {expectedFileClass}, got {fileClass}", [propertyName]));
-            return errors;
+            return new ValidationFailure
+            {
+                PropertyName = propertyName,
+                ErrorMessage = $"Expected {expectedFileClass}, got {fileClass}",
+                ErrorCode = $"{ErrorCodes.FileName}.{expectedFileClass}"
+            };
         }
 
         return fileName;

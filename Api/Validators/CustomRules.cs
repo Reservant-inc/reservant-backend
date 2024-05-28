@@ -1,19 +1,20 @@
+using System.Numerics;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using System.Reflection.Metadata.Ecma335;
+using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.OrderItem;
 
 namespace Reservant.Api.Validators;
 
 /// <summary>
 /// Custom Fluent Validation rules
 /// </summary>
-public static class CustomValidators
+public static class CustomRules
 {
     /// <summary>
     /// Validates that the property contains a valid file upload name.
@@ -76,7 +77,7 @@ public static class CustomValidators
     /// </summary>
     public static IRuleBuilderOptions<T, string> CustomerExists<T>(
         this IRuleBuilder<T, string> builder,
-        UserManager<User> userManager)
+        UserManager<Models.User> userManager)
     {
         return builder
             .MustAsync(async (userId, cancellation) =>
@@ -91,10 +92,10 @@ public static class CustomValidators
     /// <summary>
     /// Validates that the date is today or in the future.
     /// </summary>
-    public static IRuleBuilderOptions<T, DateOnly> DateInFuture<T>(this IRuleBuilder<T, DateOnly> builder)
+    public static IRuleBuilderOptions<T, DateTime> DateTimeInFuture<T>(this IRuleBuilder<T, DateTime> builder)
     {
         return builder
-            .Must(date => date >= DateOnly.FromDateTime(DateTime.Now))
+            .Must(date => date >= DateTime.Now)
             .WithErrorCode(ErrorCodes.DateMustBeInFuture)
             .WithMessage("The date must be today or in the future.");
     }
@@ -118,15 +119,7 @@ public static class CustomValidators
     public static IRuleBuilderOptions<T, Tuple<bool, bool>> AtLeastOneEmployeeRole<T>(this IRuleBuilder<T, Tuple<bool, bool>> builder)
     {
         return builder
-            .MustAsync(async (_, value, context, _) =>
-            {
-
-                if (value.Item1 || value.Item2)
-                {
-                    return true;
-                }
-                return false;
-            })
+            .Must((_, value, _) => value.Item1 || value.Item2)
             .WithErrorCode(ErrorCodes.AtLeastOneRoleSelected)
             .WithMessage(ErrorCodes.AtLeastOneRoleSelected);
     }
@@ -188,14 +181,75 @@ public static class CustomValidators
     }
 
     /// <summary>
-    /// Validates that the value is greater than or equal to zero.
+    /// Validates that the orderItem exists in the database.
     /// </summary>
-    public static IRuleBuilderOptions<T, double> GreaterOrEqualToZero<T>(
-        this IRuleBuilder<T, double> builder)
+    public static IRuleBuilderOptions<T, CreateOrderItemRequest> OrderItemExist<T>(
+        this IRuleBuilder<T, CreateOrderItemRequest> builder, ApiDbContext context)
     {
         return builder
-            .Must(value => value >= 0)
+            .MustAsync(async (item, cancellationToken) =>
+            {
+                var itemExists = await context.MenuItems
+                    .AnyAsync(m => m.Id == item.MenuItemId, cancellationToken);
+
+                return itemExists;
+            })
+            .WithErrorCode(ErrorCodes.NotFound)
+            .WithMessage("The order item with MenuItemId {PropertyValue} does not exist in the database.");
+    }
+
+    /// <summary>
+    /// Validates that the visit exists in the database.
+    /// </summary>
+    public static IRuleBuilderOptions<T, int> VisitExist<T>(
+        this IRuleBuilder<T, int> builder, ApiDbContext context)
+    {
+        return builder
+            .MustAsync(async (visitId, cancellationToken) =>
+            {
+                var visitExists = await context.Visits
+                    .AnyAsync(v => v.Id == visitId, cancellationToken);
+
+                return visitExists;
+            })
+            .WithErrorCode(ErrorCodes.NotFound)
+            .WithMessage("Visit with Id {PropertyValue} does not exist in the database.");
+    }
+
+
+    /// <summary>
+    /// Validates that the value is greater than or equal to zero.
+    /// </summary>
+    public static IRuleBuilderOptions<T, TProperty> GreaterOrEqualToZero<T, TProperty>(
+        this IRuleBuilder<T, TProperty> builder) where TProperty : INumber<TProperty>
+    {
+        return builder
+            .GreaterThanOrEqualTo(TProperty.Zero)
             .WithErrorCode(ErrorCodes.ValueLessThanZero)
             .WithMessage("The value must be greater than or equal to zero.");
+    }
+
+    /// <summary>
+    /// Validates that the value is greater than or equal to one.
+    /// </summary>
+    public static IRuleBuilderOptions<T, TProperty> GreaterOrEqualToOne<T, TProperty>(
+        this IRuleBuilder<T, TProperty> builder) where TProperty : INumber<TProperty>
+    {
+        return builder
+            .GreaterThanOrEqualTo(TProperty.One)
+            .WithErrorCode(ErrorCodes.ValueLessThanOne)
+            .WithMessage("The value must be greater than or equal to one.");
+    }
+
+    /// <summary>
+    /// Validates that the list is not empty.
+    /// </summary>
+    public static IRuleBuilderOptions<T, List<TElement>> NotEmptyList<T, TElement>(
+        this IRuleBuilder<T, List<TElement>> builder)
+    {
+        return builder
+            .NotEmpty()
+            .WithErrorCode(ErrorCodes.EmptyList)
+            .WithMessage("List cannot be empty.");
     }
 }

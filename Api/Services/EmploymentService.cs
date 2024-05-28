@@ -1,9 +1,5 @@
-using System.ComponentModel.DataAnnotations;
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Mvc;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Employment;
@@ -110,20 +106,20 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         var employments = new List<Employment>();
         foreach (var request in listRequest)
         {
-            var res = await validationService.ValidateAsync(request);
+            var res = await validationService.ValidateAsync(request, user.Id);
             if (!res.IsValid)
             {
                 return res;
             }
             var employment = context.Employments.Include(e => e.Restaurant)
                 .ThenInclude(r => r.Group)
-                .FirstOrDefault(e => e.Id == request.Id && e.Restaurant.Group.OwnerId == user.Id);
+                .FirstOrDefault(e => e.Id == request.EmploymentId && e.Restaurant.Group.OwnerId == user.Id);
 
             if (employment is null)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(request.Id),
+                    PropertyName = nameof(request.EmploymentId),
                     ErrorCode = ErrorCodes.NotFound
                 };
             }

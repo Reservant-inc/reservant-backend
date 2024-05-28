@@ -7,7 +7,7 @@ namespace Reservant.Api.Controllers;
 /// Debugging functions
 /// </summary>
 [ApiController, Route("/debug")]
-public class DebugController(DebugService debugService) : Controller
+public class DebugController(DebugService debugService) : StrictController
 {
     /// <summary>
     /// Use this if you get a "no such column" error

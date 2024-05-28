@@ -1,4 +1,6 @@
-﻿namespace Reservant.Api.Models.Dtos.Order
+﻿using Reservant.Api.Models.Enums;
+
+namespace Reservant.Api.Models.Dtos.Order
 {
     /// <summary>
     /// Used by restaurant employees to update ordered item's status

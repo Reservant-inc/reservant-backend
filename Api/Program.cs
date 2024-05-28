@@ -9,6 +9,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Reservant.Api;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
@@ -80,7 +81,21 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    var filePath = Path.Combine(AppContext.BaseDirectory, "Api.xml");
+    var assembly = Assembly.GetExecutingAssembly();
+    var buildTime = assembly.GetCustomAttribute<BuildTimeAttribute>()?.BuildTime;
+
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Reservant API",
+        Version = "v1",
+        Description = $"""
+                       Sekude
+
+                       *Built at {buildTime:HH:mm:ss, d MMM yyyy}*
+                       """
+    });
+
+    var filePath = Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml");
     options.IncludeXmlComments(filePath, includeControllerXmlComments: true);
 
     var jwtSecurityScheme = new OpenApiSecurityScheme

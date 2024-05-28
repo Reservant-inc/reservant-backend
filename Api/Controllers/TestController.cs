@@ -7,7 +7,7 @@ using Reservant.Api.Models;
 namespace Reservant.Api.Controllers;
 
 [ApiController, Route("/test")]
-public class TestController(UserManager<User> userManager): Controller
+public class TestController(UserManager<User> userManager) : StrictController
 {
     [HttpGet("restaurant-owner-only")]
     [Authorize(Roles = Roles.RestaurantOwner)]
