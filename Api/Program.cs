@@ -16,7 +16,7 @@ using Reservant.Api.Options;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
-Console.WriteLine("HELLO WORLD");
+Console.WriteLine("HELLO WORLD 1");
 
 var builder = WebApplication.CreateBuilder(args);
 
