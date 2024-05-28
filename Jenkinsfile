@@ -3,6 +3,10 @@ imageTag = "reservant-api:${env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9]', '_')}"
 pipeline {
     agent any
 
+    triggers {
+        cron('0 4 * * 4')
+    }
+
     stages {
         stage('Build') {
             steps {
