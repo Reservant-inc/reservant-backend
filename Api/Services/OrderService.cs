@@ -286,7 +286,11 @@ public class OrderService(
         //assign employees to the order and check if they exist/belong to the correct restaurant group
         for (int i = 0; i < request.EmployeeIds.Count; i++)
         {
-            var employee = await context.Users.FindAsync(request.EmployeeIds.ElementAt(i));
+            var employeeId = request.EmployeeIds.ElementAt(i);
+            var employee = await context.Users
+                .Include(x => x.Employments)
+                .FirstOrDefaultAsync(x => employeeId == x.Id);
+
             if (employee is null)
             {
                 return new ValidationFailure
@@ -296,13 +300,16 @@ public class OrderService(
                     ErrorMessage = "Employee not found"
                 };
             }
-            if (employee.EmployerId != user.EmployerId)
+
+            var worksAtRestaurant = employee.Employments
+                .Any(x => x.RestaurantId == order.Visit.RestaurantId && x.DateUntil == null);
+            if (!worksAtRestaurant)
             {
                 return new ValidationFailure
                 {
                     PropertyName = request.EmployeeIds.ElementAt(i),
                     ErrorCode = ErrorCodes.MustBeRestaurantEmployee,
-                    ErrorMessage = ErrorCodes.MustBeRestaurantEmployee
+                    ErrorMessage = "The user does not work at the restaurant"
                 };
             }
             if (!(order.Employees.Contains(employee)))
