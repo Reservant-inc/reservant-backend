@@ -691,7 +691,7 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
+        public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
@@ -706,20 +706,25 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
             if (restaurant == null)
             {
-                return false;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = ErrorCodes.NotFound
+                };
             }
+
+            context.RemoveRange(restaurant.Tables!);
+            context.RemoveRange(restaurant.Employments!);
+            context.RemoveRange(restaurant.Photos!);
+            context.RemoveRange(restaurant.MenuItems!);
+            context.RemoveRange(restaurant.Menus!);
 
             context.Remove(restaurant);
             if (restaurant.Group!.Restaurants!.Count == 0)
             {
                 context.Remove(restaurant.Group);
             }
-
-            context.RemoveRange(restaurant.Tables!);
-            context.RemoveRange(restaurant.Employments!);
-            context.RemoveRange(restaurant.Photos!);
-            context.RemoveRange(restaurant.Menus!);
-            context.RemoveRange(restaurant.MenuItems!);
 
             await context.SaveChangesAsync();
             return true;

@@ -61,7 +61,7 @@ public class RestaurantGroupService(
                 PropertyName = nameof(req.RestaurantIds),
                 ErrorMessage =
                     $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}",
-                ErrorCode = ErrorCodes.NotFound
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
@@ -280,20 +280,17 @@ public class RestaurantGroupService(
 
         foreach (Restaurant restaurant in group.Restaurants)
         {
-            if (await restaurantService.SoftDeleteRestaurantAsync(restaurant.Id, user))
+            var res = await restaurantService.SoftDeleteRestaurantAsync(restaurant.Id, user);
+            if (res.IsError)
             {
-                continue;
+                return res;
             }
-
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = $"Unable to delete restaurant with ID {restaurant.Id}",
-                ErrorCode = ErrorCodes.NotFound
-            };
         }
-
-        context.Remove(group);
+        var emptyGroup = await context.RestaurantGroups.FindAsync(group.Id);
+        if (emptyGroup != null)
+        {
+            group.IsDeleted = true;
+        }
         await context.SaveChangesAsync();
         return true;
 
