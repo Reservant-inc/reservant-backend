@@ -46,6 +46,13 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options) : IdentityDbCo
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<Visit>(eb =>
+        {
+            eb.HasOne<Restaurant>(v => v.Restaurant)
+                .WithMany()
+                .HasForeignKey(v => v.TableRestaurantId);
+        });
+
         builder.Entity<Table>().HasKey(t => new { t.RestaurantId, t.Id });
 
         builder.Entity<RestaurantPhoto>().HasKey(rp => new { rp.RestaurantId, rp.Order });
