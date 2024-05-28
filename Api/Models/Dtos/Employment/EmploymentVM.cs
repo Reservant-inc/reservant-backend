@@ -19,4 +19,9 @@ public class EmploymentVM
     /// Whether the employee is a hall employee
     /// </summary>
     public required bool IsHallEmployee { get; init; }
+
+    /// <summary>
+    /// The name of the restaurant that employes the employee
+    /// </summary>
+    public required string RestaurantName { get; init; }
 }
