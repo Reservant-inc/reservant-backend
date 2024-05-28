@@ -1,5 +1,3 @@
-using Reservant.Api.Models.Enums;
-
 namespace Reservant.Api.Models.Dtos.Order;
 
 /// <summary>
@@ -7,29 +5,6 @@ namespace Reservant.Api.Models.Dtos.Order;
 /// </summary>
 public class UpdateOrderStatusRequest
 {
-    /// <summary>
-    /// Order status
-    /// </summary>
-    public OrderStatus Status
-    {
-        get
-        {
-            if (Items.Any(i => i.Status == OrderStatus.Cancelled))
-            {
-                return OrderStatus.Cancelled;
-            }
-            if (Items.Any(i => i.Status == OrderStatus.InProgress))
-            {
-                return OrderStatus.InProgress;
-            }
-            if (Items.Any(i => i.Status == OrderStatus.Taken))
-            {
-                return OrderStatus.Taken;
-            }
-            return OrderStatus.Ready;
-        }
-    }
-
     /// <summary>
     /// Serving employee IDs
     /// </summary>
