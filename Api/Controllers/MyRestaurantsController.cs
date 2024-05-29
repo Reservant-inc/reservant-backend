@@ -32,16 +32,16 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult> CreateRestaurant(CreateRestaurantRequest request)
+        public async Task<ActionResult<RestaurantVM>> CreateRestaurant(CreateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
-            var result = await restaurantService.CreateRestaurantAsync(request, user);
+            var result = await restaurantService.CreateRestaurantAsync(request, user!);
             if (result.IsError)
             {
                 return result.ToValidationProblem();
             }
 
-            return Ok();
+            return Ok(result.Value);
         }
         /// <summary>
         /// Get restaurants owned by the user.

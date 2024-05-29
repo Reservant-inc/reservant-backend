@@ -14,6 +14,7 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 
+
 namespace Reservant.Api.Services
 {
     /// <summary>
@@ -53,7 +54,7 @@ namespace Reservant.Api.Services
         /// <param name="request"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<Restaurant>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
+        public async Task<Result<RestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
         {
             RestaurantGroup? group;
             if (request.GroupId is null)
@@ -139,7 +140,29 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return restaurant;
+            return new RestaurantVM
+            {
+                RestaurantId = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Nip = restaurant.Nip,
+                Address = restaurant.Address,
+                PostalIndex = restaurant.PostalIndex,
+                City = restaurant.City,
+                GroupId = restaurant.GroupId,
+                GroupName = group.Name,
+                RentalContract = restaurant.RentalContractFileName is not null ? uploadService.GetPathForFileName(restaurant.RentalContractFileName) : null,
+                AlcoholLicense = restaurant.AlcoholLicenseFileName is not null ? uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName) : null,
+                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
+                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
+                Tables = [], //restaurantVM ma required pole Tables, ale nie dodajemy Tables powyżej
+                ProvideDelivery = restaurant.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Photos = restaurant.Photos.Select(p => uploadService.GetPathForFileName(p.PhotoFileName)).ToList(),
+                Description = restaurant.Description,
+                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
+                IsVerified = restaurant.VerifierId is not null
+            };
         }
 
         /// <summary>
