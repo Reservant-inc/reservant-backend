@@ -49,6 +49,7 @@ public class RestaurantGroupService(
         var restaurants = await context.Restaurants
                 .Where(r => req.RestaurantIds.Contains(r.Id))
                 .Include(r => r.Group)
+                .Include(r => r.Tags)
                 .ToListAsync();
 
 
@@ -103,7 +104,7 @@ public class RestaurantGroupService(
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags?.Select(t => t.Name).ToList() ?? [],
+                Tags = r.Tags.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId is not null,
                 Location = new Geolocation
                 {
