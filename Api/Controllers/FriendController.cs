@@ -47,7 +47,7 @@ public class FriendController(UserManager<User> userManager, FriendService servi
     /// </summary>
     /// <param name="senderId">ID of the user</param>
     [HttpPost("{senderId}/mark-read")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> MarkFriendRequestAsRead(string senderId)
     {
@@ -57,7 +57,13 @@ public class FriendController(UserManager<User> userManager, FriendService servi
             return Unauthorized();
         }
 
-        await service.MarkFriendRequestAsReadAsync(user.Id, senderId);
+        var result = await service.MarkFriendRequestAsReadAsync(user.Id, senderId);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
         return Ok();
     }
 
@@ -66,7 +72,7 @@ public class FriendController(UserManager<User> userManager, FriendService servi
     /// </summary>
     /// <param name="senderId">ID of the user</param>
     [HttpPost("{senderId}/accept-request")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> AcceptFriendRequest(string senderId)
     {
@@ -76,7 +82,13 @@ public class FriendController(UserManager<User> userManager, FriendService servi
             return Unauthorized();
         }
 
-        await service.AcceptFriendRequestAsync(user.Id, senderId);
+        var result = await service.AcceptFriendRequestAsync(user.Id, senderId);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
         return Ok();
     }
 
@@ -85,7 +97,7 @@ public class FriendController(UserManager<User> userManager, FriendService servi
     /// </summary>
     /// <param name="userId">ID of the user</param>
     [HttpDelete("{userId}")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteFriend(string userId)
     {
@@ -95,7 +107,13 @@ public class FriendController(UserManager<User> userManager, FriendService servi
             return Unauthorized();
         }
 
-        await service.DeleteFriendAsync(user.Id, userId);
+        var result = await service.DeleteFriendAsync(user.Id, userId);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
         return Ok();
     }
 
