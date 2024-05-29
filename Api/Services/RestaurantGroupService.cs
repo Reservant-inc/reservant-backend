@@ -4,7 +4,6 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
-using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Validators;

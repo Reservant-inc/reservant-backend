@@ -1,6 +1,4 @@
-﻿using NetTopologySuite.Geometries;
-
-namespace Reservant.Api.Models.Dtos.Location;
+﻿namespace Reservant.Api.Models.Dtos.Location;
 
 /// <summary>
 /// Information geographical location

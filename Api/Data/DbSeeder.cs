@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Enums;

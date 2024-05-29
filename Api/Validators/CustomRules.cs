@@ -6,7 +6,6 @@ using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.OrderItem;
 
 namespace Reservant.Api.Validators;

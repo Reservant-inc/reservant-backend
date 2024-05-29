@@ -6,7 +6,6 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.OrderItem;
-using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;

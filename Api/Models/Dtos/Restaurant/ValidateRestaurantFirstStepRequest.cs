@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Reservant.Api.Models.Enums;
-using Reservant.Api.Validation;
+﻿using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Models.Dtos.Restaurant;
 
