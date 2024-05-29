@@ -93,7 +93,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     }
 
     /// <summary>
-    /// Delete a friend
+    /// Delete a friend or a peding friend request (as the sender or the receiver)
     /// </summary>
     /// <param name="userId">ID of the user</param>
     [HttpDelete("{userId}")]
