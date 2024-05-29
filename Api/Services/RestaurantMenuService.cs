@@ -99,6 +99,7 @@ public class RestaurantMenuService(
         var newMenu = new Menu
         {
             Name = req.Name.Trim(),
+            AlternateName = req.AlternateName?.Trim(),
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
