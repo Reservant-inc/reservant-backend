@@ -232,9 +232,11 @@ public class OrderService(
             .Where(o => o.Id == id)
             .Include(o => o.Employees)
             .Include(o => o.OrderItems)
+            .ThenInclude(o => o.MenuItem)
             .Include(o => o.Visit)
             .ThenInclude(v => v.Restaurant)
             .ThenInclude(r => r.Group)
+            .AsSplitQuery()
             .FirstOrDefaultAsync();
         //does order with id exist?
         if (order is null)
@@ -321,7 +323,7 @@ public class OrderService(
                 Amount = orderItem.Amount,
                 Status = orderItem.Status,
                 MenuItemId = orderItem.MenuItemId,
-                Cost = context.MenuItems.Find(orderItem.MenuItemId).Price * orderItem.Amount
+                Cost = orderItem.MenuItem.Price * orderItem.Amount
             }).ToList(),
             Cost = order.Cost,
             EmployeeId = order.EmployeeId
