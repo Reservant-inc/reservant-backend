@@ -14,7 +14,7 @@ namespace Reservant.Api.Controllers;
 /// Managing friends
 /// </summary>
 [ApiController, Route("/friends")]
-public class FriendController(UserManager<User> userManager, FriendService service) : StrictController
+public class FriendsController(UserManager<User> userManager, FriendService service) : StrictController
 {
     /// <summary>
     /// Send a friend request
