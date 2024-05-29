@@ -1,5 +1,3 @@
-using Reservant.Api.Models.Enums;
-
 namespace Reservant.Api.Models.Dtos.Order;
 
 /// <summary>
@@ -8,12 +6,12 @@ namespace Reservant.Api.Models.Dtos.Order;
 public class UpdateOrderStatusRequest
 {
     /// <summary>
-    /// Order status
+    /// Serving employee IDs
     /// </summary>
-    public OrderStatus Status { get; set; }
+    public ICollection<string> EmployeeIds { get; set; }
 
     /// <summary>
-    /// Serving employee's ID
+    /// List of Items included in the order
     /// </summary>
-    public string? EmployeeId { get; set; }
+    public required List<UpdateOrderItemStatusRequest> Items { get; set; }
 }

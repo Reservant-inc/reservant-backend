@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -29,7 +28,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <returns></returns>
     [HttpPost]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult> CreateRestaurantGroup(CreateRestaurantGroupRequest req)
+    public async Task<ActionResult<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req)
     {
 
         var user = await userManager.GetUserAsync(User);
@@ -46,7 +45,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return result.ToValidationProblem();
         }
 
-        return Created();
+        return Created($"/my-restaurant-groups/{result.Value.RestaurantGroupId}", result.Value);
 
     }
 

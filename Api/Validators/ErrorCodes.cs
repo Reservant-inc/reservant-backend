@@ -87,6 +87,16 @@ public static class ErrorCodes
     public const string ValueLessThanZero = "ValueLessThanZero";
 
     /// <summary>
+    /// to access this value you need to be employed by specific restaurant
+    /// </summary>
+    public const string MustBeRestaurantEmployee = "MustBeRestaurantEmployee";
+
+    /// <summary>
+    /// The value must be greater than or equal to one.
+    /// </summary>
+    public const string ValueLessThanOne = "ValueLessThanOne";
+
+    /// <summary>
     /// Per page must be at least 1 and less than a certain value
     /// </summary>
     public const string InvalidPerPageValue = "InvalidPerPageValue";
@@ -115,4 +125,14 @@ public static class ErrorCodes
     /// An object does not belong to the current restaurant
     /// </summary>
     public const string BelongsToAnotherRestaurant = "BelongsToAnotherRestaurant";
+
+    /// <summary>
+    /// List cannot be empty
+    /// </summary>
+    public const string EmptyList = "EmptyList";
+
+    /// <summary>
+    /// User is not the creator nor a participant of the visit
+    /// </summary>
+    public const string UserDoesNotParticipateInVisit = "UserDoesNotParticipateInVisit";
 }

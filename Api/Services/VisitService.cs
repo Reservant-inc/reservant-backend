@@ -91,6 +91,9 @@ public class VisitService(
             return result;
         }
 
+        var restaurant = await context.Restaurants
+            .FirstOrDefaultAsync(r => r.Id == request.RestaurantId);
+
         var participants = new List<User>();
 
         foreach(var userId in request.Participants)
@@ -110,7 +113,8 @@ public class VisitService(
             Takeaway = request.Takeaway,
             TableRestaurantId = request.RestaurantId,
             TableId = request.TableId,
-            Participants = participants
+            Participants = participants,
+            Deposit = restaurant.ReservationDeposit
         };
 
         result = await validationService.ValidateAsync(visit, user.Id);
@@ -129,7 +133,8 @@ public class VisitService(
             Date = visit.Date,
             Takeaway = visit.Takeaway,
             RestaurantId = visit.RestaurantId,
-            NumberOfPeople = visit.NumberOfGuests
+            NumberOfPeople = visit.NumberOfGuests,
+            Deposit = visit.Deposit
         };
     }
 }

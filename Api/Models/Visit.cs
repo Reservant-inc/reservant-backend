@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Identity.Client;
 using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
@@ -94,4 +95,9 @@ public class Visit : ISoftDeletable
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Navigational property for restaurant
+    /// </summary>
+    public Restaurant? Restaurant { get; set; }
 }

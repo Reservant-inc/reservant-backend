@@ -60,6 +60,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             GroupId = r.GroupId,
             Logo = uploadService.GetPathForFileName(r.LogoFileName),
             Description = r.Description,
+            ReservationDeposit = r.ReservationDeposit,
             ProvideDelivery = r.ProvideDelivery,
             Tags = (r.Tags ?? []).Select(t => t.Name).ToList(),
             IsVerified = r.VerifierId != null

@@ -19,6 +19,11 @@ public class VisitSummaryVM
     /// Number of guests + number of clients
     /// </summary>
     public int NumberOfPeople { get; set; }
+    
+    /// <summary>
+    /// Deposit
+    /// </summary>
+    public required decimal? Deposit { get; init; }
 
     /// <summary>
     /// Zabrano na wynos

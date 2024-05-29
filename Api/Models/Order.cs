@@ -26,7 +26,7 @@ public class Order : ISoftDeletable
     public string? Note { get; set; }
 
     /// <summary>
-    /// Serving employee's ID
+    /// Serving employee ID
     /// </summary>
     public string? EmployeeId { get; set; }
 
@@ -84,9 +84,9 @@ public class Order : ISoftDeletable
     public ICollection<OrderItem>? OrderItems { get; set; }
 
     /// <summary>
-    /// Navigational property for the serving employee
+    /// Navigational property for serving employees
     /// </summary>
-    public User? Employee { get; set; }
+    public ICollection<User>? Employees { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Data;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
@@ -103,6 +104,12 @@ public class Restaurant : ISoftDeletable
     /// </summary>
     [MinLength(1), StringLength(200)]
     public string? Description { get; set; }
+    
+    /// <summary>
+    /// Deposit
+    /// </summary>
+    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
+    public decimal? ReservationDeposit { get; set; }
 
     /// <summary>
     /// Navigation collection for the tables

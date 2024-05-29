@@ -28,7 +28,7 @@ public class RestaurantGroupService(
     /// <param name="req">Request</param>
     /// <param name="user">Restaurant owner</param>
     /// <returns></returns>
-    public async Task<Result<RestaurantGroup>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user)
+    public async Task<Result<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user)
     {
         //check if all restaurantIds from request exist
         foreach (var id in req.RestaurantIds)
@@ -62,7 +62,7 @@ public class RestaurantGroupService(
                 PropertyName = nameof(req.RestaurantIds),
                 ErrorMessage =
                     $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}",
-                ErrorCode = ErrorCodes.NotFound
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
@@ -85,7 +85,32 @@ public class RestaurantGroupService(
 
         await DeleteEmptyRestaurantGroups();
 
-        return group;
+        return new RestaurantGroupVM
+        {
+            RestaurantGroupId = group.Id,
+            Name = group.Name,
+            Restaurants = restaurants.Select(r => new RestaurantSummaryVM
+            {
+                RestaurantId = r.Id,
+                Name = r.Name,
+                Nip = r.Nip,
+                RestaurantType = r.RestaurantType,
+                Address = r.Address,
+                City = r.City,
+                GroupId = group.Id,
+                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Description = r.Description,
+                ProvideDelivery = r.ProvideDelivery,
+                Tags = r.Tags?.Select(t => t.Name).ToList() ?? [],
+                IsVerified = r.VerifierId is not null,
+                Location = new Geolocation
+                {
+                    Longitude = r.Location.X,
+                    Latitude = r.Location.Y
+                },
+                ReservationDeposit = r.ReservationDeposit
+            }).ToList()
+        };
     }
 
     /// <summary>
@@ -176,6 +201,7 @@ public class RestaurantGroupService(
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
+                ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags!.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId != null
@@ -249,6 +275,7 @@ public class RestaurantGroupService(
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
+                ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags!.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId != null
@@ -289,20 +316,17 @@ public class RestaurantGroupService(
 
         foreach (Restaurant restaurant in group.Restaurants)
         {
-            if (await restaurantService.SoftDeleteRestaurantAsync(restaurant.Id, user))
+            var res = await restaurantService.SoftDeleteRestaurantAsync(restaurant.Id, user);
+            if (res.IsError)
             {
-                continue;
+                return res;
             }
-
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = $"Unable to delete restaurant with ID {restaurant.Id}",
-                ErrorCode = ErrorCodes.NotFound
-            };
         }
-
-        context.Remove(group);
+        var emptyGroup = await context.RestaurantGroups.FindAsync(group.Id);
+        if (emptyGroup != null)
+        {
+            group.IsDeleted = true;
+        }
         await context.SaveChangesAsync();
         return true;
 

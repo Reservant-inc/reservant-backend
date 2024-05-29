@@ -16,6 +16,7 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 
+
 namespace Reservant.Api.Services
 {
     /// <summary>
@@ -55,7 +56,7 @@ namespace Reservant.Api.Services
         /// <param name="request"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<Restaurant>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
+        public async Task<Result<RestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
         {
             RestaurantGroup? group;
             if (request.GroupId is null)
@@ -115,6 +116,7 @@ namespace Reservant.Api.Services
                 LogoFileName = request.Logo,
                 ProvideDelivery = request.ProvideDelivery,
                 Description = request.Description?.Trim(),
+                ReservationDeposit = request.ReservationDeposit,
                 Tags = await context.RestaurantTags
                     .Join(
                         request.Tags,
@@ -141,7 +143,35 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return restaurant;
+            return new RestaurantVM
+            {
+                RestaurantId = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Nip = restaurant.Nip,
+                Address = restaurant.Address,
+                PostalIndex = restaurant.PostalIndex,
+                City = restaurant.City,
+                GroupId = restaurant.GroupId,
+                GroupName = group.Name,
+                RentalContract = restaurant.RentalContractFileName is not null ? uploadService.GetPathForFileName(restaurant.RentalContractFileName) : null,
+                AlcoholLicense = restaurant.AlcoholLicenseFileName is not null ? uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName) : null,
+                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
+                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
+                Tables = [], //restaurantVM ma required pole Tables, ale nie dodajemy Tables powyżej
+                ProvideDelivery = restaurant.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Photos = restaurant.Photos.Select(p => uploadService.GetPathForFileName(p.PhotoFileName)).ToList(),
+                Description = restaurant.Description,
+                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
+                IsVerified = restaurant.VerifierId is not null,
+                Location = new Geolocation
+                {
+                    Longitude = restaurant.Location.X,
+                    Latitude = restaurant.Location.Y
+                },
+                ReservationDeposit = restaurant.ReservationDeposit
+            };
         }
 
         /// <summary>
@@ -171,6 +201,7 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
+                    ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags!.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null
                 })
@@ -226,6 +257,7 @@ namespace Reservant.Api.Services
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
+                    ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags!.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null
                 })
@@ -390,6 +422,7 @@ namespace Reservant.Api.Services
                 },
                 GroupId = restaurant.GroupId,
                 Description = restaurant.Description,
+                ReservationDeposit = restaurant.ReservationDeposit,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
@@ -497,6 +530,7 @@ namespace Reservant.Api.Services
             restaurant.City = request.City;
             restaurant.ProvideDelivery = request.ProvideDelivery;
             restaurant.Description = request.Description;
+            restaurant.ReservationDeposit = request.ReservationDeposit;
 
             restaurant.RentalContractFileName = request.RentalContract;
             restaurant.AlcoholLicenseFileName = request.AlcoholLicense;
@@ -568,6 +602,7 @@ namespace Reservant.Api.Services
                 ProvideDelivery = restaurant.ProvideDelivery,
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Description = restaurant.Description,
+                ReservationDeposit = restaurant.ReservationDeposit,
                 Tags = restaurant.Tags!.Select(t => t.Name).ToList(),
                 IsVerified = restaurant.VerifierId != null
             };
@@ -708,7 +743,7 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<bool> SoftDeleteRestaurantAsync(int id, User user)
+        public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
@@ -723,20 +758,25 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
             if (restaurant == null)
             {
-                return false;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = ErrorCodes.NotFound
+                };
             }
+
+            context.RemoveRange(restaurant.Tables!);
+            context.RemoveRange(restaurant.Employments!);
+            context.RemoveRange(restaurant.Photos!);
+            context.RemoveRange(restaurant.MenuItems!);
+            context.RemoveRange(restaurant.Menus!);
 
             context.Remove(restaurant);
             if (restaurant.Group!.Restaurants!.Count == 0)
             {
                 context.Remove(restaurant.Group);
             }
-
-            context.RemoveRange(restaurant.Tables!);
-            context.RemoveRange(restaurant.Employments!);
-            context.RemoveRange(restaurant.Photos!);
-            context.RemoveRange(restaurant.Menus!);
-            context.RemoveRange(restaurant.MenuItems!);
 
             await context.SaveChangesAsync();
             return true;

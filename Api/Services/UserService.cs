@@ -194,7 +194,8 @@ public class UserService(
                     {
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
-                        IsHallEmployee = e.IsHallEmployee
+                        IsHallEmployee = e.IsHallEmployee,
+                        RestaurantName = e.Restaurant.Name
                     })
                     .ToList()
             })
@@ -339,29 +340,66 @@ public class UserService(
 
 
     /// <summary>
-    /// Gets the list of visists of user of provided id
+    /// Gets the list of visists of user planned for the future
     /// </summary>
     /// <param name="user"></param>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<List<VisitSummaryVM>>> GetVisitsAsync( User user)
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
-        var list = await dbContext.Visits
-        .Include(r => r.Participants!)
-        .Include(r => r.Orders!)
-            .Where(x => x.ClientId == user.Id || x.Participants!.Any(p => p.Id == user.Id))
-            .ToListAsync();
+        var query = dbContext.Visits
+            .Include(r => r.Participants)
+            .Include(r => r.Orders)
+            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.Date > DateTime.UtcNow)
+            .OrderBy(x => x.Date);
 
-        var resultList = list.Select(visit => new VisitSummaryVM
+        var result = await query.Select(visit => new VisitSummaryVM
         {
-            VisitId=visit.Id,
-            Date=visit.Date,
-            NumberOfPeople=visit.NumberOfGuests+visit.Participants!.Count+1,
-            Takeaway=visit.Takeaway,
-            ClientId=visit.ClientId,
-            RestaurantId=visit.RestaurantId
-        }).ToList();
+            VisitId = visit.Id,
+            Date = visit.Date,
+            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
+            Takeaway = visit.Takeaway,
+            ClientId = visit.ClientId,
+            RestaurantId = visit.RestaurantId,
+            Deposit = visit.Deposit
+        })
+        .PaginateAsync(page, perPage, maxPerPage: 10);
 
-        return new Result<List<VisitSummaryVM>>(resultList);
+        return result;
+    }
+
+
+    /// <summary>
+    /// Gets the list of visists of user from the past
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
+    /// <returns></returns>
+    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitHistoryAsync(User user, int page, int perPage)
+    {
+        var query = dbContext.Visits
+            .Include(r => r.Participants)
+            .Include(r => r.Orders)
+            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.Date < DateTime.UtcNow)
+            .OrderByDescending(x => x.Date);
+
+        var result = await query.Select(visit => new VisitSummaryVM
+        {
+            VisitId = visit.Id,
+            Date = visit.Date,
+            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
+            Takeaway = visit.Takeaway,
+            ClientId = visit.ClientId,
+            RestaurantId = visit.RestaurantId,
+            Deposit = visit.Deposit
+        })
+        .PaginateAsync(page, perPage, maxPerPage: 10);
+
+        return result;
     }
 
 }

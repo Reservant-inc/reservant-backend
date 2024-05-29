@@ -46,6 +46,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     private static readonly Dictionary<string, FileClass> FileClasses = new()
     {
         { ".png", FileClass.Image },
+        { ".jpg", FileClass.Image },
         { ".pdf", FileClass.Document }
     };
 

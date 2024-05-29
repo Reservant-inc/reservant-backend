@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Models.Dtos.Location;
 
@@ -94,6 +95,12 @@ public class CreateRestaurantRequest
     /// Optional description of the restaurant
     /// </summary>
     public string? Description { get; init; }
+    
+    /// <summary>
+    /// Deposit
+    /// </summary>
+    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
+    public decimal? ReservationDeposit { get; init; }
 
     /// <summary>
     /// Restaurant tags
