@@ -45,9 +45,7 @@ builder.Services.AddCors(o =>
     });
 });
 
-builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")
-                         ?? throw new InvalidOperationException("Connection string 'Default' not found")));
+builder.Services.AddDbContext<ApiDbContext>();
 
 builder.Services.AddScoped<DbSeeder>();
 

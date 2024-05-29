@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Dtos.Location;
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
@@ -29,7 +30,7 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// <example>1231264550</example>
         [Required, Nip, StringLength(13)]
         public required string Nip { get; init; }
-        
+
         /// <summary>
         /// Type of the establishment
         /// </summary>
@@ -50,6 +51,13 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         public required string City { get; init; }
 
         /// <summary>
+        /// Geolocation class having Longitude, Latitude
+        /// </summary>
+        /// <example></example>
+        [Required]
+        public required Geolocation Location { get; init; }
+
+        /// <summary>
         /// Restaurant group ID
         /// </summary>
         public required int GroupId { get; set; }
@@ -65,7 +73,7 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// </summary>
         [StringLength(200)]
         public required string? Description { get; init; }
-        
+
         /// <summary>
         /// Deposit
         /// </summary>

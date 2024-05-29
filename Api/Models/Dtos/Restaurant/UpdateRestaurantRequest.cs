@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 
@@ -51,6 +52,13 @@ public class UpdateRestaurantRequest
     public required string City { get; init; }
 
     /// <summary>
+    /// Geolocation class having Longitude, Latitude
+    /// </summary>
+    /// <example></example>
+    [Required]
+    public required Geolocation Location { get; init; }
+
+    /// <summary>
     /// File name of the rental contract upload (umowa najmu lokalu)
     /// </summary>
     /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
@@ -90,7 +98,7 @@ public class UpdateRestaurantRequest
     /// </summary>
     [MinLength(1), StringLength(200)]
     public string? Description { get; init; }
-    
+
     /// <summary>
     /// Deposit
     /// </summary>

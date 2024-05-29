@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Models.Enums;
+using Reservant.Api.Models.Dtos.Location;
 
 namespace Reservant.Api.Models.Dtos.Restaurant;
 
@@ -43,7 +44,13 @@ public class CreateRestaurantRequest
     /// </summary>
     /// <example>Warszawa</example>
     public required string City { get; init; }
-
+    
+    /// <summary>
+    /// Geolocation class having Longitude, Latitude
+    /// </summary>
+    /// <example></example>
+    public required Geolocation Location { get; init; }
+    
     /// <summary>
     /// File name of the rental contract upload (umowa najmu lokalu)
     /// </summary>

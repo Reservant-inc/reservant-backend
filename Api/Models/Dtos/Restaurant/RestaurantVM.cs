@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Dtos.Location;
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Models.Enums;
@@ -53,6 +54,13 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// <example>Warszawa</example>
         [Required, StringLength(15)]
         public required string City { get; init; }
+
+        /// <summary>
+        /// Geolocation class having Longitude, Latitude
+        /// </summary>
+        /// <example></example>
+        [Required]
+        public required Geolocation Location { get; init; }
 
         /// <summary>
         /// Restaurant group ID
@@ -117,7 +125,7 @@ namespace Reservant.Api.Models.Dtos.Restaurant
         /// </summary>
         [MinLength(1), StringLength(200)]
         public required string? Description { get; init; }
-        
+
         /// <summary>
         /// Deposit
         /// </summary>
