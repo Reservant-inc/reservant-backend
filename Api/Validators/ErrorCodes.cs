@@ -135,4 +135,9 @@ public static class ErrorCodes
     /// User is not the creator nor a participant of the visit
     /// </summary>
     public const string UserDoesNotParticipateInVisit = "UserDoesNotParticipateInVisit";
+    
+    /// <summary>
+    /// Same object already exists
+    /// </summary>
+    public const string Duplicate = "Duplicate";
 }

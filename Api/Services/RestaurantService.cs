@@ -877,7 +877,7 @@ namespace Reservant.Api.Services
                 _ => filteredOrders
             };
 
-            return await filteredOrders.PaginateAsync(page, perPage, 10);
+            return await filteredOrders.PaginateAsync(page, perPage);
         }
     }
 }

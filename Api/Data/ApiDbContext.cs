@@ -34,6 +34,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
     public DbSet<OrderItem> OrderItems { get; init; } = null!;
 
+    public DbSet<FriendRequest> FriendRequests { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>

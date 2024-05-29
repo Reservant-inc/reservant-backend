@@ -62,6 +62,11 @@ public class User : IdentityUser, ISoftDeletable
     }
 
     /// <summary>
+    /// First name + last name
+    /// </summary>
+    public string FullName => $"{FirstName} {LastName}";
+
+    /// <summary>
     /// ID of the RestaurantOwner who employs the user. For restaurant employees
     /// </summary>
     public string? EmployerId { get; set; }
