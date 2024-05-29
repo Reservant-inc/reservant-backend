@@ -195,7 +195,6 @@ namespace Reservant.Api.Services
                 return result;
             }
 
-            await context.MenuItems.AddRangeAsync(item);
             await context.SaveChangesAsync();
 
             return new MenuItemVM()
