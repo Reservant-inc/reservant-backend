@@ -9,9 +9,17 @@ using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services
 {
+    /// <summary>
+    /// Service for managing friends and friend requests
+    /// </summary>
     public class FriendService(ApiDbContext context)
     {
-
+        /// <summary>
+        /// Create a friend request
+        /// </summary>
+        /// <param name="senderId">Sender ID</param>
+        /// <param name="receiverId">Receiver ID</param>
+        /// <returns></returns>
         public async Task<Result<bool>> SendFriendRequestAsync(string senderId, string receiverId)
         {
             var receiverExists = await context.Users.AnyAsync(u => u.Id == receiverId);
@@ -53,6 +61,12 @@ namespace Reservant.Api.Services
             return true;
         }
 
+        /// <summary>
+        /// Mark a friend request as read
+        /// </summary>
+        /// <param name="receiverId">Request's receiver ID</param>
+        /// <param name="senderId">Request's sender ID</param>
+        /// <returns>The bool returned is meaningless</returns>
         public async Task<Result<bool>> MarkFriendRequestAsReadAsync(string receiverId, string senderId)
         {
             var friendRequest = await context.FriendRequests
@@ -84,8 +98,12 @@ namespace Reservant.Api.Services
             return true;
         }
 
-
-
+        /// <summary>
+        /// Mark a friend request as accepted
+        /// </summary>
+        /// <param name="receiverId">Request's receiver ID</param>
+        /// <param name="senderId">Request's sender ID</param>
+        /// <returns>The bool returned is meaningless</returns>
         public async Task<Result<bool>> AcceptFriendRequestAsync(string receiverId, string senderId)
         {
             var friendRequest = await context.FriendRequests
@@ -117,9 +135,12 @@ namespace Reservant.Api.Services
             return true;
         }
 
-
-
-
+        /// <summary>
+        /// Delete a friend request
+        /// </summary>
+        /// <param name="receiverId">Request's receiver ID</param>
+        /// <param name="senderId">Request's sender ID</param>
+        /// <returns></returns>
         public async Task<Result<bool>> DeleteFriendAsync(string receiverId, string senderId)
         {
             var friendRequest = await context.FriendRequests
@@ -141,7 +162,13 @@ namespace Reservant.Api.Services
             return true;
         }
 
-
+        /// <summary>
+        /// Get given user's friends (accepted friend requests)
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="page">Page</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns>Paginated list of friend requests</returns>
         public async Task<Result<Pagination<FriendRequestVM>>> GetFriendsAsync(string userId, int page, int perPage)
         {
             var query = context.FriendRequests
@@ -160,6 +187,13 @@ namespace Reservant.Api.Services
             return await query.PaginateAsync(page, perPage);
         }
 
+        /// <summary>
+        /// Get given user's not accepted incoming friend requests
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="page">Page</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns>Paginated list of friend requests</returns>
         public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, int page, int perPage)
         {
             var query = context.FriendRequests
@@ -178,6 +212,13 @@ namespace Reservant.Api.Services
             return await query.PaginateAsync(page, perPage);
         }
 
+        /// <summary>
+        /// Get given user's not accepted outgoing friend requests
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="page">Page</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns>Paginated list of friend requests</returns>
         public async Task<Result<Pagination<FriendRequestVM>>> GetOutgoingFriendRequestsAsync(string userId, int page, int perPage)
         {
             var query = context.FriendRequests
