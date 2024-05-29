@@ -10,7 +10,6 @@ namespace Reservant.Api.Models.Dtos.MenuItem
         /// </summary>
         public int RestaurantId { get; set; }
 
-        
         /// <summary>
         /// Cena
         /// </summary>
@@ -19,7 +18,7 @@ namespace Reservant.Api.Models.Dtos.MenuItem
         /// <summary>
         /// Nazwa
          /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         /// <summary>
         /// Name in another language

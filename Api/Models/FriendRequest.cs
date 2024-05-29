@@ -33,12 +33,12 @@ public class FriendRequest
     /// <summary>
     /// ID of the sender
     /// </summary>
-    public string SenderId { get; set; }
+    public string SenderId { get; set; } = null!;
 
     /// <summary>
     /// ID of the target user
     /// </summary>
-    public string ReceiverId { get; set; }
+    public string ReceiverId { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for the user that sent the request

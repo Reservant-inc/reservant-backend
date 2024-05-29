@@ -8,7 +8,7 @@ public class UpdateOrderStatusRequest
     /// <summary>
     /// Serving employee IDs
     /// </summary>
-    public ICollection<string> EmployeeIds { get; set; }
+    public required ICollection<string> EmployeeIds { get; set; }
 
     /// <summary>
     /// List of Items included in the order
