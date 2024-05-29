@@ -153,8 +153,8 @@ namespace Reservant.Api.Services
                     DateAccepted = fr.DateAccepted,
                     SenderId = fr.SenderId,
                     ReceiverId = fr.ReceiverId,
-                    SenderName = fr.Sender.UserName,
-                    ReceiverName = fr.Receiver.UserName
+                    SenderName = fr.Sender.FullName,
+                    ReceiverName = fr.Receiver.FullName
                 });
 
             return await query.PaginateAsync(page, perPage);
@@ -171,8 +171,8 @@ namespace Reservant.Api.Services
                     DateAccepted = fr.DateAccepted,
                     SenderId = fr.SenderId,
                     ReceiverId = fr.ReceiverId,
-                    SenderName = fr.Sender.UserName,
-                    ReceiverName = fr.Receiver.UserName
+                    SenderName = fr.Sender.FullName,
+                    ReceiverName = fr.Receiver.FullName
                 });
 
             return await query.PaginateAsync(page, perPage);
@@ -189,8 +189,8 @@ namespace Reservant.Api.Services
                     DateAccepted = fr.DateAccepted,
                     SenderId = fr.SenderId,
                     ReceiverId = fr.ReceiverId,
-                    SenderName = fr.Sender.UserName,
-                    ReceiverName = fr.Receiver.UserName
+                    SenderName = fr.Sender.FullName,
+                    ReceiverName = fr.Receiver.FullName
                 });
 
             return await query.PaginateAsync(page, perPage);
