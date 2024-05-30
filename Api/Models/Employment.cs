@@ -17,7 +17,7 @@ public class Employment : ISoftDeletable
     /// <summary>
     /// ID of the employee
     /// </summary>
-    [Required]
+    [Required, StringLength(36)]
     public string EmployeeId { get; set; } = null!;
 
     /// <summary>

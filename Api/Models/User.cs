@@ -69,6 +69,7 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// ID of the RestaurantOwner who employs the user. For restaurant employees
     /// </summary>
+    [StringLength(36)]
     public string? EmployerId { get; set; }
 
     /// <summary>
@@ -85,6 +86,7 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// File name of the photo
     /// </summary>
+    [StringLength(50)]
     public string? PhotoFileName { get; set; }
 
     /// <summary>

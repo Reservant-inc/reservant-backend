@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Reservant.Api.Models;
 
 /// <summary>
@@ -33,11 +35,13 @@ public class FriendRequest
     /// <summary>
     /// ID of the sender
     /// </summary>
+    [StringLength(36)]
     public string SenderId { get; set; } = null!;
 
     /// <summary>
     /// ID of the target user
     /// </summary>
+    [StringLength(36)]
     public string ReceiverId { get; set; } = null!;
 
     /// <summary>

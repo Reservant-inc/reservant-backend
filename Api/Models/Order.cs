@@ -28,6 +28,7 @@ public class Order : ISoftDeletable
     /// <summary>
     /// Serving employee ID
     /// </summary>
+    [StringLength(36)]
     public string? EmployeeId { get; set; }
 
     /// <summary>
