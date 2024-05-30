@@ -181,6 +181,12 @@ public class Restaurant : ISoftDeletable
     /// Navigational collection for reviews
     /// </summary>
     public ICollection<Review> Reviews { get; set; } = null!;
+
+    /// <summary>
+    /// Navigational collection for reviews
+    /// </summary>
+    public ICollection<Review> Events { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }

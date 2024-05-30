@@ -36,6 +36,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
     public DbSet<FriendRequest> FriendRequests { get; init; } = null!;
 
+    public DbSet<Event> Events { get; init; } = null!;
+
     public DbSet<Review> Reviews { get; init; } = null!;
 
     /// <summary>
@@ -93,6 +95,13 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
             eb.HasOne<FileUpload>(u => u.Photo)
                 .WithOne()
                 .HasForeignKey<User>(u => u.PhotoFileName);
+
+            eb.HasMany<Event>(u => u.EventsCreated)
+                .WithOne(e => e.Creator)
+                .HasForeignKey(e => e.CreatorId);
+
+            eb.HasMany<Event>(u => u.InterestedIn)
+                .WithMany(e => e.Interested);
 
             eb.HasMany<FileUpload>(u => u.Uploads)
                 .WithOne(fu => fu.User);

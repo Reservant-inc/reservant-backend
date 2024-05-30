@@ -113,6 +113,17 @@ public class User : IdentityUser, ISoftDeletable
     /// Reviews written by the user
     /// </summary>
     public ICollection<Review> Reviews { get; set; } = null!;
+
+    /// <summary>
+    /// Events the user is interested in
+    /// </summary>
+    public ICollection<Event> InterestedIn { get; set; } = null!;
+
+    /// <summary>
+    /// Events the user has created
+    /// </summary>
+    public ICollection<Event> EventsCreated { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }
