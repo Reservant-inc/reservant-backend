@@ -177,6 +177,10 @@ public class Restaurant : ISoftDeletable
     [StringLength(36)]
     public string? VerifierId { get; set; }
 
+    /// <summary>
+    /// Navigational collection for reviews
+    /// </summary>
+    public ICollection<Review> Reviews { get; set; } = null!;
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }

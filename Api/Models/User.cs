@@ -109,6 +109,10 @@ public class User : IdentityUser, ISoftDeletable
     /// </summary>
     public ICollection<FriendRequest> IncomingRequests { get; set; } = null!;
 
+    /// <summary>
+    /// Reviews written by the user
+    /// </summary>
+    public ICollection<Review> Reviews { get; set; } = null!;
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }
