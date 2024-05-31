@@ -92,6 +92,9 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
         builder.Entity<User>(eb =>
         {
+            eb.Property(u => u.Id)
+                .HasMaxLength(36);
+
             eb.HasOne<FileUpload>(u => u.Photo)
                 .WithOne()
                 .HasForeignKey<User>(u => u.PhotoFileName);
