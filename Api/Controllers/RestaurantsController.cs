@@ -5,6 +5,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -81,5 +82,63 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return Ok(result.Value);
     }
+
+    /// <summary>
+    /// adds review
+    /// </summary>
+    /// <remarks>
+    /// Adds review from logged in user
+    /// </remarks>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    [HttpPost("{id:int}/reviews")]
+    [ProducesResponseType(200)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<ReviewVM>> createReview(int id, CreateReviewRequest createReviewRequest)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var result = await service.createReviewAsync( user,  id, createReviewRequest);
+        
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// Returns reviews by id
+    /// </summary>
+    /// <remarks>
+    /// Returns reviews from restaurant with given restaurant Id
+    /// </remarks>
+    /// <param name="id">ID of the restaurant</param>
+    /// <param name="orderBy">Order of the reviews</param>
+    /// <param name="page">Page number of the reviews</param>
+    /// <param name="perPage">Number of reviews per page</param>
+    [HttpGet("{id:int}/reviews")]
+    [ProducesResponseType(200), ProducesResponseType(404)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<Pagination<ReviewVM>>> createReviews(int id, ReviewOrderSorting? orderBy = null, int page = 0, int perPage = 10)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var result = await service.GetReviewAsync(id, user, orderBy, page, perPage);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
 
 }
