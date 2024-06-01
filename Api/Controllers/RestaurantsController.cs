@@ -5,6 +5,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -17,6 +18,26 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/restaurants")]
 public class RestaurantController(UserManager<User> userManager, RestaurantService service) : StrictController
 {
+    
+    [HttpGet]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<double>> GetRestaurants(double lat, double lon)
+    // public async Task<ActionResult<List<RestaurantVM>>> GetRestaurants(double lon, double lat)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        var result = await service.GetRestaurantsAsync(lat, lon, user);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+    
+    
+    
 
     /// <summary>
     /// Verify restaurant

@@ -17,6 +17,7 @@ using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 
 
+
 namespace Reservant.Api.Services
 {
     /// <summary>
@@ -50,6 +51,105 @@ namespace Reservant.Api.Services
         MenuItemsService menuItemsService,
         ValidationService validationService)
     {
+        
+        
+        // /// <summary>
+        // /// Finds restaurant in a given radius.
+        // /// </summary>
+        // /// <param name="lat">Latitude</param>
+        // /// <param name="lon">Longitude</param>
+        // /// <param name="user">User calling method</param>
+        // /// <returns></returns>
+        // public async Task<Result<double>> GetRestaurantsAsync(double lat, double lon, User user)
+        // // public async Task<Result<List<RestaurantVM>>> GetRestaurantsAsync(double lat, double lon, User user)
+        // {
+        //     
+        //     var coordinateTransformationFactory = new CoordinateTransformationFactory();
+        //     var transformation = coordinateTransformationFactory.CreateFromCoordinateSystems(
+        //         GeographicCoordinateSystem.WGS84,
+        //         ProjectedCoordinateSystem.WebMercator
+        //     );
+        //     
+        //     var userPoint = new Point(lon, lat) { SRID = 4326 };
+        //     
+        //     var transformedUserCoordinates = transformation.MathTransform.Transform(new[] { userPoint.X, userPoint.Y });
+        //     var projectedUserPoint = new Point(transformedUserCoordinates[0], transformedUserCoordinates[1]) { SRID = 3857 };
+        //
+        //     // TODO: custom distance ??
+        //     var radius = 10.0;
+        //
+        //     
+        //     var restaurants = context.Restaurants.ToList();
+        //     var restaurantsInRadius = new List<RestaurantVM>();
+        //     
+        //     foreach(var r in restaurants)
+        //     {
+        //         var restaurantPoint = r.Location;
+        //         
+        //         var transformedRestaurantCoordinates = transformation.MathTransform.Transform(new[] { restaurantPoint.X, restaurantPoint.Y });
+        //         var projectedRestaurantPoint = new Point(transformedRestaurantCoordinates[0], transformedRestaurantCoordinates[1]) { SRID = 3857 };
+        //
+        //         var distanceInMeters = projectedUserPoint.Distance(projectedRestaurantPoint);
+        //         
+        //         return distanceInMeters;
+        //     }
+        //     
+        //     
+        //     return 0.0;
+        //
+        // }       
+        /// <summary>
+        /// Finds restaurant in a given radius.
+        /// </summary>
+        /// <param name="lat">Latitude</param>
+        /// <param name="lon">Longitude</param>
+        /// <param name="user">User calling method</param>
+        /// <returns></returns>
+        public async Task<Result<double>> GetRestaurantsAsync(double lat, double lon, User user)
+        // public async Task<Result<List<RestaurantVM>>> GetRestaurantsAsync(double lat, double lon, User user)
+        {
+
+
+            var userPoint = new Point(lon, lat) { SRID = 4326 };
+            
+
+            // TODO: custom distance ??
+            var radius = 10.0;
+
+            
+            var restaurants = context.Restaurants.ToList();
+            var restaurantsInRadius = new List<RestaurantVM>();
+            
+            foreach(var r in restaurants)
+            {
+                var restaurantPoint = r.Location;
+                
+                // Wzór Haversine
+                const double R = 6371e3; // Promień Ziemi w metrach
+                var phi1 = userPoint.Y * Math.PI / 180.0; // Konwersja szerokości geograficznej do radianów
+                var phi2 = restaurantPoint.Y * Math.PI / 180.0; // Konwersja szerokości geograficznej do radianów
+                var deltaPhi = (restaurantPoint.Y - userPoint.Y) * Math.PI / 180.0; // Różnica szerokości geograficznej w radianach
+                var deltaLambda = (restaurantPoint.X - userPoint.X) * Math.PI / 180.0; // Różnica długości geograficznej w radianach
+
+                var a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
+                        Math.Cos(phi1) * Math.Cos(phi2) *
+                        Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
+
+                var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+
+                var distance = R * c; // Odległość w metrach
+                return distance;
+            }
+            
+            
+            return 0.0;
+
+        }
+        
+        
+        
+        
+        
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
         /// </summary>
