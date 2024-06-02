@@ -462,6 +462,13 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
+            Photo = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "photo-menu-1.png",
+                ContentType = "image/png"
+            },
+            PhotoFileName = "photo-menu-1.png",
             MenuType = MenuType.Food,
             Restaurant = johnDoes,
             MenuItems =
@@ -502,6 +509,13 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
+            Photo = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "photo-menu-2.png",
+                ContentType = "image/png"
+            },
+            PhotoFileName = "photo-menu-2.png",
             MenuType = MenuType.Alcohol,
             Restaurant = johnDoes,
             MenuItems =
@@ -627,6 +641,13 @@ public class DbSeeder(
             Name = "Menu jedzeniowe 2",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
+            Photo = new FileUpload
+            {
+                UserId = johnDoe.Id,
+                FileName = "photo-menu-3.png",
+                ContentType = "image/png"
+            },
+            PhotoFileName = "photo-menu-3.png",
             MenuType = MenuType.Food,
             Restaurant = johnDoes2,
             MenuItems =
@@ -731,6 +752,13 @@ public class DbSeeder(
             Name = "Menu jedzenie",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
+            Photo = new FileUpload
+            {
+                UserId = kowalski.Id,
+                FileName = "photo-menu-4.png",
+                ContentType = "image/png"
+            },
+            PhotoFileName = "photo-menu-4.png",
             MenuType = MenuType.Food,
             Restaurant = kowalskisRestaurant,
             MenuItems =

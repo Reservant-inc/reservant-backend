@@ -701,7 +701,8 @@ namespace Reservant.Api.Services
                     AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,
                     DateFrom = menu.DateFrom,
-                    DateUntil = menu.DateUntil
+                    DateUntil = menu.DateUntil,
+                    Photo = uploadService.GetPathForFileName(menu.PhotoFileName)
                 })
                 .ToList();
 
