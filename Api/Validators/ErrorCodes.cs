@@ -140,4 +140,9 @@ public static class ErrorCodes
     /// Same object already exists
     /// </summary>
     public const string Duplicate = "Duplicate";
+    
+    /// <summary>
+    /// Value exceeds limit
+    /// </summary>
+    public const string ValueExceedsLimit = "ValueExceedsLimit";
 }

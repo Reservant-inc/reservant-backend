@@ -63,6 +63,30 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat, double lon, int radius)
         {
+            // converting to meters
+            radius *= 1000;
+            
+            if (radius <= 0)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(radius),
+                    ErrorMessage = "Radius cannot be less than one.",
+                    ErrorCode = ErrorCodes.ValueLessThanOne
+                };
+            }
+
+            const int limit = 20;
+
+            if (radius > limit*1000)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(radius),
+                    ErrorMessage = $"Radius cannot exceed search limit ({limit}km).",
+                    ErrorCode = ErrorCodes.ValueExceedsLimit
+                };
+            }
 
             var restaurants = await context.Restaurants
                 .Include(r => r.Group)
@@ -92,7 +116,7 @@ namespace Reservant.Api.Services
 
                 var distance = R * c; // Distance in meters
 
-                if (distance <= radius*1000)
+                if (distance <= radius)
                 {
                     nearRestaurants.Add(new NearRestaurantVM
                     {
