@@ -19,14 +19,19 @@ namespace Reservant.Api.Controllers;
 public class RestaurantController(UserManager<User> userManager, RestaurantService service) : StrictController
 {
     
+    /// <summary>
+    /// Gets near restaurants from given radius
+    /// </summary>
+    /// <param name="lat">Latitude</param>
+    /// <param name="lon">Longitude</param>
+    /// <param name="radius">Radius in kilometers from which restaurants should be searched</param>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<double>> GetRestaurants(double lat, double lon)
-    // public async Task<ActionResult<List<RestaurantVM>>> GetRestaurants(double lon, double lat)
+    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurants(double lat, double lon, int radius)
     {
         var user = await userManager.GetUserAsync(User);
 
-        var result = await service.GetRestaurantsAsync(lat, lon, user);
+        var result = await service.GetRestaurantsAsync(lat, lon, radius, user);
 
         if (result.IsError)
         {

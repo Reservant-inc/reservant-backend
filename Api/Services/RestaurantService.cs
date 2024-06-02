@@ -53,83 +53,36 @@ namespace Reservant.Api.Services
     {
         
         
-        // /// <summary>
-        // /// Finds restaurant in a given radius.
-        // /// </summary>
-        // /// <param name="lat">Latitude</param>
-        // /// <param name="lon">Longitude</param>
-        // /// <param name="user">User calling method</param>
-        // /// <returns></returns>
-        // public async Task<Result<double>> GetRestaurantsAsync(double lat, double lon, User user)
-        // // public async Task<Result<List<RestaurantVM>>> GetRestaurantsAsync(double lat, double lon, User user)
-        // {
-        //     
-        //     var coordinateTransformationFactory = new CoordinateTransformationFactory();
-        //     var transformation = coordinateTransformationFactory.CreateFromCoordinateSystems(
-        //         GeographicCoordinateSystem.WGS84,
-        //         ProjectedCoordinateSystem.WebMercator
-        //     );
-        //     
-        //     var userPoint = new Point(lon, lat) { SRID = 4326 };
-        //     
-        //     var transformedUserCoordinates = transformation.MathTransform.Transform(new[] { userPoint.X, userPoint.Y });
-        //     var projectedUserPoint = new Point(transformedUserCoordinates[0], transformedUserCoordinates[1]) { SRID = 3857 };
-        //
-        //     // TODO: custom distance ??
-        //     var radius = 10.0;
-        //
-        //     
-        //     var restaurants = context.Restaurants.ToList();
-        //     var restaurantsInRadius = new List<RestaurantVM>();
-        //     
-        //     foreach(var r in restaurants)
-        //     {
-        //         var restaurantPoint = r.Location;
-        //         
-        //         var transformedRestaurantCoordinates = transformation.MathTransform.Transform(new[] { restaurantPoint.X, restaurantPoint.Y });
-        //         var projectedRestaurantPoint = new Point(transformedRestaurantCoordinates[0], transformedRestaurantCoordinates[1]) { SRID = 3857 };
-        //
-        //         var distanceInMeters = projectedUserPoint.Distance(projectedRestaurantPoint);
-        //         
-        //         return distanceInMeters;
-        //     }
-        //     
-        //     
-        //     return 0.0;
-        //
-        // }       
         /// <summary>
         /// Finds restaurant in a given radius.
         /// </summary>
         /// <param name="lat">Latitude</param>
         /// <param name="lon">Longitude</param>
+        /// <param name="radius">Radius in kilometers</param>
         /// <param name="user">User calling method</param>
         /// <returns></returns>
-        public async Task<Result<double>> GetRestaurantsAsync(double lat, double lon, User user)
-        // public async Task<Result<List<RestaurantVM>>> GetRestaurantsAsync(double lat, double lon, User user)
+        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat, double lon, int radius, User user)
         {
 
+            var restaurants = await context.Restaurants
+                .Include(r => r.Group)
+                .Include(r => r.Tables)
+                .Include(r => r.Photos)
+                .Include(r => r.Tags)
+                .ToListAsync();
 
-            var userPoint = new Point(lon, lat) { SRID = 4326 };
-            
+            var nearRestaurants = new List<NearRestaurantVM>();
 
-            // TODO: custom distance ??
-            var radius = 10.0;
-
-            
-            var restaurants = context.Restaurants.ToList();
-            var restaurantsInRadius = new List<RestaurantVM>();
-            
-            foreach(var r in restaurants)
+            foreach (var r in restaurants)
             {
                 var restaurantPoint = r.Location;
-                
-                // Wzór Haversine
-                const double R = 6371e3; // Promień Ziemi w metrach
-                var phi1 = userPoint.Y * Math.PI / 180.0; // Konwersja szerokości geograficznej do radianów
-                var phi2 = restaurantPoint.Y * Math.PI / 180.0; // Konwersja szerokości geograficznej do radianów
-                var deltaPhi = (restaurantPoint.Y - userPoint.Y) * Math.PI / 180.0; // Różnica szerokości geograficznej w radianach
-                var deltaLambda = (restaurantPoint.X - userPoint.X) * Math.PI / 180.0; // Różnica długości geograficznej w radianach
+
+                // Haversine formula to calculate the distance in meters
+                const double R = 6371e3; // Radius of Earth in meters
+                var phi1 = lat * Math.PI / 180.0; // Convert latitude to radians
+                var phi2 = restaurantPoint.Y * Math.PI / 180.0; // Convert latitude to radians
+                var deltaPhi = (restaurantPoint.Y - lat) * Math.PI / 180.0; // Difference in latitude in radians
+                var deltaLambda = (restaurantPoint.X - lon) * Math.PI / 180.0; // Difference in longitude in radians
 
                 var a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
                         Math.Cos(phi1) * Math.Cos(phi2) *
@@ -137,13 +90,48 @@ namespace Reservant.Api.Services
 
                 var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-                var distance = R * c; // Odległość w metrach
-                return distance;
-            }
-            
-            
-            return 0.0;
+                var distance = R * c; // Distance in meters
 
+                if (distance <= radius*1000)
+                {
+                    nearRestaurants.Add(new NearRestaurantVM
+                    {
+                        RestaurantId = r.Id,
+                        Name = r.Name,
+                        RestaurantType = r.RestaurantType,
+                        Nip = r.Nip,
+                        Address = r.Address,
+                        PostalIndex = r.PostalIndex,
+                        City = r.City,
+                        Location = new Geolocation()
+                        {
+                            Latitude = r.Location.Y,
+                            Longitude = r.Location.X
+                        },
+                        GroupId = r.GroupId,
+                        GroupName = r.Group.Name,
+                        RentalContract = r.RentalContractFileName is not null ? uploadService.GetPathForFileName(r.RentalContractFileName) : null,
+                        AlcoholLicense = r.AlcoholLicenseFileName is not null ? uploadService.GetPathForFileName(r.AlcoholLicenseFileName) : null,
+                        BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
+                        IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
+                        Tables = r.Tables.Select(t => new TableVM
+                        {
+                            TableId = t.Id,
+                            Capacity = t.Capacity
+                        }),
+                        ProvideDelivery = r.ProvideDelivery,
+                        Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                        Photos = r.Photos.Select(p => uploadService.GetPathForFileName(p.PhotoFileName)).ToList(),
+                        Description = r.Description,
+                        ReservationDeposit = r.ReservationDeposit,
+                        Tags = r.Tags.Select(t => t.Name).ToList(),
+                        IsVerified = r.VerifierId is not null,
+                        distanceFrom = distance
+                    });
+                }
+            }
+
+            return nearRestaurants.OrderBy(r => r.distanceFrom).ToList();
         }
         
         
