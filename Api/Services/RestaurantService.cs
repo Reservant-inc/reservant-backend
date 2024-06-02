@@ -127,7 +127,7 @@ namespace Reservant.Api.Services
                         Address = r.Address,
                         PostalIndex = r.PostalIndex,
                         City = r.City,
-                        Location = new Geolocation()
+                        Location = new Geolocation
                         {
                             Latitude = r.Location.Y,
                             Longitude = r.Location.X
