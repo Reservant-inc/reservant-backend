@@ -526,6 +526,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Pracownik Sali",
             LastName = "Przykładowski",
+            BirthDate = DateOnly.Parse("2001-05-05"),
             PhoneNumber = "+48123456789"
         }, johnDoe, "22781e02-d83a-44ef-8cf4-735e95d9a0b2")).OrThrow();
         (await restaurantService.AddEmployeeAsync(
@@ -546,6 +547,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Pracownik Zaplecza",
             LastName = "Przykładowski",
+            BirthDate = new DateOnly(2001, 5, 5),
             PhoneNumber = "+48123456789"
         }, johnDoe, "06c12721-e59e-402f-aafb-2b43a4dd23f2")).OrThrow();
         (await restaurantService.AddEmployeeAsync(
@@ -660,6 +662,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Pracownik 2",
             LastName = "Przykładowski",
+            BirthDate = new DateOnly(2002, 1, 1),
             PhoneNumber = "+48123456789"
         }, johnDoe, "f1b1b494-85f2-4dc7-856d-d04d1ce50d65")).OrThrow();
         (await restaurantService.AddEmployeeAsync(
