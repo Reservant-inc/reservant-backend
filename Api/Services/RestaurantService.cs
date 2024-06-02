@@ -61,7 +61,7 @@ namespace Reservant.Api.Services
         /// <param name="radius">Radius in kilometers</param>
         /// <param name="user">User calling method</param>
         /// <returns></returns>
-        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat, double lon, int radius, User user)
+        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat, double lon, int radius)
         {
 
             var restaurants = await context.Restaurants
