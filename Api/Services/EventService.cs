@@ -76,7 +76,11 @@ namespace Reservant.Api.Services
 
         public async Task<Result<EventVM>> GetEventAsync(int id)
         {
-            var checkedEvent = await context.Events.Include(e => e.Interested).FirstOrDefaultAsync(e => e.Id == id);
+            var checkedEvent = await context.Events
+                .Include(e => e.Interested)
+                .Include(e => e.Creator)
+                .Include(e => e.Restaurant)
+                .FirstOrDefaultAsync(e => e.Id == id);
             if (checkedEvent is null)
             {
                 return new ValidationFailure
@@ -110,6 +114,8 @@ namespace Reservant.Api.Services
         {
             var events = await context.Events
                 .Include(e => e.Interested)
+                .Include(e => e.Creator)
+                .Include(e => e.Restaurant)
                 .Where(e => e.CreatorId == user.Id)
                 .ToListAsync();
 
