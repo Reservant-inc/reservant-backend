@@ -473,6 +473,7 @@ namespace Reservant.Api.Services
                     Login = e.Employee.UserName!,
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
+                    BirthDate = e.Employee.BirthDate!.Value,
                     PhoneNumber = e.Employee.PhoneNumber!,
                     IsBackdoorEmployee = e.IsBackdoorEmployee,
                     IsHallEmployee = e.IsHallEmployee,

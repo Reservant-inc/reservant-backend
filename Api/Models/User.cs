@@ -28,7 +28,7 @@ public class User : IdentityUser, ISoftDeletable
     public required DateTime RegisteredAt { get; set; }
 
     /// <summary>
-    /// Data urodzenia. For Customers.
+    /// Data urodzenia.
     /// </summary>
     public DateOnly? BirthDate { get; set; }
 
@@ -38,7 +38,7 @@ public class User : IdentityUser, ISoftDeletable
     public int? Reputation { get; set; }
 
     /// <summary>
-    /// Wiek. For Customers.
+    /// Wiek.
     /// </summary>
     public int? Age
     {
