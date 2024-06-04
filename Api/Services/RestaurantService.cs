@@ -15,6 +15,7 @@ using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
+using Reservant.Api.Models.Dtos.Event;
 
 
 namespace Reservant.Api.Services
@@ -879,6 +880,45 @@ namespace Reservant.Api.Services
             };
 
             return await filteredOrders.PaginateAsync(page, perPage);
+        }
+
+        /// <summary>
+        /// Get future events in a restaurant with pagination.
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant.</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of future events.</returns>
+        public async Task<Result<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurantAsync(int restaurantId, int page, int perPage)
+        {
+            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var query = context.Events
+                .Where(e => e.RestaurantId == restaurantId && e.Time > DateTime.UtcNow && !e.IsDeleted)
+                .OrderBy(e => e.Time)
+                .Select(e => new EventSummaryVM
+                {
+                    Id = e.Id,
+                    Description = e.Description,
+                    Time = e.Time,
+                    MustJoinUntil = e.MustJoinUntil,
+                    CreatorId = e.CreatorId,
+                    CreatorFullName = e.Creator.FullName,
+                    RestaurantId = e.RestaurantId,
+                    RestaurantName = e.Restaurant.Name,
+                    NumberInterested = e.Interested.Count
+                });
+
+            return await query.PaginateAsync(page, perPage);
         }
     }
 }

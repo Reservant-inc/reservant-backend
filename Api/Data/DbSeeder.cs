@@ -169,6 +169,67 @@ public class DbSeeder(
 
         _ = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
+        // Dodaj przykładowe wydarzenia dla restauracji John Doe
+        context.Events.AddRange(
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 1 Description",
+                Time = DateTime.UtcNow.AddMonths(1),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddHours(-1),
+                CreatorId = johnDoe.Id,
+                RestaurantId = 1,
+                VisitId = null,
+                IsDeleted = false
+            },
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 2 Description",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(5),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(5).AddHours(-1),
+                CreatorId = johnDoe.Id,
+                RestaurantId = 1,
+                VisitId = null,
+                IsDeleted = false
+            },
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 3 Description",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(10).AddHours(-1),
+                CreatorId = johnDoe.Id,
+                RestaurantId = 1,
+                VisitId = null,
+                IsDeleted = false
+            },
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 4 Description",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(15),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(15).AddHours(-1),
+                CreatorId = johnDoe.Id,
+                RestaurantId = 1,
+                VisitId = null,
+                IsDeleted = false
+            },
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 5 Description",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(20),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(20).AddHours(-1),
+                CreatorId = johnDoe.Id,
+                RestaurantId = 1,
+                VisitId = null,
+                IsDeleted = false
+            }
+        );
+
+        await context.SaveChangesAsync();
+
         var visits = new List<Visit>
         {
             new Visit
@@ -772,4 +833,6 @@ public class DbSeeder(
 
         return kowalskisRestaurant;
     }
+
+
 }
