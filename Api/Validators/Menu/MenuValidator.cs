@@ -1,5 +1,6 @@
 using FluentValidation;
 using Reservant.Api.Data;
+using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.Menu;
 
@@ -9,7 +10,7 @@ namespace Reservant.Api.Validators.Menu;
 public class MenuValidator : AbstractValidator<Models.Menu>
 {
     /// <inheritdoc />
-    public MenuValidator(ApiDbContext context)
+    public MenuValidator(FileUploadService uploadService, ApiDbContext context)
     {
         RuleFor(x => x.Name)
             .NotEmpty()
@@ -25,5 +26,8 @@ public class MenuValidator : AbstractValidator<Models.Menu>
 
         RuleFor(x => x.RestaurantId)
             .RestaurantExists(context);
+
+        RuleFor(x => x.PhotoFileName)
+            .FileUploadName(FileClass.Image, uploadService);
     }
 }
