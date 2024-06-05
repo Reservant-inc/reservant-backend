@@ -36,4 +36,9 @@ public class UpdateMenuRequest
     /// Last day the menu is valid
     /// </summary>
     public DateOnly? DateUntil { get; set; }
+
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    public required string PhotoFileName { get; set; }
 }
