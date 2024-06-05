@@ -169,6 +169,8 @@ public class DbSeeder(
 
         _ = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
+        await context.SaveChangesAsync();
+
         var visits = new List<Visit>
         {
             new Visit
@@ -222,6 +224,65 @@ public class DbSeeder(
                 Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
         };
+
+        // Dodaj przykładowe wydarzenia dla restauracji John Doe
+        context.Events.AddRange(
+            new Event
+            {
+                CreatedAt = visits[0].Date.AddDays(-1),
+                Description = "Event 1 Description",
+                Time = visits[0].Date,
+                MustJoinUntil = visits[0].Date.AddHours(-3),
+                Creator = customer1,
+                RestaurantId = 1,
+                Visit = visits[0],
+                Interested = [customer2, customer3]
+            },
+            new Event
+            {
+                CreatedAt = visits[1].Date.AddDays(-5),
+                Description = "Event 2 Description",
+                Time = visits[1].Date,
+                MustJoinUntil = visits[1].Date.AddDays(-1),
+                Creator = customer2,
+                RestaurantId = 1,
+                VisitId = null,
+                Interested = [customer1]
+            },
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 3 Description",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(10).AddHours(-1),
+                Creator = customer3,
+                RestaurantId = 1,
+                VisitId = null,
+                Interested = [customer2]
+            },
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 4 Description",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(15),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(15).AddHours(-1),
+                Creator = customer1,
+                RestaurantId = 1,
+                VisitId = null,
+                Interested = []
+            },
+            new Event
+            {
+                CreatedAt = DateTime.UtcNow,
+                Description = "Event 5 Description",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(20),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(20).AddHours(-1),
+                Creator = customer3,
+                RestaurantId = 1,
+                VisitId = null,
+                Interested = [customer1, customer2]
+            }
+        );
 
         context.Visits.AddRange(visits);
 
@@ -386,7 +447,7 @@ public class DbSeeder(
             visits[i].Restaurant = johnDoes;
         }
         await context.SaveChangesAsync();
-        
+
 
         johnDoes.Tables = new List<Table>
         {
@@ -780,4 +841,6 @@ public class DbSeeder(
 
         return kowalskisRestaurant;
     }
+
+
 }
