@@ -11,7 +11,7 @@ namespace Reservant.Api.Validators.Restaurant;
 public class CreateReviewRequestValidator : AbstractValidator<CreateReviewRequest>
 {
     /// <inheritdoc />
-    public CreateReviewRequestValidator(FileUploadService uploadService, ApiDbContext dbContext)
+    public CreateReviewRequestValidator()
     {
         RuleFor(r => r.Stars)
             .LessThanOrEqualTo(5)

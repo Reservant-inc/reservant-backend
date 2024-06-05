@@ -11,7 +11,7 @@ namespace Reservant.Api.Validators.Restaurant;
 public class ReviewValidator : AbstractValidator<Review>
 {
     /// <inheritdoc />
-    public ReviewValidator(FileUploadService uploadService, ApiDbContext dbContext)
+    public ReviewValidator()
     {
         RuleFor(x => x.RestaurantId)
             .NotEmpty();

@@ -127,7 +127,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{id:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int id, ReviewOrderSorting? orderBy = null, int page = 0, int perPage = 10)
+    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int id, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
 

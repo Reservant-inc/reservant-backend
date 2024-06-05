@@ -16,6 +16,7 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
+using Reservant.Api.Validators.Restaurant;
 
 
 namespace Reservant.Api.Services
@@ -899,9 +900,10 @@ namespace Reservant.Api.Services
                 return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
             }
 
-            if(CreateRestaurantRequest.IsValid())
+            var createReviewRequestValidation = await validationService.ValidateAsync(createReviewRequest,user.Id);
+            if(createReviewRequestValidation.IsValid)
             {
-                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.BadRequest };
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
             }
 
             var Existingreview = await context.Reviews
@@ -925,9 +927,11 @@ namespace Reservant.Api.Services
                 Contents = createReviewRequest.Contents
             };
 
-            if(newReview.IsValid())
+
+            var reviewValidation = await validationService.ValidateAsync(newReview,user.Id);
+            if(reviewValidation.IsValid) 
             {
-                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.BadRequest };
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
             }
 
             await context.Reviews.AddAsync(newReview);
