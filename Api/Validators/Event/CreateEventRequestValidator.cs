@@ -19,6 +19,10 @@ namespace Reservant.Api.Validators.Event
             RuleFor(e => e.RestaurantId)
                 .NotNull()
                 .RestaurantExists(context);
+
+            RuleFor(e => e.Description)
+                .Length(0, 200)
+                .When(e => e.Description is not null);
         }
     }
 }
