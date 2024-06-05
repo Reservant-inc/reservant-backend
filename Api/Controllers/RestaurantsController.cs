@@ -97,7 +97,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     {
         var user = await userManager.GetUserAsync(User);
 
-        var result = await service.createReviewAsync( user,  id, createReviewRequest);
+        var result = await service.CreateReviewAsync( user,  id, createReviewRequest);
         
         if (result.IsError)
         {
