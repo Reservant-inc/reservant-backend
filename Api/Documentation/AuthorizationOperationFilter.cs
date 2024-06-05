@@ -14,9 +14,14 @@ public class AuthorizationOperationFilter : IOperationFilter
     {
         var roles = new HashSet<string>();
 
-        var endpointRoles = context.MethodInfo
+        var endpointAuthorization = context.MethodInfo
             .GetCustomAttributes(true)
             .OfType<AuthorizeAttribute>()
+            .ToList();
+
+        var authorizationRequired = endpointAuthorization.Count > 0;
+
+        var endpointRoles = endpointAuthorization
             .SelectMany(a => a.Roles?.Split(",") ?? []);
         foreach (var role in endpointRoles)
         {
@@ -25,26 +30,29 @@ public class AuthorizationOperationFilter : IOperationFilter
 
         if (roles.Count == 0)
         {
-            var controllerRoles = context.MethodInfo.DeclaringType?
+            var controllerAuthorization = context.MethodInfo.DeclaringType?
                 .GetCustomAttributes(true)
                 .OfType<AuthorizeAttribute>()
-                .SelectMany(a => a.Roles?.Split(",") ?? []);
+                .ToList() ?? [];
 
-            if (controllerRoles is not null)
+            authorizationRequired  = authorizationRequired || controllerAuthorization.Count > 0;
+
+            var controllerRoles = controllerAuthorization
+                .SelectMany(a => a.Roles?.Split(",") ?? []);
+            foreach (var role in controllerRoles)
             {
-                foreach (var role in controllerRoles)
-                {
-                    roles.Add(role);
-                }
+                roles.Add(role);
             }
         }
 
-        if (roles.Count == 0)
+        if (roles.Count > 0)
         {
-            return;
+            var rolesStr = string.Join(", ", roles);
+            operation.Description += $"<p><b>Required Roles:</b> {rolesStr}</p>";
         }
-
-        var rolesStr = string.Join(", ", roles);
-        operation.Description += $"<p><b>Required Roles:</b> {rolesStr}</p>";
+        else if (authorizationRequired)
+        {
+            operation.Description += "<p><b>Authentication required</b></p>";
+        }
     }
 }
