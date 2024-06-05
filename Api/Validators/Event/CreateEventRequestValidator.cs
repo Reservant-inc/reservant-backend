@@ -10,11 +10,11 @@ namespace Reservant.Api.Validators.Event
         public CreateEventRequestValidator(ApiDbContext context) {
             RuleFor(e => e.Time)
                 .NotNull()
-                .When(e => e.Time>DateTime.Now);
+                .DateTimeInFuture();
 
             RuleFor(e => e.MustJoinUntil)
                 .NotNull()
-                .When(e => e.MustJoinUntil > DateTime.Now && e.MustJoinUntil <= e.Time);
+                .DateTimeInFuture();
 
             RuleFor(e => e.RestaurantId)
                 .NotNull()

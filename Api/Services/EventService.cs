@@ -53,7 +53,11 @@ namespace Reservant.Api.Services
                 Interested = new List<User>(),
                 IsDeleted = false
             };
-
+            result = await validationService.ValidateAsync(newEvent, user.Id);
+            if (!result.IsValid)
+            {
+                return result;
+            }
             await context.Events.AddAsync(newEvent);
             await context.SaveChangesAsync();
 
@@ -122,16 +126,6 @@ namespace Reservant.Api.Services
                 .Include(e => e.Restaurant)
                 .Where(e => e.CreatorId == user.Id)
                 .ToListAsync();
-
-            if (events.Count == 0)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = ErrorCodes.NotFound
-                };
-            }
 
             return events.Select(e => new EventSummaryVM
             {
