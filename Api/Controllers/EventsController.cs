@@ -16,7 +16,11 @@ namespace Reservant.Api.Controllers
     [ApiController, Route("/events")]
     public class EventsController(EventService service, UserManager<User> userManager) : StrictController
     {
+        /// <summary>
+        /// Create new event
+        /// </summary>
         [HttpPost]
+        [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         public async Task<ActionResult<EventVM>> CreateEvent([FromBody] CreateEventRequest request)
         {
@@ -33,7 +37,12 @@ namespace Reservant.Api.Controllers
             }
             return Ok(result.Value);
         }
+
+        /// <summary>
+        /// Get info about a specific event
+        /// </summary>
         [HttpGet("{id:int}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<EventVM>> GetEvent(int id) {
             var result = await service.GetEventAsync(id);
             if (result.IsError)

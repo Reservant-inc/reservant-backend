@@ -168,6 +168,10 @@ public class UserController(
         }
     }
 
+    /// <summary>
+    /// Get list of events created by the current user
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("events-created")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
