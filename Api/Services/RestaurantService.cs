@@ -903,7 +903,7 @@ namespace Reservant.Api.Services
             }
 
             var query = context.Events
-                .Where(e => e.RestaurantId == restaurantId && e.Time > DateTime.UtcNow && !e.IsDeleted)
+                .Where(e => e.RestaurantId == restaurantId && e.Time > DateTime.UtcNow)
                 .OrderBy(e => e.Time)
                 .Select(e => new EventSummaryVM
                 {
