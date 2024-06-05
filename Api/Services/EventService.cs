@@ -16,7 +16,7 @@ namespace Reservant.Api.Services
     /// </summary>
     /// <param name="context"></param>
     /// <param name="userManager"></param>
-    public class EventService(ApiDbContext context, UserManager<User> userManager)
+    public class EventService(ApiDbContext context, UserManager<User> userManager, ValidationService validationService)
     {
         /// <summary>
         /// Action for 
@@ -26,6 +26,10 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<EventVM>> CreateEventAsync(CreateEventRequest request, User user)
         {
+            var result = await validationService.ValidateAsync(request, user.Id);
+            if (!result.IsValid) {
+                return result;
+            }
             var restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
             if (restaurant is null)
             {
@@ -119,15 +123,6 @@ namespace Reservant.Api.Services
                 .Where(e => e.CreatorId == user.Id)
                 .ToListAsync();
 
-            if (events is null)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = ErrorCodes.NotFound
-                };
-            }
             if (events.Count == 0)
             {
                 return new ValidationFailure

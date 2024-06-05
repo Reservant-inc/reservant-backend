@@ -17,8 +17,6 @@ using Reservant.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddScoped<EventService>();
-
 builder.Services.AddOptions<JwtOptions>()
     .BindConfiguration(JwtOptions.ConfigSection)
     .ValidateDataAnnotations()
