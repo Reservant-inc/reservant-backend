@@ -174,6 +174,11 @@ public class UserController(
     public async Task<ActionResult<List<EventSummaryVM>>> GetEventsCreated()
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await eventService.GetEventsCreatedAsync(user);
         if (result.IsError) {
             return result.ToValidationProblem();

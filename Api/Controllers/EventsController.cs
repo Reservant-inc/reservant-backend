@@ -21,6 +21,11 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<EventVM>> CreateEvent([FromBody] CreateEventRequest request)
         {
             var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
             var result = await service.CreateEventAsync(request, user);
             if (result.IsError)
             {
