@@ -888,7 +888,7 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of restaurant reciving review</param>
         /// <param name="createReviewRequest">template for data provided in a reveiw</param>
         /// <returns>View of a created review</returns>
-        public async Task<Result<ReviewVM>> createReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
+        public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
         {
             var restaurant = await context.Restaurants
                 .Where(r => r.Id == restaurantId)
@@ -899,6 +899,11 @@ namespace Reservant.Api.Services
                 return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
             }
 
+            if(CreateRestaurantRequest.IsValid())
+            {
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.BadRequest };
+            }
+
             var Existingreview = await context.Reviews
                 .Where(r => r.RestaurantId == restaurantId)
                 .Where(r => r.Author==user)
@@ -906,7 +911,7 @@ namespace Reservant.Api.Services
 
             if (Existingreview != null)
             {
-                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.Duplicate };
             }
 
             var newReview = new Review
@@ -919,6 +924,11 @@ namespace Reservant.Api.Services
                 CreatedAt = DateTime.Now,
                 Contents = createReviewRequest.Contents
             };
+
+            if(newReview.IsValid())
+            {
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.BadRequest };
+            }
 
             await context.Reviews.AddAsync(newReview);
             await context.SaveChangesAsync();
@@ -940,15 +950,7 @@ namespace Reservant.Api.Services
         }    
 
 
-
-
-
-
-
-
-
-
-        public async Task<Result<Pagination<ReviewVM>>> GetReviewAsync(int restaurantId, User user, ReviewOrderSorting? orderBy = null, int page = 0, int perPage = 10)
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewAsync(int restaurantId, User user, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
             var restaurant = await context.Restaurants.FindAsync(restaurantId);
 
@@ -956,16 +958,13 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(restaurantId),
+                    PropertyName = null,
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
 
             var reviewsQuery = context.Reviews
-                // .Include(order => order.Visit)
-                // .Include(order => order.OrderItems)
-                // .ThenInclude(orderItem => orderItem.MenuItem)
                 .Where(r => r.RestaurantId == restaurantId);
 
             var reviewVM = reviewsQuery.Select(r => new ReviewVM
@@ -981,8 +980,7 @@ namespace Reservant.Api.Services
                 RestaurantResponse = r.RestaurantResponse
             });
 
-            reviewVM = reviewVM.AsQueryable(); // convert to IQueryable
-
+            reviewVM = reviewVM.AsQueryable(); 
             reviewVM = orderBy switch
             {
                 ReviewOrderSorting.StarsAsc => reviewVM.OrderBy(o => o.Stars),
@@ -1001,58 +999,5 @@ namespace Reservant.Api.Services
 
 
 
-        // /// <summary>
-        // /// Get revievs in a restaurant
-        // /// </summary>
-        // /// <param name="restaurantId">ID of the restaurant</param>
-        // /// <returns>Paginated review list</returns>
-        // public async Task<Result<Pagination<ReviewVM>>> GetReviewAsync(int restaurantId,User user,ReviewOrderSorting? orderBy = null,int page = 0, int perPage = 10)
-        // {
-        //     var restaurant = await context.Restaurants
-        //     .FindAsync(restaurantId);
-            
-        //     if (restaurant == null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = nameof(restaurantId),
-        //             ErrorMessage = $"Restaurant with ID {restaurantId} not found",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-
-        //     var revievsQuery = context.Reviews
-        //         // .Include(order => order.Visit)
-        //         // .Include(order => order.OrderItems)
-        //         //.ThenInclude(orderItem => orderItem.MenuItem)
-        //         .Where(r => r.RestaurantId==restaurantId)
-        //         .ToList();
-
-        //     var reviewVM = revievsQuery.Select(r => new ReviewVM
-        //     {
-        //         Id = r.Id,
-        //         RestaurantId=r.RestaurantId,
-        //         AuthorId=r.AuthorId,
-        //         AuthorFullName=r.Author.FirstName,
-        //         Stars=r.Stars,
-        //         CreatedAt=r.CreatedAt,
-        //         Contents=r.Contents,
-        //         AnsweredAt=r.AnsweredAt,
-        //         RestaurantResponse=r.RestaurantResponse
-        //     });
-
-        //     reviewVM = reviewVM.AsQueryable();
-
-        //     reviewVM = orderBy switch
-        //     {
-        //         ReviewOrderSorting.StarsAsc => reviewVM.OrderBy(o => o.Stars),
-        //         ReviewOrderSorting.StarsDesc => reviewVM.OrderByDescending(o => o.Stars),
-        //         ReviewOrderSorting.DateAsc => reviewVM.OrderBy(o => o.CreatedAt),
-        //         ReviewOrderSorting.DateDesc => reviewVM.OrderByDescending(o => o.CreatedAt),
-        //         _ => reviewVM
-        //     };
-
-        //     return await reviewVM.PaginateAsync(page, perPage);
-        // }
     }
 }

@@ -91,9 +91,9 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// </remarks>
     /// <param name="restaurantId">ID of the restaurant</param>
     [HttpPost("{id:int}/reviews")]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult<ReviewVM>> createReview(int id, CreateReviewRequest createReviewRequest)
+    public async Task<ActionResult<ReviewVM>> CreateReview(int id, CreateReviewRequest createReviewRequest)
     {
         var user = await userManager.GetUserAsync(User);
 
@@ -125,9 +125,9 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="page">Page number of the reviews</param>
     /// <param name="perPage">Number of reviews per page</param>
     [HttpGet("{id:int}/reviews")]
-    [ProducesResponseType(200), ProducesResponseType(404)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult<Pagination<ReviewVM>>> createReviews(int id, ReviewOrderSorting? orderBy = null, int page = 0, int perPage = 10)
+    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int id, ReviewOrderSorting? orderBy = null, int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
 
