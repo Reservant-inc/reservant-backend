@@ -1,16 +1,17 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Identity;
-using Reservant.Api.Data;
 
-namespace Reservant.Api.Validators.Event
+namespace Reservant.Api.Validators.Event;
+
+/// <summary>
+/// Validator for Event
+/// </summary>
+public class EventValidator : AbstractValidator<Models.Event>
 {
-    public class EventValidator : AbstractValidator<Models.Event>
+    /// <inheritdoc />
+    public EventValidator()
     {
-        public EventValidator(ApiDbContext context, UserManager<Models.User> userManager)
-        {
-            RuleFor(x => x.Description)
-                .Length(0, 200)
-                .When(x => x.Description is not null);
-        }
+        RuleFor(x => x.Description)
+            .Length(0, 200)
+            .When(x => x.Description is not null);
     }
 }

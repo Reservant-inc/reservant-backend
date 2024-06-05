@@ -1,7 +1,5 @@
 ﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
@@ -15,11 +13,10 @@ namespace Reservant.Api.Services
     /// Service for event management
     /// </summary>
     /// <param name="context"></param>
-    /// <param name="userManager"></param>
-    public class EventService(ApiDbContext context, UserManager<User> userManager, ValidationService validationService)
+    public class EventService(ApiDbContext context, ValidationService validationService)
     {
         /// <summary>
-        /// Action for 
+        /// Action for
         /// </summary>
         /// <param name="request"></param>
         /// <param name="user"></param>
@@ -82,6 +79,9 @@ namespace Reservant.Api.Services
             };
         }
 
+        /// <summary>
+        /// Get information about an Event
+        /// </summary>
         public async Task<Result<EventVM>> GetEventAsync(int id)
         {
             var checkedEvent = await context.Events
@@ -118,6 +118,10 @@ namespace Reservant.Api.Services
                 }).ToList()
             };
         }
+
+        /// <summary>
+        /// Get events created by the given User
+        /// </summary>
         public async Task<Result<List<EventSummaryVM>>> GetEventsCreatedAsync(User user)
         {
             var events = await context.Events
