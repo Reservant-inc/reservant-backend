@@ -908,7 +908,7 @@ namespace Reservant.Api.Services
                 .OrderBy(e => e.Time)
                 .Select(e => new EventSummaryVM
                 {
-                    Id = e.Id,
+                    EventId = e.Id,
                     Description = e.Description,
                     Time = e.Time,
                     MustJoinUntil = e.MustJoinUntil,
