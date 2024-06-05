@@ -22,7 +22,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
 {
 
     /// <summary>
-    /// Post request to create a new RestaurantGroup. Only available for restaurant owners
+    /// Post request to create a new RestaurantGroup
     /// </summary>
     /// <param name="req">Request dto</param>
     /// <returns></returns>

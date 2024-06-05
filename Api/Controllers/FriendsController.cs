@@ -43,7 +43,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     }
 
     /// <summary>
-    /// Mark friend request as read
+    /// Mark a friend request as read
     /// </summary>
     /// <param name="senderId">ID of the user</param>
     [HttpPost("{senderId}/mark-read")]
@@ -118,7 +118,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     }
 
     /// <summary>
-    /// Get a list of friends
+    /// Get list of friends
     /// </summary>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
@@ -141,7 +141,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     }
 
     /// <summary>
-    /// Get a list of incoming friend requests
+    /// Get list of incoming friend requests
     /// </summary>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
@@ -164,7 +164,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     }
 
     /// <summary>
-    /// Get a list of outgoing friend requests
+    /// Get list of outgoing friend requests
     /// </summary>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>

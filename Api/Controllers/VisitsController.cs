@@ -19,7 +19,7 @@ public class VisitsController(
     ) : StrictController
 {
     /// <summary>
-    /// Get visit of provided id
+    /// Get visit with the provided ID
     /// </summary>
     /// <returns></returns>
     [HttpGet("{id:int}")]
@@ -44,7 +44,7 @@ public class VisitsController(
     }
 
     /// <summary>
-    /// Create visit
+    /// Create a new visit
     /// </summary>
     [HttpPost()]
     [ProducesResponseType(200)]

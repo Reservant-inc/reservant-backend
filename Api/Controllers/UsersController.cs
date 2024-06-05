@@ -7,6 +7,9 @@ using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers
 {
+    /// <summary>
+    /// Fetching information about other users and managing employees
+    /// </summary>
     [ApiController, Route("/users")]
     public class UsersController(UserService userService, FileUploadService uploadService) : StrictController
     {

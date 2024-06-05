@@ -113,6 +113,12 @@ namespace Reservant.Api.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Move a Restaurant to another RestaurantGroup
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("{id:int}/move-to-group")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request)
@@ -229,7 +235,7 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Gets menu items from the given restaurant
         /// </summary>
-        /// <param name="restaurantId"></param>
+        /// <param name="id">ID of the restaurant</param>
         /// <returns>The found list of menuItems</returns>
         [HttpGet("{id:int}/menu-items")]
         [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]

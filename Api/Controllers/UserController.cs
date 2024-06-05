@@ -24,7 +24,7 @@ public class UserController(
     ) : StrictController
 {
     /// <summary>
-    /// Get list of users employed by the current user. For restaurant owners only
+    /// Get list of users employed by the current user
     /// </summary>
     /// <returns></returns>
     [HttpGet("employees")]
@@ -72,7 +72,7 @@ public class UserController(
         });
     }
     /// <summary>
-    /// Updates current user
+    /// Update information about the current user
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -114,7 +114,8 @@ public class UserController(
 
 
     /// <summary>
-    /// Get list of future visits of logged in user
+    /// Get list of future visits which the logged-in user participates in
+    /// Sorted by Date from the closest to the farthest
     /// </summary>
     /// <returns></returns>
     [HttpGet("visits")]
@@ -142,7 +143,8 @@ public class UserController(
 
 
     /// <summary>
-    /// Get list of past visits of logged in user
+    /// Get list of past visits which the logged-in user participates in.
+    /// Sorted by Date from the newest to the oldest
     /// </summary>
     /// <returns></returns>
     [HttpGet("visit-history")]
