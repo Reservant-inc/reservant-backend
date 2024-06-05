@@ -8,6 +8,7 @@ using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Models.Dtos.Visit;
+using Reservant.Api.Models.Dtos.Event;
 
 namespace Reservant.Api.Controllers;
 
@@ -18,7 +19,8 @@ namespace Reservant.Api.Controllers;
 public class UserController(
     UserManager<User> userManager,
     UserService userService,
-    FileUploadService uploadService
+    FileUploadService uploadService,
+    EventService eventService
     ) : StrictController
 {
     /// <summary>
@@ -164,5 +166,27 @@ public class UserController(
         {
             return Ok(result.Value);
         }
+    }
+
+    /// <summary>
+    /// Get list of events created by the current user
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("events-created")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<EventSummaryVM>>> GetEventsCreated()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await eventService.GetEventsCreatedAsync(user);
+        if (result.IsError) {
+            return result.ToValidationProblem();
+        }
+        return Ok(result.Value);
     }
 }
