@@ -6,6 +6,11 @@ namespace Reservant.Api.Models.Dtos.Wallet;
 public class TransactionVM
 {
     /// <summary>
+    /// Unique ID
+    /// </summary>
+    public required int TransactionId { get; set; }
+
+    /// <summary>
     /// Transaction title
     /// </summary>
     public required string Title { get; set; }

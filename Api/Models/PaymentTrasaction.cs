@@ -8,6 +8,12 @@ namespace Reservant.Api.Models;
 public class PaymentTransaction
 {
     /// <summary>
+    /// Unique ID
+    /// </summary>
+    [Key]
+    public int Id { get; set; }
+
+    /// <summary>
     /// Transaction title
     /// </summary>
     [StringLength(50)]
