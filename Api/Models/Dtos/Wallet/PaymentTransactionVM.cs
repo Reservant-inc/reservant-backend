@@ -18,10 +18,10 @@ public class TransactionVM
     /// <summary>
     /// Positive for incoming money, negative for payments
     /// </summary>
-    public decimal Amount { get; set; }
+    public required decimal Amount { get; set; }
 
     /// <summary>
     /// Date and time of the transaction
     /// </summary>
-    public DateTime Time { get; set; }
+    public required DateTime Time { get; set; }
 }

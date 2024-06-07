@@ -8,5 +8,5 @@ public class WalletStatusVM
     /// <summary>
     /// Current amount of money
     /// </summary>
-    public decimal Balance { get; set; }
+    public required decimal Balance { get; set; }
 }
