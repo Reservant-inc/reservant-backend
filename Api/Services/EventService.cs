@@ -4,6 +4,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.User;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -143,6 +144,94 @@ namespace Reservant.Api.Services
                 Description = e.Description,
                 CreatorId = e.CreatorId,
             }).ToList();
+        }
+    
+
+
+
+        public enum ServiceResultStatus
+        {
+            NotFound,
+            BadRequest,
+            Ok
+        }
+
+        public async Task<Result<ServiceResultStatus>> AddUserToEventAsync(int id, User user)
+        {
+            var eventFound = await context.Events
+                .Include(e => e.Interested)
+                .Where(e=>e.Id==id)
+                .FirstOrDefaultAsync();
+            if(eventFound==null)
+            {
+                return ServiceResultStatus.NotFound;
+            }
+
+            //eventFound.MustJoinUntil > DateTime.Now ||
+            if( eventFound.Interested.Contains(user) )
+            {
+                return ServiceResultStatus.BadRequest;
+            }
+
+            eventFound.Interested.Add(user);
+            await context.SaveChangesAsync();
+
+            return ServiceResultStatus.Ok;
+        }
+
+
+        public async Task<Result<ServiceResultStatus>> DeleteUserFromEventAsync(int id, User user)
+        {
+            var eventFound = await context.Events
+                .Include(e => e.Interested)
+                .Where(e=>e.Id==id)
+                .FirstOrDefaultAsync();
+            if(eventFound==null)
+            {
+                return ServiceResultStatus.NotFound;
+            }
+
+            //eventFound.MustJoinUntil < DateTime.Now &&
+            if(eventFound.Interested.Contains(user))
+            {
+                eventFound.Interested.Remove(user);
+            }
+            else
+            {
+                return ServiceResultStatus.BadRequest;
+            }
+            await context.SaveChangesAsync();
+
+            return ServiceResultStatus.Ok;
+        }
+
+
+        /// <summary>
+        /// Get future events in a restaurant with pagination.
+        /// </summary>
+        /// <param name="user">User whos intered event we go over</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of events in which user is interested</returns>
+        public async Task<Result<Pagination<EventSummaryVM>>> GetEventsInterestedInAsync(User user, int page, int perPage)
+        {
+            var query = context.Users
+                .Where(u => u.Id == user.Id)
+                .SelectMany(u => u.InterestedIn)
+                .Select(e => new EventSummaryVM
+                {
+                    Id = e.Id,
+                    Description = e.Description,
+                    Time = e.Time,
+                    MustJoinUntil = e.MustJoinUntil,
+                    CreatorId = e.CreatorId,
+                    CreatorFullName = e.Creator.FullName,
+                    RestaurantId = e.RestaurantId,
+                    RestaurantName = e.Restaurant.Name,
+                    NumberInterested = e.Interested.Count
+                });
+
+            return await query.PaginateAsync(page, perPage);
         }
     }
 

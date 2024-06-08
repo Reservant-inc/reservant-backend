@@ -191,4 +191,32 @@ public class UserController(
         }
         return Ok(result.Value);
     }
+
+    /// <summary>
+    /// Get future events in a restaurant with pagination.
+    /// </summary>
+    /// <param name="page">Page number to return.</param>
+    /// <param name="perPage">Items per page.</param>
+    /// <returns>Paginated list of future events.</returns>
+    [HttpGet("events-interested-in")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<Pagination<EventSummaryVM>>> getEventsUderInterestedIn( [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await eventService.GetEventsInterestedInAsync(user,page,perPage);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+  
 }

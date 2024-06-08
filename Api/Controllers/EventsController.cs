@@ -6,6 +6,11 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using Reservant.Api.Models.Dtos;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
+using Reservant.Api.Data;
+
 
 namespace Reservant.Api.Controllers
 {
@@ -13,7 +18,7 @@ namespace Reservant.Api.Controllers
     /// Controller for managing events
     /// </summary>
     [ApiController, Route("/events")]
-    public class EventsController(EventService service, UserManager<User> userManager) : StrictController
+    public class EventsController(EventService service, UserManager<User> userManager, ApiDbContext context) : StrictController
     {
         /// <summary>
         /// Create new event
@@ -49,6 +54,75 @@ namespace Reservant.Api.Controllers
                 return result.ToValidationProblem();
             }
             return Ok(result.Value);
+        }
+
+
+
+
+        /// <summary>
+        /// Adds logged in user to event of given id
+        /// <param name="id"> Id of Event</param>
+        /// <returns></returns>
+        /// </summary>
+        [HttpPost("{id:int}/interested")]
+        [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
+        [Authorize(Roles = Roles.Customer)]
+        public async Task<ActionResult> AddUserToEvent(int id)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.AddUserToEventAsync(id, user);
+            if (result.IsError)
+            {
+                return result.ToValidationProblem();
+            }
+
+            switch (result.Value)
+            {
+                case EventService.ServiceResultStatus.NotFound:
+                    return NotFound();
+                case EventService.ServiceResultStatus.BadRequest:
+                    return BadRequest();
+                default:
+                    return Ok();
+            }
+        }
+
+        /// <summary>
+        /// Delets logged in user from event of given id
+        /// <param name="id"> Id of Event</param>
+        /// <returns></returns>
+        /// </summary>
+        [HttpDelete("{id:int}/interested")]
+        [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(404)]
+        [Authorize(Roles = Roles.Customer)]
+        public async Task<ActionResult> DeleteUserFromEvent(int id)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.DeleteUserFromEventAsync(id, user);
+            if (result.IsError)
+            {
+                return result.ToValidationProblem();
+            }
+
+            switch (result.Value)
+            {
+                case EventService.ServiceResultStatus.NotFound:
+                    return NotFound();
+                case EventService.ServiceResultStatus.BadRequest:
+                    return BadRequest();
+                default:
+                    return Ok();
+            }
         }
     }
 }
