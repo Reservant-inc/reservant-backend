@@ -120,7 +120,7 @@ public class UserController(
     /// <returns></returns>
     [HttpGet("visits")]
     [Authorize(Roles = Roles.Customer)]
-    [ProducesResponseType(200),ProducesResponseType(400)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisits(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
@@ -149,7 +149,7 @@ public class UserController(
     /// <returns></returns>
     [HttpGet("visit-history")]
     [Authorize(Roles = Roles.Customer)]
-    [ProducesResponseType(200),ProducesResponseType(400)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisitHistory(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
@@ -186,9 +186,31 @@ public class UserController(
         }
 
         var result = await eventService.GetEventsCreatedAsync(user);
-        if (result.IsError) {
+        if (result.IsError)
+        {
             return result.ToValidationProblem();
         }
         return Ok(result.Value);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = $"{Roles.CustomerSupportAgent}, {Roles.CustomerSupportManager}")]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    public async Task<ActionResult> ArchiveUser(string id)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.ArchiveUserAsync(id);
+
+        if (result.IsError) {
+            return result.ToValidationProblem();
+        }
+
+        return NoContent();
     }
 }

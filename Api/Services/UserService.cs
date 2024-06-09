@@ -60,9 +60,9 @@ public class UserService(
             return ValidationUtils.AsValidationErrors("", result);
         }
 
-        if(request.IsManager)
+        if (request.IsManager)
         {
-        await userManager.AddToRolesAsync(user, [Roles.CustomerSupportManager]);
+            await userManager.AddToRolesAsync(user, [Roles.CustomerSupportManager]);
         }
         await userManager.AddToRolesAsync(user, [Roles.CustomerSupportAgent]);
 
@@ -80,7 +80,8 @@ public class UserService(
     {
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
-        var employee = new User {
+        var employee = new User
+        {
             Id = id ?? Guid.NewGuid().ToString(),
             UserName = username,
             FirstName = request.FirstName.Trim(),
@@ -154,7 +155,8 @@ public class UserService(
     /// Add the RestaurantOwner role to a user
     /// </summary>
     /// <param name="id">ID of the user</param>
-    public async Task<User?> MakeRestaurantOwnerAsync(string id) {
+    public async Task<User?> MakeRestaurantOwnerAsync(string id)
+    {
         var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
         if (user == null) { return null; }
         await userManager.AddToRoleAsync(user, Roles.RestaurantOwner);
@@ -402,6 +404,48 @@ public class UserService(
         .PaginateAsync(page, perPage, maxPerPage: 10);
 
         return result;
+    }
+
+
+    public async Task<Result<bool>> ArchiveUserAsync(string id)
+    {
+        var user = await dbContext.Users.FindAsync(id);
+        if (user is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound
+            };
+        }
+
+        user.AccessFailedCount = 0;
+        user.BirthDate = null;
+        user.ConcurrencyStamp = null;
+        user.Email = null;
+        user.EmailConfirmed = false;
+        user.Employer = null;
+        user.EmployerId = null;
+        user.Employments = null;
+        user.LockoutEnd = null;
+        user.TwoFactorEnabled = false;
+        user.NormalizedEmail = null;
+        user.PhoneNumber = null;
+        user.PhoneNumberConfirmed = false;
+        user.FirstName = null;
+        user.LastName = null;
+        user.RegisteredAt = DateTime.Now;
+        user.Reputation = null;
+        user.Photo = null;
+        user.PhotoFileName = null;
+        user.Uploads = null;
+        user.IsArchived = true;
+
+
+        await dbContext.SaveChangesAsync();
+        return true;
+
     }
 
 }
