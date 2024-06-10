@@ -194,7 +194,7 @@ public class UserController(
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = $"{Roles.CustomerSupportAgent}, {Roles.CustomerSupportManager}")]
+    //[Authorize(Roles = $"{Roles.CustomerSupportAgent}, {Roles.CustomerSupportManager}")]
     [ProducesResponseType(204), ProducesResponseType(400)]
     public async Task<ActionResult> ArchiveUser(string id)
     {

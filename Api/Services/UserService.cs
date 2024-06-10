@@ -427,19 +427,15 @@ public class UserService(
         user.EmailConfirmed = false;
         user.Employer = null;
         user.EmployerId = null;
-        user.Employments = null;
-        user.LockoutEnd = null;
-        user.TwoFactorEnabled = false;
+        user.Employments = new List<Employment>();
         user.NormalizedEmail = null;
         user.PhoneNumber = null;
         user.PhoneNumberConfirmed = false;
-        user.FirstName = null;
-        user.LastName = null;
+        user.FirstName = "";
+        user.LastName = "";
         user.RegisteredAt = DateTime.Now;
-        user.Reputation = null;
         user.Photo = null;
         user.PhotoFileName = null;
-        user.Uploads = null;
         user.IsArchived = true;
 
 
