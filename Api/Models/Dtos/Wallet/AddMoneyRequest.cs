@@ -5,6 +5,12 @@ namespace Reservant.Api.Models.Dtos.Wallet;
 /// </summary>
 public class AddMoneyRequest
 {
+
+    /// <summary>
+    /// Transaction title
+    /// </summary>
+    public required string Title { get; set; }
+
     /// <summary>
     /// Amount of money to add to the wallet
     /// </summary>
