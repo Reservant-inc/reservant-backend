@@ -10,11 +10,21 @@ using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
+/// <summary>
+/// Service for handling transactions
+/// </summary>
+/// <param name="context"></param>
+/// <param name="validationService"></param>
 public class WalletService(
     ApiDbContext context,
     ValidationService validationService)
 {
-
+    /// <summary>
+    /// creates a transaction for the specified user
+    /// </summary>
+    /// <param name="moneyRequest"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public async Task<Result<PaymentTransaction>> CreateTransaction(AddMoneyRequest moneyRequest, User user)
     {
         var newTransaction = new PaymentTransaction
@@ -37,6 +47,11 @@ public class WalletService(
         return newTransaction;
     }
 
+    /// <summary>
+    /// gets given user's wallet status
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public async Task<Result<WalletStatusVM>> GetWalletStatus(User user)
     {
         var transactions = await context.PaymentTransactions
@@ -59,6 +74,13 @@ public class WalletService(
         };
     }
 
+    /// <summary>
+    /// gets the transaction history for the requested user
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
     public async Task<Result<Pagination<TransactionVM>>> GetTransactionHistory(int page, int perPage, User user)
     {
         var transactions = context.PaymentTransactions

@@ -11,6 +11,11 @@ using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
+/// <summary>
+/// controller for handling customer transactions
+/// </summary>
+/// <param name="userManager"></param>
+/// <param name="walletService"></param>
 [ApiController, Route("/wallet")]
 [Authorize(Roles = Roles.Customer)]
 public class WalletController(
@@ -18,6 +23,12 @@ public class WalletController(
     WalletService walletService
 ): StrictController
 {
+
+    /// <summary>
+    /// Creates a new transaction for the current user
+    /// </summary>
+    /// <param name="moneyRequest"></param>
+    /// <returns></returns>
     [HttpPost("/add-money")]
     public async Task<ActionResult> CreateTransaction(AddMoneyRequest moneyRequest)
     {
@@ -32,6 +43,11 @@ public class WalletController(
         return Ok();
     }
 
+
+    /// <summary>
+    /// Gets the status of user's wallet
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("/status")]
     public async Task<ActionResult<WalletStatusVM>> GetWalletStatus()
     {
@@ -46,6 +62,13 @@ public class WalletController(
         return Ok(result.Value);
     }
 
+
+    /// <summary>
+    /// Gets all of user's transactions
+    /// </summary>
+    /// <param name="page"></param>
+    /// <param name="perPage"></param>
+    /// <returns></returns>
     [HttpGet("/history")]
     public async Task<ActionResult<Pagination<TransactionVM>>> GetTransactionHistory([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
