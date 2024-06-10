@@ -123,6 +123,11 @@ public class User : IdentityUser, ISoftDeletable
     /// Events the user has created
     /// </summary>
     public ICollection<Event> EventsCreated { get; set; } = null!;
+    
+    /// <summary>
+    /// Transactions made by the user. For customers
+    /// </summary>
+    public ICollection<Transaction> Transactions { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
