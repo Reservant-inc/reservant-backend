@@ -31,7 +31,7 @@ public class WalletService(
         {
             Title = moneyRequest.Title,
             Amount = moneyRequest.Amount,
-            Time = DateTime.UtcNow,
+            Time = DateTime.Now,
             UserId = user.Id,
         };
 
