@@ -148,7 +148,7 @@ namespace Reservant.Api.Services
 
             return new RestaurantVM
             {
-                RestaurantId = restaurant.Id,
+                Restaurantrestaurant.Id,
                 Name = restaurant.Name,
                 RestaurantType = restaurant.RestaurantType,
                 Nip = restaurant.Nip,
@@ -999,7 +999,7 @@ namespace Reservant.Api.Services
 
             var reviewVM = new ReviewVM
             {
-                Id = newReview.Id,
+                ReviewId = newReview.Id,
                 RestaurantId=newReview.RestaurantId,
                 AuthorId=newReview.AuthorId,
                 AuthorFullName=newReview.Author.FullName,
@@ -1034,7 +1034,7 @@ namespace Reservant.Api.Services
 
             var reviewVM = reviewsQuery.Select(r => new ReviewVM
             {
-                Id = r.Id,
+                ReviewId = r.Id,
                 RestaurantId = r.RestaurantId,
                 AuthorId = r.AuthorId,
                 AuthorFullName = r.Author.FullName,
