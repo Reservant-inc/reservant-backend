@@ -140,4 +140,9 @@ public static class ErrorCodes
     /// Same object already exists
     /// </summary>
     public const string Duplicate = "Duplicate";
+
+    /// <summary>
+    /// Too late to join event
+    /// </summary>
+    public const string UserNotInterestedInEvent = "UserNotInterestedInEvent";
 }
