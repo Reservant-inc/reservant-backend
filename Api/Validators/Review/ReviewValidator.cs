@@ -1,12 +1,11 @@
 using FluentValidation;
-using Reservant.Api.Models;
 
-namespace Reservant.Api.Validators.Restaurant;
+namespace Reservant.Api.Validators.Review;
 
 /// <summary>
 /// Validator for Review
 /// </summary>
-public class ReviewValidator : AbstractValidator<Review>
+public class ReviewValidator : AbstractValidator<Models.Review>
 {
     /// <inheritdoc />
     public ReviewValidator()

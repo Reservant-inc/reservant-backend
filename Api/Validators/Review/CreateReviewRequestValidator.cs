@@ -1,7 +1,7 @@
 using FluentValidation;
 using Reservant.Api.Models.Dtos.Review;
 
-namespace Reservant.Api.Validators.Restaurant;
+namespace Reservant.Api.Validators.Review;
 
 /// <summary>
 /// Validator for CreateReviewRequest
