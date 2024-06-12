@@ -18,13 +18,13 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <summary>
     /// Gets order with the given id
     /// </summary>
-    /// <param name="id">Id of the order</param>
+    /// <param name="orderId">Id of the order</param>
     /// <returns>OrderVM or NotFound if order wasn't found</returns>
-    [HttpGet("{id:int}")]
+    [HttpGet("{orderId:int}")]
     [Authorize(Roles = $"{Roles.Customer},{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
-    public async Task<ActionResult<OrderVM>> GetOrderById(int id)
+    public async Task<ActionResult<OrderVM>> GetOrderById(int orderId)
     {
-        var order = await orderService.GetOrderById(id, User);
+        var order = await orderService.GetOrderById(orderId, User);
 
         if (order.IsError)
         {
@@ -37,10 +37,10 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <summary>
     /// Controller responsible for canceling orders
     /// </summary>
-    [HttpPost("{id:int}/cancel")]
+    [HttpPost("{orderId:int}/cancel")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult> CancelOrder(int id)
+    public async Task<ActionResult> CancelOrder(int orderId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -48,7 +48,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
             return Unauthorized();
         }
 
-        var result = await orderService.CancelOrderAsync(id, user);
+        var result = await orderService.CancelOrderAsync(orderId, user);
         if (result.IsError)
         {
             return result.ToValidationProblem();
@@ -83,13 +83,13 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <summary>
     /// Update information about an Order as a restaurant employee
     /// </summary>
-    /// <param name="id">order id</param>
+    /// <param name="orderId">order id</param>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPut("{id:int}/status")]
+    [HttpPut("{orderId:int}/status")]
     [Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<OrderVM>> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequest request)
+    public async Task<ActionResult<OrderVM>> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -97,7 +97,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
             return Unauthorized();
         }
 
-        var result = await orderService.UpdateOrderStatusAsync(id, request, user);
+        var result = await orderService.UpdateOrderStatusAsync(orderId, request, user);
         if (result.IsError) {
             return result.ToValidationProblem();
         }

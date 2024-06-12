@@ -68,11 +68,11 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Get a specific restaurant owned by the user.
         /// </summary>
-        /// <param name="id">Id of the restaurant.</param>
+        /// <param name="restaurantId">Id of the restaurant.</param>
         /// <returns></returns>
-        [HttpGet("{id:int}")]
+        [HttpGet("{restaurantId:int}")]
         [ProducesResponseType(200), ProducesResponseType(404)]
-        public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int id)
+        public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -80,7 +80,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.GetMyRestaurantByIdAsync(user, id);
+            var result = await restaurantService.GetMyRestaurantByIdAsync(user, restaurantId);
             if (result == null)
             {
                 return NotFound();
@@ -92,11 +92,11 @@ namespace Reservant.Api.Controllers
         /// Adds a list of employees to the restaurant
         /// </summary>
         /// <param name="request"></param>
-        /// <param name="id"></param>
+        /// <param name="restaurantId"></param>
         /// <returns></returns>
-        [HttpPost("{id:int}/employees")]
+        [HttpPost("{restaurantId:int}/employees")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int id)
+        public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int restaurantId)
         {
             var userId = userManager.GetUserId(User);
             if (userId is null)
@@ -104,7 +104,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.AddEmployeeAsync(request, id, userId);
+            var result = await restaurantService.AddEmployeeAsync(request, restaurantId, userId);
             if (result.IsError)
             {
                 return result.ToValidationProblem();
@@ -116,12 +116,12 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Move a Restaurant to another RestaurantGroup
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="restaurantId"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("{id:int}/move-to-group")]
+        [HttpPost("{restaurantId:int}/move-to-group")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int id, MoveToGroupRequest request)
+        public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int restaurantId, MoveToGroupRequest request)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -129,7 +129,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.MoveRestaurantToGroupAsync(id, request, user);
+            var result = await restaurantService.MoveRestaurantToGroupAsync(restaurantId, request, user);
             if (result.IsError)
             {
                 return result.ToValidationProblem();
@@ -141,10 +141,10 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Get list of restaurant's employees
         /// </summary>
-        /// <param name="id">ID of the restaurant</param>
-        [HttpGet("{id:int}/employees")]
+        /// <param name="restaurantId">ID of the restaurant</param>
+        [HttpGet("{restaurantId:int}/employees")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<List<RestaurantEmployeeVM>>> GetEmployees(int id)
+        public async Task<ActionResult<List<RestaurantEmployeeVM>>> GetEmployees(int restaurantId)
         {
             var userId = userManager.GetUserId(User);
             if (userId is null)
@@ -152,7 +152,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.GetEmployeesAsync(id, userId);
+            var result = await restaurantService.GetEmployeesAsync(restaurantId, userId);
             if (result.IsError)
             {
                 return result.ToValidationProblem();
@@ -164,13 +164,13 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Updates restaurant info
         /// </summary>
-        /// <param name="id">ID of the restaurant</param>
+        /// <param name="restaurantId">ID of the restaurant</param>
         /// <param name="request">Request with data</param>
-        [HttpPut("{id:int}")]
+        [HttpPut("{restaurantId:int}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult<RestaurantVM>> EditRestaurantInfo(int id, UpdateRestaurantRequest request)
+        public async Task<ActionResult<RestaurantVM>> EditRestaurantInfo(int restaurantId, UpdateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -178,7 +178,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.UpdateRestaurantAsync(id, request, user);
+            var result = await restaurantService.UpdateRestaurantAsync(restaurantId, request, user);
 
             if (!result.IsError)
             {
@@ -217,12 +217,12 @@ namespace Reservant.Api.Controllers
         /// Get list of menus by given restaurant id
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{id:int}/menus")]
+        [HttpGet("{restaurantId:int}/menus")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int id)
+        public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
         {
-            var result = await restaurantService.GetMenusAsync(id);
+            var result = await restaurantService.GetMenusAsync(restaurantId);
 
             if (result == null)
             {
@@ -235,11 +235,11 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Gets menu items from the given restaurant
         /// </summary>
-        /// <param name="id">ID of the restaurant</param>
+        /// <param name="restaurantId">ID of the restaurant</param>
         /// <returns>The found list of menuItems</returns>
-        [HttpGet("{id:int}/menu-items")]
+        [HttpGet("{restaurantId:int}/menu-items")]
         [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-        public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int id)
+        public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -247,7 +247,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var res = await restaurantService.GetMenuItemsAsync(user, id);
+            var res = await restaurantService.GetMenuItemsAsync(user, restaurantId);
 
             if (res.IsError)
             {
@@ -261,9 +261,9 @@ namespace Reservant.Api.Controllers
         /// Delete restaurant
         /// </summary>
         /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{restaurantId:int}")]
         [ProducesResponseType(204), ProducesResponseType(404)]
-        public async Task<ActionResult> SoftDeleteRestaurant(int id)
+        public async Task<ActionResult> SoftDeleteRestaurant(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -271,7 +271,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.SoftDeleteRestaurantAsync(id, user);
+            var result = await restaurantService.SoftDeleteRestaurantAsync(restaurantId, user);
 
             if (result.IsError)
             {
