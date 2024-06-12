@@ -33,7 +33,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     }
 
     /// <summary>
-    /// Posts menu to the restaurant
+    /// Create a Menu in a restaurant
     /// </summary>
     /// <param name="req">Request for Menu to be created.</param>
     /// <returns></returns>
@@ -57,7 +57,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     }
 
     /// <summary>
-    /// Adds a given menuItem ids to specific menu
+    /// Adds MenuItems to a Menu
     /// </summary>
     /// <param name="id">Id of menu</param>
     /// <param name="request">Request containing MenuItemIds</param>
@@ -133,7 +133,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
 
 
     /// <summary>
-    /// removes menu item from given menue by given id
+    /// Remove a MenuItem from a Menu
     /// </summary>
     /// <param name="req">request of removal</param>
     /// <param name="id">id of the menu</param>

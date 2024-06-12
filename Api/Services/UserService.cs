@@ -85,6 +85,7 @@ public class UserService(
             UserName = username,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
+            BirthDate = request.BirthDate,
             PhoneNumber = request.PhoneNumber.Trim(),
             RegisteredAt = DateTime.UtcNow,
             Employer = employer
@@ -187,6 +188,7 @@ public class UserService(
                 Login = u.UserName!,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
+                BirthDate = u.BirthDate!.Value,
                 PhoneNumber = u.PhoneNumber!,
                 Employments = u.Employments
                     .Where(e => e.DateUntil == null)

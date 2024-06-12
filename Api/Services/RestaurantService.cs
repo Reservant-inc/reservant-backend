@@ -17,6 +17,7 @@ using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 using Reservant.Api.Validators.Restaurant;
+using Reservant.Api.Models.Dtos.Event;
 
 
 namespace Reservant.Api.Services
@@ -475,6 +476,7 @@ namespace Reservant.Api.Services
                     Login = e.Employee.UserName!,
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
+                    BirthDate = e.Employee.BirthDate!.Value,
                     PhoneNumber = e.Employee.PhoneNumber!,
                     IsBackdoorEmployee = e.IsBackdoorEmployee,
                     IsHallEmployee = e.IsHallEmployee,
@@ -703,7 +705,8 @@ namespace Reservant.Api.Services
                     AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,
                     DateFrom = menu.DateFrom,
-                    DateUntil = menu.DateUntil
+                    DateUntil = menu.DateUntil,
+                    Photo = uploadService.GetPathForFileName(menu.PhotoFileName)
                 })
                 .ToList();
 
@@ -808,29 +811,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (!await userManager.IsInRoleAsync(user, Roles.RestaurantEmployee))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(userId),
-                    ErrorMessage = $"User with ID {userId} is not a RestaurantEmployee",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-            var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
-                e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
-            if (!isEmployeeAtRestaurant)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(userId),
-                    ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .Include(restaurant => restaurant.Group)
+                .FirstOrDefaultAsync(x => x.Id == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -838,6 +821,44 @@ namespace Reservant.Api.Services
                     PropertyName = nameof(restaurantId),
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            if (roles.Contains(Roles.RestaurantEmployee))
+            {
+                var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
+                    e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
+                if (!isEmployeeAtRestaurant)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+            }
+            else if (roles.Contains(Roles.RestaurantOwner))
+            {
+                if (restaurant.Group.OwnerId != userId)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = "User is not owner of the restaurant",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+            }
+            else
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User must be employed in the restaurant or be its owner",
+                    ErrorCode = ErrorCodes.AccessDenied
                 };
             }
 
@@ -880,6 +901,45 @@ namespace Reservant.Api.Services
             };
 
             return await filteredOrders.PaginateAsync(page, perPage);
+        }
+
+        /// <summary>
+        /// Get future events in a restaurant with pagination.
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant.</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of future events.</returns>
+        public async Task<Result<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurantAsync(int restaurantId, int page, int perPage)
+        {
+            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var query = context.Events
+                .Where(e => e.RestaurantId == restaurantId && e.Time > DateTime.UtcNow)
+                .OrderBy(e => e.Time)
+                .Select(e => new EventSummaryVM
+                {
+                    EventId = e.Id,
+                    Description = e.Description,
+                    Time = e.Time,
+                    MustJoinUntil = e.MustJoinUntil,
+                    CreatorId = e.CreatorId,
+                    CreatorFullName = e.Creator.FullName,
+                    RestaurantId = e.RestaurantId,
+                    RestaurantName = e.Restaurant.Name,
+                    NumberInterested = e.Interested.Count
+                });
+
+            return await query.PaginateAsync(page, perPage);
         }
 
         /// <summary>
@@ -969,7 +1029,6 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
-
             var reviewsQuery = context.Reviews
                 .Where(r => r.RestaurantId == restaurantId);
 
@@ -998,12 +1057,5 @@ namespace Reservant.Api.Services
 
             return await reviewVM.PaginateAsync(page, perPage);
         }
-
-
-
-
-
-
-
     }
 }

@@ -40,6 +40,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
     public DbSet<Review> Reviews { get; init; } = null!;
 
+    public DbSet<MessageThread> MessageThreads { get; init; } = null!;
+
+    public DbSet<PaymentTransaction> PaymentTransactions { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
@@ -47,11 +51,11 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     {
         await Database.ExecuteSqlRawAsync("EXEC DropAllTables");
     }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var connString = configuration.GetConnectionString("Default");
-        
+
         optionsBuilder.UseSqlServer(
             connString ?? throw new InvalidOperationException("Connection string 'Default' not found"),
             x => x.UseNetTopologySuite());
@@ -60,7 +64,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+
         builder.Entity<Restaurant>()
             .Property(r => r.Location)
             .HasColumnType("geometry");

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Services;
@@ -65,7 +66,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns>List of orders with pagination</returns>
     [HttpGet("{id:int}/orders")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int id, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null)
     {
         var userId = userManager.GetUserId(User);
@@ -75,6 +76,33 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.GetOrdersAsync(userId, id, returnFinished, page, perPage, orderBy);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get future events in a restaurant with pagination.
+    /// </summary>
+    /// <param name="id">ID of the restaurant.</param>
+    /// <param name="page">Page number to return.</param>
+    /// <param name="perPage">Items per page.</param>
+    /// <returns>Paginated list of future events.</returns>
+    [HttpGet("{id:int}/events")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurant(int id, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    {
+        var userId = userManager.GetUserId(User);
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.GetFutureEventsByRestaurantAsync(id, page, perPage);
+
         if (result.IsError)
         {
             return result.ToValidationProblem();
@@ -110,13 +138,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
-
-
-
-
-
-
-
     /// <summary>
     /// Returns reviews by id
     /// </summary>
@@ -140,6 +161,4 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return Ok(result.Value);
     }
-
-
 }

@@ -16,6 +16,9 @@ public class RegisterRestaurantEmployeeRequest
     [Required, StringLength(30)]
     public required string LastName { get; init; }
 
+    [Required]
+    public required DateOnly BirthDate { get; init; }
+
     [Required, StringLength(15), Phone]
     public required string PhoneNumber { get; init; }
 
