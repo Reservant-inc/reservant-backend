@@ -148,7 +148,7 @@ namespace Reservant.Api.Services
 
             return new RestaurantVM
             {
-                Restaurantrestaurant.Id,
+                RestaurantId = restaurant.Id,
                 Name = restaurant.Name,
                 RestaurantType = restaurant.RestaurantType,
                 Nip = restaurant.Nip,
@@ -1011,7 +1011,7 @@ namespace Reservant.Api.Services
             };
 
             return reviewVM;
-        }    
+        }
 
         /// <summary>
         /// Get reviews for a restaurant
@@ -1045,7 +1045,7 @@ namespace Reservant.Api.Services
                 RestaurantResponse = r.RestaurantResponse
             });
 
-            reviewVM = reviewVM.AsQueryable(); 
+            reviewVM = reviewVM.AsQueryable();
             reviewVM = orderBy switch
             {
                 ReviewOrderSorting.StarsAsc => reviewVM.OrderBy(o => o.Stars),
