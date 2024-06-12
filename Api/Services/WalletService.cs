@@ -29,7 +29,7 @@ public class WalletService(
     {
         var newTransaction = new PaymentTransaction
         {
-            Title = moneyRequest.Title,
+            Title = moneyRequest.Title.Trim(),
             Amount = moneyRequest.Amount,
             Time = DateTime.UtcNow,
             UserId = user.Id,
