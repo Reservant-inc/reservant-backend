@@ -58,16 +58,6 @@ public class WalletService(
             .Where(p => p.UserId == user.Id)
             .ToListAsync();
 
-        if (transactions == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(user.Id),
-                ErrorMessage = $"No transactions found for user {user.Id}",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
         return new WalletStatusVM
         {
             Balance = transactions.Sum(p => p.Amount)
@@ -92,16 +82,6 @@ public class WalletService(
                 Amount = p.Amount,
                 Time = p.Time,
             });
-
-        if (transactions == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(user.Id),
-                ErrorMessage = $"No transactions found for user {user.Id}",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
 
         return await transactions.PaginateAsync(page, perPage);
 
