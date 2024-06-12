@@ -72,6 +72,7 @@ public class WalletService(
     {
         var transactions = context.PaymentTransactions
             .Where(p => p.UserId == user.Id)
+            .OrderBy(p => p.Time)
             .Select(p => new TransactionVM
             {
                 TransactionId = p.Id,

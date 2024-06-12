@@ -173,6 +173,7 @@ public class FriendService(ApiDbContext context)
     {
         var query = context.FriendRequests
             .Where(fr => (fr.ReceiverId == userId || fr.SenderId == userId) && fr.DateAccepted != null && fr.DateDeleted == null)
+            .OrderBy(fr => fr.DateAccepted)
             .Select(fr => new FriendRequestVM
             {
                 DateSent = fr.DateSent,
@@ -198,6 +199,7 @@ public class FriendService(ApiDbContext context)
     {
         var query = context.FriendRequests
             .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null)
+            .OrderByDescending(fr => fr.DateSent)
             .Select(fr => new FriendRequestVM
             {
                 DateSent = fr.DateSent,
@@ -223,6 +225,7 @@ public class FriendService(ApiDbContext context)
     {
         var query = context.FriendRequests
             .Where(fr => fr.SenderId == userId && fr.DateAccepted == null && fr.DateDeleted == null)
+            .OrderByDescending(fr => fr.DateSent)
             .Select(fr => new FriendRequestVM
             {
                 DateSent = fr.DateSent,
