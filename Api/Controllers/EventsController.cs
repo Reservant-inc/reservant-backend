@@ -6,9 +6,6 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos;
-using FluentValidation.Results;
-using Reservant.Api.Validators;
 using Reservant.Api.Data;
 
 

@@ -16,7 +16,6 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
-using Reservant.Api.Validators.Restaurant;
 using Reservant.Api.Models.Dtos.Event;
 
 

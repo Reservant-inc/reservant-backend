@@ -1,7 +1,5 @@
 using FluentValidation;
-using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.Restaurant;
 

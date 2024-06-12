@@ -1,12 +1,9 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Wallet;
 using Reservant.Api.Validation;
-using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
