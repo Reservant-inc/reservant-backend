@@ -33,7 +33,12 @@ public class WalletController(
     public async Task<ActionResult> CreateTransaction(AddMoneyRequest moneyRequest)
     {
         var user = await userManager.GetUserAsync(User);
-        var result = await walletService.CreateTransaction(moneyRequest, user!);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await walletService.CreateTransaction(moneyRequest, user);
 
         if (result.IsError)
         {
@@ -52,7 +57,12 @@ public class WalletController(
     public async Task<ActionResult<WalletStatusVM>> GetWalletStatus()
     {
         var user = await userManager.GetUserAsync(User);
-        var result = await walletService.GetWalletStatus(user!);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await walletService.GetWalletStatus(user);
 
         if (result.IsError)
         {
@@ -73,7 +83,12 @@ public class WalletController(
     public async Task<ActionResult<Pagination<TransactionVM>>> GetTransactionHistory([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
-        var result = await walletService.GetTransactionHistory(page, perPage, user!);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await walletService.GetTransactionHistory(page, perPage, user);
 
         if (result.IsError)
         {
