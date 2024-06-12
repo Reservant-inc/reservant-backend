@@ -216,7 +216,7 @@ namespace Reservant.Api.Services
 
 
         /// <summary>
-        /// Get future events in a restaurant with pagination.
+        /// Get future events the user is interested in
         /// </summary>
         /// <param name="user">User whos intered event we go over</param>
         /// <param name="page">Page number to return.</param>
@@ -227,6 +227,8 @@ namespace Reservant.Api.Services
             var query = context.Users
                 .Where(u => u.Id == user.Id)
                 .SelectMany(u => u.InterestedIn)
+                .Where(u => u.Time > DateTime.UtcNow)
+                .OrderBy(u => u.Time)
                 .Select(e => new EventSummaryVM
                 {
                     EventId = e.Id,
