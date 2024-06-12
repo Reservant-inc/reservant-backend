@@ -65,7 +65,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         /// </summary>
         [HttpPost("{id:int}/interested")]
-        [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         public async Task<ActionResult> AddUserToEvent(int id)
         {
@@ -90,7 +90,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         /// </summary>
         [HttpDelete("{id:int}/interested")]
-        [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(404)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         public async Task<ActionResult> DeleteUserFromEvent(int id)
         {
