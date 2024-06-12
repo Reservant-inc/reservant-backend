@@ -953,8 +953,10 @@ namespace Reservant.Api.Services
             return reviewVM;
         }    
 
-
-        public async Task<Result<Pagination<ReviewVM>>> GetReviewAsync(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+        /// <summary>
+        /// Get reviews for a restaurant
+        /// </summary>
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
             var restaurant = await context.Restaurants.FindAsync(restaurantId);
 
