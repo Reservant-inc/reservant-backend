@@ -6,8 +6,6 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Data;
-
 
 namespace Reservant.Api.Controllers
 {
@@ -15,7 +13,7 @@ namespace Reservant.Api.Controllers
     /// Controller for managing events
     /// </summary>
     [ApiController, Route("/events")]
-    public class EventsController(EventService service, UserManager<User> userManager, ApiDbContext context) : StrictController
+    public class EventsController(EventService service, UserManager<User> userManager) : StrictController
     {
         /// <summary>
         /// Create new event
