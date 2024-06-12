@@ -146,6 +146,9 @@ namespace Reservant.Api.Services
             }).ToList();
         }
 
+        /// <summary>
+        /// Add user from event's interested list
+        /// </summary>
         public async Task<Result<bool>> AddUserToEventAsync(int id, User user)
         {
             var eventFound = await context.Events
@@ -178,7 +181,9 @@ namespace Reservant.Api.Services
             return true;
         }
 
-
+        /// <summary>
+        /// Remove user from event's interested list
+        /// </summary>
         public async Task<Result<bool>> DeleteUserFromEventAsync(int id, User user)
         {
             var eventFound = await context.Events

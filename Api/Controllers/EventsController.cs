@@ -60,7 +60,7 @@ namespace Reservant.Api.Controllers
 
 
         /// <summary>
-        /// Adds logged in user to event of given id
+        /// Add logged-in user to event's interested list
         /// <param name="id"> Id of Event</param>
         /// <returns></returns>
         /// </summary>
@@ -85,7 +85,7 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
-        /// Delets logged in user from event of given id
+        /// Remove logged-in user to event's interested list
         /// <param name="id"> Id of Event</param>
         /// <returns></returns>
         /// </summary>
