@@ -20,11 +20,6 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
             .NotEmpty()
             .MaximumLength(30);
 
-        RuleFor(r => r.Email)
-            .NotEmpty()
-            .EmailAddress()
-            .MaximumLength(50);
-
         RuleFor(r => r.PhoneNumber)
             .NotEmpty()
             .MaximumLength(15);

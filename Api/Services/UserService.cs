@@ -290,7 +290,6 @@ public class UserService(
             };
         }
 
-        employee.Email = request.Email.Trim();
         employee.PhoneNumber = request.PhoneNumber.Trim();
         employee.FirstName = request.FirstName.Trim();
         employee.LastName = request.LastName.Trim();
@@ -321,7 +320,6 @@ public class UserService(
             return result;
         }
 
-        user.Email = request.Email.Trim();
         user.PhoneNumber = request.PhoneNumber.Trim();
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
