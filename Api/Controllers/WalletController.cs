@@ -12,7 +12,7 @@ using Reservant.Api.Validation;
 namespace Reservant.Api.Controllers;
 
 /// <summary>
-/// controller for handling customer transactions
+/// Controller for handling customer transactions
 /// </summary>
 /// <param name="userManager"></param>
 /// <param name="walletService"></param>
