@@ -96,6 +96,10 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<ReviewVM>> CreateReview(int id, CreateReviewRequest createReviewRequest)
     {
         var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
         var result = await service.CreateReviewAsync( user,  id, createReviewRequest);
         
