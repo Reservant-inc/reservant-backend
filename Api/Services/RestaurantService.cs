@@ -809,29 +809,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (!await userManager.IsInRoleAsync(user, Roles.RestaurantEmployee))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(userId),
-                    ErrorMessage = $"User with ID {userId} is not a RestaurantEmployee",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-            var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
-                e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
-            if (!isEmployeeAtRestaurant)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(userId),
-                    ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .Include(restaurant => restaurant.Group)
+                .FirstOrDefaultAsync(x => x.Id == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -839,6 +819,44 @@ namespace Reservant.Api.Services
                     PropertyName = nameof(restaurantId),
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            if (roles.Contains(Roles.RestaurantEmployee))
+            {
+                var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
+                    e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
+                if (!isEmployeeAtRestaurant)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+            }
+            else if (roles.Contains(Roles.RestaurantOwner))
+            {
+                if (restaurant.Group.OwnerId != userId)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = "User is not owner of the restaurant",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+            }
+            else
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User must be employed in the restaurant or be its owner",
+                    ErrorCode = ErrorCodes.AccessDenied
                 };
             }
 
