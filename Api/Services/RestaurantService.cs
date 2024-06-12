@@ -13,8 +13,10 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
+using Reservant.Api.Validators.Restaurant;
 using Reservant.Api.Models.Dtos.Event;
 
 
@@ -938,6 +940,122 @@ namespace Reservant.Api.Services
                 });
 
             return await query.PaginateAsync(page, perPage);
+        }
+
+        /// <summary>
+        /// Add review to restaurant of given id from logged in user containing data from request
+        /// </summary>
+        /// <param name="user">User putting in a review</param>
+        /// <param name="restaurantId">ID of restaurant reciving review</param>
+        /// <param name="createReviewRequest">template for data provided in a reveiw</param>
+        /// <returns>View of a created review</returns>
+        public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
+        {
+            var restaurant = await context.Restaurants
+                .Where(r => r.Id == restaurantId)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
+            }
+
+            var createReviewRequestValidation = await validationService.ValidateAsync(createReviewRequest,user.Id);
+            if(!createReviewRequestValidation.IsValid)
+            {
+                return createReviewRequestValidation;
+            }
+
+            var existingReview = await context.Reviews
+                .Where(r => r.RestaurantId == restaurantId)
+                .Where(r => r.Author==user)
+                .FirstOrDefaultAsync();
+
+            if (existingReview != null)
+            {
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.Duplicate };
+            }
+
+            var newReview = new Review
+            {
+                Restaurant = restaurant,
+                Author = user,
+                RestaurantId = restaurantId,
+                AuthorId = user.Id,
+                Stars = createReviewRequest.Stars,
+                CreatedAt = DateTime.Now,
+                Contents = createReviewRequest.Contents
+            };
+
+
+            var reviewValidation = await validationService.ValidateAsync(newReview,user.Id);
+            if(!reviewValidation.IsValid)
+            {
+                return reviewValidation;
+            }
+
+            await context.Reviews.AddAsync(newReview);
+            await context.SaveChangesAsync();
+
+            var reviewVM = new ReviewVM
+            {
+                ReviewId = newReview.Id,
+                RestaurantId=newReview.RestaurantId,
+                AuthorId=newReview.AuthorId,
+                AuthorFullName=newReview.Author.FullName,
+                Stars=newReview.Stars,
+                CreatedAt=newReview.CreatedAt,
+                Contents=newReview.Contents,
+                AnsweredAt=newReview.AnsweredAt,
+                RestaurantResponse=newReview.RestaurantResponse
+            };
+
+            return reviewVM;
+        }
+
+        /// <summary>
+        /// Get reviews for a restaurant
+        /// </summary>
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+        {
+            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+            var reviewsQuery = context.Reviews
+                .Where(r => r.RestaurantId == restaurantId);
+
+            var reviewVM = reviewsQuery.Select(r => new ReviewVM
+            {
+                ReviewId = r.Id,
+                RestaurantId = r.RestaurantId,
+                AuthorId = r.AuthorId,
+                AuthorFullName = r.Author.FullName,
+                Stars = r.Stars,
+                CreatedAt = r.CreatedAt,
+                Contents = r.Contents,
+                AnsweredAt = r.AnsweredAt,
+                RestaurantResponse = r.RestaurantResponse
+            });
+
+            reviewVM = reviewVM.AsQueryable();
+            reviewVM = orderBy switch
+            {
+                ReviewOrderSorting.StarsAsc => reviewVM.OrderBy(o => o.Stars),
+                ReviewOrderSorting.StarsDesc => reviewVM.OrderByDescending(o => o.Stars),
+                ReviewOrderSorting.DateAsc => reviewVM.OrderBy(o => o.CreatedAt),
+                ReviewOrderSorting.DateDesc => reviewVM.OrderByDescending(o => o.CreatedAt),
+                _ => reviewVM
+            };
+
+            return await reviewVM.PaginateAsync(page, perPage);
         }
     }
 }
