@@ -65,7 +65,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns>List of orders with pagination</returns>
     [HttpGet("{id:int}/orders")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int id, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null)
     {
         var userId = userManager.GetUserId(User);
@@ -92,7 +92,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns>Paginated list of future events.</returns>
     [HttpGet("{id:int}/events")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurant(int id, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var userId = userManager.GetUserId(User);

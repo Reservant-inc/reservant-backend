@@ -12,7 +12,7 @@ public class EventVM
     /// Unique ID
     /// </summary>
     [Key]
-    public required int Id { get; set; }
+    public required int EventId { get; set; }
 
     /// <summary>
     /// When the event was created

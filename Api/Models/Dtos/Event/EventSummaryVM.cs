@@ -11,7 +11,7 @@ public class EventSummaryVM
     /// Unique ID
     /// </summary>
     [Key]
-    public required int Id { get; set; }
+    public required int EventId { get; set; }
 
     /// <summary>
     /// Optional description

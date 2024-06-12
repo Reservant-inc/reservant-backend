@@ -21,7 +21,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <param name="id">Id of the order</param>
     /// <returns>OrderVM or NotFound if order wasn't found</returns>
     [HttpGet("{id:int}")]
-    [Authorize(Roles = $"{Roles.Customer},{Roles.RestaurantEmployee}")]
+    [Authorize(Roles = $"{Roles.Customer},{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     public async Task<ActionResult<OrderVM>> GetOrderById(int id)
     {
         var order = await orderService.GetOrderById(id, User);
