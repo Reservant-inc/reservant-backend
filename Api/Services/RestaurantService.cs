@@ -901,9 +901,9 @@ namespace Reservant.Api.Services
             }
 
             var createReviewRequestValidation = await validationService.ValidateAsync(createReviewRequest,user.Id);
-            if(createReviewRequestValidation.IsValid)
+            if(!createReviewRequestValidation.IsValid)
             {
-                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
+                return createReviewRequestValidation;
             }
 
             var Existingreview = await context.Reviews
@@ -929,9 +929,9 @@ namespace Reservant.Api.Services
 
 
             var reviewValidation = await validationService.ValidateAsync(newReview,user.Id);
-            if(reviewValidation.IsValid) 
+            if(!reviewValidation.IsValid)
             {
-                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
+                return reviewValidation;
             }
 
             await context.Reviews.AddAsync(newReview);
