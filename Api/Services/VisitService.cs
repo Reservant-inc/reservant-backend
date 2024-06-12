@@ -106,7 +106,7 @@ public class VisitService(
         {
             Date = request.Date,
             NumberOfGuests = request.NumberOfGuests,
-            ReservationDate = DateOnly.FromDateTime(DateTime.Now),
+            ReservationDate = DateOnly.FromDateTime(DateTime.UtcNow),
             Tip = request.Tip,
             Client = user,
             ClientId = user.Id,

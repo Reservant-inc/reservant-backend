@@ -352,7 +352,7 @@ namespace Reservant.Api.Services
                 RestaurantId = restaurantId,
                 IsBackdoorEmployee = r.IsBackdoorEmployee,
                 IsHallEmployee = r.IsHallEmployee,
-                DateFrom = DateOnly.FromDateTime(DateTime.Now)
+                DateFrom = DateOnly.FromDateTime(DateTime.UtcNow)
             }).Select(x =>
             {
                 Console.WriteLine(x.Id);
@@ -983,7 +983,7 @@ namespace Reservant.Api.Services
                 RestaurantId = restaurantId,
                 AuthorId = user.Id,
                 Stars = createReviewRequest.Stars,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 Contents = createReviewRequest.Contents
             };
 
