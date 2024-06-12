@@ -201,7 +201,7 @@ public class UserController(
     [HttpGet("events-interested-in")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult<Pagination<EventSummaryVM>>> getEventsUderInterestedIn( [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    public async Task<ActionResult<Pagination<EventSummaryVM>>> GetEventsUserInterestedIn( [FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
