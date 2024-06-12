@@ -81,15 +81,7 @@ namespace Reservant.Api.Controllers
                 return result.ToValidationProblem();
             }
 
-            switch (result.Value)
-            {
-                case EventService.ServiceResultStatus.NotFound:
-                    return NotFound();
-                case EventService.ServiceResultStatus.BadRequest:
-                    return BadRequest();
-                default:
-                    return Ok();
-            }
+            return Ok();
         }
 
         /// <summary>
@@ -114,15 +106,7 @@ namespace Reservant.Api.Controllers
                 return result.ToValidationProblem();
             }
 
-            switch (result.Value)
-            {
-                case EventService.ServiceResultStatus.NotFound:
-                    return NotFound();
-                case EventService.ServiceResultStatus.BadRequest:
-                    return BadRequest();
-                default:
-                    return Ok();
-            }
+            return Ok();
         }
     }
 }

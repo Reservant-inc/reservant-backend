@@ -145,18 +145,8 @@ namespace Reservant.Api.Services
                 CreatorId = e.CreatorId,
             }).ToList();
         }
-    
 
-
-
-        public enum ServiceResultStatus
-        {
-            NotFound,
-            BadRequest,
-            Ok
-        }
-
-        public async Task<Result<ServiceResultStatus>> AddUserToEventAsync(int id, User user)
+        public async Task<Result<bool>> AddUserToEventAsync(int id, User user)
         {
             var eventFound = await context.Events
                 .Include(e => e.Interested)
@@ -164,23 +154,32 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
             if(eventFound==null)
             {
-                return ServiceResultStatus.NotFound;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
-            //eventFound.MustJoinUntil > DateTime.Now ||
-            if( eventFound.Interested.Contains(user) )
+            if (eventFound.Interested.Contains(user))
             {
-                return ServiceResultStatus.BadRequest;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is already interested in the event",
+                    ErrorCode = ErrorCodes.Duplicate
+                };
             }
 
             eventFound.Interested.Add(user);
             await context.SaveChangesAsync();
 
-            return ServiceResultStatus.Ok;
+            return true;
         }
 
 
-        public async Task<Result<ServiceResultStatus>> DeleteUserFromEventAsync(int id, User user)
+        public async Task<Result<bool>> DeleteUserFromEventAsync(int id, User user)
         {
             var eventFound = await context.Events
                 .Include(e => e.Interested)
@@ -188,21 +187,26 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
             if(eventFound==null)
             {
-                return ServiceResultStatus.NotFound;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
-            //eventFound.MustJoinUntil < DateTime.Now &&
-            if(eventFound.Interested.Contains(user))
+            if (!eventFound.Interested.Remove(user))
             {
-                eventFound.Interested.Remove(user);
-            }
-            else
-            {
-                return ServiceResultStatus.BadRequest;
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is not interested in the event",
+                    ErrorCode = ErrorCodes.UserNotInterestedInEvent
+                };
             }
             await context.SaveChangesAsync();
 
-            return ServiceResultStatus.Ok;
+            return true;
         }
 
 
