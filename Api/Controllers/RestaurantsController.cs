@@ -129,9 +129,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int id, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
-        var user = await userManager.GetUserAsync(User);
-
-        var result = await service.GetReviewAsync(id, user, orderBy, page, perPage);
+        var result = await service.GetReviewAsync(id, orderBy, page, perPage);
         if (result.IsError)
         {
             return result.ToValidationProblem();

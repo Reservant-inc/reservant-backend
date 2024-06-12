@@ -954,7 +954,7 @@ namespace Reservant.Api.Services
         }    
 
 
-        public async Task<Result<Pagination<ReviewVM>>> GetReviewAsync(int restaurantId, User user, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewAsync(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
             var restaurant = await context.Restaurants.FindAsync(restaurantId);
 
