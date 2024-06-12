@@ -54,13 +54,13 @@ public class WalletService(
     /// <returns></returns>
     public async Task<Result<WalletStatusVM>> GetWalletStatus(User user)
     {
-        var transactions = await context.PaymentTransactions
+        var balance = await context.PaymentTransactions
             .Where(p => p.UserId == user.Id)
-            .ToListAsync();
+            .SumAsync(p => p.Amount);
 
         return new WalletStatusVM
         {
-            Balance = transactions.Sum(p => p.Amount)
+            Balance = balance
         };
     }
 
