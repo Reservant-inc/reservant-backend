@@ -906,12 +906,12 @@ namespace Reservant.Api.Services
                 return createReviewRequestValidation;
             }
 
-            var Existingreview = await context.Reviews
+            var existingReview = await context.Reviews
                 .Where(r => r.RestaurantId == restaurantId)
                 .Where(r => r.Author==user)
                 .FirstOrDefaultAsync();
 
-            if (Existingreview != null)
+            if (existingReview != null)
             {
                 return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.Duplicate };
             }
