@@ -229,7 +229,7 @@ namespace Reservant.Api.Services
                 .SelectMany(u => u.InterestedIn)
                 .Select(e => new EventSummaryVM
                 {
-                    Id = e.Id,
+                    EventId = e.Id,
                     Description = e.Description,
                     Time = e.Time,
                     MustJoinUntil = e.MustJoinUntil,
