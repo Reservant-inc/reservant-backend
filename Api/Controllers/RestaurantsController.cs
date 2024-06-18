@@ -23,7 +23,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// Gets restaurant in a given area, defined by two points
     /// </summary>
     /// <param name="lat1"> First point latitude </param>
-    /// <param name="lon1"> First point longiture </param>
+    /// <param name="lon1"> First point longitude </param>
     /// <param name="lat2"> Second point latitude</param>
     /// <param name="lon2"> Second point longitude </param>
     /// <returns></returns>
