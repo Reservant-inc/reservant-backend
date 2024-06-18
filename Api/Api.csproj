@@ -52,4 +52,66 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="example-uploads\AY\human4.png" />
+      <None Remove="example-uploads\AY\human5.png" />
+      <None Remove="example-uploads\AY\owner1.png" />
+      <None Remove="example-uploads\AY\ResBurger1.jpg" />
+      <None Remove="example-uploads\AY\ResBurger2.jpg" />
+      <None Remove="example-uploads\AY\ResInside1.jpg" />
+      <None Remove="example-uploads\AY\ResInside2.jpg" />
+      <None Remove="example-uploads\AY\ResLogo1.png" />
+      <None Remove="example-uploads\AY\sushi.png" />
+      <None Remove="example-uploads\AY\wege.png" />
+      <None Remove="example-uploads\AY\woda.png" />
+      <None Remove="example-uploads\GR\owner2.png" />
+      <None Remove="example-uploads\GR\owner3.png" />
+      <None Remove="example-uploads\GR\owner5.png" />
+      <None Remove="example-uploads\GR\ramen.png" />
+      <None Remove="example-uploads\GR\ResInside3.jpg" />
+      <None Remove="example-uploads\GR\ResInside4.jpg" />
+      <None Remove="example-uploads\GR\ResKebab1.jpg" />
+      <None Remove="example-uploads\GR\ResKebab2.jpg" />
+      <None Remove="example-uploads\GR\ResLogo3.png" />
+      <None Remove="example-uploads\GR\saladki.png" />
+      <None Remove="example-uploads\GR\stek.png" />
+      <None Remove="example-uploads\JD\owner6.png" />
+      <None Remove="example-uploads\JD\owner7.png" />
+      <None Remove="example-uploads\JD\owner8.png" />
+      <None Remove="example-uploads\JD\pierogi.png" />
+      <None Remove="example-uploads\JD\piwo.png" />
+      <None Remove="example-uploads\JD\pizza.png" />
+      <None Remove="example-uploads\JD\ResInside5.jpg" />
+      <None Remove="example-uploads\JD\ResInside9.jpg" />
+      <None Remove="example-uploads\JD\ResLogo2.png" />
+      <None Remove="example-uploads\JD\ResPizza1.jpg" />
+      <None Remove="example-uploads\JD\ResPizza2.jpg" />
+      <None Remove="example-uploads\JD\ResSushi1.jpg" />
+      <None Remove="example-uploads\KK\menu.png" />
+      <None Remove="example-uploads\KK\menuicon.png" />
+      <None Remove="example-uploads\KK\padthai.png" />
+      <None Remove="example-uploads\KK\ResInside6.jpg" />
+      <None Remove="example-uploads\KK\ResLogo4.png" />
+      <None Remove="example-uploads\KK\ResSushi2.jpg" />
+      <None Remove="example-uploads\KK\RestaurantBoss1.png" />
+      <None Remove="example-uploads\KK\RestaurantBoss2.png" />
+      <None Remove="example-uploads\KK\restaurantboss3.PNG" />
+      <None Remove="example-uploads\PA\human1.png" />
+      <None Remove="example-uploads\PA\human2.png" />
+      <None Remove="example-uploads\PA\human3.png" />
+      <None Remove="example-uploads\PA\kurczak.png" />
+      <None Remove="example-uploads\PA\makarony.png" />
+      <None Remove="example-uploads\PA\meksyanskie.png" />
+      <None Remove="example-uploads\PA\ResInside7.jpg" />
+      <None Remove="example-uploads\PA\ResLogo5.png" />
+      <None Remove="example-uploads\PA\ResVegan1.jpg" />
+      <None Remove="example-uploads\WW\burger.png" />
+      <None Remove="example-uploads\WW\drinki.png" />
+      <None Remove="example-uploads\WW\kebab.png" />
+      <None Remove="example-uploads\WW\ResInside8.jpg" />
+      <None Remove="example-uploads\WW\restaurantboss4.PNG" />
+      <None Remove="example-uploads\WW\restaurantBossUltimate.png" />
+      <None Remove="example-uploads\WW\ResVegan2.jpg" />
+    </ItemGroup>
+
 </Project>

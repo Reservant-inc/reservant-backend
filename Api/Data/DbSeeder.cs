@@ -102,6 +102,54 @@ public class DbSeeder(
         }, "e5779baf-5c9b-4638-b9e7-ec285e57b367")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
+        var anon = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Anon",
+            LastName = "Ymus",
+            Login = "AY",
+            Email = "anon@ymus.pl",
+            PhoneNumber = "+48987654321",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1989, 1, 2)
+        }, "je4nd6f9-j4bn-9374-n4s3-j3nd85ht0a03")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(anon.Id);
+
+        var walter = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Walter",
+            LastName = "White",
+            Login = "WW",
+            Email = "walter@white.pl",
+            PhoneNumber = "+48475927476",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1991, 3, 2)
+        }, "meko2a3d-me2f-0394-me04-jend74t50sj3")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(walter.Id);
+
+        var geralt = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Geralt",
+            LastName = "Riv",
+            Login = "GR",
+            Email = "geralt@riv.pl",
+            PhoneNumber = "+48049586273",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1986, 12, 12)
+        }, "s3ka3ac0-m2ko-2137-ckw0-wmk32knap2ks")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(geralt.Id);
+
+        var muadib = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Paul",
+            LastName = "Atreides",
+            Login = "PA",
+            Email = "paul@atreides.pl",
+            PhoneNumber = "+48423597532",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1978, 4, 20)
+        }, "emsko2a3-02ms-1376-m0z3-me2kzo2nsk20")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(muadib.Id);
+
         var kowalski = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             FirstName = "Krzysztof",
