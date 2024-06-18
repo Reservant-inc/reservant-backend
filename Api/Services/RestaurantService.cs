@@ -54,79 +54,78 @@ namespace Reservant.Api.Services
         ValidationService validationService,
         GeometryFactory geometryFactory)
     {
-
-
-    /// <summary>
-    /// Finds restaurant in a given rectangle defined by two geographical points.
-    /// </summary>
-    /// <param name="lat1">Latitude of the first point</param>
-    /// <param name="lon1">Longitude of the first point</param>
-    /// <param name="lat2">Latitude of the second point</param>
-    /// <param name="lon2">Longitude of the second point</param>
-    /// <returns></returns>
-    public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsInAreaAsync(double lat1, double lon1, double lat2, double lon2)
-    {
-        var minLat = Math.Min(lat1, lat2);
-        var maxLat = Math.Max(lat1, lat2);
-        var minLon = Math.Min(lon1, lon2);
-        var maxLon = Math.Max(lon1, lon2);
-
-        var coordinates = new[]
+        /// <summary>
+        /// Finds restaurant in a given rectangle defined by two geographical points.
+        /// </summary>
+        /// <param name="lat1">Latitude of the first point</param>
+        /// <param name="lon1">Longitude of the first point</param>
+        /// <param name="lat2">Latitude of the second point</param>
+        /// <param name="lon2">Longitude of the second point</param>
+        /// <returns></returns>
+        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsInAreaAsync(double lat1, double lon1, double lat2, double lon2)
         {
-            new Coordinate(minLon, minLat),
-            new Coordinate(minLon, maxLat),
-            new Coordinate(maxLon, maxLat),
-            new Coordinate(maxLon, minLat),
-            new Coordinate(minLon, minLat)
-        };
-        var boundingBox = geometryFactory.CreatePolygon(coordinates);
+            var minLat = Math.Min(lat1, lat2);
+            var maxLat = Math.Max(lat1, lat2);
+            var minLon = Math.Min(lon1, lon2);
+            var maxLon = Math.Max(lon1, lon2);
 
-        if (!boundingBox.IsValid)
-        {
-            return new ValidationFailure
+            var coordinates = new[]
             {
-                PropertyName = nameof(boundingBox),
-                ErrorMessage = "Given coordinates does not create a valid Polygon!",
-                ErrorCode = ErrorCodes.WrongPolygonFormat
+                new Coordinate(minLon, minLat),
+                new Coordinate(minLon, maxLat),
+                new Coordinate(maxLon, maxLat),
+                new Coordinate(maxLon, minLat),
+                new Coordinate(minLon, minLat)
             };
+            var boundingBox = geometryFactory.CreatePolygon(coordinates);
+
+            if (!boundingBox.IsValid)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(boundingBox),
+                    ErrorMessage = "Given coordinates does not create a valid Polygon!",
+                    ErrorCode = ErrorCodes.WrongPolygonFormat
+                };
+            }
+
+            // Reversing box (must be counter-clockwise)
+            boundingBox = (Polygon)boundingBox.Reverse();
+
+            var restaurants = await context.Restaurants
+                .Where(r => boundingBox.Contains(r.Location))
+                .Include(r => r.Group)
+                .Include(r => r.Tables)
+                .Include(r => r.Photos)
+                .Include(r => r.Tags)
+                .ToListAsync();
+
+            var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
+            {
+                RestaurantId = r.Id,
+                Name = r.Name,
+                RestaurantType = r.RestaurantType,
+                Nip = r.Nip,
+                Address = r.Address,
+                City = r.City,
+                Location = new Geolocation
+                {
+                    Latitude = r.Location.Y,
+                    Longitude = r.Location.X
+                },
+                GroupId = r.GroupId,
+                ProvideDelivery = r.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Description = r.Description,
+                ReservationDeposit = r.ReservationDeposit,
+                Tags = r.Tags.Select(t => t.Name).ToList(),
+                IsVerified = r.VerifierId is not null,
+                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X)
+            }).OrderBy(r => r.DistanceFrom).ToList();
+
+            return nearRestaurants;
         }
 
-        // Reversing box (must be counter-clockwise)
-        boundingBox = (Polygon)boundingBox.Reverse();
-
-        var restaurants = await context.Restaurants
-            .Where(r => boundingBox.Contains(r.Location))
-            .Include(r => r.Group)
-            .Include(r => r.Tables)
-            .Include(r => r.Photos)
-            .Include(r => r.Tags)
-            .ToListAsync();
-
-        var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
-        {
-            RestaurantId = r.Id,
-            Name = r.Name,
-            RestaurantType = r.RestaurantType,
-            Nip = r.Nip,
-            Address = r.Address,
-            City = r.City,
-            Location = new Geolocation
-            {
-                Latitude = r.Location.Y,
-                Longitude = r.Location.X
-            },
-            GroupId = r.GroupId,
-            ProvideDelivery = r.ProvideDelivery,
-            Logo = uploadService.GetPathForFileName(r.LogoFileName),
-            Description = r.Description,
-            ReservationDeposit = r.ReservationDeposit,
-            Tags = r.Tags.Select(t => t.Name).ToList(),
-            IsVerified = r.VerifierId is not null,
-            DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X)
-        }).OrderBy(r => r.DistanceFrom).ToList();
-
-        return nearRestaurants;
-    }
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
         /// </summary>
