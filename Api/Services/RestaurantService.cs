@@ -62,7 +62,7 @@ namespace Reservant.Api.Services
         /// <param name="lat2">Latitude of the second point</param>
         /// <param name="lon2">Longitude of the second point</param>
         /// <returns></returns>
-        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat1, double lon1, double lat2, double lon2)
+        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsInAreaAsync(double lat1, double lon1, double lat2, double lon2)
         {
             var minLat = Math.Min(lat1, lat2);
             var maxLat = Math.Max(lat1, lat2);

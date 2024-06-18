@@ -27,11 +27,11 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="lat2"> Second point latitude</param>
     /// <param name="lon2"> Second point longitude </param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpGet("/restaurants/in-area")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurants(double lat1, double lon1, double lat2, double lon2)
+    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurantsInArea(double lat1, double lon1, double lat2, double lon2)
     {
-        var result = await service.GetRestaurantsAsync(lat1, lon1, lat2, lon2);
+        var result = await service.GetRestaurantsInAreaAsync(lat1, lon1, lat2, lon2);
 
         if (result.IsError)
         {
@@ -40,8 +40,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return Ok(result.Value);
     }
-    
-    
     
 
     /// <summary>
