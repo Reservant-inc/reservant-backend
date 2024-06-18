@@ -20,16 +20,18 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 {
     
     /// <summary>
-    /// Gets near restaurants from given radius
+    /// Gets restaurant in a given area, defined by two points
     /// </summary>
-    /// <param name="lat">Latitude</param>
-    /// <param name="lon">Longitude</param>
-    /// <param name="radius">Radius in kilometers from which restaurants should be searched</param>
+    /// <param name="lat1"> First point latitude </param>
+    /// <param name="lon1"> First point longiture </param>
+    /// <param name="lat2"> Second point latitude</param>
+    /// <param name="lon2"> Second point longitude </param>
+    /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurants(double lat, double lon, int radius)
+    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurants(double lat1, double lon1, double lat2, double lon2)
     {
-        var result = await service.GetRestaurantsAsync(lat, lon, radius);
+        var result = await service.GetRestaurantsAsync(lat1, lon1, lat2, lon2);
 
         if (result.IsError)
         {

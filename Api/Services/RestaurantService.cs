@@ -6,6 +6,7 @@ using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
@@ -54,87 +55,56 @@ namespace Reservant.Api.Services
         
         
         /// <summary>
-        /// Finds restaurant in a given radius.
+        /// Finds restaurant in a given rectangle defined by two geographical points.
         /// </summary>
-        /// <param name="lat">Latitude</param>
-        /// <param name="lon">Longitude</param>
-        /// <param name="radius">Radius in kilometers</param>
+        /// <param name="lat1">Latitude of the first point</param>
+        /// <param name="lon1">Longitude of the first point</param>
+        /// <param name="lat2">Latitude of the second point</param>
+        /// <param name="lon2">Longitude of the second point</param>
         /// <returns></returns>
-        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat, double lon, int radius)
+        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat1, double lon1, double lat2, double lon2)
         {
-            // converting to meters
-            radius *= 1000;
-            
-            if (radius <= 0)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(radius),
-                    ErrorMessage = "Radius cannot be less than one.",
-                    ErrorCode = ErrorCodes.ValueLessThanOne
-                };
-            }
+            var minLat = Math.Min(lat1, lat2);
+            var maxLat = Math.Max(lat1, lat2);
+            var minLon = Math.Min(lon1, lon2);
+            var maxLon = Math.Max(lon1, lon2);
 
-            const int limit = 20;
-
-            if (radius > limit*1000)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(radius),
-                    ErrorMessage = $"Radius cannot exceed search limit ({limit}km).",
-                    ErrorCode = ErrorCodes.ValueExceedsLimit
-                };
-            }
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var envelope = new Envelope(minLon, maxLon, minLat, maxLat);
+            var boundingBox = geometryFactory.ToGeometry(envelope);
 
             var restaurants = await context.Restaurants
+                .Where(r => boundingBox.Contains(r.Location))
                 .Include(r => r.Group)
                 .Include(r => r.Tables)
                 .Include(r => r.Photos)
                 .Include(r => r.Tags)
                 .ToListAsync();
 
-            var nearRestaurants = new List<NearRestaurantVM>();
-
-            foreach (var r in restaurants)
+            var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
             {
-                var restaurantPoint = r.Location;
-
-                var distance = Utils.CalculateHaversineDistance(
-                    lon, 
-                    lat, 
-                    restaurantPoint.Y, 
-                    restaurantPoint.X
-                    );
-
-                if (distance <= radius)
+                RestaurantId = r.Id,
+                Name = r.Name,
+                RestaurantType = r.RestaurantType,
+                Nip = r.Nip,
+                Address = r.Address,
+                City = r.City,
+                Location = new Geolocation
                 {
-                    nearRestaurants.Add(new NearRestaurantVM
-                    {
-                        RestaurantId = r.Id,
-                        Name = r.Name,
-                        RestaurantType = r.RestaurantType,
-                        Nip = r.Nip,
-                        Address = r.Address,
-                        City = r.City,
-                        Location = new Geolocation
-                        {
-                            Latitude = r.Location.Y,
-                            Longitude = r.Location.X
-                        },
-                        GroupId = r.GroupId,
-                        ProvideDelivery = r.ProvideDelivery,
-                        Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                        Description = r.Description,
-                        ReservationDeposit = r.ReservationDeposit,
-                        Tags = r.Tags.Select(t => t.Name).ToList(),
-                        IsVerified = r.VerifierId is not null,
-                        DistanceFrom = distance
-                    });
-                }
-            }
+                    Latitude = r.Location.Y,
+                    Longitude = r.Location.X
+                },
+                GroupId = r.GroupId,
+                ProvideDelivery = r.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Description = r.Description,
+                ReservationDeposit = r.ReservationDeposit,
+                Tags = r.Tags.Select(t => t.Name).ToList(),
+                IsVerified = r.VerifierId is not null,
+                DistanceFrom = Utils.CalculateHaversineDistance(lat1, lon1, r.Location.Y, r.Location.X)
+            }).OrderBy(r => r.DistanceFrom).ToList();
 
-            return nearRestaurants.OrderBy(r => r.DistanceFrom).ToList();
+            return nearRestaurants;
         }
         
         
