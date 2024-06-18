@@ -8,6 +8,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 using Reservant.Api;
 using Reservant.Api.Data;
 using Reservant.Api.Documentation;
@@ -46,6 +48,9 @@ builder.Services.AddCors(o =>
 });
 
 builder.Services.AddDbContext<ApiDbContext>();
+
+builder.Services.AddScoped<GeometryFactory>(_ =>
+    NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
 
 builder.Services.AddScoped<DbSeeder>();
 

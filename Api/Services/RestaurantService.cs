@@ -6,7 +6,6 @@ using Reservant.Api.Models.Dtos.Table;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
-using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos.Menu;
@@ -52,10 +51,11 @@ namespace Reservant.Api.Services
         FileUploadService uploadService,
         UserManager<User> userManager,
         MenuItemsService menuItemsService,
-        ValidationService validationService)
+        ValidationService validationService,
+        GeometryFactory geometryFactory)
     {
-        
-        
+
+
     /// <summary>
     /// Finds restaurant in a given rectangle defined by two geographical points.
     /// </summary>
@@ -70,8 +70,7 @@ namespace Reservant.Api.Services
         var maxLat = Math.Max(lat1, lat2);
         var minLon = Math.Min(lon1, lon2);
         var maxLon = Math.Max(lon1, lon2);
-        
-        var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+
         var coordinates = new[]
         {
             new Coordinate(minLon, minLat),
@@ -91,7 +90,7 @@ namespace Reservant.Api.Services
                 ErrorCode = ErrorCodes.WrongPolygonFormat
             };
         }
-        
+
         // Reversing box (must be counter-clockwise)
         boundingBox = (Polygon)boundingBox.Reverse();
 
