@@ -121,7 +121,7 @@ namespace Reservant.Api.Services
             ReservationDeposit = r.ReservationDeposit,
             Tags = r.Tags.Select(t => t.Name).ToList(),
             IsVerified = r.VerifierId is not null,
-            DistanceFrom = Utils.CalculateHaversineDistance(lat1, lon1, r.Location.Y, r.Location.X)
+            DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X)
         }).OrderBy(r => r.DistanceFrom).ToList();
 
         return nearRestaurants;
