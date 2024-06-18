@@ -22,7 +22,8 @@ public class DbSeeder(
     UserService userService,
     RestaurantService restaurantService,
     ILogger<DbSeeder> logger,
-    IOptions<FileUploadsOptions> fileUploadsOptions)
+    IOptions<FileUploadsOptions> fileUploadsOptions,
+    GeometryFactory geometryFactory)
 {
     private const string ExampleUploadsPath = "./example-uploads";
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
@@ -421,7 +422,7 @@ public class DbSeeder(
             Address = "ul. Marszałkowska 2",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = new Point(20.91364863552046,52.39625635),
+            Location = geometryFactory.CreatePoint(new Coordinate(20.91364863552046,52.39625635)),
             Group = johnDoesGroup,
             RentalContractFileName = null,
             AlcoholLicenseFileName = null!,
@@ -641,7 +642,7 @@ public class DbSeeder(
             Address = "ul. Koszykowa 10",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = new Point(21.022417021601285, 52.221019850000005),
+            Location = geometryFactory.CreatePoint(new Coordinate(21.022417021601285, 52.221019850000005)),
             Group = johnDoesGroup,
             RentalContractFileName = null,
             AlcoholLicenseFileName = null,
@@ -757,7 +758,7 @@ public class DbSeeder(
             Address = "ul. Konstruktorska 5",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = new Point(20.99866252013997,  52.1853141),
+            Location = geometryFactory.CreatePoint(new Coordinate(20.99866252013997,  52.1853141)),
             Group = kowalskisGroup,
             RentalContractFileName = null,
             RentalContract = exampleDocument,
