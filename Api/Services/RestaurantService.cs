@@ -101,20 +101,12 @@ namespace Reservant.Api.Services
             {
                 var restaurantPoint = r.Location;
 
-                // Haversine formula to calculate the distance in meters
-                const double R = 6371e3; // Radius of Earth in meters
-                var phi1 = lat * Math.PI / 180.0; // Convert latitude to radians
-                var phi2 = restaurantPoint.Y * Math.PI / 180.0; // Convert latitude to radians
-                var deltaPhi = (restaurantPoint.Y - lat) * Math.PI / 180.0; // Difference in latitude in radians
-                var deltaLambda = (restaurantPoint.X - lon) * Math.PI / 180.0; // Difference in longitude in radians
-
-                var a = Math.Sin(deltaPhi / 2) * Math.Sin(deltaPhi / 2) +
-                        Math.Cos(phi1) * Math.Cos(phi2) *
-                        Math.Sin(deltaLambda / 2) * Math.Sin(deltaLambda / 2);
-
-                var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-                var distance = R * c; // Distance in meters
+                var distance = Utils.CalculateHaversineDistance(
+                    lon, 
+                    lat, 
+                    restaurantPoint.Y, 
+                    restaurantPoint.X
+                    );
 
                 if (distance <= radius)
                 {
@@ -150,12 +142,12 @@ namespace Reservant.Api.Services
                         ReservationDeposit = r.ReservationDeposit,
                         Tags = r.Tags.Select(t => t.Name).ToList(),
                         IsVerified = r.VerifierId is not null,
-                        distanceFrom = distance
+                        DistanceFrom = distance
                     });
                 }
             }
 
-            return nearRestaurants.OrderBy(r => r.distanceFrom).ToList();
+            return nearRestaurants.OrderBy(r => r.DistanceFrom).ToList();
         }
         
         
