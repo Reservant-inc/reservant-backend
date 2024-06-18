@@ -117,7 +117,6 @@ namespace Reservant.Api.Services
                         RestaurantType = r.RestaurantType,
                         Nip = r.Nip,
                         Address = r.Address,
-                        PostalIndex = r.PostalIndex,
                         City = r.City,
                         Location = new Geolocation
                         {
@@ -125,19 +124,8 @@ namespace Reservant.Api.Services
                             Longitude = r.Location.X
                         },
                         GroupId = r.GroupId,
-                        GroupName = r.Group.Name,
-                        RentalContract = r.RentalContractFileName is not null ? uploadService.GetPathForFileName(r.RentalContractFileName) : null,
-                        AlcoholLicense = r.AlcoholLicenseFileName is not null ? uploadService.GetPathForFileName(r.AlcoholLicenseFileName) : null,
-                        BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
-                        IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
-                        Tables = r.Tables.Select(t => new TableVM
-                        {
-                            TableId = t.Id,
-                            Capacity = t.Capacity
-                        }),
                         ProvideDelivery = r.ProvideDelivery,
                         Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                        Photos = r.Photos.Select(p => uploadService.GetPathForFileName(p.PhotoFileName)).ToList(),
                         Description = r.Description,
                         ReservationDeposit = r.ReservationDeposit,
                         Tags = r.Tags.Select(t => t.Name).ToList(),
