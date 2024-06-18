@@ -60,10 +60,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+
         builder.Entity<Restaurant>()
             .Property(r => r.Location)
-            .HasColumnType("geometry");
+            .HasColumnType("geography");
 
         builder.Entity<Visit>(eb =>
         {
