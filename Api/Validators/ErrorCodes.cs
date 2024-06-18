@@ -145,4 +145,9 @@ public static class ErrorCodes
     /// Value exceeds limit
     /// </summary>
     public const string ValueExceedsLimit = "ValueExceedsLimit";
+    
+    /// <summary>
+    /// Wrong polygon format
+    /// </summary>
+    public const string WrongPolygonFormat = "WrongPolygonFormat";
 }
