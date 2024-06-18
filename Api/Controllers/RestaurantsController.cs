@@ -20,7 +20,7 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/restaurants")]
 public class RestaurantController(UserManager<User> userManager, RestaurantService service) : StrictController
 {
-    
+
     /// <summary>
     /// Gets restaurant in a given area, defined by two points
     /// </summary>
@@ -29,7 +29,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="lat2"> Second point latitude</param>
     /// <param name="lon2"> Second point longitude </param>
     /// <returns></returns>
-    [HttpGet("/restaurants/in-area")]
+    [HttpGet("in-area")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurantsInArea(double lat1, double lon1, double lat2, double lon2)
     {
@@ -42,7 +42,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return Ok(result.Value);
     }
-    
+
 
     /// <summary>
     /// Verify restaurant
