@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Reservant.Api;
 using Reservant.Api.Data;
+using Reservant.Api.Documentation;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
@@ -115,6 +116,8 @@ builder.Services.AddSwaggerGen(options =>
     {
         { jwtSecurityScheme, new List<string>() }
     });
+
+    options.AddOperationFilterInstance(new AuthorizationOperationFilter());
 });
 
 builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();

@@ -8,7 +8,7 @@ public class ReviewVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    public required int Id { get; set; }
+    public required int ReviewId { get; set; }
 
     /// <summary>
     /// Restaurant ID

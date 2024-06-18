@@ -22,7 +22,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
 {
 
     /// <summary>
-    /// Post request to create a new RestaurantGroup. Only available for restaurant owners
+    /// Post request to create a new RestaurantGroup
     /// </summary>
     /// <param name="req">Request dto</param>
     /// <returns></returns>
@@ -70,11 +70,11 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <summary>
     /// Retrieves information about a specific restaurant group
     /// </summary>
-    [HttpGet("{id:int}"), Authorize(Roles = Roles.RestaurantOwner)]
+    [HttpGet("{groupId:int}"), Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<RestaurantGroupVM>> GetRestaurantGroup(int id)
+    public async Task<ActionResult<RestaurantGroupVM>> GetRestaurantGroup(int groupId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -82,7 +82,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return Unauthorized();
         }
 
-        var result = await service.GetRestaurantGroupAsync(id, user.Id);
+        var result = await service.GetRestaurantGroupAsync(groupId, user.Id);
 
         try
         {
@@ -105,11 +105,11 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <summary>
     /// Updates name of restaurant group
     /// </summary>
-    [HttpPut("{id:int}"), Authorize(Roles = Roles.RestaurantOwner)]
+    [HttpPut("{groupId:int}"), Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
-    public async Task<ActionResult<RestaurantGroupVM>> UpdateRestaurantGroupInfo(int id, UpdateRestaurantGroupRequest request)
+    public async Task<ActionResult<RestaurantGroupVM>> UpdateRestaurantGroupInfo(int groupId, UpdateRestaurantGroupRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -117,7 +117,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return Unauthorized();
         }
 
-        var result = await service.UpdateRestaurantGroupAsync(id, request, user.Id);
+        var result = await service.UpdateRestaurantGroupAsync(groupId, request, user.Id);
 
         if (!result.IsError)
         {
@@ -130,11 +130,11 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <summary>
     /// Deletes a restaurant group
     /// </summary>
-    /// <param name="id">id of the restaurant group that will be deleted</param>
+    /// <param name="groupId">id of the restaurant group that will be deleted</param>
     /// <returns></returns>
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{groupId:int}")]
     [ProducesResponseType(204), ProducesResponseType(404)]
-    public async Task<ActionResult> SoftDeleteRestaurantGroup(int id)
+    public async Task<ActionResult> SoftDeleteRestaurantGroup(int groupId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -142,7 +142,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
             return Unauthorized();
         }
 
-        var result = await service.SoftDeleteRestaurantGroupAsync(id, user);
+        var result = await service.SoftDeleteRestaurantGroupAsync(groupId, user);
 
         if (result.IsError)
         {

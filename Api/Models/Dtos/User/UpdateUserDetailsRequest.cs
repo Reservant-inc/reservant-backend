@@ -6,12 +6,6 @@ namespace Reservant.Api.Models.Dtos.User;
 public class UpdateUserDetailsRequest
 {
     /// <summary>
-    /// User's email address
-    /// </summary>
-    /// <example>john@doe.pl</example>
-    public required string Email { get; init; }
-
-    /// <summary>
     /// User's phone number
     /// </summary>
     /// <example>+48123456789</example>

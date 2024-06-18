@@ -44,7 +44,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             };
         }
 
-        employment.DateUntil = DateOnly.FromDateTime(DateTime.Now);
+        employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
         await context.SaveChangesAsync();
 
         return true;
@@ -88,7 +88,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         }
         foreach (var employment in employments)
         {
-            employment.DateUntil = DateOnly.FromDateTime(DateTime.Now);
+            employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
         }
         await context.SaveChangesAsync();
 

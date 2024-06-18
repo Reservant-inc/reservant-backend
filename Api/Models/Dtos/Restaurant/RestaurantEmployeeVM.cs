@@ -26,6 +26,11 @@ public class RestaurantEmployeeVM
     public required string LastName { get; init; }
 
     /// <summary>
+    /// Birth date
+    /// </summary>
+    public required DateOnly BirthDate { get; init; }
+
+    /// <summary>
     /// User's phone number
     /// </summary>
     public required string PhoneNumber { get; init; }

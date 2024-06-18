@@ -49,12 +49,12 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <summary>
     /// Gets menu item by given id
     /// </summary>
-    /// <param name="itemId">Id of the menuItem</param>
+    /// <param name="menuItemId">Id of the menuItem</param>
     /// <returns>The found menu item</returns>
     [HttpGet]
-    [Route("{itemId:int}")]
+    [Route("{menuItemId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int itemId)
+    public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int menuItemId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -62,7 +62,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
             return Unauthorized();
         }
 
-        var res = await service.GetMenuItemByIdAsync(user, itemId);
+        var res = await service.GetMenuItemByIdAsync(user, menuItemId);
 
         if (res.IsError)
         {
@@ -76,13 +76,13 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <summary>
     /// Changes the menuitem with the given id
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="menuItemId"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPut("{id:int}")]
+    [HttpPut("{menuItemId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-    public async Task<ActionResult<MenuItemVM>> PutMenuItemById(int id, UpdateMenuItemRequest request)
+    public async Task<ActionResult<MenuItemVM>> PutMenuItemById(int menuItemId, UpdateMenuItemRequest request)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -90,7 +90,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
             return Unauthorized();
         }
 
-        var res = await service.PutMenuItemByIdAsync(user, id, request);
+        var res = await service.PutMenuItemByIdAsync(user, menuItemId, request);
 
         if (res.IsError)
         {
@@ -102,12 +102,12 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <summary>
     /// Deletes chosen menu item
     /// </summary>
-    /// <param name="id">id of the menu item to delete</param>
+    /// <param name="menuItemId">id of the menu item to delete</param>
     /// <returns></returns>
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{menuItemId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    public async Task<ActionResult> DeleteMenuItemByIdAsync(int id)
+    public async Task<ActionResult> DeleteMenuItemByIdAsync(int menuItemId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -115,7 +115,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
             return Unauthorized();
         }
 
-        var res = await service.DeleteMenuItemByIdAsync(id, user);
+        var res = await service.DeleteMenuItemByIdAsync(menuItemId, user);
 
         if (res.IsError)
         {

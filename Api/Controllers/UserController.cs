@@ -8,6 +8,7 @@ using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Models.Dtos.Visit;
+using Reservant.Api.Models.Dtos.Event;
 
 namespace Reservant.Api.Controllers;
 
@@ -18,11 +19,12 @@ namespace Reservant.Api.Controllers;
 public class UserController(
     UserManager<User> userManager,
     UserService userService,
-    FileUploadService uploadService
+    FileUploadService uploadService,
+    EventService eventService
     ) : StrictController
 {
     /// <summary>
-    /// Get list of users employed by the current user. For restaurant owners only
+    /// Get list of users employed by the current user
     /// </summary>
     /// <returns></returns>
     [HttpGet("employees")]
@@ -70,7 +72,7 @@ public class UserController(
         });
     }
     /// <summary>
-    /// Updates current user
+    /// Update information about the current user
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
@@ -112,7 +114,8 @@ public class UserController(
 
 
     /// <summary>
-    /// Get list of future visits of logged in user
+    /// Get list of future visits which the logged-in user participates in
+    /// Sorted by Date from the closest to the farthest
     /// </summary>
     /// <returns></returns>
     [HttpGet("visits")]
@@ -140,7 +143,8 @@ public class UserController(
 
 
     /// <summary>
-    /// Get list of past visits of logged in user
+    /// Get list of past visits which the logged-in user participates in.
+    /// Sorted by Date from the newest to the oldest
     /// </summary>
     /// <returns></returns>
     [HttpGet("visit-history")]
@@ -165,4 +169,54 @@ public class UserController(
             return Ok(result.Value);
         }
     }
+
+    /// <summary>
+    /// Get list of events created by the current user
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("events-created")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<EventSummaryVM>>> GetEventsCreated()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await eventService.GetEventsCreatedAsync(user);
+        if (result.IsError) {
+            return result.ToValidationProblem();
+        }
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get future events in a restaurant with pagination.
+    /// </summary>
+    /// <param name="page">Page number to return.</param>
+    /// <param name="perPage">Items per page.</param>
+    /// <returns>Paginated list of future events.</returns>
+    [HttpGet("events-interested-in")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<Pagination<EventSummaryVM>>> GetEventsUserInterestedIn( [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await eventService.GetEventsInterestedInAsync(user,page,perPage);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+  
 }

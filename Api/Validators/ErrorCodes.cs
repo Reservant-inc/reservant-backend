@@ -150,4 +150,9 @@ public static class ErrorCodes
     /// Wrong polygon format
     /// </summary>
     public const string WrongPolygonFormat = "WrongPolygonFormat";
+
+    /// <summary>
+    /// Too late to join event
+    /// </summary>
+    public const string UserNotInterestedInEvent = "UserNotInterestedInEvent";
 }

@@ -85,6 +85,7 @@ public class UserService(
             UserName = username,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
+            BirthDate = request.BirthDate,
             PhoneNumber = request.PhoneNumber.Trim(),
             RegisteredAt = DateTime.UtcNow,
             Employer = employer
@@ -187,6 +188,7 @@ public class UserService(
                 Login = u.UserName!,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
+                BirthDate = u.BirthDate!.Value,
                 PhoneNumber = u.PhoneNumber!,
                 Employments = u.Employments
                     .Where(e => e.DateUntil == null)
@@ -288,7 +290,6 @@ public class UserService(
             };
         }
 
-        employee.Email = request.Email.Trim();
         employee.PhoneNumber = request.PhoneNumber.Trim();
         employee.FirstName = request.FirstName.Trim();
         employee.LastName = request.LastName.Trim();
@@ -319,7 +320,6 @@ public class UserService(
             return result;
         }
 
-        user.Email = request.Email.Trim();
         user.PhoneNumber = request.PhoneNumber.Trim();
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();

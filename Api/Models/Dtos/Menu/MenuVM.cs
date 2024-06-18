@@ -48,4 +48,10 @@ public class MenuVM
     /// </summary>
     [Required]
     public required List<MenuItemSummaryVM> MenuItems { get; set; }
+
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    [Required, StringLength(50)]
+    public required string Photo { get; set; }
 }

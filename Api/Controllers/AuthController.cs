@@ -143,7 +143,7 @@ public class AuthController(
     }
 
     /// <summary>
-    /// check if login is available
+    /// Check if login is available
     /// </summary>
     [HttpGet("is-unique-login")]
     [ProducesResponseType(200)]

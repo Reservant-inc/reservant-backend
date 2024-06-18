@@ -7,18 +7,21 @@ using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers
 {
+    /// <summary>
+    /// Fetching information about other users and managing employees
+    /// </summary>
     [ApiController, Route("/users")]
     public class UsersController(UserService userService, FileUploadService uploadService) : StrictController
     {
         /// <summary>
         /// Sets Restaurant Owner role for specified user
         /// </summary>
-        /// <param name="id">id of the user</param>
+        /// <param name="userId">id of the user</param>
         /// <returns></returns>
         [ProducesResponseType(200), ProducesResponseType(404)]
-        [HttpPost("{id}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
-        public async Task<ActionResult> MakeRestaurantOwner(string id) {
-            var user = await userService.MakeRestaurantOwnerAsync(id);
+        [HttpPost("{userId}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
+        public async Task<ActionResult> MakeRestaurantOwner(string userId) {
+            var user = await userService.MakeRestaurantOwnerAsync(userId);
             if (user == null){ return NotFound(); }
             return Ok();
         }
