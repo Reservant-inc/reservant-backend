@@ -59,7 +59,6 @@ namespace Reservant.Api.Services
         /// <param name="lat">Latitude</param>
         /// <param name="lon">Longitude</param>
         /// <param name="radius">Radius in kilometers</param>
-        /// <param name="user">User calling method</param>
         /// <returns></returns>
         public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsAsync(double lat, double lon, int radius)
         {
