@@ -72,9 +72,9 @@ namespace Reservant.Api.Services
             var coordinates = new[]
             {
                 new Coordinate(minLon, minLat),
-                new Coordinate(minLon, maxLat),
-                new Coordinate(maxLon, maxLat),
                 new Coordinate(maxLon, minLat),
+                new Coordinate(maxLon, maxLat),
+                new Coordinate(minLon, maxLat),
                 new Coordinate(minLon, minLat)
             };
             var boundingBox = geometryFactory.CreatePolygon(coordinates);
@@ -88,9 +88,6 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.WrongPolygonFormat
                 };
             }
-
-            // Reversing box (must be counter-clockwise)
-            boundingBox = (Polygon)boundingBox.Reverse();
 
             var restaurants = await context.Restaurants
                 .Where(r => boundingBox.Contains(r.Location))
