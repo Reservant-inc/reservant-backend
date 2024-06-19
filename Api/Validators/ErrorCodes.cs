@@ -140,6 +140,16 @@ public static class ErrorCodes
     /// Same object already exists
     /// </summary>
     public const string Duplicate = "Duplicate";
+    
+    /// <summary>
+    /// Value exceeds limit
+    /// </summary>
+    public const string ValueExceedsLimit = "ValueExceedsLimit";
+    
+    /// <summary>
+    /// Wrong polygon format
+    /// </summary>
+    public const string WrongPolygonFormat = "WrongPolygonFormat";
 
     /// <summary>
     /// Too late to join event

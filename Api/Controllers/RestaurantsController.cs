@@ -6,6 +6,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -19,6 +20,29 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/restaurants")]
 public class RestaurantController(UserManager<User> userManager, RestaurantService service) : StrictController
 {
+
+    /// <summary>
+    /// Gets restaurant in a given area, defined by two points
+    /// </summary>
+    /// <param name="lat1"> First point latitude </param>
+    /// <param name="lon1"> First point longitude </param>
+    /// <param name="lat2"> Second point latitude</param>
+    /// <param name="lon2"> Second point longitude </param>
+    /// <returns></returns>
+    [HttpGet("in-area")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurantsInArea(double lat1, double lon1, double lat2, double lon2)
+    {
+        var result = await service.GetRestaurantsInAreaAsync(lat1, lon1, lat2, lon2);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
 
     /// <summary>
     /// Verify restaurant

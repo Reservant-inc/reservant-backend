@@ -67,7 +67,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
         builder.Entity<Restaurant>()
             .Property(r => r.Location)
-            .HasColumnType("geometry");
+            .HasColumnType("geography");
 
         builder.Entity<Visit>(eb =>
         {
