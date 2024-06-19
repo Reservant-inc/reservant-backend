@@ -7,6 +7,9 @@ using Reservant.Api.Validation;
 
 namespace Reservant.Api.Models.Dtos.Restaurant;
 
+/// <summary>
+/// Info about a restaurant near user
+/// </summary>
 public class NearRestaurantVM
 {
     /// <summary>
@@ -94,7 +97,7 @@ public class NearRestaurantVM
     /// </summary>
     [Required]
     public required bool IsVerified { get; init; }
-    
+
     /// <summary>
     /// Distance from User
     /// </summary>
