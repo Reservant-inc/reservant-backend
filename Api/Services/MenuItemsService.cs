@@ -11,7 +11,6 @@ namespace Reservant.Api.Services
     /// <summary>
     /// Service for creating and finding menu items
     /// </summary>
-    /// <param name="context"></param>
     public class MenuItemsService(
         ApiDbContext context,
         FileUploadService uploadService,

@@ -13,7 +13,6 @@ namespace Reservant.Api.Services
     /// <summary>
     /// Service for event management
     /// </summary>
-    /// <param name="context"></param>
     public class EventService(ApiDbContext context, ValidationService validationService)
     {
         /// <summary>
