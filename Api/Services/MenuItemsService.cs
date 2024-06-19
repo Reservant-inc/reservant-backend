@@ -52,7 +52,7 @@ namespace Reservant.Api.Services
                 AlternateName = req.AlternateName?.Trim(),
                 AlcoholPercentage = req.AlcoholPercentage,
                 RestaurantId = req.RestaurantId,
-                PhotoFileName = req.PhotoFileName
+                PhotoFileName = req.Photo
             };
 
 
@@ -186,7 +186,7 @@ namespace Reservant.Api.Services
             item.Name = request.Name.Trim();
             item.AlternateName = request.AlternateName?.Trim();
             item.AlcoholPercentage = request.AlcoholPercentage;
-            item.PhotoFileName = request.PhotoFileName;
+            item.PhotoFileName = request.Photo;
 
 
             result = await validationService.ValidateAsync(item, user.Id);

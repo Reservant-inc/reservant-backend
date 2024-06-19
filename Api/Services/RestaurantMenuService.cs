@@ -104,7 +104,7 @@ public class RestaurantMenuService(
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
-            PhotoFileName = req.PhotoFileName,
+            PhotoFileName = req.Photo,
             RestaurantId = req.RestaurantId
         };
 
@@ -279,7 +279,7 @@ public class RestaurantMenuService(
         menu.Name = request.Name.Trim();
         menu.AlternateName = request.AlternateName?.Trim();
         menu.MenuType = request.MenuType;
-        menu.PhotoFileName = request.PhotoFileName.Trim();
+        menu.PhotoFileName = request.Photo.Trim();
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
 

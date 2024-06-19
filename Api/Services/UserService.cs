@@ -324,7 +324,7 @@ public class UserService(
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.BirthDate = request.BirthDate;
-        user.PhotoFileName = request.PhotoFileName;
+        user.PhotoFileName = request.Photo;
 
         result = await validationService.ValidateAsync(user, user.Id);
         if (!result.IsValid)

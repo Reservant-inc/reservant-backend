@@ -33,7 +33,7 @@ namespace Reservant.Api.Models.Dtos.MenuItem
         /// <summary>
         /// File name of the photo
         /// </summary>
-        public required string PhotoFileName { get; set; }
+        public required string Photo { get; set; }
 
     }
 }
