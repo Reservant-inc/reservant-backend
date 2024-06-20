@@ -218,5 +218,4 @@ public class UserController(
 
         return Ok(result.Value);
     }
-  
 }
