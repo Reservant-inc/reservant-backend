@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Menu;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -163,5 +164,20 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
                 return StatusCode(500, "Internal server error");
         }
     }
+
+
+    /// <summary>
+    /// Gets all menu types
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation, with a list of MenuType objects as its result.</returns>
+    [HttpGet("/menu-types")]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<List<MenuType>>> GetMenuTypesAsync()
+    {
+        var menuTypes = Enum.GetValues<MenuType>().ToList();
+        return Ok(menuTypes);
+    }
+
+
 
 }
