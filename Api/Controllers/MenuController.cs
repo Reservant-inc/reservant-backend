@@ -177,7 +177,4 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         var menuTypes = Enum.GetValues<MenuType>().ToList();
         return Ok(menuTypes);
     }
-
-
-
 }
