@@ -1127,5 +1127,57 @@ namespace Reservant.Api.Services
 
             return await reviewVM.PaginateAsync(page, perPage);
         }
+
+        /// <summary>
+        /// Get details about a restaurant as a not owner
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<Result<RestaurantVM>> GetRestaurantByIdAsync(int restaurantId)
+        {
+            var restaurant = await context.Restaurants
+                .Include(restaurant => restaurant.Tables)
+                .Include(restaurant => restaurant.Photos)
+                .Include(restaurant => restaurant.Tags)
+                .FirstOrDefaultAsync(x => x.Id == restaurantId && x.VerifierId != null);
+            if (restaurant is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found or is not verified",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            return new RestaurantVM
+            {
+                RestaurantId = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Address = restaurant.Address,
+                PostalIndex = restaurant.PostalIndex,
+                City = restaurant.City,
+                Location = new Geolocation
+                {
+                    Latitude = restaurant.Location.Y,
+                    Longitude = restaurant.Location.X
+                },
+                Tables = restaurant.Tables.Select(x => new TableVM
+                {
+                    Capacity = x.Capacity,
+                    TableId = x.Id
+                }).ToList(),
+                ProvideDelivery = restaurant.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Photos = restaurant.Photos
+                    .Select(x => uploadService.GetPathForFileName(x.PhotoFileName))
+                    .ToList(),
+                Description = restaurant.Description,
+                ReservationDeposit = restaurant.ReservationDeposit,
+                Tags = restaurant.Tags.Select(x => x.Name).ToList()
+            };
+        }
     }
 }
