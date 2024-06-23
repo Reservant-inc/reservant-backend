@@ -8,9 +8,9 @@ using Reservant.Api.Validation;
 namespace Reservant.Api.Models.Dtos.Restaurant;
 
 /// <summary>
-/// Detailed information about a Restaurant
+/// Detailed information about a Restaurant that the user owns
 /// </summary>
-public class RestaurantVM
+public class MyRestaurantVM
 {
     /// <summary>
     /// Unique ID

@@ -129,7 +129,7 @@ namespace Reservant.Api.Services
         /// <param name="request"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<RestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
+        public async Task<Result<MyRestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
         {
             RestaurantGroup? group;
             if (request.GroupId is null)
@@ -216,7 +216,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new RestaurantVM
+            return new MyRestaurantVM
             {
                 RestaurantId = restaurant.Id,
                 Name = restaurant.Name,
@@ -288,13 +288,13 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <param name="id"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<RestaurantVM?> GetMyRestaurantByIdAsync(User user, int id)
+        public async Task<MyRestaurantVM?> GetMyRestaurantByIdAsync(User user, int id)
         {
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
                 .Where(r => r.Id == id)
-                .Select(r => new RestaurantVM
+                .Select(r => new MyRestaurantVM
                 {
                     RestaurantId = r.Id,
                     Name = r.Name,
@@ -563,7 +563,7 @@ namespace Reservant.Api.Services
         /// <param name="id">ID of the restaurant</param>
         /// <param name="request">Request with new restaurant data</param>
         /// <param name="user">User requesting a update</param>
-        public async Task<Result<RestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request,
+        public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request,
             User user)
         {
             var restaurant = await context.Restaurants
@@ -640,7 +640,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new RestaurantVM
+            return new MyRestaurantVM
             {
                 RestaurantId = restaurant.Id,
                 Name = restaurant.Name,
