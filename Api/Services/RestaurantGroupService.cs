@@ -106,8 +106,8 @@ public class RestaurantGroupService(
                 IsVerified = r.VerifierId is not null,
                 Location = new Geolocation
                 {
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y
+                    Longitude = r.Location.Y,
+                    Latitude = r.Location.X
                 },
                 ReservationDeposit = r.ReservationDeposit
             }).ToList()
@@ -196,8 +196,8 @@ public class RestaurantGroupService(
                 City = r.City,
                 Location = new Geolocation()
                 {
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y
+                    Longitude = r.Location.Y,
+                    Latitude = r.Location.X
                 },
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
@@ -270,8 +270,8 @@ public class RestaurantGroupService(
                 City = r.City,
                 Location = new Geolocation()
                 {
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y
+                    Longitude = r.Location.Y,
+                    Latitude = r.Location.X
                 },
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),

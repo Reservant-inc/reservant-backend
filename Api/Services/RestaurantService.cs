@@ -240,8 +240,8 @@ namespace Reservant.Api.Services
                 IsVerified = restaurant.VerifierId is not null,
                 Location = new Geolocation
                 {
-                    Longitude = restaurant.Location.X,
-                    Latitude = restaurant.Location.Y
+                    Longitude = restaurant.Location.Y,
+                    Latitude = restaurant.Location.X
                 },
                 ReservationDeposit = restaurant.ReservationDeposit
             };
@@ -267,8 +267,8 @@ namespace Reservant.Api.Services
                     City = r.City,
                     Location = new Geolocation()
                     {
-                        Longitude = r.Location.X,
-                        Latitude = r.Location.Y
+                        Longitude = r.Location.Y,
+                        Latitude = r.Location.X
                     },
                     GroupId = r.GroupId,
                     ProvideDelivery = r.ProvideDelivery,
@@ -305,8 +305,8 @@ namespace Reservant.Api.Services
                     City = r.City,
                     Location = new Geolocation()
                     {
-                        Longitude = r.Location.X,
-                        Latitude = r.Location.Y
+                        Longitude = r.Location.Y,
+                        Latitude = r.Location.X
                     },
                     GroupId = r.Group.Id,
                     GroupName = r.Group.Name,
@@ -490,8 +490,8 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 Location = new Geolocation()
                 {
-                    Longitude = restaurant.Location.X,
-                    Latitude = restaurant.Location.Y
+                    Longitude = restaurant.Location.Y,
+                    Latitude = restaurant.Location.X
                 },
                 GroupId = restaurant.GroupId,
                 Description = restaurant.Description,
@@ -651,8 +651,8 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 Location = new Geolocation()
                 {
-                    Longitude = restaurant.Location.X,
-                    Latitude = restaurant.Location.Y
+                    Longitude = restaurant.Location.Y,
+                    Latitude = restaurant.Location.X
                 },
                 GroupId = restaurant.Group.Id,
                 GroupName = restaurant.Group.Name,
