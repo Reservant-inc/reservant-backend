@@ -217,6 +217,47 @@ public class DbSeeder(
 
         _ = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
 
+        var anonGroup = new RestaurantGroup
+        {
+            Name = "Anon Ymus' Restaurant Group",
+            OwnerId = anon.Id
+        };
+
+        context.RestaurantGroups.Add(anonGroup);
+
+        await CreateAnonRestaurant(anon, anonGroup, bok1);
+        await context.SaveChangesAsync();
+
+        var geraltsGroup = new RestaurantGroup
+        {
+            Name = "Geralt's Restaurant Group",
+            OwnerId = geralt.Id
+        };
+
+        context.RestaurantGroups.Add(geraltsGroup);
+
+        await CreateWitcherRestaurant(geralt, geraltsGroup, bok1);
+
+        var paulsGroup = new RestaurantGroup
+        {
+            Name = "Paul Muadib Atreides' Restaurant Group",
+            OwnerId = muadib.Id
+        };
+
+        context.RestaurantGroups.Add(paulsGroup);
+
+        await CreateAtreidesRestaurant(muadib, paulsGroup, bok1);
+
+        var waltersGroup = new RestaurantGroup
+        {
+            Name = "Heisenberg's Restaurant Group",
+            OwnerId = walter.Id
+        };
+
+        context.RestaurantGroups.Add(waltersGroup);
+
+        await CreateBreakingBadRestaurant(walter, waltersGroup, bok1);
+
         await context.SaveChangesAsync();
 
         var visits = new List<Visit>
@@ -885,10 +926,881 @@ public class DbSeeder(
             ]
         });
 
+
+
         await context.SaveChangesAsync();
 
         return kowalskisRestaurant;
     }
+    private async Task CreateAnonRestaurant(User anon, RestaurantGroup anonsGroup, User verifier)
+    {
+        var exampleImage = await RequireFileUpload("human4.png", anon);
+        var exampleImage1 = await RequireFileUpload("human5.png", anon);
+        var exampleImage2 = await RequireFileUpload("owner1.png", anon);
+        var exampleImage3 = await RequireFileUpload("ResBurger1.jpg", anon);
+        var exampleImage4 = await RequireFileUpload("ResBurger2.jpg", anon);
+        var exampleImage5 = await RequireFileUpload("ResInside1.jpg", anon);
+        var exampleImage6 = await RequireFileUpload("ResInside2.jpg", anon);
+        var exampleImage7 = await RequireFileUpload("ResLogo1.png", anon);
+        var exampleImage8 = await RequireFileUpload("sushi.png", anon);
+        var exampleImage9 = await RequireFileUpload("wege.png", anon);
+        var exampleImage10 = await RequireFileUpload("woda.png", anon);
+        var exampleDocument = await RequireFileUpload("test-AY.pdf", anon);
+
+        var anons = new Restaurant
+        {
+            Name = "Anon's",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "1544832204",
+            Address = "ul. Nowogrodzka 47a",
+            PostalIndex = "00-695",
+            City = "Warszawa",
+            Location = new Point(21.008140, 52.227730),
+            Group = anonsGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = exampleImage,
+            ProvideDelivery = true,
+            Description = "The first example restaurant",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = anons;
+        }
+        await context.SaveChangesAsync();
 
 
+        anons.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = anons,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = anons,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = anons,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = anons,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        anons.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = anons,
+                Order = 1,
+                PhotoFileName = "human4.png",
+                Photo = exampleImage
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 2,
+                PhotoFileName = "human5.png",
+                Photo = exampleImage1
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 3,
+                PhotoFileName = "owner1.png",
+                Photo = exampleImage2
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 4,
+                PhotoFileName = "ResBurger1.jpg",
+                Photo = exampleImage3
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 5,
+                PhotoFileName = "ResBurger2.jpg",
+                Photo = exampleImage4
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 6,
+                PhotoFileName = "ResInside1.jpg",
+                Photo = exampleImage5
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 7,
+                PhotoFileName = "ResInside2.jpg",
+                Photo = exampleImage6
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 8,
+                PhotoFileName = "ResLogo1.png",
+                Photo = exampleImage7
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 9,
+                PhotoFileName = "sushi.png",
+                Photo = exampleImage8
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 10,
+                PhotoFileName = "wege.png",
+                Photo = exampleImage9
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 11,
+                PhotoFileName = "woda.png",
+                Photo = exampleImage10
+            }
+        };
+
+        context.Restaurants.Add(anons);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Food,
+            Restaurant = anons,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Burger",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = anons,
+                    PhotoFileName = "ResBurger1.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = anon.Id,
+                        FileName = "ResBurger1.png",
+                        ContentType = "image/png"
+                    }
+                },
+                new MenuItem
+                {
+                    Name = "Cheeseburger",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = anons,
+                    PhotoFileName = "ResBurger2.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = anon.Id,
+                        FileName = "ResBurger2.png",
+                        ContentType = "image/png"
+                    }
+                }
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Alcohol,
+            Restaurant = anons,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = anons,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task CreateWitcherRestaurant(User geralt, RestaurantGroup geraltsGroup, User verifier)
+    {
+        var exampleImage = await RequireFileUpload("owner2.png", geralt);
+        var exampleImage1 = await RequireFileUpload("owner3.png", geralt);
+        var exampleImage2 = await RequireFileUpload("owner5.png", geralt);
+        var exampleImage3 = await RequireFileUpload("ramen.png", geralt);
+        var exampleImage4 = await RequireFileUpload("ResInside3.jpg", geralt);
+        var exampleImage5 = await RequireFileUpload("ResInside4.jpg", geralt);
+        var exampleImage6 = await RequireFileUpload("ResKebab1.jpg", geralt);
+        var exampleImage7 = await RequireFileUpload("ResKebab2.jpg", geralt);
+        var exampleImage8 = await RequireFileUpload("ResLogo3.png", geralt);
+        var exampleImage9 = await RequireFileUpload("saladki.png", geralt);
+        var exampleImage10 = await RequireFileUpload("stek.png", geralt);
+        var exampleDocument = await RequireFileUpload("test-GR.pdf", geralt);
+
+        var geralts = new Restaurant
+        {
+            Name = "Witcher's",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "7967049012",
+            Address = "Al. Jerozolimskie 65/79",
+            PostalIndex = "00-697",
+            City = "Warszawa",
+            Location = new Point(21.003630, 52.227690),
+            Group = geraltsGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = exampleImage,
+            ProvideDelivery = true,
+            Description = "The third example restaurant",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = geralts;
+        }
+        await context.SaveChangesAsync();
+
+
+        geralts.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = geralts,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        geralts.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = geralts,
+                Order = 1,
+                PhotoFileName = "owner2.png",
+                Photo = exampleImage
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 2,
+                PhotoFileName = "owner3.png",
+                Photo = exampleImage1
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 3,
+                PhotoFileName = "owner5.png",
+                Photo = exampleImage2
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 4,
+                PhotoFileName = "ramen.png",
+                Photo = exampleImage3
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 5,
+                PhotoFileName = "ResInside3.jpg",
+                Photo = exampleImage4
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 6,
+                PhotoFileName = "ResInside4.jpg",
+                Photo = exampleImage5
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 7,
+                PhotoFileName = "ResKebab1.jpg",
+                Photo = exampleImage6
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 8,
+                PhotoFileName = "ResKebab2.png",
+                Photo = exampleImage7
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 9,
+                PhotoFileName = "ResLogo3.png",
+                Photo = exampleImage8
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 10,
+                PhotoFileName = "saladki.png",
+                Photo = exampleImage9
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 11,
+                PhotoFileName = "stek.png",
+                Photo = exampleImage10
+            }
+        };
+
+        context.Restaurants.Add(geralts);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Food,
+            Restaurant = geralts,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Ramen",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = geralts,
+                    PhotoFileName = "ramen.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = geralt.Id,
+                        FileName = "ramen.png",
+                        ContentType = "image/png"
+                    }
+                }/*,
+                new MenuItem
+                {
+                    Name = "Stek",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = geralts,
+                    PhotoFileName = "stek.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = geralt.Id,
+                        FileName = "stek.png",
+                        ContentType = "image/png"
+                    }
+                }*/
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Alcohol,
+            Restaurant = geralts,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = geralts,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task CreateAtreidesRestaurant(User paul, RestaurantGroup atreidesGroup, User verifier)
+    {
+        var exampleImage = await RequireFileUpload("human1.png", paul);
+        var exampleImage1 = await RequireFileUpload("human2.png", paul);
+        var exampleImage2 = await RequireFileUpload("human3.png", paul);
+        var exampleImage3 = await RequireFileUpload("kurczak.png", paul);
+        var exampleImage4 = await RequireFileUpload("makarony.png", paul);
+        var exampleImage5 = await RequireFileUpload("meksykanskie.png", paul);
+        var exampleImage6 = await RequireFileUpload("ResInside7.jpg", paul);
+        var exampleImage7 = await RequireFileUpload("ResLogo5.png", paul);
+        var exampleImage8 = await RequireFileUpload("ResVegan1.jpg", paul);
+        var exampleDocument = await RequireFileUpload("test-PA.pdf", paul);
+
+        var atreides = new Restaurant
+        {
+            Name = "Dune's spices",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "9322527232",
+            Address = "Świętokrzyska 18",
+            PostalIndex = "00-052",
+            City = "Warszawa",
+            Location = new Point(21.011500, 52.236060),
+            Group = atreidesGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = exampleImage,
+            ProvideDelivery = true,
+            Description = "The fourth example restaurant. LISAN AL-GHAIB",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = atreides;
+        }
+        await context.SaveChangesAsync();
+
+
+        atreides.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = atreides,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        atreides.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = atreides,
+                Order = 1,
+                PhotoFileName = "human1.png",
+                Photo = exampleImage
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 2,
+                PhotoFileName = "human2.png",
+                Photo = exampleImage1
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 3,
+                PhotoFileName = "human3.png",
+                Photo = exampleImage2
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 4,
+                PhotoFileName = "kurczak.png",
+                Photo = exampleImage3
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 5,
+                PhotoFileName = "makarony.png",
+                Photo = exampleImage4
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 6,
+                PhotoFileName = "meksykanskie.png",
+                Photo = exampleImage5
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 7,
+                PhotoFileName = "ResInside7.jpg",
+                Photo = exampleImage6
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 8,
+                PhotoFileName = "ResLogo5.png",
+                Photo = exampleImage7
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 9,
+                PhotoFileName = "ResVegan1.jpg",
+                Photo = exampleImage8
+            }
+        };
+
+        context.Restaurants.Add(atreides);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Food,
+            Restaurant = atreides,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Chicken",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = atreides,
+                    PhotoFileName = "kurczak.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = paul.Id,
+                        FileName = "kurczak.png",
+                        ContentType = "image/png"
+                    }
+                },
+                new MenuItem
+                {
+                    Name = "pasta",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = atreides,
+                    PhotoFileName = "makarony.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = paul.Id,
+                        FileName = "makarony.png",
+                        ContentType = "image/png"
+                    }
+                }
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Alcohol,
+            Restaurant = atreides,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = atreides,
+                    PhotoFileName = null!,
+                    Photo = exampleImage
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task CreateBreakingBadRestaurant(User walter, RestaurantGroup whitesGroup, User verifier)
+    {
+        var exampleImage = await RequireFileUpload("burger.png", walter);
+        var exampleImage1 = await RequireFileUpload("drinki.png", walter);
+        var exampleImage2 = await RequireFileUpload("kebab.png", walter);
+        var exampleImage3 = await RequireFileUpload("ResInside8.jpg", walter);
+        var exampleImage4 = await RequireFileUpload("restaurantboss4.PNG", walter);
+        var exampleImage5 = await RequireFileUpload("restaurantBossUltimate.png", walter);
+        var exampleImage6 = await RequireFileUpload("ResVegan2.jpg", walter);
+        var exampleDocument = await RequireFileUpload("test-WW.pdf", walter);
+
+        var walters = new Restaurant
+        {
+            Name = "Heisenberg's",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "3419686135",
+            Address = "Al. Jerozolimskie 65/79",
+            PostalIndex = "00-697",
+            City = "Warszawa",
+            Location = new Point(21.003630, 52.227690),
+            Group = whitesGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = exampleImage,
+            ProvideDelivery = true,
+            Description = "The last example restaurant. Got the purest meth on the market.",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = walters;
+        }
+        await context.SaveChangesAsync();
+
+
+        walters.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = walters,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = walters,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = walters,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = walters,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        walters.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = walters,
+                Order = 1,
+                PhotoFileName = "burger.png",
+                Photo = exampleImage
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 2,
+                PhotoFileName = "drinki.png",
+                Photo = exampleImage1
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 3,
+                PhotoFileName = "kebab.png",
+                Photo = exampleImage2
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 4,
+                PhotoFileName = "ResInside8.jpg",
+                Photo = exampleImage3
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 5,
+                PhotoFileName = "restaurantboss4.PNG",
+                Photo = exampleImage4
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 6,
+                PhotoFileName = "restaurantBossUltimate.png",
+                Photo = exampleImage5
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 7,
+                PhotoFileName = "ResVegan2.jpg",
+                Photo = exampleImage6
+            }
+        };
+
+        context.Restaurants.Add(walters);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Food,
+            Restaurant = walters,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "burger",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = walters,
+                    PhotoFileName = "burger.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = walter.Id,
+                        FileName = "burger.png",
+                        ContentType = "image/png"
+                    }
+                },
+                new MenuItem
+                {
+                    Name = "kebab",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = walters,
+                    PhotoFileName = "kebab.png",
+                    Photo = new FileUpload
+                    {
+                        UserId = walter.Id,
+                        FileName = "kebab.png",
+                        ContentType = "image/png"
+                    }
+                }
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = exampleImage,
+            PhotoFileName = exampleImage.FileName,
+            MenuType = MenuType.Alcohol,
+            Restaurant = walters,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Drinki",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = walters,
+                    PhotoFileName = null!,
+                    Photo = exampleImage1
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
 }
