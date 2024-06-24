@@ -165,14 +165,12 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
     }
 
-
     /// <summary>
     /// Gets all menu types
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation, with a list of MenuType objects as its result.</returns>
-    [HttpGet("/menu-types")]
-    [ProducesResponseType(400)]
-    public async Task<ActionResult<List<MenuType>>> GetMenuTypesAsync()
+    [HttpGet("menu-types")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public ActionResult<List<MenuType>> GetMenuTypesAsync()
     {
         var menuTypes = Enum.GetValues<MenuType>().ToList();
         return Ok(menuTypes);
