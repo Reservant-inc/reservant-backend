@@ -1112,12 +1112,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = anons,
                     PhotoFileName = "ResBurger1.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = anon.Id,
-                        FileName = "ResBurger1.png",
-                        ContentType = "image/png"
-                    }
+                    Photo = exampleImage3
                 },
                 new MenuItem
                 {
@@ -1126,12 +1121,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = anons,
                     PhotoFileName = "ResBurger2.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = anon.Id,
-                        FileName = "ResBurger2.png",
-                        ContentType = "image/png"
-                    }
+                    Photo = exampleImage4
                 }
             ]
         });
@@ -1342,13 +1332,8 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = geralts,
                     PhotoFileName = "ramen.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = geralt.Id,
-                        FileName = "ramen.png",
-                        ContentType = "image/png"
-                    }
-                }/*,
+                    Photo = exampleImage3
+                },
                 new MenuItem
                 {
                     Name = "Stek",
@@ -1356,13 +1341,8 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = geralts,
                     PhotoFileName = "stek.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = geralt.Id,
-                        FileName = "stek.png",
-                        ContentType = "image/png"
-                    }
-                }*/
+                    Photo = exampleImage10
+                }
             ]
         });
 
@@ -1556,12 +1536,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = atreides,
                     PhotoFileName = "kurczak.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = paul.Id,
-                        FileName = "kurczak.png",
-                        ContentType = "image/png"
-                    }
+                    Photo = exampleImage3
                 },
                 new MenuItem
                 {
@@ -1570,12 +1545,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = atreides,
                     PhotoFileName = "makarony.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = paul.Id,
-                        FileName = "makarony.png",
-                        ContentType = "image/png"
-                    }
+                    Photo = exampleImage4
                 }
             ]
         });
@@ -1754,12 +1724,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = walters,
                     PhotoFileName = "burger.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = walter.Id,
-                        FileName = "burger.png",
-                        ContentType = "image/png"
-                    }
+                    Photo = exampleImage
                 },
                 new MenuItem
                 {
@@ -1768,12 +1733,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = walters,
                     PhotoFileName = "kebab.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = walter.Id,
-                        FileName = "kebab.png",
-                        ContentType = "image/png"
-                    }
+                    Photo = exampleImage2
                 }
             ]
         });
