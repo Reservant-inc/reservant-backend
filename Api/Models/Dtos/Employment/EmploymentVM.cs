@@ -8,7 +8,7 @@ public class EmploymentVM
     /// <summary>
     /// ID of Employment
     /// </summary>
-    public required int EmplymentId { get; init; }
+    public required int EmploymentId { get; init; }
 
     /// <summary>
     /// ID of the restaurant

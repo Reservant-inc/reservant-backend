@@ -194,7 +194,7 @@ public class UserService(
                     .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
                     {   
-                        EmplymentId = e.Id,
+                        EmploymentId = e.Id,
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
                         IsHallEmployee = e.IsHallEmployee,
