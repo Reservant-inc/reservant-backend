@@ -47,11 +47,11 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     {
         await Database.ExecuteSqlRawAsync("EXEC DropAllTables");
     }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var connString = configuration.GetConnectionString("Default");
-        
+
         optionsBuilder.UseSqlServer(
             connString ?? throw new InvalidOperationException("Connection string 'Default' not found"),
             x => x.UseNetTopologySuite());
@@ -60,7 +60,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        
+
         builder.Entity<Restaurant>()
             .Property(r => r.Location)
             .HasColumnType("geometry");
@@ -129,10 +129,6 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
                 .Invoke(null, [builder]);
         }
 
-        SetAnonymousUserQueryFilterMethod
-            .MakeGenericMethod (typeof(User))
-            .Invoke(null, [builder]);
-
         // Microsoft suggest we do not configure cascade delete when using soft delete
         var relationships = builder.Model.GetEntityTypes()
             .SelectMany(e => e.GetForeignKeys());
@@ -145,22 +141,12 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     private static readonly MethodInfo SetSoftDeletableQueryFilterMethod =
         typeof(ApiDbContext).GetMethod(
             nameof(SetSoftDeletableQueryFilter), BindingFlags.Static | BindingFlags.NonPublic)!;
-    
-    private static readonly MethodInfo SetAnonymousUserQueryFilterMethod =
-        typeof(ApiDbContext).GetMethod(
-            nameof(SetAnonymousUserQueryFilter), BindingFlags.Static | BindingFlags.NonPublic)!;
 
     private static void SetSoftDeletableQueryFilter<TEntity>(ModelBuilder builder)
         where TEntity : class, ISoftDeletable
     {
         builder.Entity<TEntity>()
             .HasQueryFilter(e => !e.IsDeleted);
-    }
-    private static void SetAnonymousUserQueryFilter<TEntity>(ModelBuilder builder)
-    where TEntity : User
-    {
-        builder.Entity<TEntity>()
-            .HasQueryFilter(u => !u.IsArchived && !u.IsDeleted);
     }
 
     public override int SaveChanges()
