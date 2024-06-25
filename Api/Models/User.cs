@@ -126,4 +126,9 @@ public class User : IdentityUser, ISoftDeletable
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Property that indicates if the user was deleted
+    /// </summary>
+    public bool IsArchived { get; set; } = false;
 }
