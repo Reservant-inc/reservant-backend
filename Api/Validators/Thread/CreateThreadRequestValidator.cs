@@ -4,8 +4,13 @@ using Reservant.Api.Data;
 using Reservant.Api.Models.Dtos.Thread;
 
 namespace Reservant.Api.Validators.Thread;
+
+/// <summary>
+/// Validator for CreateThreadRequest
+/// </summary>
 public class CreateThreadRequestValidator : AbstractValidator<CreateThreadRequest>
 {
+    /// <inheritdoc />
     public CreateThreadRequestValidator(ApiDbContext context)
     {
         RuleFor(t => t.Title)
