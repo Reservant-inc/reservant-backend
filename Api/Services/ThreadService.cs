@@ -37,7 +37,7 @@ public class ThreadService(
         {
             return new ValidationFailure
             {
-                PropertyName = "Participants",
+                PropertyName = nameof(request.ParticipantIds),
                 ErrorMessage = "One or more participants do not exist.",
                 ErrorCode = ErrorCodes.NotFound
             };
@@ -92,7 +92,7 @@ public class ThreadService(
         {
             return new ValidationFailure
             {
-                PropertyName = "Thread",
+                PropertyName = null,
                 ErrorMessage = "Thread not found or you are not a participant.",
                 ErrorCode = ErrorCodes.NotFound
             };
@@ -133,7 +133,7 @@ public class ThreadService(
         {
             return new ValidationFailure
             {
-                PropertyName = "Thread",
+                PropertyName = null,
                 ErrorMessage = "Thread not found or you are not a participant.",
                 ErrorCode = ErrorCodes.NotFound
             };
@@ -181,7 +181,7 @@ public class ThreadService(
         {
             return new ValidationFailure
             {
-                PropertyName = "Thread",
+                PropertyName = null,
                 ErrorMessage = "Thread not found or you are not a participant.",
                 ErrorCode = ErrorCodes.NotFound
             };
