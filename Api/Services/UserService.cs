@@ -420,20 +420,14 @@ public class UserService(
             };
         }
 
-        user.AccessFailedCount = 0;
         user.BirthDate = null;
-        user.ConcurrencyStamp = null;
         user.Email = null;
         user.EmailConfirmed = false;
-        user.Employer = null;
-        user.EmployerId = null;
-        user.Employments = new List<Employment>();
         user.NormalizedEmail = null;
         user.PhoneNumber = null;
         user.PhoneNumberConfirmed = false;
-        user.FirstName = "";
-        user.LastName = "";
-        user.RegisteredAt = DateTime.Now;
+        user.FirstName = "DELETED";
+        user.LastName = "DELETED";
         user.Photo = null;
         user.PhotoFileName = null;
         user.IsArchived = true;
