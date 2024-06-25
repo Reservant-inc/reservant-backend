@@ -32,5 +32,5 @@ public class UpdateUserDetailsRequest
     /// <summary>
     /// File name of the photo
     /// </summary>
-    public string? PhotoFileName { get; init; }
+    public string? Photo { get; init; }
 }

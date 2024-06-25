@@ -27,10 +27,10 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
         RuleFor(r => r.BirthDate)
             .NotEmpty();
 
-        RuleFor(u => u.PhotoFileName)
+        RuleFor(u => u.Photo)
             .MaximumLength(50)
             .FileUploadName(FileClass.Image, uploadService)
-            .When(u => !string.IsNullOrEmpty(u.PhotoFileName));
+            .When(u => !string.IsNullOrEmpty(u.Photo));
     }
 
 }

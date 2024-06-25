@@ -26,7 +26,7 @@ public class UpdateMenuItemRequestValidator : AbstractValidator<UpdateMenuItemRe
             .InclusiveBetween(0, 100)
             .When(m => m.AlcoholPercentage.HasValue);
 
-        RuleFor(m => m.PhotoFileName)
+        RuleFor(m => m.Photo)
             .NotEmpty()
             .MaximumLength(50)
             .FileUploadName(FileClass.Image, uploadService);

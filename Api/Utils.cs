@@ -18,7 +18,7 @@ public static class Utils
     public static double CalculateHaversineDistance(double lat1, double lon1, double lat2, double lon2)
     {
         // Haversine formula to calculate the distance in meters
-        const double R = 6371e3; // Radius of Earth in meters
+        const double radius = 6371e3; // Radius of Earth in meters
         var phi1 = lat1 * Math.PI / 180.0; // Convert latitude to radians
         var phi2 = lat2 * Math.PI / 180.0; // Convert latitude to radians
         var deltaPhi = (lat2 - lat1) * Math.PI / 180.0; // Difference in latitude in radians
@@ -30,9 +30,9 @@ public static class Utils
 
         var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-        return R * c;
+        return radius * c;
     }
-    
+
     /// <summary>
     /// Convert a property path to camel case (example: 'PropertyName.Test' -> 'propertyName.test')
     /// </summary>

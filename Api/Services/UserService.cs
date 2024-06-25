@@ -193,11 +193,13 @@ public class UserService(
                 Employments = u.Employments
                     .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
-                    {
+                    {   
+                        EmplymentId = e.Id,
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
                         IsHallEmployee = e.IsHallEmployee,
-                        RestaurantName = e.Restaurant.Name
+                        RestaurantName = e.Restaurant.Name,
+                        DateFrom = e.DateFrom
                     })
                     .ToList()
             })
@@ -324,7 +326,7 @@ public class UserService(
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.BirthDate = request.BirthDate;
-        user.PhotoFileName = request.PhotoFileName;
+        user.PhotoFileName = request.Photo;
 
         result = await validationService.ValidateAsync(user, user.Id);
         if (!result.IsValid)
