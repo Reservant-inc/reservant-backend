@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using Reservant.Api.Data;
+using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Models.Dtos.Thread;
 
 namespace Reservant.Api.Validators.Thread;
@@ -11,18 +10,18 @@ namespace Reservant.Api.Validators.Thread;
 public class CreateThreadRequestValidator : AbstractValidator<CreateThreadRequest>
 {
     /// <inheritdoc />
-    public CreateThreadRequestValidator(ApiDbContext context)
+    public CreateThreadRequestValidator(UserManager<Models.User> userManager)
     {
         RuleFor(t => t.Title)
             .NotEmpty()
-            .WithMessage("Title cannot be empty.");
+            .WithMessage("Title cannot be empty.")
+            .MaximumLength(40);
 
         RuleFor(t => t.ParticipantIds)
             .NotEmpty()
             .WithMessage("ParticipantIds cannot be empty.");
 
         RuleForEach(t => t.ParticipantIds)
-            .MustAsync(async (id, cancellation) => await context.Users.AnyAsync(u => u.Id == id))
-            .WithMessage("One or more participant IDs are invalid.");
+            .CustomerExists(userManager);
     }
 }

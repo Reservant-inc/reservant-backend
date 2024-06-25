@@ -13,6 +13,7 @@ public class UpdateThreadRequestValidator : AbstractValidator<UpdateThreadReques
     {
         RuleFor(t => t.Title)
             .NotEmpty()
-            .WithMessage("Title cannot be empty.");
+            .WithMessage("Title cannot be empty.")
+            .MaximumLength(40);
     }
 }
