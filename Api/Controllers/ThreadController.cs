@@ -49,7 +49,7 @@ public class ThreadsController(
     /// <param name="threadId">ID of the thread</param>
     /// <param name="request">Thread update request</param>
     /// <returns>Updated thread information</returns>
-    [HttpPut("{threadId}")]
+    [HttpPut("{threadId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<ThreadVM>> UpdateThread(int threadId, [FromBody] UpdateThreadRequest request)
@@ -74,7 +74,7 @@ public class ThreadsController(
     /// </summary>
     /// <param name="threadId">ID of the thread</param>
     /// <returns>Result of the deletion</returns>
-    [HttpDelete("{threadId}")]
+    [HttpDelete("{threadId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteThread(int threadId)
@@ -99,7 +99,7 @@ public class ThreadsController(
     /// </summary>
     /// <param name="threadId">ID of the thread</param>
     /// <returns>Thread information</returns>
-    [HttpGet("{threadId}")]
+    [HttpGet("{threadId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<ThreadVM>> GetThread(int threadId)
