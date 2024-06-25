@@ -29,6 +29,12 @@ public class ThreadService(
     /// <returns></returns>
     public async Task<Result<ThreadVM>> CreateThreadAsync(CreateThreadRequest request, string userId)
     {
+        var result = await validationService.ValidateAsync(request, userId);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
         var participants = await dbContext.Users
             .Where(u => request.ParticipantIds.Contains(u.Id))
             .ToListAsync();
@@ -58,7 +64,7 @@ public class ThreadService(
             Participants = participants
         };
 
-        var validationResult = await validationService.ValidateAsync(messageThread, null);
+        var validationResult = await validationService.ValidateAsync(messageThread, userId);
         if (!validationResult.IsValid)
         {
             return validationResult;
@@ -84,6 +90,12 @@ public class ThreadService(
     /// <returns></returns>
     public async Task<Result<ThreadVM>> UpdateThreadAsync(int threadId, UpdateThreadRequest request, string userId)
     {
+        var result = await validationService.ValidateAsync(request, userId);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
@@ -100,7 +112,7 @@ public class ThreadService(
 
         messageThread.Title = request.Title;
 
-        var validationResult = await validationService.ValidateAsync(messageThread, null);
+        var validationResult = await validationService.ValidateAsync(messageThread, userId);
         if (!validationResult.IsValid)
         {
             return validationResult;
