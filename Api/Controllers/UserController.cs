@@ -9,6 +9,7 @@ using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Dtos.Event;
+using Reservant.Api.Models.Dtos.Thread;
 
 namespace Reservant.Api.Controllers;
 
@@ -20,7 +21,8 @@ public class UserController(
     UserManager<User> userManager,
     UserService userService,
     FileUploadService uploadService,
-    EventService eventService
+    EventService eventService,
+    ThreadService threadService
     ) : StrictController
 {
     /// <summary>
@@ -218,4 +220,34 @@ public class UserController(
 
         return Ok(result.Value);
     }
+<<<<<<< feature-KacperN-Threads
+
+    /// <summary>
+    /// Get threads the logged-in user participates in
+    /// </summary>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Records per page</param>
+    /// <returns>List of threads the user participates in</returns>
+    [HttpGet("threads")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200), ProducesResponseType(401)]
+    public async Task<ActionResult<Pagination<ThreadSummaryVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    {
+        var userId = userManager.GetUserId(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await threadService.GetUserThreadsAsync(userId, page, perPage);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
+=======
+>>>>>>> dev
 }
