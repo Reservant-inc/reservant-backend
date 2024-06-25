@@ -92,7 +92,7 @@ public class AuthController(
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
         var user = await userManager.FindByNameAsync(request.Login.Trim());
-        if (user is null)
+        if (user is null || user.IsArchived)
         {
             return Problem(
                 title: "Incorrect login or password",
