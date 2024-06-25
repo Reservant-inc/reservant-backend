@@ -69,6 +69,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
+            ThreadId = messageThread.Id,
             Title = messageThread.Title,
             Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
         };
@@ -110,6 +111,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
+            ThreadId = messageThread.Id,
             Title = messageThread.Title,
             Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
         };
@@ -187,6 +189,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
+            ThreadId = messageThread.Id,
             Title = messageThread.Title,
             Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
         };
