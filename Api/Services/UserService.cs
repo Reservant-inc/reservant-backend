@@ -406,13 +406,13 @@ public class UserService(
         return result;
     }
 
-
     /// <summary>
     /// Mark a user as deleted
     /// </summary>
     /// <param name="id">ID of the user</param>
+    /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result<bool>> ArchiveUserAsync(string id)
+    public async Task<Result<bool>> ArchiveUserAsync(string id, string employerId)
     {
         var user = await dbContext.Users
             .Include(user => user.Employments)
@@ -424,6 +424,16 @@ public class UserService(
                 PropertyName = null,
                 ErrorCode = ErrorCodes.NotFound,
                 ErrorMessage = ErrorCodes.NotFound
+            };
+        }
+
+        if (user.EmployerId != employerId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = "Current user is must be the selected user's employer"
             };
         }
 
