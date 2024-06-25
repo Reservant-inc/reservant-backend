@@ -220,7 +220,6 @@ public class UserController(
 
         return Ok(result.Value);
     }
-<<<<<<< feature-KacperN-Threads
 
     /// <summary>
     /// Get threads the logged-in user participates in
@@ -247,7 +246,4 @@ public class UserController(
 
         return Ok(result.Value);
     }
-
-=======
->>>>>>> dev
 }
