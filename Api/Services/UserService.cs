@@ -414,7 +414,9 @@ public class UserService(
     /// <returns>Returned bool is meaningless</returns>
     public async Task<Result<bool>> ArchiveUserAsync(string id)
     {
-        var user = await dbContext.Users.FindAsync(id);
+        var user = await dbContext.Users
+            .Include(user => user.Employments)
+            .FirstOrDefaultAsync(x => x.Id == id);
         if (user is null)
         {
             return new ValidationFailure
@@ -436,6 +438,11 @@ public class UserService(
         user.Photo = null;
         user.PhotoFileName = null;
         user.IsArchived = true;
+
+        foreach (var employment in user.Employments)
+        {
+            employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
+        }
 
         await dbContext.SaveChangesAsync();
         return true;
