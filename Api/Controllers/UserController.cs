@@ -193,6 +193,11 @@ public class UserController(
         return Ok(result.Value);
     }
 
+    /// <summary>
+    /// Mark a user as deleted
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     [Authorize(Roles = $"{Roles.CustomerSupportAgent}, {Roles.CustomerSupportManager}")]
     [ProducesResponseType(204), ProducesResponseType(400)]

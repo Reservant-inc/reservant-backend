@@ -407,6 +407,11 @@ public class UserService(
     }
 
 
+    /// <summary>
+    /// Mark a user as deleted
+    /// </summary>
+    /// <param name="id">ID of the user</param>
+    /// <returns>Returned bool is meaningless</returns>
     public async Task<Result<bool>> ArchiveUserAsync(string id)
     {
         var user = await dbContext.Users.FindAsync(id);
@@ -432,11 +437,7 @@ public class UserService(
         user.PhotoFileName = null;
         user.IsArchived = true;
 
-
         await dbContext.SaveChangesAsync();
         return true;
-
     }
-
 }
-
