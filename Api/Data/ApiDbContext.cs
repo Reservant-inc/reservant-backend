@@ -40,6 +40,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
     public DbSet<Review> Reviews { get; init; } = null!;
 
+    public DbSet<MessageThread> MessageThreads { get; init; } = null!;
+
+    public DbSet<PaymentTransaction> PaymentTransactions { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
@@ -63,7 +67,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
         builder.Entity<Restaurant>()
             .Property(r => r.Location)
-            .HasColumnType("geometry");
+            .HasColumnType("geography");
 
         builder.Entity<Visit>(eb =>
         {

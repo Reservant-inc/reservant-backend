@@ -20,11 +20,6 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
             .NotEmpty()
             .MaximumLength(30);
 
-        RuleFor(r => r.Email)
-            .NotEmpty()
-            .EmailAddress()
-            .MaximumLength(50);
-
         RuleFor(r => r.PhoneNumber)
             .NotEmpty()
             .MaximumLength(15);
@@ -32,10 +27,10 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
         RuleFor(r => r.BirthDate)
             .NotEmpty();
 
-        RuleFor(u => u.PhotoFileName)
+        RuleFor(u => u.Photo)
             .MaximumLength(50)
             .FileUploadName(FileClass.Image, uploadService)
-            .When(u => !string.IsNullOrEmpty(u.PhotoFileName));
+            .When(u => !string.IsNullOrEmpty(u.Photo));
     }
 
 }

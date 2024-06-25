@@ -46,6 +46,8 @@ public class OrderService(
 
         var visit = await context.Visits
             .Include(v => v.Participants)
+            .Include(v => v.Restaurant)
+            .ThenInclude(v => v.Group)
             .FirstOrDefaultAsync(v => v.Orders.Contains(order));
 
         var user = await userManager.GetUserAsync(claim);
@@ -77,6 +79,18 @@ public class OrderService(
                 };
             }
 
+        }
+
+        if (roles.Contains(Roles.RestaurantOwner))
+        {
+            if (visit!.Restaurant.Group.OwnerId != user!.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
         }
 
         var orderItems = order.OrderItems.Select(i => new OrderItemVM()

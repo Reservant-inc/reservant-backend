@@ -6,6 +6,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -18,6 +20,29 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/restaurants")]
 public class RestaurantController(UserManager<User> userManager, RestaurantService service) : StrictController
 {
+
+    /// <summary>
+    /// Gets restaurant in a given area, defined by two points
+    /// </summary>
+    /// <param name="lat1"> First point latitude </param>
+    /// <param name="lon1"> First point longitude </param>
+    /// <param name="lat2"> Second point latitude</param>
+    /// <param name="lon2"> Second point longitude </param>
+    /// <returns></returns>
+    [HttpGet("in-area")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurantsInArea(double lat1, double lon1, double lat2, double lon2)
+    {
+        var result = await service.GetRestaurantsInAreaAsync(lat1, lon1, lat2, lon2);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
 
     /// <summary>
     /// Verify restaurant
@@ -57,16 +82,16 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <summary>
     /// Get orders with pagination and sorting
     /// </summary>
-    /// <param name="id">ID of the restaurant</param>
+    /// <param name="restaurantId">ID of the restaurant</param>
     /// <param name="returnFinished">Return finished orders</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
     /// <param name="orderBy">Order by criteria</param>
     /// <returns>List of orders with pagination</returns>
-    [HttpGet("{id:int}/orders")]
+    [HttpGet("{restaurantId:int}/orders")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
-    public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int id, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null)
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int restaurantId, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null)
     {
         var userId = userManager.GetUserId(User);
         if (userId is null)
@@ -74,7 +99,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var result = await service.GetOrdersAsync(userId, id, returnFinished, page, perPage, orderBy);
+        var result = await service.GetOrdersAsync(userId, restaurantId, returnFinished, page, perPage, orderBy);
         if (result.IsError)
         {
             return result.ToValidationProblem();
@@ -86,13 +111,13 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <summary>
     /// Get future events in a restaurant with pagination.
     /// </summary>
-    /// <param name="id">ID of the restaurant.</param>
+    /// <param name="restaurantId">ID of the restaurant.</param>
     /// <param name="page">Page number to return.</param>
     /// <param name="perPage">Items per page.</param>
     /// <returns>Paginated list of future events.</returns>
-    [HttpGet("{id:int}/events")]
+    [HttpGet("{restaurantId:int}/events")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurant(int id, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    public async Task<ActionResult<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurant(int restaurantId, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var userId = userManager.GetUserId(User);
         if (userId is null)
@@ -100,7 +125,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var result = await service.GetFutureEventsByRestaurantAsync(id, page, perPage);
+        var result = await service.GetFutureEventsByRestaurantAsync(restaurantId, page, perPage);
 
         if (result.IsError)
         {
@@ -110,4 +135,54 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
+    /// <summary>
+    /// Add restaurant review
+    /// </summary>
+    /// <remarks>
+    /// Adds review from logged in user
+    /// </remarks>
+    [HttpPost("{restaurantId:int}/reviews")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<ReviewVM>> CreateReview(int restaurantId, CreateReviewRequest createReviewRequest)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.CreateReviewAsync( user,  restaurantId, createReviewRequest);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Returns reviews by id
+    /// </summary>
+    /// <remarks>
+    /// Returns reviews from restaurant with given restaurant Id
+    /// </remarks>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="orderBy">Order of the reviews</param>
+    /// <param name="page">Page number of the reviews</param>
+    /// <param name="perPage">Number of reviews per page</param>
+    [HttpGet("{restaurantId:int}/reviews")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+    {
+        var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
 }

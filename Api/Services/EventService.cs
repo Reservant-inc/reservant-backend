@@ -4,6 +4,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.User;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -12,7 +13,6 @@ namespace Reservant.Api.Services
     /// <summary>
     /// Service for event management
     /// </summary>
-    /// <param name="context"></param>
     public class EventService(ApiDbContext context, ValidationService validationService)
     {
         /// <summary>
@@ -143,6 +143,105 @@ namespace Reservant.Api.Services
                 Description = e.Description,
                 CreatorId = e.CreatorId,
             }).ToList();
+        }
+
+        /// <summary>
+        /// Add user from event's interested list
+        /// </summary>
+        public async Task<Result<bool>> AddUserToEventAsync(int id, User user)
+        {
+            var eventFound = await context.Events
+                .Include(e => e.Interested)
+                .Where(e=>e.Id==id)
+                .FirstOrDefaultAsync();
+            if(eventFound==null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (eventFound.Interested.Contains(user))
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is already interested in the event",
+                    ErrorCode = ErrorCodes.Duplicate
+                };
+            }
+
+            eventFound.Interested.Add(user);
+            await context.SaveChangesAsync();
+
+            return true;
+        }
+
+        /// <summary>
+        /// Remove user from event's interested list
+        /// </summary>
+        public async Task<Result<bool>> DeleteUserFromEventAsync(int id, User user)
+        {
+            var eventFound = await context.Events
+                .Include(e => e.Interested)
+                .Where(e=>e.Id==id)
+                .FirstOrDefaultAsync();
+            if(eventFound==null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (!eventFound.Interested.Remove(user))
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is not interested in the event",
+                    ErrorCode = ErrorCodes.UserNotInterestedInEvent
+                };
+            }
+            await context.SaveChangesAsync();
+
+            return true;
+        }
+
+
+        /// <summary>
+        /// Get future events the user is interested in
+        /// </summary>
+        /// <param name="user">User whos intered event we go over</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of events in which user is interested</returns>
+        public async Task<Result<Pagination<EventSummaryVM>>> GetEventsInterestedInAsync(User user, int page, int perPage)
+        {
+            var query = context.Users
+                .Where(u => u.Id == user.Id)
+                .SelectMany(u => u.InterestedIn)
+                .Where(u => u.Time > DateTime.UtcNow)
+                .OrderBy(u => u.Time)
+                .Select(e => new EventSummaryVM
+                {
+                    EventId = e.Id,
+                    Description = e.Description,
+                    Time = e.Time,
+                    MustJoinUntil = e.MustJoinUntil,
+                    CreatorId = e.CreatorId,
+                    CreatorFullName = e.Creator.FullName,
+                    RestaurantId = e.RestaurantId,
+                    RestaurantName = e.Restaurant.Name,
+                    NumberInterested = e.Interested.Count
+                });
+
+            return await query.PaginateAsync(page, perPage);
         }
     }
 

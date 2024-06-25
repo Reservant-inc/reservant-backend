@@ -10,11 +10,6 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/weatherforecast")]
 public class WeatherForecastController(ApiDbContext context) : StrictController
 {
-    private static readonly string[] Summaries =
-    [
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    ];
-
     private static int ToFahrenheit(int celsius)
     {
         return 32 + (int)(celsius / 0.5556);

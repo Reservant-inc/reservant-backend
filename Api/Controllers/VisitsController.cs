@@ -22,10 +22,10 @@ public class VisitsController(
     /// Get visit with the provided ID
     /// </summary>
     /// <returns></returns>
-    [HttpGet("{id:int}")]
+    [HttpGet("{visitId:int}")]
     [ProducesResponseType(200),ProducesResponseType(400)]
     [Authorize]
-    public async Task<ActionResult<VisitVM>> GetVisits(int id)
+    public async Task<ActionResult<VisitVM>> GetVisits(int visitId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -33,7 +33,7 @@ public class VisitsController(
             return Unauthorized();
         }
 
-        var result = await visitService.GetVisitByIdAsync(id, user);
+        var result = await visitService.GetVisitByIdAsync(visitId, user);
 
         if (result.IsError)
         {

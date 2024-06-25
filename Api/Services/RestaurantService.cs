@@ -13,9 +13,11 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Location;
 using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 using Reservant.Api.Models.Dtos.Event;
+
 
 
 namespace Reservant.Api.Services
@@ -49,8 +51,78 @@ namespace Reservant.Api.Services
         FileUploadService uploadService,
         UserManager<User> userManager,
         MenuItemsService menuItemsService,
-        ValidationService validationService)
+        ValidationService validationService,
+        GeometryFactory geometryFactory)
     {
+        /// <summary>
+        /// Finds restaurant in a given rectangle defined by two geographical points.
+        /// </summary>
+        /// <param name="lat1">Latitude of the first point</param>
+        /// <param name="lon1">Longitude of the first point</param>
+        /// <param name="lat2">Latitude of the second point</param>
+        /// <param name="lon2">Longitude of the second point</param>
+        /// <returns></returns>
+        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsInAreaAsync(double lat1, double lon1, double lat2, double lon2)
+        {
+            var minLat = Math.Min(lat1, lat2);
+            var maxLat = Math.Max(lat1, lat2);
+            var minLon = Math.Min(lon1, lon2);
+            var maxLon = Math.Max(lon1, lon2);
+
+            var coordinates = new[]
+            {
+                new Coordinate(minLon, minLat),
+                new Coordinate(maxLon, minLat),
+                new Coordinate(maxLon, maxLat),
+                new Coordinate(minLon, maxLat),
+                new Coordinate(minLon, minLat)
+            };
+            var boundingBox = geometryFactory.CreatePolygon(coordinates);
+
+            if (!boundingBox.IsValid)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(boundingBox),
+                    ErrorMessage = "Given coordinates does not create a valid Polygon!",
+                    ErrorCode = ErrorCodes.WrongPolygonFormat
+                };
+            }
+
+            var restaurants = await context.Restaurants
+                .Where(r => boundingBox.Contains(r.Location))
+                .Include(r => r.Group)
+                .Include(r => r.Tables)
+                .Include(r => r.Photos)
+                .Include(r => r.Tags)
+                .ToListAsync();
+
+            var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
+            {
+                RestaurantId = r.Id,
+                Name = r.Name,
+                RestaurantType = r.RestaurantType,
+                Nip = r.Nip,
+                Address = r.Address,
+                City = r.City,
+                Location = new Geolocation
+                {
+                    Latitude = r.Location.Y,
+                    Longitude = r.Location.X
+                },
+                GroupId = r.GroupId,
+                ProvideDelivery = r.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Description = r.Description,
+                ReservationDeposit = r.ReservationDeposit,
+                Tags = r.Tags.Select(t => t.Name).ToList(),
+                IsVerified = r.VerifierId is not null,
+                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X)
+            }).OrderBy(r => r.DistanceFrom).ToList();
+
+            return nearRestaurants;
+        }
+
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
         /// </summary>
@@ -108,7 +180,7 @@ namespace Reservant.Api.Services
                 Nip = request.Nip,
                 PostalIndex = request.PostalIndex,
                 City = request.City.Trim(),
-                Location = new Point(request.Location.Longitude,request.Location.Latitude),
+                Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude, request.Location.Latitude)),
                 Group = group,
                 RentalContractFileName = request.RentalContract,
                 AlcoholLicenseFileName = request.AlcoholLicense,
@@ -350,7 +422,7 @@ namespace Reservant.Api.Services
                 RestaurantId = restaurantId,
                 IsBackdoorEmployee = r.IsBackdoorEmployee,
                 IsHallEmployee = r.IsHallEmployee,
-                DateFrom = DateOnly.FromDateTime(DateTime.Now)
+                DateFrom = DateOnly.FromDateTime(DateTime.UtcNow)
             }).Select(x =>
             {
                 Console.WriteLine(x.Id);
@@ -809,29 +881,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (!await userManager.IsInRoleAsync(user, Roles.RestaurantEmployee))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(userId),
-                    ErrorMessage = $"User with ID {userId} is not a RestaurantEmployee",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-            var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
-                e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
-            if (!isEmployeeAtRestaurant)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(userId),
-                    ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .Include(restaurant => restaurant.Group)
+                .FirstOrDefaultAsync(x => x.Id == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -839,6 +891,44 @@ namespace Reservant.Api.Services
                     PropertyName = nameof(restaurantId),
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+
+            if (roles.Contains(Roles.RestaurantEmployee))
+            {
+                var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
+                    e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
+                if (!isEmployeeAtRestaurant)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+            }
+            else if (roles.Contains(Roles.RestaurantOwner))
+            {
+                if (restaurant.Group.OwnerId != userId)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = "User is not owner of the restaurant",
+                        ErrorCode = ErrorCodes.AccessDenied
+                    };
+                }
+            }
+            else
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User must be employed in the restaurant or be its owner",
+                    ErrorCode = ErrorCodes.AccessDenied
                 };
             }
 
@@ -920,6 +1010,122 @@ namespace Reservant.Api.Services
                 });
 
             return await query.PaginateAsync(page, perPage);
+        }
+
+        /// <summary>
+        /// Add review to restaurant of given id from logged in user containing data from request
+        /// </summary>
+        /// <param name="user">User putting in a review</param>
+        /// <param name="restaurantId">ID of restaurant reciving review</param>
+        /// <param name="createReviewRequest">template for data provided in a reveiw</param>
+        /// <returns>View of a created review</returns>
+        public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
+        {
+            var restaurant = await context.Restaurants
+                .Where(r => r.Id == restaurantId)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
+            }
+
+            var createReviewRequestValidation = await validationService.ValidateAsync(createReviewRequest,user.Id);
+            if(!createReviewRequestValidation.IsValid)
+            {
+                return createReviewRequestValidation;
+            }
+
+            var existingReview = await context.Reviews
+                .Where(r => r.RestaurantId == restaurantId)
+                .Where(r => r.Author==user)
+                .FirstOrDefaultAsync();
+
+            if (existingReview != null)
+            {
+                return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.Duplicate };
+            }
+
+            var newReview = new Review
+            {
+                Restaurant = restaurant,
+                Author = user,
+                RestaurantId = restaurantId,
+                AuthorId = user.Id,
+                Stars = createReviewRequest.Stars,
+                CreatedAt = DateTime.UtcNow,
+                Contents = createReviewRequest.Contents
+            };
+
+
+            var reviewValidation = await validationService.ValidateAsync(newReview,user.Id);
+            if(!reviewValidation.IsValid)
+            {
+                return reviewValidation;
+            }
+
+            await context.Reviews.AddAsync(newReview);
+            await context.SaveChangesAsync();
+
+            var reviewVM = new ReviewVM
+            {
+                ReviewId = newReview.Id,
+                RestaurantId=newReview.RestaurantId,
+                AuthorId=newReview.AuthorId,
+                AuthorFullName=newReview.Author.FullName,
+                Stars=newReview.Stars,
+                CreatedAt=newReview.CreatedAt,
+                Contents=newReview.Contents,
+                AnsweredAt=newReview.AnsweredAt,
+                RestaurantResponse=newReview.RestaurantResponse
+            };
+
+            return reviewVM;
+        }
+
+        /// <summary>
+        /// Get reviews for a restaurant
+        /// </summary>
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+        {
+            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+            var reviewsQuery = context.Reviews
+                .Where(r => r.RestaurantId == restaurantId);
+
+            var reviewVM = reviewsQuery.Select(r => new ReviewVM
+            {
+                ReviewId = r.Id,
+                RestaurantId = r.RestaurantId,
+                AuthorId = r.AuthorId,
+                AuthorFullName = r.Author.FullName,
+                Stars = r.Stars,
+                CreatedAt = r.CreatedAt,
+                Contents = r.Contents,
+                AnsweredAt = r.AnsweredAt,
+                RestaurantResponse = r.RestaurantResponse
+            });
+
+            reviewVM = reviewVM.AsQueryable();
+            reviewVM = orderBy switch
+            {
+                ReviewOrderSorting.StarsAsc => reviewVM.OrderBy(o => o.Stars),
+                ReviewOrderSorting.StarsDesc => reviewVM.OrderByDescending(o => o.Stars),
+                ReviewOrderSorting.DateAsc => reviewVM.OrderBy(o => o.CreatedAt),
+                ReviewOrderSorting.DateDesc => reviewVM.OrderByDescending(o => o.CreatedAt),
+                _ => reviewVM
+            };
+
+            return await reviewVM.PaginateAsync(page, perPage);
         }
     }
 }

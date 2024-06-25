@@ -94,7 +94,7 @@ public static class CustomRules
     public static IRuleBuilderOptions<T, DateTime> DateTimeInFuture<T>(this IRuleBuilder<T, DateTime> builder)
     {
         return builder
-            .Must(date => date >= DateTime.Now)
+            .Must(date => date >= DateTime.UtcNow)
             .WithErrorCode(ErrorCodes.DateMustBeInFuture)
             .WithMessage("The date must be today or in the future.");
     }

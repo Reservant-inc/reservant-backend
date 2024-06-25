@@ -13,7 +13,6 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Util class for managing RestaurantGroups
 /// </summary>
-/// <param name="context">context</param>
 public class RestaurantGroupService(
     ApiDbContext context,
     FileUploadService uploadService,
