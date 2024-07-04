@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Menu;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -164,4 +165,14 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
     }
 
+    /// <summary>
+    /// Gets all menu types
+    /// </summary>
+    [HttpGet("menu-types")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public ActionResult<List<MenuType>> GetMenuTypesAsync()
+    {
+        var menuTypes = Enum.GetValues<MenuType>().ToList();
+        return Ok(menuTypes);
+    }
 }

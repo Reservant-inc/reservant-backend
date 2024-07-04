@@ -56,9 +56,9 @@ namespace Reservant.Api.Controllers
 
         /// <summary>
         /// Add logged-in user to event's interested list
+        /// </summary>
         /// <param name="eventId"> Id of Event</param>
         /// <returns></returns>
-        /// </summary>
         [HttpPost("{eventId:int}/interested")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
@@ -81,9 +81,9 @@ namespace Reservant.Api.Controllers
 
         /// <summary>
         /// Remove logged-in user to event's interested list
+        /// </summary>
         /// <param name="eventId"> Id of Event</param>
         /// <returns></returns>
-        /// </summary>
         [HttpDelete("{eventId:int}/interested")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]

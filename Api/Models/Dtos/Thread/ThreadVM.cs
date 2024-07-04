@@ -8,6 +8,11 @@ namespace Reservant.Api.Models.Dtos.Thread;
 public class ThreadVM
 {
     /// <summary>
+    /// Unique ID
+    /// </summary>
+    public required int ThreadId { get; init; }
+
+    /// <summary>
     /// Title of the thread
     /// </summary>
     public required string Title { get; init; }

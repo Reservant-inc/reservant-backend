@@ -9,6 +9,7 @@ using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Dtos.Event;
+using Reservant.Api.Models.Dtos.Thread;
 
 namespace Reservant.Api.Controllers;
 
@@ -20,7 +21,8 @@ public class UserController(
     UserManager<User> userManager,
     UserService userService,
     FileUploadService uploadService,
-    EventService eventService
+    EventService eventService,
+    ThreadService threadService
     ) : StrictController
 {
     /// <summary>
@@ -120,7 +122,7 @@ public class UserController(
     /// <returns></returns>
     [HttpGet("visits")]
     [Authorize(Roles = Roles.Customer)]
-    [ProducesResponseType(200),ProducesResponseType(400)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisits(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
@@ -149,7 +151,7 @@ public class UserController(
     /// <returns></returns>
     [HttpGet("visit-history")]
     [Authorize(Roles = Roles.Customer)]
-    [ProducesResponseType(200),ProducesResponseType(400)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisitHistory(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
@@ -186,10 +188,37 @@ public class UserController(
         }
 
         var result = await eventService.GetEventsCreatedAsync(user);
-        if (result.IsError) {
+        if (result.IsError)
+        {
             return result.ToValidationProblem();
         }
         return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Mark an employee as deleted
+    /// </summary>
+    /// <param name="employeeId">ID of the employee</param>
+    /// <returns></returns>
+    [HttpDelete("{employeeId}")]
+    [Authorize(Roles = $"{Roles.RestaurantOwner}")]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    public async Task<ActionResult> ArchiveUser(string employeeId)
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.ArchiveUserAsync(employeeId, user.Id);
+
+        if (result.IsError) {
+            return result.ToValidationProblem();
+        }
+
+        return NoContent();
     }
 
     /// <summary>
@@ -211,6 +240,32 @@ public class UserController(
 
         var result = await eventService.GetEventsInterestedInAsync(user,page,perPage);
 
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get threads the logged-in user participates in
+    /// </summary>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Records per page</param>
+    /// <returns>List of threads the user participates in</returns>
+    [HttpGet("threads")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200), ProducesResponseType(401)]
+    public async Task<ActionResult<Pagination<ThreadSummaryVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    {
+        var userId = userManager.GetUserId(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await threadService.GetUserThreadsAsync(userId, page, perPage);
         if (result.IsError)
         {
             return result.ToValidationProblem();

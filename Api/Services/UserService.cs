@@ -60,9 +60,9 @@ public class UserService(
             return ValidationUtils.AsValidationErrors("", result);
         }
 
-        if(request.IsManager)
+        if (request.IsManager)
         {
-        await userManager.AddToRolesAsync(user, [Roles.CustomerSupportManager]);
+            await userManager.AddToRolesAsync(user, [Roles.CustomerSupportManager]);
         }
         await userManager.AddToRolesAsync(user, [Roles.CustomerSupportAgent]);
 
@@ -80,7 +80,8 @@ public class UserService(
     {
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
-        var employee = new User {
+        var employee = new User
+        {
             Id = id ?? Guid.NewGuid().ToString(),
             UserName = username,
             FirstName = request.FirstName.Trim(),
@@ -154,7 +155,8 @@ public class UserService(
     /// Add the RestaurantOwner role to a user
     /// </summary>
     /// <param name="id">ID of the user</param>
-    public async Task<User?> MakeRestaurantOwnerAsync(string id) {
+    public async Task<User?> MakeRestaurantOwnerAsync(string id)
+    {
         var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
         if (user == null) { return null; }
         await userManager.AddToRoleAsync(user, Roles.RestaurantOwner);
@@ -404,5 +406,55 @@ public class UserService(
         return result;
     }
 
-}
+    /// <summary>
+    /// Mark a user as deleted
+    /// </summary>
+    /// <param name="id">ID of the user</param>
+    /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
+    /// <returns>Returned bool is meaningless</returns>
+    public async Task<Result<bool>> ArchiveUserAsync(string id, string employerId)
+    {
+        var user = await dbContext.Users
+            .Include(user => user.Employments)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (user is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound
+            };
+        }
 
+        if (user.EmployerId != employerId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = "Current user is must be the selected user's employer"
+            };
+        }
+
+        user.BirthDate = null;
+        user.Email = null;
+        user.EmailConfirmed = false;
+        user.NormalizedEmail = null;
+        user.PhoneNumber = null;
+        user.PhoneNumberConfirmed = false;
+        user.FirstName = "DELETED";
+        user.LastName = "DELETED";
+        user.Photo = null;
+        user.PhotoFileName = null;
+        user.IsArchived = true;
+
+        foreach (var employment in user.Employments)
+        {
+            employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
+        }
+
+        await dbContext.SaveChangesAsync();
+        return true;
+    }
+}
