@@ -103,5 +103,62 @@ namespace Reservant.Api.Controllers
 
             return Ok();
         }
+
+
+
+
+
+
+        /// <summary>
+        /// Update an existing event
+        /// </summary>
+        /// /// <param name="eventId"> Id of Event</param>
+        /// <returns></returns>
+        [HttpPut("{eventId:int}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [Authorize(Roles = Roles.Customer)]
+        public async Task<ActionResult<EventVM>> UpdateEvent(int eventId, UpdateEventRequest request)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.UpdateEventAsync(eventId, request, user);
+            if (result.IsError)
+            {
+                return result.ToValidationProblem();
+            }
+            return Ok(result.Value);
+        }
+
+        /// <summary>
+        /// Delete an existing event
+        /// </summary>
+        /// <param name="eventId"> Id of Event</param>
+        /// <returns></returns>
+        [HttpDelete("{eventId:int}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [Authorize(Roles = Roles.Customer)]
+        public async Task<ActionResult> DeleteEvent(int eventId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.DeleteEventAsync(eventId, user);
+            if (result.IsError)
+            {
+                return result.ToValidationProblem();
+            }
+            return Ok();
+        }
+
+        
+
+
     }
 }

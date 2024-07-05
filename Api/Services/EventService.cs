@@ -243,6 +243,134 @@ namespace Reservant.Api.Services
 
             return await query.PaginateAsync(page, perPage);
         }
-    }
 
+
+        /// <summary>
+        /// Updates the details of an existing event.
+        /// </summary>
+        /// <param name="eventId">The id of the event to update.</param>
+        /// <param name="request">The new details for the event.</param>
+        /// <param name="user">The user updating the event.</param>
+        /// <returns>A Result object containing the updated event or validation failures.</returns>
+        public async Task<Result<EventVM>> UpdateEventAsync(int eventId, UpdateEventRequest request, User user)
+        {
+           var eventToUpdate = await context.Events
+            .Include(e => e.Creator)
+            .Include(e => e.Restaurant)
+            .Include(e => e.Interested)
+            .FirstOrDefaultAsync(e => e.Id == eventId);
+
+            if (eventToUpdate is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = ErrorCodes.NotFound
+                };
+            }
+
+            if(eventToUpdate.Creator!=user)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.AccessDenied,
+                    ErrorMessage = ErrorCodes.AccessDenied
+                };
+            }
+
+            if (eventToUpdate.Time < DateTime.UtcNow)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.DateMustBeInFuture,
+                    ErrorMessage = ErrorCodes.DateMustBeInFuture
+                };
+            }
+
+            eventToUpdate.Description = request.Description;
+            eventToUpdate.Time = request.Time;
+            eventToUpdate.MustJoinUntil = request.MustJoinUntil;
+            eventToUpdate.RestaurantId = request.RestaurantId;
+
+            var restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
+            if (restaurant is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.RestaurantId),
+                    ErrorCode = ErrorCodes.RestaurantDoesNotExist,
+                    ErrorMessage = ErrorCodes.RestaurantDoesNotExist
+                };
+            }
+
+            eventToUpdate.Restaurant = restaurant;
+
+            var result = await validationService.ValidateAsync(eventToUpdate, user.Id);
+            if (!result.IsValid)
+            {
+                return result;
+            }
+
+            await context.SaveChangesAsync();
+
+            return new EventVM
+            {
+                EventId = eventToUpdate.Id,
+                CreatedAt = eventToUpdate.CreatedAt,
+                Description = eventToUpdate.Description,
+                Time = eventToUpdate.Time,
+                MustJoinUntil = eventToUpdate.MustJoinUntil,
+                CreatorId = eventToUpdate.CreatorId,
+                CreatorFullName = eventToUpdate.Creator.FullName,
+                RestaurantId = eventToUpdate.RestaurantId,
+                RestaurantName = eventToUpdate.Restaurant.Name,
+                VisitId = eventToUpdate.VisitId,
+                Interested = eventToUpdate.Interested?.Select(i => new UserSummaryVM
+                {
+                    FirstName = i.FirstName,
+                    LastName = i.LastName,
+                    UserId = i.Id
+                }).ToList() ?? new List<UserSummaryVM>()
+            };
+        }
+
+        /// <summary>
+        /// Deletes an existing event.
+        /// </summary>
+        /// <param name="id">The id of the event to delete.</param>
+        /// <returns>A Result object containing a boolean indicating success or a validation failure.</returns>
+        public async Task<Result<bool>> DeleteEventAsync(int eventId, User user)
+        {
+            var eventToDelete = await context.Events
+                .FirstOrDefaultAsync(e => e.Id == eventId);
+
+            if (eventToDelete is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = ErrorCodes.NotFound
+                };
+            }
+
+            if(eventToDelete.Creator!=user)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.AccessDenied,
+                    ErrorMessage = ErrorCodes.AccessDenied
+                };
+            }
+
+            context.Events.Remove(eventToDelete);
+            await context.SaveChangesAsync();
+
+            return true;
+        }
+    }
 }
