@@ -285,15 +285,20 @@ namespace Reservant.Api.Services
                 return new ValidationFailure
                 {
                     PropertyName = null,
-                    ErrorCode = ErrorCodes.DateMustBeInFuture,
-                    ErrorMessage = ErrorCodes.DateMustBeInFuture
+                    ErrorCode = ErrorCodes.DateOfOccuringMustBeInFuture,
+                    ErrorMessage = ErrorCodes.DateOfOccuringMustBeInFuture
                 };
             }
 
-            eventToUpdate.Description = request.Description;
-            eventToUpdate.Time = request.Time;
-            eventToUpdate.MustJoinUntil = request.MustJoinUntil;
-            eventToUpdate.RestaurantId = request.RestaurantId;
+            if (eventToUpdate.MustJoinUntil < DateTime.UtcNow)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.DateOfJoiningMustBeInFuture,
+                    ErrorMessage = ErrorCodes.DateOfJoiningMustBeInFuture
+                };
+            }
 
             var restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
             if (restaurant is null)
@@ -306,6 +311,10 @@ namespace Reservant.Api.Services
                 };
             }
 
+            eventToUpdate.Description = request.Description;
+            eventToUpdate.Time = request.Time;
+            eventToUpdate.MustJoinUntil = request.MustJoinUntil;
+            eventToUpdate.RestaurantId = request.RestaurantId;
             eventToUpdate.Restaurant = restaurant;
 
             var result = await validationService.ValidateAsync(eventToUpdate, user.Id);

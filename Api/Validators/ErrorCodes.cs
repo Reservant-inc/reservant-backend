@@ -155,4 +155,14 @@ public static class ErrorCodes
     /// Too late to join event
     /// </summary>
     public const string UserNotInterestedInEvent = "UserNotInterestedInEvent";
+
+    /// <summary>
+    /// Too late to join event
+    /// </summary>
+    public const string DateOfJoiningMustBeInFuture = "DateOfJoiningMustBeInFuture";
+
+    /// <summary>
+    /// Too late to join event
+    /// </summary>
+    public const string DateOfOccuringMustBeInFuture = "DateOfOccuringMustBeInFuture";
 }
