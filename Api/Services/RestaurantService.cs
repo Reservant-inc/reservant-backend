@@ -95,6 +95,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Tables)
                 .Include(r => r.Photos)
                 .Include(r => r.Tags)
+                .Include(r => r.Reviews)
                 .ToListAsync();
 
             var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
@@ -117,7 +118,9 @@ namespace Reservant.Api.Services
                 ReservationDeposit = r.ReservationDeposit,
                 Tags = r.Tags.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId is not null,
-                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X)
+                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X),
+                Rating = r.Rating,
+                NumberReviews = r.Reviews.Count
             }).OrderBy(r => r.DistanceFrom).ToList();
 
             return nearRestaurants;
@@ -257,6 +260,7 @@ namespace Reservant.Api.Services
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
+                .Include(r => r.Reviews)
                 .Select(r => new RestaurantSummaryVM
                 {
                     RestaurantId = r.Id,
@@ -276,7 +280,9 @@ namespace Reservant.Api.Services
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
-                    IsVerified = r.VerifierId != null
+                    IsVerified = r.VerifierId != null,
+                    Rating = r.Rating,
+                    NumberReviews = r.Reviews.Count
                 })
                 .ToListAsync();
             return result;
@@ -457,6 +463,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Tags)
                 .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)
+                .Include(r => r.Reviews)
                 .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
             if (restaurant == null)
             {
@@ -499,7 +506,9 @@ namespace Reservant.Api.Services
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
-                IsVerified = restaurant.VerifierId != null
+                IsVerified = restaurant.VerifierId != null,
+                Rating = restaurant.Rating,
+                NumberReviews = restaurant.Reviews.Count
             };
         }
 

@@ -102,4 +102,16 @@ public class NearRestaurantVM
     /// </summary>
     [Required]
     public required double DistanceFrom { get; init; }
+
+    /// <summary>
+    /// Rating of the restaurant based on the reviews
+    /// </summary>
+    [Required]
+    public required decimal Rating { get; set; } = 0.0M;
+
+    /// <summary>
+    /// Number of reviews about this restaurant
+    /// </summary>
+    [Required]
+    public required int NumberReviews { get; set; } = 0;
 }

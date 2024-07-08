@@ -42,6 +42,7 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
         var result = await context.Restaurants
             .Where(r => r.Tags.Contains(resultTag) && r.VerifierId != null)
             .Include(r => r.Tags)
+            .Include(r => r.Reviews)
             .ToListAsync();
 
         return Ok(result.Select(r => new RestaurantSummaryVM()
@@ -63,7 +64,9 @@ public class RestaurantTagsController(ApiDbContext context, FileUploadService up
             ReservationDeposit = r.ReservationDeposit,
             ProvideDelivery = r.ProvideDelivery,
             Tags = r.Tags.Select(t => t.Name).ToList(),
-            IsVerified = r.VerifierId != null
+            IsVerified = r.VerifierId != null,
+            Rating = r.Rating,
+            NumberReviews = r.Reviews.Count
         }).ToList());
     }
 }

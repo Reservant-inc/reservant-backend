@@ -189,4 +189,18 @@ public class Restaurant : ISoftDeletable
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// get only property for quick-getting rating of the restaurant
+    /// </summary>
+    public decimal Rating
+    {
+        get
+        {
+            var _res = 0.0;
+            foreach (var review in Reviews)
+                _res += review.Stars;
+            return Reviews.Count > 0 ? (decimal)_res / Reviews.Count : (decimal)_res;
+        }
+    }
 }
