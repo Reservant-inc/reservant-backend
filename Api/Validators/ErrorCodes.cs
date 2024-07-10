@@ -135,17 +135,17 @@ public static class ErrorCodes
     /// User is not the creator nor a participant of the visit
     /// </summary>
     public const string UserDoesNotParticipateInVisit = "UserDoesNotParticipateInVisit";
-    
+
     /// <summary>
     /// Same object already exists
     /// </summary>
     public const string Duplicate = "Duplicate";
-    
+
     /// <summary>
     /// Value exceeds limit
     /// </summary>
     public const string ValueExceedsLimit = "ValueExceedsLimit";
-    
+
     /// <summary>
     /// Wrong polygon format
     /// </summary>
@@ -155,14 +155,4 @@ public static class ErrorCodes
     /// Too late to join event
     /// </summary>
     public const string UserNotInterestedInEvent = "UserNotInterestedInEvent";
-
-    /// <summary>
-    /// Too late to join event
-    /// </summary>
-    public const string DateOfJoiningMustBeInFuture = "DateOfJoiningMustBeInFuture";
-
-    /// <summary>
-    /// Too late to join event
-    /// </summary>
-    public const string DateOfOccuringMustBeInFuture = "DateOfOccuringMustBeInFuture";
 }

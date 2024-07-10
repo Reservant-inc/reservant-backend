@@ -266,7 +266,7 @@ namespace Reservant.Api.Services
                 {
                     PropertyName = null,
                     ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = ErrorCodes.NotFound
+                    ErrorMessage = "Event not found"
                 };
             }
 
@@ -276,27 +276,7 @@ namespace Reservant.Api.Services
                 {
                     PropertyName = null,
                     ErrorCode = ErrorCodes.AccessDenied,
-                    ErrorMessage = ErrorCodes.AccessDenied
-                };
-            }
-
-            if (eventToUpdate.Time < DateTime.UtcNow)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.DateOfOccuringMustBeInFuture,
-                    ErrorMessage = ErrorCodes.DateOfOccuringMustBeInFuture
-                };
-            }
-
-            if (eventToUpdate.MustJoinUntil < DateTime.UtcNow)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.DateOfJoiningMustBeInFuture,
-                    ErrorMessage = ErrorCodes.DateOfJoiningMustBeInFuture
+                    ErrorMessage = "Only the user who created the event can modify it"
                 };
             }
 
@@ -307,7 +287,7 @@ namespace Reservant.Api.Services
                 {
                     PropertyName = nameof(request.RestaurantId),
                     ErrorCode = ErrorCodes.RestaurantDoesNotExist,
-                    ErrorMessage = ErrorCodes.RestaurantDoesNotExist
+                    ErrorMessage = $"Restaurant with ID {request.RestaurantId} not found"
                 };
             }
 
@@ -337,19 +317,20 @@ namespace Reservant.Api.Services
                 RestaurantId = eventToUpdate.RestaurantId,
                 RestaurantName = eventToUpdate.Restaurant.Name,
                 VisitId = eventToUpdate.VisitId,
-                Interested = eventToUpdate.Interested?.Select(i => new UserSummaryVM
+                Interested = eventToUpdate.Interested.Select(i => new UserSummaryVM
                 {
                     FirstName = i.FirstName,
                     LastName = i.LastName,
                     UserId = i.Id
-                }).ToList() ?? new List<UserSummaryVM>()
+                }).ToList()
             };
         }
 
         /// <summary>
         /// Deletes an existing event.
         /// </summary>
-        /// <param name="id">The id of the event to delete.</param>
+        /// <param name="eventId">The id of the event to delete.</param>
+        /// <param name="user">User to check permissions</param>
         /// <returns>A Result object containing a boolean indicating success or a validation failure.</returns>
         public async Task<Result<bool>> DeleteEventAsync(int eventId, User user)
         {
@@ -362,17 +343,17 @@ namespace Reservant.Api.Services
                 {
                     PropertyName = null,
                     ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = ErrorCodes.NotFound
+                    ErrorMessage = "Event not found"
                 };
             }
 
-            if(eventToDelete.Creator!=user)
+            if(eventToDelete.CreatorId != user.Id)
             {
                 return new ValidationFailure
                 {
                     PropertyName = null,
                     ErrorCode = ErrorCodes.AccessDenied,
-                    ErrorMessage = ErrorCodes.AccessDenied
+                    ErrorMessage = "Only the user who created the event can delete it"
                 };
             }
 
