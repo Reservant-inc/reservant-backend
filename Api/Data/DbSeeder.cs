@@ -103,6 +103,54 @@ public class DbSeeder(
         }, "e5779baf-5c9b-4638-b9e7-ec285e57b367")).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
+        var anon = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Anon",
+            LastName = "Ymus",
+            Login = "AY",
+            Email = "anon@ymus.pl",
+            PhoneNumber = "+48987654321",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1989, 1, 2)
+        }, "je4nd6f9-j4bn-9374-n4s3-j3nd85ht0a03")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(anon.Id);
+
+        var walter = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Walter",
+            LastName = "White",
+            Login = "WW",
+            Email = "walter@white.pl",
+            PhoneNumber = "+48475927476",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1991, 3, 2)
+        }, "meko2a3d-me2f-0394-me04-jend74t50sj3")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(walter.Id);
+
+        var geralt = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Geralt",
+            LastName = "Riv",
+            Login = "GR",
+            Email = "geralt@riv.pl",
+            PhoneNumber = "+48049586273",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1986, 12, 12)
+        }, "s3ka3ac0-m2ko-2137-ckw0-wmk32knap2ks")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(geralt.Id);
+
+        var muadib = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            FirstName = "Paul",
+            LastName = "Atreides",
+            Login = "PA",
+            Email = "paul@atreides.pl",
+            PhoneNumber = "+48423597532",
+            Password = "Pa$$w0rd",
+            BirthDate = new DateOnly(1978, 4, 20)
+        }, "emsko2a3-02ms-1376-m0z3-me2kzo2nsk20")).OrThrow();
+        await userService.MakeRestaurantOwnerAsync(muadib.Id);
+
         var kowalski = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             FirstName = "Krzysztof",
@@ -169,6 +217,47 @@ public class DbSeeder(
         context.RestaurantGroups.Add(kowalskisGroup);
 
         _ = await CreateKowalskisRestaurant(kowalski, kowalskisGroup, bok1);
+
+        var anonGroup = new RestaurantGroup
+        {
+            Name = "Anon Ymus' Restaurant Group",
+            OwnerId = anon.Id
+        };
+
+        context.RestaurantGroups.Add(anonGroup);
+
+        await CreateAnonRestaurant(anon, anonGroup, bok1);
+        await context.SaveChangesAsync();
+
+        var geraltsGroup = new RestaurantGroup
+        {
+            Name = "Geralt's Restaurant Group",
+            OwnerId = geralt.Id
+        };
+
+        context.RestaurantGroups.Add(geraltsGroup);
+
+        await CreateWitcherRestaurant(geralt, geraltsGroup, bok1);
+
+        var paulsGroup = new RestaurantGroup
+        {
+            Name = "Paul Muadib Atreides' Restaurant Group",
+            OwnerId = muadib.Id
+        };
+
+        context.RestaurantGroups.Add(paulsGroup);
+
+        await CreateAtreidesRestaurant(muadib, paulsGroup, bok1);
+
+        var waltersGroup = new RestaurantGroup
+        {
+            Name = "Heisenberg's Restaurant Group",
+            OwnerId = walter.Id
+        };
+
+        context.RestaurantGroups.Add(waltersGroup);
+
+        await CreateBreakingBadRestaurant(walter, waltersGroup, bok1);
 
         await context.SaveChangesAsync();
 
@@ -411,7 +500,6 @@ public class DbSeeder(
 
     private async Task CreateJohnDoesRestaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
-        var exampleImage = await RequireFileUpload("test-jd.png", johnDoe);
         var exampleDocument = await RequireFileUpload("test-jd.pdf", johnDoe);
 
         var johnDoes = new Restaurant
@@ -432,7 +520,7 @@ public class DbSeeder(
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = exampleImage,
+            Logo = await RequireFileUpload("ResLogo2.png", johnDoe),
             ProvideDelivery = true,
             Description = "The first example restaurant",
             Tags = await context.RestaurantTags
@@ -485,36 +573,8 @@ public class DbSeeder(
                 Restaurant = johnDoes,
                 Order = 1,
                 PhotoFileName = null!,
-                Photo = exampleImage
-            },
-            new()
-            {
-                Restaurant = johnDoes,
-                Order = 2,
-                PhotoFileName = null!,
-                Photo = exampleImage
-            },
-            new()
-            {
-                Restaurant = johnDoes,
-                Order = 3,
-                PhotoFileName = null!,
-                Photo = exampleImage
-            },
-            new()
-            {
-                Restaurant = johnDoes,
-                Order = 4,
-                PhotoFileName = null!,
-                Photo = exampleImage
-            },
-            new()
-            {
-                Restaurant = johnDoes,
-                Order = 5,
-                PhotoFileName = null!,
-                Photo = exampleImage
-            },
+                Photo = await RequireFileUpload("ResInside5.jpg", johnDoe)
+            }
         };
 
         context.Restaurants.Add(johnDoes);
@@ -524,39 +584,29 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = exampleImage,
-            PhotoFileName = exampleImage.FileName,
+            Photo = await RequireFileUpload("pizza.png", johnDoe),
+            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = johnDoes,
             MenuItems =
             [
                 new MenuItem
                 {
-                    Name = "Burger",
-                    Price = 20m,
+                    Name = "Pizza z mozzarellą",
+                    Price = 39m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
-                    PhotoFileName = "photo-6.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = johnDoe.Id,
-                        FileName = "photo-6.png",
-                        ContentType = "image/png"
-                    }
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("ResPizza1.jpg", johnDoe)
                 },
                 new MenuItem
                 {
-                    Name = "Cheeseburger",
-                    Price = 25m,
+                    Name = "Pizza z oliwami",
+                    Price = 45m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes,
-                    PhotoFileName = "photo-7.png",
-                    Photo = new FileUpload
-                    {
-                        UserId = johnDoe.Id,
-                        FileName = "photo-7.png",
-                        ContentType = "image/png"
-                    }
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("ResPizza2.jpg", johnDoe)
                 }
             ]
         });
@@ -566,8 +616,8 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = exampleImage,
-            PhotoFileName = exampleImage.FileName,
+            Photo = await RequireFileUpload("piwo.png", johnDoe),
+            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = johnDoes,
             MenuItems =
@@ -579,7 +629,7 @@ public class DbSeeder(
                     AlcoholPercentage = 4.6m,
                     Restaurant = johnDoes,
                     PhotoFileName = null!,
-                    Photo = exampleImage
+                    Photo = await RequireFileUpload("piwo.png", johnDoe)
                 }
             ]
         });
@@ -631,7 +681,6 @@ public class DbSeeder(
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
-        var exampleImage = await RequireFileUpload("test-jd.png", johnDoe);
         var exampleDocument = await RequireFileUpload("test-jd.pdf", johnDoe);
 
         var johnDoes2 = new Restaurant
@@ -651,7 +700,7 @@ public class DbSeeder(
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = exampleImage,
+            Logo = await RequireFileUpload("ResLogo2.png", johnDoe),
             ProvideDelivery = false,
             Description = "Another example restaurant",
             Photos = [],
@@ -695,29 +744,29 @@ public class DbSeeder(
             Name = "Menu jedzeniowe 2",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = exampleImage,
-            PhotoFileName = exampleImage.FileName,
+            Photo = await RequireFileUpload("pierogi.png", johnDoe),
+            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = johnDoes2,
             MenuItems =
             [
                 new MenuItem
                 {
-                    Name = "Kotlet schabowy",
+                    Name = "Pierogi",
                     Price = 19m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
                     PhotoFileName = null!,
-                    Photo = exampleImage
+                    Photo = await RequireFileUpload("pierogi.png", johnDoe)
                 },
                 new MenuItem
                 {
-                    Name = "Zupa pomidorowa",
-                    Price = 7m,
+                    Name = "Sushi",
+                    Price = 259m,
                     AlcoholPercentage = null,
                     Restaurant = johnDoes2,
                     PhotoFileName = null!,
-                    Photo = exampleImage
+                    Photo = await RequireFileUpload("ResSushi1.jpg", johnDoe)
                 }
             ]
         });
@@ -747,7 +796,6 @@ public class DbSeeder(
 
     private async Task<Restaurant> CreateKowalskisRestaurant(User kowalski, RestaurantGroup kowalskisGroup, User verifier)
     {
-        var exampleImage = await RequireFileUpload("test-kk.png", kowalski);
         var exampleDocument = await RequireFileUpload("test-kk.pdf", kowalski);
 
         var kowalskisRestaurant = new Restaurant
@@ -769,7 +817,7 @@ public class DbSeeder(
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = exampleImage,
+            Logo = await RequireFileUpload("ResLogo4.png", kowalski),
             ProvideDelivery = false,
             Description = "Fake restaurant",
             Photos = [],
@@ -802,8 +850,8 @@ public class DbSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
 
-            Photo = exampleImage,
-            PhotoFileName = exampleImage.FileName,
+            Photo = await RequireFileUpload("menu.png", kowalski),
+            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = kowalskisRestaurant,
             MenuItems =
@@ -815,7 +863,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
                     PhotoFileName = null!,
-                    Photo = exampleImage
+                    Photo = await RequireFileUpload("padthai.png", kowalski)
                 },
                 new MenuItem
                 {
@@ -824,7 +872,7 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
                     PhotoFileName = null!,
-                    Photo = exampleImage
+                    Photo = await RequireFileUpload("restaurantboss3.PNG", kowalski)
                 },
                 new MenuItem
                 {
@@ -833,15 +881,801 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
                     PhotoFileName = null!,
-                    Photo = exampleImage
+                    Photo = await RequireFileUpload("ResSushi2.jpg", kowalski)
                 }
             ]
         });
+
+
 
         await context.SaveChangesAsync();
 
         return kowalskisRestaurant;
     }
+    private async Task CreateAnonRestaurant(User anon, RestaurantGroup anonsGroup, User verifier)
+    {
+        var exampleDocument = await RequireFileUpload("test-AY.pdf", anon);
+
+        var anons = new Restaurant
+        {
+            Name = "Anon's",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "1544832204",
+            Address = "ul. Nowogrodzka 47a",
+            PostalIndex = "00-695",
+            City = "Warszawa",
+            Location = geometryFactory.CreatePoint(new Coordinate(21.008140, 52.227730)),
+            Group = anonsGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = await RequireFileUpload("sushi.png", anon),
+            ProvideDelivery = true,
+            Description = "The first example restaurant",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = anons;
+        }
+        await context.SaveChangesAsync();
 
 
+        anons.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = anons,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = anons,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = anons,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = anons,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        anons.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = anons,
+                Order = 1,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("human4.png", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 2,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("human5.png", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 3,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("owner1.png", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 4,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResBurger1.jpg", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 5,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResBurger2.jpg", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 6,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside1.jpg", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 7,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside2.jpg", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 8,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResLogo1.png", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 9,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("sushi.png", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 10,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("wege.png", anon)
+            },
+            new()
+            {
+                Restaurant = anons,
+                Order = 11,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("woda.png", anon)
+            }
+        };
+
+        context.Restaurants.Add(anons);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("wege.png", anon),
+            PhotoFileName = null!,
+            MenuType = MenuType.Food,
+            Restaurant = anons,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Burger",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = anons,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("ResBurger1.jpg", anon)
+                },
+                new MenuItem
+                {
+                    Name = "Cheeseburger",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = anons,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("ResBurger2.jpg", anon)
+                }
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("woda.png", anon),
+            PhotoFileName = null!,
+            MenuType = MenuType.Alcohol,
+            Restaurant = anons,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = anons,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("woda.png", anon)
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task CreateWitcherRestaurant(User geralt, RestaurantGroup geraltsGroup, User verifier)
+    {
+        var exampleDocument = await RequireFileUpload("test-GR.pdf", geralt);
+
+        var geralts = new Restaurant
+        {
+            Name = "Witcher's",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "7967049012",
+            Address = "Al. Jerozolimskie 65/79",
+            PostalIndex = "00-697",
+            City = "Warszawa",
+            Location = geometryFactory.CreatePoint(new Coordinate(21.003630, 52.227690)),
+            Group = geraltsGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = await RequireFileUpload("ResLogo3.png", geralt),
+            ProvideDelivery = true,
+            Description = "The third example restaurant",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = geralts;
+        }
+        await context.SaveChangesAsync();
+
+
+        geralts.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = geralts,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        geralts.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = geralts,
+                Order = 1,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("owner2.png", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 2,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("owner3.png", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 3,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("owner5.png", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 4,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ramen.png", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 5,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside3.jpg", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 6,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside4.jpg", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 7,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResKebab1.jpg", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 8,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResKebab2.jpg", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 9,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("saladki.png", geralt)
+            },
+            new()
+            {
+                Restaurant = geralts,
+                Order = 10,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("stek.png", geralt)
+            }
+        };
+
+        context.Restaurants.Add(geralts);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("ramen.png", geralt),
+            PhotoFileName = null!,
+            MenuType = MenuType.Food,
+            Restaurant = geralts,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Ramen",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = geralts,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("ramen.png", geralt)
+                },
+                new MenuItem
+                {
+                    Name = "Stek",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = geralts,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("stek.png", geralt)
+                }
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("owner2.png", geralt),
+            PhotoFileName = null!,
+            MenuType = MenuType.Alcohol,
+            Restaurant = geralts,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = geralts,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("owner2.png", geralt)
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task CreateAtreidesRestaurant(User paul, RestaurantGroup atreidesGroup, User verifier)
+    {
+        var exampleDocument = await RequireFileUpload("test-PA.pdf", paul);
+
+        var atreides = new Restaurant
+        {
+            Name = "Dune's spices",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "9322527232",
+            Address = "Świętokrzyska 18",
+            PostalIndex = "00-052",
+            City = "Warszawa",
+            Location = geometryFactory.CreatePoint(new Coordinate(21.011500, 52.236060)),
+            Group = atreidesGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = await RequireFileUpload("human1.png", paul),
+            ProvideDelivery = true,
+            Description = "The fourth example restaurant. LISAN AL-GHAIB",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = atreides;
+        }
+        await context.SaveChangesAsync();
+
+
+        atreides.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = atreides,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        atreides.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = atreides,
+                Order = 1,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("human1.png", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 2,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("human2.png", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 3,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("human3.png", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 4,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("kurczak.png", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 5,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("makarony.png", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 6,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("meksykanskie.png", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 7,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside7.jpg", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 8,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResLogo5.png", paul)
+            },
+            new()
+            {
+                Restaurant = atreides,
+                Order = 9,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResVegan1.jpg", paul)
+            }
+        };
+
+        context.Restaurants.Add(atreides);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("makarony.png", paul),
+            PhotoFileName = null!,
+            MenuType = MenuType.Food,
+            Restaurant = atreides,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Chicken",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = atreides,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("kurczak.png", paul)
+                },
+                new MenuItem
+                {
+                    Name = "pasta",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = atreides,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("makarony.png", paul)
+                }
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("human2.png", paul),
+            PhotoFileName = null!,
+            MenuType = MenuType.Alcohol,
+            Restaurant = atreides,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Piwo",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = atreides,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("human2.png", paul)
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task CreateBreakingBadRestaurant(User walter, RestaurantGroup whitesGroup, User verifier)
+    {
+        var exampleDocument = await RequireFileUpload("test-WW.pdf", walter);
+
+        var walters = new Restaurant
+        {
+            Name = "Heisenberg's",
+            RestaurantType = RestaurantType.Restaurant,
+            Nip = "3419686135",
+            Address = "Al. Jerozolimskie 65/79",
+            PostalIndex = "00-697",
+            City = "Warszawa",
+            Location = geometryFactory.CreatePoint(new Coordinate(21.003630, 52.227690)),
+            Group = whitesGroup,
+            RentalContractFileName = null,
+            AlcoholLicenseFileName = null!,
+            AlcoholLicense = exampleDocument,
+            BusinessPermissionFileName = null!,
+            BusinessPermission = exampleDocument,
+            IdCardFileName = null!,
+            IdCard = exampleDocument,
+            LogoFileName = null!,
+            Logo = await RequireFileUpload("ResVegan2.jpg", walter),
+            ProvideDelivery = true,
+            Description = "The last example restaurant. Got the purest meth on the market.",
+            Tags = await context.RestaurantTags
+                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
+                .ToListAsync(),
+            VerifierId = verifier.Id,
+            IsDeleted = false
+        };
+
+        var visits = await context.Visits.ToListAsync();
+        for (int i = 0; i < visits.Count; i++)
+        {
+            visits[i].Restaurant = walters;
+        }
+        await context.SaveChangesAsync();
+
+
+        walters.Tables = new List<Table>
+        {
+            new()
+            {
+                Restaurant = walters,
+                Id = 1,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = walters,
+                Id = 2,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = walters,
+                Id = 3,
+                Capacity = 4
+            },
+            new()
+            {
+                Restaurant = walters,
+                Id = 4,
+                Capacity = 6
+            }
+        };
+
+        walters.Photos = new List<RestaurantPhoto>
+        {
+            new()
+            {
+                Restaurant = walters,
+                Order = 1,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("burger.png", walter)
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 2,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("drinki.png", walter)
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 3,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("kebab.png", walter)
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 4,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside8.jpg", walter)
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 5,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("restaurantboss4.PNG", walter)
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 6,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("restaurantBossUltimate.png", walter)
+            },
+            new()
+            {
+                Restaurant = walters,
+                Order = 7,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResVegan2.jpg", walter)
+            }
+        };
+
+        context.Restaurants.Add(walters);
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu jedzeniowe",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("kebab.png", walter),
+            PhotoFileName = null!,
+            MenuType = MenuType.Food,
+            Restaurant = walters,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "burger",
+                    Price = 20m,
+                    AlcoholPercentage = null,
+                    Restaurant = walters,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("burger.png", walter)
+                },
+                new MenuItem
+                {
+                    Name = "kebab",
+                    Price = 25m,
+                    AlcoholPercentage = null,
+                    Restaurant = walters,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("kebab.png", walter)
+                }
+            ]
+        });
+
+        context.Menus.Add(new Menu
+        {
+            Name = "Menu alkoholowe",
+            DateFrom = new DateOnly(2024, 2, 1),
+            DateUntil = null,
+            Photo = await RequireFileUpload("drinki.png", walter),
+            PhotoFileName = null!,
+            MenuType = MenuType.Alcohol,
+            Restaurant = walters,
+            MenuItems =
+            [
+                new MenuItem
+                {
+                    Name = "Drinki",
+                    Price = 8m,
+                    AlcoholPercentage = 4.6m,
+                    Restaurant = walters,
+                    PhotoFileName = null!,
+                    Photo = await RequireFileUpload("drinki.png", walter)
+                }
+            ]
+        });
+
+        await context.SaveChangesAsync();
+    }
 }

@@ -185,4 +185,25 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return Ok(result.Value);
     }
+
+    /// <summary>
+    /// Get detailed information about a restaurant
+    /// </summary>
+    /// <remarks>
+    /// Only shows verified restaurants
+    /// </remarks>
+    /// <param name="restaurantId"></param>
+    /// <returns></returns>
+    [HttpGet("{restaurantId:int}")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<RestaurantVM>> GetRestaurantDetails(int restaurantId)
+    {
+        var result = await service.GetRestaurantByIdAsync(restaurantId);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
 }

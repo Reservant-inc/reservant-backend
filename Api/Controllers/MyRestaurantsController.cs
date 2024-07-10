@@ -32,7 +32,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<RestaurantVM>> CreateRestaurant(CreateRestaurantRequest request)
+        public async Task<ActionResult<MyRestaurantVM>> CreateRestaurant(CreateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -72,7 +72,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet("{restaurantId:int}")]
         [ProducesResponseType(200), ProducesResponseType(404)]
-        public async Task<ActionResult<RestaurantVM>> GetMyRestaurantById(int restaurantId)
+        public async Task<ActionResult<MyRestaurantVM>> GetMyRestaurantById(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -170,7 +170,7 @@ namespace Reservant.Api.Controllers
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult<RestaurantVM>> EditRestaurantInfo(int restaurantId, UpdateRestaurantRequest request)
+        public async Task<ActionResult<MyRestaurantVM>> EditRestaurantInfo(int restaurantId, UpdateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)

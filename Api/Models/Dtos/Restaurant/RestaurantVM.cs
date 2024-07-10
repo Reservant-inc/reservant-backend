@@ -8,7 +8,7 @@ using Reservant.Api.Validation;
 namespace Reservant.Api.Models.Dtos.Restaurant;
 
 /// <summary>
-/// Detailed information about a Restaurant
+/// Publicly available detailed information about a Restaurant
 /// </summary>
 public class RestaurantVM
 {
@@ -29,13 +29,6 @@ public class RestaurantVM
     /// Type of the establishment
     /// </summary>
     public required RestaurantType RestaurantType { get; set; }
-
-    /// <summary>
-    /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a> associated with the restaurant
-    /// </summary>
-    /// <example>1231264550</example>
-    [Required, Nip]
-    public required string Nip { get; init; }
 
     /// <summary>
     /// Adres
@@ -64,41 +57,6 @@ public class RestaurantVM
     /// <example></example>
     [Required]
     public required Geolocation Location { get; init; }
-
-    /// <summary>
-    /// Restaurant group ID
-    /// </summary>
-    public required int GroupId { get; set; }
-
-    /// <summary>
-    /// Restaurant group name
-    /// </summary>
-    /// <example>McJohn's Restaurant Group</example>
-    public required string GroupName { get; set; }
-
-    /// <summary>
-    /// URI of the rental contract (umowa najmu lokalu)
-    /// </summary>
-    [MinLength(1), StringLength(50)]
-    public required string? RentalContract { get; set; }
-
-    /// <summary>
-    /// URI of the alcohol license (licencja na sprzedaż alkoholu)
-    /// </summary>
-    [MinLength(1), StringLength(50)]
-    public required string? AlcoholLicense { get; set; }
-
-    /// <summary>
-    /// URI of the permission to conduct business (zgoda na prowadzenie działalności)
-    /// </summary>
-    [Required, StringLength(50)]
-    public required string BusinessPermission { get; set; }
-
-    /// <summary>
-    /// URI of the ID card (dowód osobisty)
-    /// </summary>
-    [Required, StringLength(50)]
-    public required string IdCard { get; set; }
 
     /// <summary>
     /// List of tables in the restaurant
@@ -142,8 +100,14 @@ public class RestaurantVM
     public required List<string> Tags { get; init; }
 
     /// <summary>
-    /// Whether the restaurant is verified or not
+    /// Rating of the restaurant based on the reviews
     /// </summary>
     [Required]
-    public required bool IsVerified { get; init; }
+    public required double Rating { get; set; }
+
+    /// <summary>
+    /// Number of reviews about this restaurant
+    /// </summary>
+    [Required]
+    public required int NumberReviews { get; set; }
 }

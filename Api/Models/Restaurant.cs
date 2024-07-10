@@ -189,4 +189,20 @@ public class Restaurant : ISoftDeletable
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// get only property for quick-getting rating of the restaurant
+    /// </summary>
+    public double Rating
+    {
+        get
+        {
+            if (Reviews is null)
+            {
+                throw new InvalidOperationException($"{nameof(Reviews)} must be loaded to compute {nameof(Rating)}");
+            }
+
+            return Reviews.Count == 0 ? 0 : Reviews.Average(r => (double)r.Stars);
+        }
+    }
 }

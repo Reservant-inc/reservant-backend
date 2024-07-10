@@ -48,6 +48,7 @@ public class RestaurantGroupService(
                 .Where(r => req.RestaurantIds.Contains(r.Id))
                 .Include(r => r.Group)
                 .Include(r => r.Tags)
+                .Include(r => r.Reviews)
                 .ToListAsync();
 
 
@@ -106,10 +107,12 @@ public class RestaurantGroupService(
                 IsVerified = r.VerifierId is not null,
                 Location = new Geolocation
                 {
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y
+                    Longitude = r.Location.Y,
+                    Latitude = r.Location.X
                 },
-                ReservationDeposit = r.ReservationDeposit
+                ReservationDeposit = r.ReservationDeposit,
+                Rating = r.Rating,
+                NumberReviews = r.Reviews.Count
             }).ToList()
         };
     }
@@ -170,6 +173,8 @@ public class RestaurantGroupService(
         var restaurantGroup = await context.RestaurantGroups
             .Include(rg => rg.Restaurants)
             .ThenInclude(rg => rg.Tags)
+            .Include(rg => rg.Restaurants)
+            .ThenInclude(r => r.Reviews)
             .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId);
 
         if (restaurantGroup == null)
@@ -196,8 +201,8 @@ public class RestaurantGroupService(
                 City = r.City,
                 Location = new Geolocation()
                 {
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y
+                    Longitude = r.Location.Y,
+                    Latitude = r.Location.X
                 },
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
@@ -205,7 +210,9 @@ public class RestaurantGroupService(
                 ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags.Select(t => t.Name).ToList(),
-                IsVerified = r.VerifierId != null
+                IsVerified = r.VerifierId != null,
+                Rating = r.Rating,
+                NumberReviews = r.Reviews.Count
             }).ToList()
         });
     }
@@ -221,6 +228,8 @@ public class RestaurantGroupService(
         var restaurantGroup = await context.RestaurantGroups
             .Include(restaurantGroup => restaurantGroup.Restaurants)
             .ThenInclude(restaurant => restaurant.Tags)
+            .Include(restaurantGroup => restaurantGroup.Restaurants)
+            .ThenInclude(restaurant => restaurant.Reviews)
             .FirstOrDefaultAsync(rg => rg.Id == groupId);
 
 
@@ -270,8 +279,8 @@ public class RestaurantGroupService(
                 City = r.City,
                 Location = new Geolocation()
                 {
-                    Longitude = r.Location.X,
-                    Latitude = r.Location.Y
+                    Longitude = r.Location.Y,
+                    Latitude = r.Location.X
                 },
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
@@ -279,7 +288,9 @@ public class RestaurantGroupService(
                 ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags.Select(t => t.Name).ToList(),
-                IsVerified = r.VerifierId != null
+                IsVerified = r.VerifierId != null,
+                Rating = r.Rating,
+                NumberReviews = r.Reviews.Count
             }).ToList()
         };
     }

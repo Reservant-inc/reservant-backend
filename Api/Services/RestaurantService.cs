@@ -95,6 +95,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Tables)
                 .Include(r => r.Photos)
                 .Include(r => r.Tags)
+                .Include(r => r.Reviews)
                 .ToListAsync();
 
             var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
@@ -117,7 +118,9 @@ namespace Reservant.Api.Services
                 ReservationDeposit = r.ReservationDeposit,
                 Tags = r.Tags.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId is not null,
-                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X)
+                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X),
+                Rating = r.Rating,
+                NumberReviews = r.Reviews.Count
             }).OrderBy(r => r.DistanceFrom).ToList();
 
             return nearRestaurants;
@@ -129,7 +132,7 @@ namespace Reservant.Api.Services
         /// <param name="request"></param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<Result<RestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
+        public async Task<Result<MyRestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
         {
             RestaurantGroup? group;
             if (request.GroupId is null)
@@ -216,7 +219,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new RestaurantVM
+            return new MyRestaurantVM
             {
                 RestaurantId = restaurant.Id,
                 Name = restaurant.Name,
@@ -240,8 +243,8 @@ namespace Reservant.Api.Services
                 IsVerified = restaurant.VerifierId is not null,
                 Location = new Geolocation
                 {
-                    Longitude = restaurant.Location.X,
-                    Latitude = restaurant.Location.Y
+                    Longitude = restaurant.Location.Y,
+                    Latitude = restaurant.Location.X
                 },
                 ReservationDeposit = restaurant.ReservationDeposit
             };
@@ -257,6 +260,7 @@ namespace Reservant.Api.Services
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
+                .Include(r => r.Reviews)
                 .Select(r => new RestaurantSummaryVM
                 {
                     RestaurantId = r.Id,
@@ -267,8 +271,8 @@ namespace Reservant.Api.Services
                     City = r.City,
                     Location = new Geolocation()
                     {
-                        Longitude = r.Location.X,
-                        Latitude = r.Location.Y
+                        Longitude = r.Location.Y,
+                        Latitude = r.Location.X
                     },
                     GroupId = r.GroupId,
                     ProvideDelivery = r.ProvideDelivery,
@@ -276,7 +280,9 @@ namespace Reservant.Api.Services
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
-                    IsVerified = r.VerifierId != null
+                    IsVerified = r.VerifierId != null,
+                    Rating = r.Reviews.Average(review => review.Stars),
+                    NumberReviews = r.Reviews.Count
                 })
                 .ToListAsync();
             return result;
@@ -288,13 +294,13 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <param name="id"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<RestaurantVM?> GetMyRestaurantByIdAsync(User user, int id)
+        public async Task<MyRestaurantVM?> GetMyRestaurantByIdAsync(User user, int id)
         {
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
                 .Where(r => r.Id == id)
-                .Select(r => new RestaurantVM
+                .Select(r => new MyRestaurantVM
                 {
                     RestaurantId = r.Id,
                     Name = r.Name,
@@ -305,8 +311,8 @@ namespace Reservant.Api.Services
                     City = r.City,
                     Location = new Geolocation()
                     {
-                        Longitude = r.Location.X,
-                        Latitude = r.Location.Y
+                        Longitude = r.Location.Y,
+                        Latitude = r.Location.X
                     },
                     GroupId = r.Group.Id,
                     GroupName = r.Group.Name,
@@ -457,6 +463,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Tags)
                 .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)
+                .Include(r => r.Reviews)
                 .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
             if (restaurant == null)
             {
@@ -490,8 +497,8 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 Location = new Geolocation()
                 {
-                    Longitude = restaurant.Location.X,
-                    Latitude = restaurant.Location.Y
+                    Longitude = restaurant.Location.Y,
+                    Latitude = restaurant.Location.X
                 },
                 GroupId = restaurant.GroupId,
                 Description = restaurant.Description,
@@ -499,7 +506,9 @@ namespace Reservant.Api.Services
                 Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
-                IsVerified = restaurant.VerifierId != null
+                IsVerified = restaurant.VerifierId != null,
+                Rating = restaurant.Rating,
+                NumberReviews = restaurant.Reviews.Count
             };
         }
 
@@ -563,7 +572,7 @@ namespace Reservant.Api.Services
         /// <param name="id">ID of the restaurant</param>
         /// <param name="request">Request with new restaurant data</param>
         /// <param name="user">User requesting a update</param>
-        public async Task<Result<RestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request,
+        public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request,
             User user)
         {
             var restaurant = await context.Restaurants
@@ -640,7 +649,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new RestaurantVM
+            return new MyRestaurantVM
             {
                 RestaurantId = restaurant.Id,
                 Name = restaurant.Name,
@@ -651,8 +660,8 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 Location = new Geolocation()
                 {
-                    Longitude = restaurant.Location.X,
-                    Latitude = restaurant.Location.Y
+                    Longitude = restaurant.Location.Y,
+                    Latitude = restaurant.Location.X
                 },
                 GroupId = restaurant.Group.Id,
                 GroupName = restaurant.Group.Name,
@@ -1126,6 +1135,76 @@ namespace Reservant.Api.Services
             };
 
             return await reviewVM.PaginateAsync(page, perPage);
+        }
+
+        /// <summary>
+        /// Load review summary for a restaurant from the database
+        /// </summary>
+        /// <param name="restaurant">The restaurant</param>
+        /// <returns>Average star count and the number of reviews</returns>
+        public async Task<(double rating, int numberReviews)> GetReviewSummary(Restaurant restaurant)
+        {
+            var query = context.Entry(restaurant)
+                .Collection(r => r.Reviews)
+                .Query();
+
+            return (await query.AverageAsync(r => (double)r.Stars), await query.CountAsync());
+        }
+
+        /// <summary>
+        /// Get details about a restaurant as a not owner
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<Result<RestaurantVM>> GetRestaurantByIdAsync(int restaurantId)
+        {
+            var restaurant = await context.Restaurants
+                .Include(restaurant => restaurant.Tables)
+                .Include(restaurant => restaurant.Photos)
+                .Include(restaurant => restaurant.Tags)
+                .FirstOrDefaultAsync(x => x.Id == restaurantId && x.VerifierId != null);
+            if (restaurant is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found or is not verified",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var (rating, numberReviews) = await GetReviewSummary(restaurant);
+
+            return new RestaurantVM
+            {
+                RestaurantId = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Address = restaurant.Address,
+                PostalIndex = restaurant.PostalIndex,
+                City = restaurant.City,
+                Location = new Geolocation
+                {
+                    Latitude = restaurant.Location.Y,
+                    Longitude = restaurant.Location.X
+                },
+                Tables = restaurant.Tables.Select(x => new TableVM
+                {
+                    Capacity = x.Capacity,
+                    TableId = x.Id
+                }).ToList(),
+                ProvideDelivery = restaurant.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Photos = restaurant.Photos
+                    .Select(x => uploadService.GetPathForFileName(x.PhotoFileName))
+                    .ToList(),
+                Description = restaurant.Description,
+                ReservationDeposit = restaurant.ReservationDeposit,
+                Tags = restaurant.Tags.Select(x => x.Name).ToList(),
+                Rating = rating,
+                NumberReviews = numberReviews,
+            };
         }
     }
 }
