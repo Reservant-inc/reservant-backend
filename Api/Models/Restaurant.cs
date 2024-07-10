@@ -197,10 +197,12 @@ public class Restaurant : ISoftDeletable
     {
         get
         {
-            var _res = 0.0;
-            foreach (var review in Reviews)
-                _res += review.Stars;
-            return Reviews.Count > 0 ? _res / Reviews.Count : _res;
+            if (Reviews is null)
+            {
+                throw new InvalidOperationException($"{nameof(Reviews)} must be loaded to compute {nameof(Rating)}");
+            }
+
+            return Reviews.Count == 0 ? 0 : Reviews.Average(r => (double)r.Stars);
         }
     }
 }
