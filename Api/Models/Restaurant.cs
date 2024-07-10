@@ -193,14 +193,14 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// get only property for quick-getting rating of the restaurant
     /// </summary>
-    public decimal Rating
+    public double Rating
     {
         get
         {
             var _res = 0.0;
             foreach (var review in Reviews)
                 _res += review.Stars;
-            return Reviews.Count > 0 ? (decimal)_res / Reviews.Count : (decimal)_res;
+            return Reviews.Count > 0 ? _res / Reviews.Count : _res;
         }
     }
 }
