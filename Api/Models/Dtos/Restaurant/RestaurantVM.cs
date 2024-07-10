@@ -98,4 +98,16 @@ public class RestaurantVM
     /// </summary>
     [Required]
     public required List<string> Tags { get; init; }
+
+    /// <summary>
+    /// Rating of the restaurant based on the reviews
+    /// </summary>
+    [Required]
+    public required double Rating { get; set; }
+
+    /// <summary>
+    /// Number of reviews about this restaurant
+    /// </summary>
+    [Required]
+    public required int NumberReviews { get; set; }
 }

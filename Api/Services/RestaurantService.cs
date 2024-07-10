@@ -281,7 +281,7 @@ namespace Reservant.Api.Services
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null,
-                    Rating = r.Rating,
+                    Rating = r.Reviews.Average(review => review.Stars),
                     NumberReviews = r.Reviews.Count
                 })
                 .ToListAsync();
@@ -1138,6 +1138,20 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
+        /// Load review summary for a restaurant from the database
+        /// </summary>
+        /// <param name="restaurant">The restaurant</param>
+        /// <returns>Average star count and the number of reviews</returns>
+        public async Task<(double rating, int numberReviews)> GetReviewSummary(Restaurant restaurant)
+        {
+            var query = context.Entry(restaurant)
+                .Collection(r => r.Reviews)
+                .Query();
+
+            return (await query.AverageAsync(r => (double)r.Stars), await query.CountAsync());
+        }
+
+        /// <summary>
         /// Get details about a restaurant as a not owner
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant</param>
@@ -1159,6 +1173,8 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
+
+            var (rating, numberReviews) = await GetReviewSummary(restaurant);
 
             return new RestaurantVM
             {
@@ -1185,7 +1201,9 @@ namespace Reservant.Api.Services
                     .ToList(),
                 Description = restaurant.Description,
                 ReservationDeposit = restaurant.ReservationDeposit,
-                Tags = restaurant.Tags.Select(x => x.Name).ToList()
+                Tags = restaurant.Tags.Select(x => x.Name).ToList(),
+                Rating = rating,
+                NumberReviews = numberReviews,
             };
         }
     }
