@@ -1,19 +1,16 @@
-﻿using FluentValidation;
+using FluentValidation;
+using Reservant.Api.Models.Dtos.Event;
 
 namespace Reservant.Api.Validators.Event;
 
 /// <summary>
-/// Validator for Event
+/// Validator for UpdateEventRequest
 /// </summary>
-public class EventValidator : AbstractValidator<Models.Event>
+public class UpdateEventRequestValidator : AbstractValidator<UpdateEventRequest>
 {
     /// <inheritdoc />
-    public EventValidator()
+    public UpdateEventRequestValidator()
     {
-        RuleFor(x => x.Description)
-            .Length(0, 200)
-            .When(x => x.Description is not null);
-
         RuleFor(x => x.MustJoinUntil)
             .LessThan(x => x.Time)
             .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime);
