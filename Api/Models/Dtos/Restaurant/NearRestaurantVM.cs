@@ -107,11 +107,11 @@ public class NearRestaurantVM
     /// Rating of the restaurant based on the reviews
     /// </summary>
     [Required]
-    public required decimal Rating { get; set; } = 0.0M;
+    public required decimal Rating { get; set; }
 
     /// <summary>
     /// Number of reviews about this restaurant
     /// </summary>
     [Required]
-    public required int NumberReviews { get; set; } = 0;
+    public required int NumberReviews { get; set; }
 }
