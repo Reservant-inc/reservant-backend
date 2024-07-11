@@ -16,4 +16,9 @@ public class RestaurantTag : ISoftDeletable
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Navigational collection for the restaurants with this tag
+    /// </summary>
+    public ICollection<Restaurant> Restaurants { get; set; } = null!;
 }
