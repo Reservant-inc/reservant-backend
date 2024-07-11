@@ -1148,7 +1148,10 @@ namespace Reservant.Api.Services
                 .Collection(r => r.Reviews)
                 .Query();
 
-            return (await query.AverageAsync(r => (double)r.Stars), await query.CountAsync());
+            var count = await query.CountAsync();
+            return count == 0
+                ? (0, 0)
+                : (await query.AverageAsync(r => (double)r.Stars), count);
         }
 
         /// <summary>
