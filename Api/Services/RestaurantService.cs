@@ -1212,129 +1212,13 @@ namespace Reservant.Api.Services
             };
         }
 
-
-
-
-
-
-
-        // /// <summary>
-        // /// Get future events in a restaurant with pagination.
-        // /// </summary>
-        // /// <param name="restaurantId">ID of the restaurant.</param>
-        // /// <param name="page">Page number to return.</param>
-        // /// <param name="perPage">Items per page.</param>
-        // /// <returns>Paginated list of future events.</returns>
-        // public async Task<Result<Pagination<VisitSummaryVM>>> GetRestaurantsvisitAsync(int restaurantId, int page, int perPage)
-        // {
-        //     var restaurant = await context.Restaurants.FindAsync(restaurantId);
-        //     if (restaurant == null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = nameof(restaurantId),
-        //             ErrorMessage = $"Restaurant with ID {restaurantId} not found",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-
-        //     var query = context.Visits
-        //         .Where(v => v.RestaurantId == restaurantId && v.IsDeleted == false)
-        //         // .Include(v => v.Orders)
-        //          .Include(v => v.Participants)
-        //         //.AsEnumerable() // Convert to in-memory evaluation
-                
-        //         .Select(e => new VisitSummaryVM
-        //         {
-        //            VisitId = e.Id,
-        //            Date = e.Date,
-        //            NumberOfPeople = e.Participants.Count,
-        //            Deposit = e.Deposit,
-        //            Takeaway = e.Takeaway,
-        //            ClientId = e.ClientId,
-        //            RestaurantId = e.RestaurantId
-        //         });
-                
-        //         // .Select(e => new VisitVM
-        //         // {
-        //         //     VisitId = e.Id,
-        //         //     Date = e.Date,
-        //         //     NumberOfGuests = e.NumberOfGuests,
-        //         //     PaymentTime = e.PaymentTime,
-        //         //     Deposit = e.Deposit,
-        //         //     ReservationDate = e.ReservationDate,
-        //         //     Tip = e.Tip,
-        //         //     Takeaway = e.Takeaway,
-        //         //     ClientId = e.ClientId,
-        //         //     RestaurantId = e.RestaurantId,
-        //         //     TableId = e.TableId,
-        //         //     Participants = e.Participants.Select(p => new UserSummaryVM
-        //         //     {
-        //         //         UserId = p.Id,
-        //         //         FirstName = p.FirstName,
-        //         //         LastName = p.LastName
-        //         //     }).ToList(),
-        //         //     Orders = e.Orders.Select(o => new OrderSummaryVM
-        //         //     {
-        //         //         OrderId = o.Id,
-        //         //         VisitId = o.VisitId,
-        //         //         Date = o.Visit.Date,
-        //         //         Note = o.Note,
-        //         //         Cost = o.Cost,
-        //         //         Status = o.Status
-        //         //     }).ToList()
-        //         // });
-
-        //     return await query.PaginateAsync(page, perPage);
-        // }
-
-
-        // /// <summary>
-        // /// Get future events in a restaurant with pagination.
-        // /// </summary>
-        // /// <param name="restaurantId">ID of the restaurant.</param>
-        // /// <param name="page">Page number to return.</param>
-        // /// <param name="perPage">Items per page.</param>
-        // /// <returns>Paginated list of future events.</returns>
-        // public async Task<Result<Pagination<VisitSummaryVM>>> GetRestaurantsvisitAsync(int restaurantId, int page, int perPage)
-        // {
-        //     var restaurant = await context.Restaurants.FindAsync(restaurantId);
-        //     if (restaurant == null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = nameof(restaurantId),
-        //             ErrorMessage = $"Restaurant with ID {restaurantId} not found",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-
-        //     var query = context.Visits
-        //         .Include(x => x.Table)
-        //         .Where(e => e.TableRestaurantId == restaurantId && !e.IsDeleted) // Use TableRestaurantId instead of RestaurantId
-        //         .OrderBy(e => e.TableRestaurantId) // Ensure sorting uses the correct property
-        //         .Select(e => new VisitSummaryVM
-        //         {
-        //             VisitId = e.Id,
-        //             Date = e.Date,
-        //             NumberOfPeople = e.NumberOfGuests,
-        //             Deposit = e.Deposit,
-        //             Takeaway = e.Takeaway,
-        //             ClientId = e.ClientId,
-        //             RestaurantId = e.Table.RestaurantId // Use TableRestaurantId instead of RestaurantId
-        //         });
-
-        //     return await query.PaginateAsync(page, perPage);
-        // }
-
-
-
         /// <summary>
-        /// Get future events in a restaurant with pagination.
+        /// Gets Restaurant Visits from restaurant of chosen id, within given time frame in picked order
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant.</param>
         /// <param name="dateStart">Start date for filtering events.</param>
         /// <param name="dateEnd">End date for filtering events.</param>
+        /// <param name="visitSorting">Determents order of sorting</param>
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of future events.</returns>

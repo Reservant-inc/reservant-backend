@@ -209,9 +209,12 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     }
 
     /// <summary>
-    /// 
+    /// Gets Restaurant Visits from restaurant of chosen id, within given time frame in picked order
     /// </summary>
     /// <param name="restaurantId">ID of the restaurant.</param>
+    /// <param name="dateStart">Start date for filtering events.</param>
+    /// <param name="dateEnd">End date for filtering events.</param>
+    /// <param name="visitSorting">Determents order of sorting</param>
     /// <param name="page">Page number to return.</param>
     /// <param name="perPage">Items per page.</param>
     /// <returns>Paginated list of future events.</returns>
