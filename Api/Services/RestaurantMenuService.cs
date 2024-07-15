@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
@@ -404,5 +405,62 @@ public class RestaurantMenuService(
         await context.SaveChangesAsync();
 
         return RemoveMenuItemResult.Success;
+    }
+
+    /// <summary>
+    /// Get list of items of a single menu
+    /// </summary>
+    /// <param name="menuId">ID of the menu</param>
+    /// <param name="name">Search by name</param>
+    /// <param name="orderBy">Sorting order</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns></returns>
+    public async Task<Result<Pagination<MenuItemSummaryVM>>> GetMenuItemsAsync(
+        int menuId, int page, int perPage,
+        string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)
+    {
+        var menu = await context.Menus.FirstOrDefaultAsync(x => x.Id == menuId);
+        if (menu is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"Menu with ID {menuId} not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        var query = context.Entry(menu)
+            .Collection(x => x.MenuItems)
+            .Query();
+
+        if (name is not null)
+        {
+            query = query.Where(x => x.Name.Contains(name));
+        }
+
+        query = orderBy switch
+        {
+            MenuItemSorting.NameAsc => query.OrderBy(x => x.Name),
+            MenuItemSorting.NameDesc => query.OrderByDescending(x => x.Name),
+            MenuItemSorting.PriceAsc => query.OrderBy(x => x.Price),
+            MenuItemSorting.PriceDesc => query.OrderByDescending(x => x.Price),
+            MenuItemSorting.AlcoholAsc => query.OrderBy(x => x.AlcoholPercentage),
+            MenuItemSorting.AlcoholDesc => query.OrderByDescending(x => x.AlcoholPercentage),
+            _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, null)
+        };
+
+        return await query
+            .Select(mi => new MenuItemSummaryVM
+            {
+                MenuItemId = mi.Id,
+                Name = mi.Name,
+                AlternateName = mi.AlternateName,
+                Price = mi.Price,
+                AlcoholPercentage = mi.AlcoholPercentage,
+                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
+            })
+            .PaginateAsync(page, perPage, maxPerPage: 20);
     }
 }
