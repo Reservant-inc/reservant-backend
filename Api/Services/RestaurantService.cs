@@ -250,13 +250,15 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Returns a list of restaurants owned by the user.
         /// </summary>
+        /// <param name="name">Search by name</param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user)
+        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user, string? name = null)
         {
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
+                .Where(r => name == null || r.Name.Contains(name.Trim()))
                 .Select(r => new RestaurantSummaryVM
                 {
                     RestaurantId = r.Id,

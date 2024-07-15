@@ -51,10 +51,11 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Get restaurants owned by the user.
         /// </summary>
+        /// <param name="name">Search by name</param>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants()
+        public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants(string? name = null)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -62,9 +63,10 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.GetMyRestaurantsAsync(user);
+            var result = await restaurantService.GetMyRestaurantsAsync(user, name);
             return Ok(result);
         }
+
         /// <summary>
         /// Get a specific restaurant owned by the user.
         /// </summary>
