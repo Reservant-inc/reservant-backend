@@ -857,7 +857,8 @@ namespace Reservant.Api.Services
             context.RemoveRange(restaurant.Menus);
 
             context.Remove(restaurant);
-            if (restaurant.Group.Restaurants.Count == 0)
+            // We check if the restaurant was the last one (the collection was loaded before we deleted it)
+            if (restaurant.Group.Restaurants.Count == 1)
             {
                 context.Remove(restaurant.Group);
             }
