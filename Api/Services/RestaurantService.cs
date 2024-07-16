@@ -575,6 +575,7 @@ namespace Reservant.Api.Services
         public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
         {
             var restaurant = await context.Restaurants
+                .AsSplitQuery()
                 .Include(restaurant => restaurant.Group)
                 .Include(restaurant => restaurant.Tables)
                 .Include(restaurant => restaurant.Photos)
