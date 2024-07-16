@@ -581,15 +581,6 @@ namespace Reservant.Api.Services
                 .Include(restaurant => restaurant.Tags)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
-            if (user == null)
-            {
-                return new ValidationFailure
-                {
-                    ErrorMessage = $"WTF1",
-                    ErrorCode = ErrorCodes.NotFound
-                };
-            }
-
             if (restaurant == null)
             {
                 return new ValidationFailure
