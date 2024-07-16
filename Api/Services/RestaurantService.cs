@@ -605,14 +605,14 @@ namespace Reservant.Api.Services
                 return result;
             }
 
-            restaurant.Name = request.Name;
-            restaurant.Nip = request.Nip;
+            restaurant.Name = request.Name.Trim();
+            restaurant.Nip = request.Nip.Trim();
             restaurant.RestaurantType = request.RestaurantType;
-            restaurant.Address = request.Address;
-            restaurant.PostalIndex = request.PostalIndex;
-            restaurant.City = request.City;
+            restaurant.Address = request.Address.Trim();
+            restaurant.PostalIndex = request.PostalIndex.Trim();
+            restaurant.City = request.City.Trim();
             restaurant.ProvideDelivery = request.ProvideDelivery;
-            restaurant.Description = request.Description;
+            restaurant.Description = request.Description?.Trim();
             restaurant.ReservationDeposit = request.ReservationDeposit;
 
             restaurant.RentalContractFileName = request.RentalContract;
