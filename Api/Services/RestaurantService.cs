@@ -566,7 +566,6 @@ namespace Reservant.Api.Services
                 .ToList();
         }
 
-
         /// <summary>
         /// Updates restaurant info
         /// </summary>
@@ -574,127 +573,125 @@ namespace Reservant.Api.Services
         /// <param name="request">Request with new restaurant data</param>
         /// <param name="user">User requesting a update</param>
         public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
-{
-    var restaurant = await context.Restaurants
-        .Include(restaurant => restaurant.Group)
-        .Include(restaurant => restaurant.Tables)
-        .Include(restaurant => restaurant.Photos)
-        .Include(restaurant => restaurant.Tags)
-        .FirstOrDefaultAsync(r => r.Id == id);
-
-    if (user == null)
-    {
-        return new ValidationFailure
         {
-            ErrorMessage = $"WTF1",
-            ErrorCode = ErrorCodes.NotFound
-        };
-    }
+            var restaurant = await context.Restaurants
+                .Include(restaurant => restaurant.Group)
+                .Include(restaurant => restaurant.Tables)
+                .Include(restaurant => restaurant.Photos)
+                .Include(restaurant => restaurant.Tags)
+                .FirstOrDefaultAsync(r => r.Id == id);
 
-    if (restaurant == null)
-    {
-        return new ValidationFailure
-        {
-            ErrorMessage = $"Restaurant with ID {id} not found.",
-            ErrorCode = ErrorCodes.NotFound
-        };
-    }
+            if (user == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorMessage = $"WTF1",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
-    if (restaurant.Group.OwnerId != user.Id)
-    {
-        return new ValidationFailure
-        {
-            ErrorMessage = "User is not the owner of this restaurant.",
-            ErrorCode = ErrorCodes.AccessDenied
-        };
-    }
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorMessage = $"Restaurant with ID {id} not found.",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
-    var result = await validationService.ValidateAsync(request, user.Id);
-    if (!result.IsValid)
-    {
-        return result;
-    }
+            if (restaurant.Group.OwnerId != user.Id)
+            {
+                return new ValidationFailure
+                {
+                    ErrorMessage = "User is not the owner of this restaurant.",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
 
-    restaurant.Name = request.Name;
-    restaurant.Nip = request.Nip;
-    restaurant.RestaurantType = request.RestaurantType;
-    restaurant.Address = request.Address;
-    restaurant.PostalIndex = request.PostalIndex;
-    restaurant.City = request.City;
-    restaurant.ProvideDelivery = request.ProvideDelivery;
-    restaurant.Description = request.Description;
-    restaurant.ReservationDeposit = request.ReservationDeposit;
+            var result = await validationService.ValidateAsync(request, user.Id);
+            if (!result.IsValid)
+            {
+                return result;
+            }
 
-    restaurant.RentalContractFileName = request.RentalContract;
-    restaurant.AlcoholLicenseFileName = request.AlcoholLicense;
-    restaurant.BusinessPermissionFileName = request.BusinessPermission;
-    restaurant.IdCardFileName = request.IdCard;
-    restaurant.LogoFileName = request.Logo;
+            restaurant.Name = request.Name;
+            restaurant.Nip = request.Nip;
+            restaurant.RestaurantType = request.RestaurantType;
+            restaurant.Address = request.Address;
+            restaurant.PostalIndex = request.PostalIndex;
+            restaurant.City = request.City;
+            restaurant.ProvideDelivery = request.ProvideDelivery;
+            restaurant.Description = request.Description;
+            restaurant.ReservationDeposit = request.ReservationDeposit;
 
-    restaurant.Tags = await context.RestaurantTags
-        .Where(t => request.Tags.Contains(t.Name))
-        .ToListAsync();
+            restaurant.RentalContractFileName = request.RentalContract;
+            restaurant.AlcoholLicenseFileName = request.AlcoholLicense;
+            restaurant.BusinessPermissionFileName = request.BusinessPermission;
+            restaurant.IdCardFileName = request.IdCard;
+            restaurant.LogoFileName = request.Logo;
 
-    var photos = request.Photos
-        .Select((photo, index) => new RestaurantPhoto
-        {
-            PhotoFileName = photo,
-            Order = index + 1
-        }).ToList();
+            restaurant.Tags = await context.RestaurantTags
+                .Where(t => request.Tags.Contains(t.Name))
+                .ToListAsync();
 
-    restaurant.Photos=photos;
+            var photos = request.Photos
+                .Select((photo, index) => new RestaurantPhoto
+                {
+                    PhotoFileName = photo,
+                    Order = index + 1
+                }).ToList();
 
-    result = await validationService.ValidateAsync(restaurant, user.Id);
-    if (!result.IsValid)
-    {
-        return result;
-    }
+            restaurant.Photos=photos;
 
-    await context.SaveChangesAsync();
+            result = await validationService.ValidateAsync(restaurant, user.Id);
+            if (!result.IsValid)
+            {
+                return result;
+            }
 
-    return new MyRestaurantVM
-    {
-        RestaurantId = restaurant.Id,
-        Name = restaurant.Name,
-        RestaurantType = restaurant.RestaurantType,
-        Nip = restaurant.Nip,
-        Address = restaurant.Address,
-        PostalIndex = restaurant.PostalIndex,
-        City = restaurant.City,
-        Location = new Geolocation()
-        {
-            Longitude = restaurant.Location.Y,
-            Latitude = restaurant.Location.X
-        },
-        GroupId = restaurant.Group.Id,
-        GroupName = restaurant.Group.Name,
-        RentalContract = restaurant.RentalContractFileName == null
-            ? null
-            : uploadService.GetPathForFileName(restaurant.RentalContractFileName),
-        AlcoholLicense = restaurant.AlcoholLicenseFileName == null
-            ? null
-            : uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
-        BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
-        IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
-        Tables = restaurant.Tables.Select(t => new TableVM
-        {
-            TableId = t.Id,
-            Capacity = t.Capacity
-        }),
-        Photos = restaurant.Photos
-            .OrderBy(rp => rp.Order)
-            .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
-            .ToList(),
-        ProvideDelivery = restaurant.ProvideDelivery,
-        Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-        Description = restaurant.Description,
-        ReservationDeposit = restaurant.ReservationDeposit,
-        Tags = restaurant.Tags.Select(t => t.Name).ToList(),
-        IsVerified = restaurant.VerifierId != null
-    };
-}
+            await context.SaveChangesAsync();
 
-
+            return new MyRestaurantVM
+            {
+                RestaurantId = restaurant.Id,
+                Name = restaurant.Name,
+                RestaurantType = restaurant.RestaurantType,
+                Nip = restaurant.Nip,
+                Address = restaurant.Address,
+                PostalIndex = restaurant.PostalIndex,
+                City = restaurant.City,
+                Location = new Geolocation()
+                {
+                    Longitude = restaurant.Location.Y,
+                    Latitude = restaurant.Location.X
+                },
+                GroupId = restaurant.Group.Id,
+                GroupName = restaurant.Group.Name,
+                RentalContract = restaurant.RentalContractFileName == null
+                    ? null
+                    : uploadService.GetPathForFileName(restaurant.RentalContractFileName),
+                AlcoholLicense = restaurant.AlcoholLicenseFileName == null
+                    ? null
+                    : uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
+                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
+                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
+                Tables = restaurant.Tables.Select(t => new TableVM
+                {
+                    TableId = t.Id,
+                    Capacity = t.Capacity
+                }),
+                Photos = restaurant.Photos
+                    .OrderBy(rp => rp.Order)
+                    .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
+                    .ToList(),
+                ProvideDelivery = restaurant.ProvideDelivery,
+                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Description = restaurant.Description,
+                ReservationDeposit = restaurant.ReservationDeposit,
+                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
+                IsVerified = restaurant.VerifierId != null
+            };
+        }
 
         /// <summary>
         /// Returns a specific restaurant owned by the user.
