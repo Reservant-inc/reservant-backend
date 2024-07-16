@@ -17,6 +17,7 @@ using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 using Reservant.Api.Models.Dtos.Event;
+using System.Diagnostics;
 
 
 
@@ -565,20 +566,19 @@ namespace Reservant.Api.Services
                 .ToList();
         }
 
-
         /// <summary>
         /// Updates restaurant info
         /// </summary>
         /// <param name="id">ID of the restaurant</param>
         /// <param name="request">Request with new restaurant data</param>
         /// <param name="user">User requesting a update</param>
-        public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request,
-            User user)
+        public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
         {
             var restaurant = await context.Restaurants
                 .Include(restaurant => restaurant.Group)
                 .Include(restaurant => restaurant.Tables)
                 .Include(restaurant => restaurant.Photos)
+                .Include(restaurant => restaurant.Tags)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (restaurant == null)
@@ -605,14 +605,14 @@ namespace Reservant.Api.Services
                 return result;
             }
 
-            restaurant.Name = request.Name;
-            restaurant.Nip = request.Nip;
+            restaurant.Name = request.Name.Trim();
+            restaurant.Nip = request.Nip.Trim();
             restaurant.RestaurantType = request.RestaurantType;
-            restaurant.Address = request.Address;
-            restaurant.PostalIndex = request.PostalIndex;
-            restaurant.City = request.City;
+            restaurant.Address = request.Address.Trim();
+            restaurant.PostalIndex = request.PostalIndex.Trim();
+            restaurant.City = request.City.Trim();
             restaurant.ProvideDelivery = request.ProvideDelivery;
-            restaurant.Description = request.Description;
+            restaurant.Description = request.Description?.Trim();
             restaurant.ReservationDeposit = request.ReservationDeposit;
 
             restaurant.RentalContractFileName = request.RentalContract;
@@ -621,25 +621,18 @@ namespace Reservant.Api.Services
             restaurant.IdCardFileName = request.IdCard;
             restaurant.LogoFileName = request.Logo;
 
-
             restaurant.Tags = await context.RestaurantTags
                 .Where(t => request.Tags.Contains(t.Name))
                 .ToListAsync();
 
-
-            // Update photos
             var photos = request.Photos
                 .Select((photo, index) => new RestaurantPhoto
                 {
                     PhotoFileName = photo,
                     Order = index + 1
-                });
+                }).ToList();
 
-            restaurant.Photos.Clear();
-            foreach (var photo in photos)
-            {
-                restaurant.Photos.Add(photo);
-            }
+            restaurant.Photos=photos;
 
             result = await validationService.ValidateAsync(restaurant, user.Id);
             if (!result.IsValid)
@@ -690,7 +683,6 @@ namespace Reservant.Api.Services
                 IsVerified = restaurant.VerifierId != null
             };
         }
-
 
         /// <summary>
         /// Returns a specific restaurant owned by the user.
@@ -852,7 +844,6 @@ namespace Reservant.Api.Services
 
             context.RemoveRange(restaurant.Tables);
             context.RemoveRange(restaurant.Employments);
-            context.RemoveRange(restaurant.Photos);
             context.RemoveRange(restaurant.MenuItems);
             context.RemoveRange(restaurant.Menus);
 
