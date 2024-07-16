@@ -208,33 +208,40 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
-    /// <summary>
-    /// Gets Restaurant Visits from restaurant of chosen id, within given time frame in picked order
-    /// </summary>
-    /// <param name="restaurantId">ID of the restaurant.</param>
-    /// <param name="dateStart">Start date for filtering events.</param>
-    /// <param name="dateEnd">End date for filtering events.</param>
-    /// <param name="visitSorting">Determents order of sorting</param>
-    /// <param name="page">Page number to return.</param>
-    /// <param name="perPage">Items per page.</param>
-    /// <returns>Paginated list of future events.</returns>
-    [HttpGet("{restaurantId:int}/visits")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<VisitVM>>> GetRestaurantsvisit(int restaurantId, DateOnly dateStart, DateOnly dateEnd, VisitSorting visitSorting, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
-    {
-        var userId = userManager.GetUserId(User);
-        if (userId is null)
+        /// <summary>
+        /// Gets Restaurant Visits from restaurant of chosen id, within given time frame in picked order
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant.</param>
+        /// <param name="dateStart">Start date for filtering events.</param>
+        /// <param name="dateEnd">End date for filtering events.</param>
+        /// <param name="visitSorting">Determines order of sorting</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of future events.</returns>
+        [HttpGet("{restaurantId:int}/visits")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<Pagination<VisitVM>>> GetRestaurantsvisit(
+            int restaurantId,
+            DateOnly? dateStart,
+            DateOnly? dateEnd,
+            VisitSorting visitSorting,
+            [FromQuery] int page = 0,
+            [FromQuery] int perPage = 10)
         {
-            return Unauthorized();
+            var userId = userManager.GetUserId(User);
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.GetRestaurantsvisitAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+
+            if (result.IsError)
+            {
+                return result.ToValidationProblem();
+            }
+
+            return Ok(result.Value);
         }
 
-        var result = await service.GetRestaurantsvisitAsync(restaurantId, dateStart, dateEnd , visitSorting, page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
-    }
 }

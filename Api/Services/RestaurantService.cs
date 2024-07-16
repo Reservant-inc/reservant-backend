@@ -1218,11 +1218,17 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of the restaurant.</param>
         /// <param name="dateStart">Start date for filtering events.</param>
         /// <param name="dateEnd">End date for filtering events.</param>
-        /// <param name="visitSorting">Determents order of sorting</param>
+        /// <param name="visitSorting">Determines order of sorting</param>
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of future events.</returns>
-        public async Task<Result<Pagination<VisitVM>>> GetRestaurantsvisitAsync(int restaurantId, DateOnly dateStart, DateOnly dateEnd, VisitSorting visitSorting, int page, int perPage)
+        public async Task<Result<Pagination<VisitVM>>> GetRestaurantsvisitAsync(
+            int restaurantId,
+            DateOnly? dateStart,
+            DateOnly? dateEnd,
+            VisitSorting visitSorting,
+            int page,
+            int perPage)
         {
             var restaurant = await context.Restaurants.FindAsync(restaurantId);
             if (restaurant == null)
@@ -1235,8 +1241,8 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var dateTimeStart = dateStart.ToDateTime(TimeOnly.MinValue);
-            var dateTimeEnd = dateEnd.ToDateTime(TimeOnly.MaxValue);
+            var dateTimeStart = dateStart?.ToDateTime(TimeOnly.MinValue) ?? DateTime.MinValue;
+            var dateTimeEnd = dateEnd?.ToDateTime(TimeOnly.MaxValue) ?? DateTime.MaxValue;
 
             IQueryable<Visit> query = context.Visits
                 .Include(x => x.Table)
@@ -1297,6 +1303,5 @@ namespace Reservant.Api.Services
 
             return result;
         }
-
     }
 }
