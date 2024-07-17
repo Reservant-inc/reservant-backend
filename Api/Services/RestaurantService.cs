@@ -1214,7 +1214,7 @@ namespace Reservant.Api.Services
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         /// <returns>Paged list of visits</returns>
-        public async Task<Result<Pagination<VisitVM>>> GetRestaurantsvisitAsync(
+        public async Task<Result<Pagination<VisitVM>>> GetVisitsInRestaurantAsync(
             int restaurantId,
             DateOnly? dateStart,
             DateOnly? dateEnd,

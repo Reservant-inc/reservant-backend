@@ -220,7 +220,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         /// <returns>Paged list of visits</returns>
         [HttpGet("{restaurantId:int}/visits")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<Pagination<VisitVM>>> GetRestaurantsvisit(
+        public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
             int restaurantId,
             DateOnly? dateStart,
             DateOnly? dateEnd,
@@ -228,7 +228,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             [FromQuery] int page = 0,
             [FromQuery] int perPage = 10)
         {
-            var result = await service.GetRestaurantsvisitAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+            var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
 
             if (result.IsError)
             {
