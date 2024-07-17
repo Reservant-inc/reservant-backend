@@ -1235,7 +1235,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(restaurantId),
+                    PropertyName = null,
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
