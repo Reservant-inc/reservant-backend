@@ -22,6 +22,11 @@ public class Pagination<T>
     public required int PerPage { get; init; }
 
     /// <summary>
+    /// Available orderBy options
+    /// </summary>
+    public required string[] OrderByOptions { get; init; }
+
+    /// <summary>
     /// Actual item found
     /// </summary>
     public required List<T> Items { get; init; }

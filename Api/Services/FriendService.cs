@@ -185,7 +185,7 @@ public class FriendService(ApiDbContext context)
                 ReceiverName = fr.Receiver.FullName
             });
 
-        return await query.PaginateAsync(page, perPage);
+        return await query.PaginateAsync(page, perPage, []);
     }
 
     /// <summary>
@@ -211,7 +211,7 @@ public class FriendService(ApiDbContext context)
                 ReceiverName = fr.Receiver.FullName
             });
 
-        return await query.PaginateAsync(page, perPage);
+        return await query.PaginateAsync(page, perPage, []);
     }
 
     /// <summary>
@@ -237,6 +237,6 @@ public class FriendService(ApiDbContext context)
                 ReceiverName = fr.Receiver.FullName
             });
 
-        return await query.PaginateAsync(page, perPage);
+        return await query.PaginateAsync(page, perPage, []);
     }
 }

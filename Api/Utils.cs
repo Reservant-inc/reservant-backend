@@ -25,8 +25,13 @@ public static class Utils
     /// <summary>
     /// Return a single page of the query
     /// </summary>
+    /// <param name="query">LINQ query</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <param name="orderByOptions">Available sorting options (only used to return the info to the client)</param>
+    /// <param name="maxPerPage">Maximum value for <paramref name="perPage"/></param>
     public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
-        this IQueryable<T> query, int page, int perPage, int maxPerPage = 10)
+        this IQueryable<T> query, int page, int perPage, string[] orderByOptions, int maxPerPage = 10)
     {
         if (perPage > maxPerPage)
         {
@@ -58,7 +63,8 @@ public static class Utils
                 Items = [],
                 TotalPages = totalPages,
                 Page = page,
-                PerPage = perPage
+                PerPage = perPage,
+                OrderByOptions = orderByOptions
             };
         }
 
@@ -72,7 +78,8 @@ public static class Utils
             Items = paginatedResults,
             TotalPages = totalPages,
             Page = page,
-            PerPage = perPage
+            PerPage = perPage,
+            OrderByOptions = orderByOptions
         };
     }
 }

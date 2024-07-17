@@ -144,7 +144,7 @@ namespace Reservant.Api.Services
                     Tags = r.Tags.Select(t => t.Name).ToList(),
                     DistanceFrom = origin.Distance(r.Location)
                 })
-                .PaginateAsync(page, perPage);
+                .PaginateAsync(page, perPage, []);
 
             return nearRestaurants;
         }
@@ -998,7 +998,7 @@ namespace Reservant.Api.Services
                 _ => filteredOrders
             };
 
-            return await filteredOrders.PaginateAsync(page, perPage);
+            return await filteredOrders.PaginateAsync(page, perPage, Enum.GetNames<OrderSorting>());
         }
 
         /// <summary>
@@ -1037,7 +1037,7 @@ namespace Reservant.Api.Services
                     NumberInterested = e.Interested.Count
                 });
 
-            return await query.PaginateAsync(page, perPage);
+            return await query.PaginateAsync(page, perPage, []);
         }
 
         /// <summary>
@@ -1153,7 +1153,7 @@ namespace Reservant.Api.Services
                 _ => reviewVM
             };
 
-            return await reviewVM.PaginateAsync(page, perPage);
+            return await reviewVM.PaginateAsync(page, perPage, Enum.GetNames<ReviewOrderSorting>());
         }
     }
 }

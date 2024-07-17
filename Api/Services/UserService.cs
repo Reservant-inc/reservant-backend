@@ -369,7 +369,7 @@ public class UserService(
             RestaurantId = visit.RestaurantId,
             Deposit = visit.Deposit
         })
-        .PaginateAsync(page, perPage, maxPerPage: 10);
+        .PaginateAsync(page, perPage, [], maxPerPage: 10);
 
         return result;
     }
@@ -401,7 +401,7 @@ public class UserService(
             RestaurantId = visit.RestaurantId,
             Deposit = visit.Deposit
         })
-        .PaginateAsync(page, perPage, maxPerPage: 10);
+        .PaginateAsync(page, perPage, [], maxPerPage: 10);
 
         return result;
     }

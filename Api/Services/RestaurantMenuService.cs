@@ -461,6 +461,6 @@ public class RestaurantMenuService(
                 AlcoholPercentage = mi.AlcoholPercentage,
                 Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
             })
-            .PaginateAsync(page, perPage, maxPerPage: 20);
+            .PaginateAsync(page, perPage, Enum.GetNames<MenuItemSorting>(), maxPerPage: 20);
     }
 }

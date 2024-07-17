@@ -174,7 +174,7 @@ public class ThreadService(
                 NumberOfParticipants = t.Participants.Count
             });
 
-        return await query.PaginateAsync(page, perPage);
+        return await query.PaginateAsync(page, perPage, []);
     }
 
     /// <summary>
