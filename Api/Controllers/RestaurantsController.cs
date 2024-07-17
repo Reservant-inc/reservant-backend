@@ -209,15 +209,15 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     }
 
         /// <summary>
-        /// Gets Restaurant Visits from restaurant of chosen id, within given time frame in picked order
+        /// Get visits in a restaurant
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant.</param>
-        /// <param name="dateStart">Start date for filtering events.</param>
-        /// <param name="dateEnd">End date for filtering events.</param>
-        /// <param name="visitSorting">Determines order of sorting</param>
-        /// <param name="page">Page number to return.</param>
-        /// <param name="perPage">Items per page.</param>
-        /// <returns>Paginated list of future events.</returns>
+        /// <param name="dateStart">Filter out visits before the date</param>
+        /// <param name="dateEnd">Filter out visits ater the date</param>
+        /// <param name="visitSorting">Order visits</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns>Paged list of visits</returns>
         [HttpGet("{restaurantId:int}/visits")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<Pagination<VisitVM>>> GetRestaurantsvisit(
