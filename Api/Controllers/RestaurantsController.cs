@@ -23,18 +23,35 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 {
 
     /// <summary>
-    /// Gets restaurant in a given area, defined by two points
+    /// Find restaurants by different criteria
     /// </summary>
-    /// <param name="lat1"> First point latitude </param>
-    /// <param name="lon1"> First point longitude </param>
-    /// <param name="lat2"> Second point latitude</param>
-    /// <param name="lon2"> Second point longitude </param>
+    /// <remarks>
+    /// Returns them sorted from the nearest to the farthest
+    /// </remarks>
+    /// <param name="origLat">Latitude of the point to search from</param>
+    /// <param name="origLon">Longitude of the point to search from</param>
+    /// <param name="name">Search by name</param>
+    /// <param name="tag">Search restaurants that have a certain tag</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
+    /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
+    /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
+    /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
     /// <returns></returns>
-    [HttpGet("in-area")]
+    [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<List<NearRestaurantVM>>> GetRestaurantsInArea(double lat1, double lon1, double lat2, double lon2)
+    public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindRestaurants(
+        double origLat, double origLon,
+        string? name, string? tag,
+        double? lat1, double? lon1, double? lat2, double? lon2,
+        int page = 0, int perPage = 10)
     {
-        var result = await service.GetRestaurantsInAreaAsync(lat1, lon1, lat2, lon2);
+        var result = await service.FindRestaurantsAsync(
+            origLat, origLon,
+            name, tag,
+            lat1, lon1, lat2, lon2,
+            page, perPage);
 
         if (result.IsError)
         {

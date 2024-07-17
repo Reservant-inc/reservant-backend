@@ -57,73 +57,106 @@ namespace Reservant.Api.Services
         GeometryFactory geometryFactory)
     {
         /// <summary>
-        /// Finds restaurant in a given rectangle defined by two geographical points.
+        /// Find restaurants by different criteria
         /// </summary>
-        /// <param name="lat1">Latitude of the first point</param>
-        /// <param name="lon1">Longitude of the first point</param>
-        /// <param name="lat2">Latitude of the second point</param>
-        /// <param name="lon2">Longitude of the second point</param>
+        /// <remarks>
+        /// Returns them sorted from the nearest to the farthest
+        /// </remarks>
+        /// <param name="origLat">Latitude of the point to search from</param>
+        /// <param name="origLon">Longitude of the point to search from</param>
+        /// <param name="name">Search by name</param>
+        /// <param name="tag">Search restaurants that have a certain tag</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
+        /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
+        /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
+        /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
         /// <returns></returns>
-        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsInAreaAsync(double lat1, double lon1, double lat2, double lon2)
+        public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
+            double origLat, double origLon,
+            string? name, string? tag,
+            double? lat1, double? lon1, double? lat2, double? lon2,
+            int page, int perPage)
         {
-            var minLat = Math.Min(lat1, lat2);
-            var maxLat = Math.Max(lat1, lat2);
-            var minLon = Math.Min(lon1, lon2);
-            var maxLon = Math.Max(lon1, lon2);
+            IQueryable<Restaurant> query = context.Restaurants
+                .Where(r => r.VerifierId != null);
 
-            var coordinates = new[]
+            if (name is not null)
             {
-                new Coordinate(minLon, minLat),
-                new Coordinate(maxLon, minLat),
-                new Coordinate(maxLon, maxLat),
-                new Coordinate(minLon, maxLat),
-                new Coordinate(minLon, minLat)
-            };
-            var boundingBox = geometryFactory.CreatePolygon(coordinates);
-
-            if (!boundingBox.IsValid)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(boundingBox),
-                    ErrorMessage = "Given coordinates does not create a valid Polygon!",
-                    ErrorCode = ErrorCodes.WrongPolygonFormat
-                };
+                query = query.Where(r => r.Name.Contains(name.Trim()));
             }
 
-            var restaurants = await context.Restaurants
-                .Where(r => boundingBox.Contains(r.Location))
-                .Include(r => r.Group)
-                .Include(r => r.Tables)
-                .Include(r => r.Photos)
-                .Include(r => r.Tags)
-                .Include(r => r.Reviews)
-                .ToListAsync();
-
-            var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
+            if (tag is not null)
             {
-                RestaurantId = r.Id,
-                Name = r.Name,
-                RestaurantType = r.RestaurantType,
-                Nip = r.Nip,
-                Address = r.Address,
-                City = r.City,
-                Location = new Geolocation
+                query = query.Where(r => r.Tags.Any(t => t.Name == tag));
+            }
+
+            if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
+            {
+                if (lat1 is null || lon1 is null || lat2 is null || lon2 is null)
                 {
-                    Latitude = r.Location.Y,
-                    Longitude = r.Location.X
-                },
-                GroupId = r.GroupId,
-                ProvideDelivery = r.ProvideDelivery,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                Description = r.Description,
-                ReservationDeposit = r.ReservationDeposit,
-                Tags = r.Tags.Select(t => t.Name).ToList(),
-                IsVerified = r.VerifierId is not null,
-                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X),
-                Rating = r.Rating,
-                NumberReviews = r.Reviews.Count
-            }).OrderBy(r => r.DistanceFrom).ToList();
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = "To search within a rectangular area, all 4 coordinates " +
+                        $"must be provided: {nameof(lat1)}, {nameof(lon1)}, {nameof(lat2)}, {nameof(lon2)}",
+                        ErrorCode = ErrorCodes.WrongPolygonFormat
+                    };
+                }
+
+                var minLat = Math.Min(lat1.Value, lat2.Value);
+                var maxLat = Math.Max(lat1.Value, lat2.Value);
+                var minLon = Math.Min(lon1.Value, lon2.Value);
+                var maxLon = Math.Max(lon1.Value, lon2.Value);
+
+                var coordinates = new[]
+                {
+                    new Coordinate(minLon, minLat),
+                    new Coordinate(maxLon, minLat),
+                    new Coordinate(maxLon, maxLat),
+                    new Coordinate(minLon, maxLat),
+                    new Coordinate(minLon, minLat)
+                };
+                var boundingBox = geometryFactory.CreatePolygon(coordinates);
+
+                if (!boundingBox.IsValid)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(boundingBox),
+                        ErrorMessage = "Given coordinates does not create a valid Polygon!",
+                        ErrorCode = ErrorCodes.WrongPolygonFormat
+                    };
+                }
+
+                query = query.Where(r => boundingBox.Contains(r.Location));
+            }
+
+            var origin = geometryFactory.CreatePoint(new Coordinate(origLon, origLat));
+
+            var nearRestaurants = await query
+                .OrderBy(r => origin.Distance(r.Location))
+                .Select(r => new NearRestaurantVM
+                {
+                    RestaurantId = r.Id,
+                    Name = r.Name,
+                    RestaurantType = r.RestaurantType,
+                    Address = r.Address,
+                    City = r.City,
+                    Location = new Geolocation
+                    {
+                        Latitude = r.Location.Y,
+                        Longitude = r.Location.X
+                    },
+                    ProvideDelivery = r.ProvideDelivery,
+                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Description = r.Description,
+                    ReservationDeposit = r.ReservationDeposit,
+                    Tags = r.Tags.Select(t => t.Name).ToList(),
+                    DistanceFrom = origin.Distance(r.Location)
+                })
+                .PaginateAsync(page, perPage, []);
 
             return nearRestaurants;
         }
@@ -255,14 +288,16 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Returns a list of restaurants owned by the user.
         /// </summary>
+        /// <param name="name">Search by name</param>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user)
+        public async Task<List<RestaurantSummaryVM>> GetMyRestaurantsAsync(User user, string? name = null)
         {
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
                 .Include(r => r.Reviews)
+                .Where(r => name == null || r.Name.Contains(name.Trim()))
                 .Select(r => new RestaurantSummaryVM
                 {
                     RestaurantId = r.Id,
@@ -973,7 +1008,7 @@ namespace Reservant.Api.Services
                 _ => filteredOrders
             };
 
-            return await filteredOrders.PaginateAsync(page, perPage);
+            return await filteredOrders.PaginateAsync(page, perPage, Enum.GetNames<OrderSorting>());
         }
 
         /// <summary>
@@ -1012,7 +1047,7 @@ namespace Reservant.Api.Services
                     NumberInterested = e.Interested.Count
                 });
 
-            return await query.PaginateAsync(page, perPage);
+            return await query.PaginateAsync(page, perPage, []);
         }
 
         /// <summary>
@@ -1128,7 +1163,7 @@ namespace Reservant.Api.Services
                 _ => reviewVM
             };
 
-            return await reviewVM.PaginateAsync(page, perPage);
+            return await reviewVM.PaginateAsync(page, perPage, Enum.GetNames<ReviewOrderSorting>());
         }
 
         /// <summary>

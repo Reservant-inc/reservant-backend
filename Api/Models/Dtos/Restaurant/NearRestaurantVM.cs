@@ -25,13 +25,6 @@ public class NearRestaurantVM
     public required string Name { get; init; }
 
     /// <summary>
-    /// NIP
-    /// </summary>
-    /// <example>1231264550</example>
-    [Required, Nip, StringLength(13)]
-    public required string Nip { get; init; }
-
-    /// <summary>
     /// Type of the establishment
     /// </summary>
     public required RestaurantType RestaurantType { get; set; }
@@ -56,11 +49,6 @@ public class NearRestaurantVM
     /// <example></example>
     [Required]
     public required Geolocation Location { get; init; }
-
-    /// <summary>
-    /// Restaurant group ID
-    /// </summary>
-    public required int GroupId { get; set; }
 
     /// <summary>
     /// URI of the logo
@@ -90,12 +78,6 @@ public class NearRestaurantVM
     /// </summary>
     [Required]
     public required List<string> Tags { get; init; }
-
-    /// <summary>
-    /// Whether the restaurant is verified or not
-    /// </summary>
-    [Required]
-    public required bool IsVerified { get; init; }
 
     /// <summary>
     /// Distance from User

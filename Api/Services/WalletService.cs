@@ -81,7 +81,7 @@ public class WalletService(
                 Time = p.Time,
             });
 
-        return await transactions.PaginateAsync(page, perPage);
+        return await transactions.PaginateAsync(page, perPage, []);
 
     }
 
