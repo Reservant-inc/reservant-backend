@@ -154,7 +154,9 @@ namespace Reservant.Api.Services
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
-                    DistanceFrom = origin.Distance(r.Location)
+                    DistanceFrom = origin.Distance(r.Location),
+                    Rating = r.Reviews.Select(rv => (double?)rv.Stars).Average() ?? 0,
+                    NumberReviews = r.Reviews.Count
                 })
                 .PaginateAsync(page, perPage, []);
 
@@ -1329,7 +1331,7 @@ namespace Reservant.Api.Services
                         Status = o.Status
                     }).ToList()
                 })
-                .PaginateAsync(page, perPage);
+                .PaginateAsync(page, perPage, Enum.GetNames<VisitSorting>());
 
             return result;
         }
