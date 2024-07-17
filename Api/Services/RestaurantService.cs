@@ -1242,6 +1242,7 @@ namespace Reservant.Api.Services
             }
 
             IQueryable<Visit> query = context.Visits
+                .AsSplitQuery()
                 .Include(x => x.Table)
                 .Include(x => x.Participants)
                 .Include(x => x.Orders)
