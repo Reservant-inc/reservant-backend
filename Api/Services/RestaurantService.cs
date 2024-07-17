@@ -59,14 +59,17 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="origLat">Latitude of the point to search from</param>
         /// <param name="origLon">Longitude of the point to search from</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
         /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
         /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
         /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
         /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
         /// <returns></returns>
-        public async Task<Result<List<NearRestaurantVM>>> FindRestaurantsAsync(
+        public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
             double origLat, double origLon,
-            double? lat1, double? lon1, double? lat2, double? lon2)
+            double? lat1, double? lon1, double? lat2, double? lon2,
+            int page, int perPage)
         {
             IQueryable<Restaurant> query = context.Restaurants;
 
@@ -134,7 +137,7 @@ namespace Reservant.Api.Services
                     Tags = r.Tags.Select(t => t.Name).ToList(),
                     DistanceFrom = origin.Distance(r.Location)
                 })
-                .ToListAsync();
+                .PaginateAsync(page, perPage);
 
             return nearRestaurants;
         }

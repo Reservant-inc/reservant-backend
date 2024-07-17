@@ -26,6 +26,8 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// </summary>
     /// <param name="origLat">Latitude of the point to search from</param>
     /// <param name="origLon">Longitude of the point to search from</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
     /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
     /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
     /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
@@ -33,9 +35,15 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<List<NearRestaurantVM>>> FindRestaurants(double origLat, double origLon, double? lat1, double? lon1, double? lat2, double? lon2)
+    public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindRestaurants(
+        double origLat, double origLon,
+        double? lat1, double? lon1, double? lat2, double? lon2,
+        int page = 0, int perPage = 10)
     {
-        var result = await service.FindRestaurantsAsync(origLat, origLon, lat1, lon1, lat2, lon2);
+        var result = await service.FindRestaurantsAsync(
+            origLat, origLon,
+            lat1, lon1, lat2, lon2,
+            page, perPage);
 
         if (result.IsError)
         {
