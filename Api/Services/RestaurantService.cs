@@ -68,11 +68,7 @@ namespace Reservant.Api.Services
             double origLat, double origLon,
             double? lat1, double? lon1, double? lat2, double? lon2)
         {
-            IQueryable<Restaurant> query = context.Restaurants
-                .Include(r => r.Group)
-                .Include(r => r.Tables)
-                .Include(r => r.Photos)
-                .Include(r => r.Tags);
+            IQueryable<Restaurant> query = context.Restaurants;
 
             if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
             {
@@ -115,27 +111,30 @@ namespace Reservant.Api.Services
                 query = query.Where(r => boundingBox.Contains(r.Location));
             }
 
-            var restaurants = await query.ToListAsync();
+            var origin = geometryFactory.CreatePoint(new Coordinate(origLon, origLat));
 
-            var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
-            {
-                RestaurantId = r.Id,
-                Name = r.Name,
-                RestaurantType = r.RestaurantType,
-                Address = r.Address,
-                City = r.City,
-                Location = new Geolocation
+            var nearRestaurants = await query
+                .OrderBy(r => origin.Distance(r.Location))
+                .Select(r => new NearRestaurantVM
                 {
-                    Latitude = r.Location.Y,
-                    Longitude = r.Location.X
-                },
-                ProvideDelivery = r.ProvideDelivery,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                Description = r.Description,
-                ReservationDeposit = r.ReservationDeposit,
-                Tags = r.Tags.Select(t => t.Name).ToList(),
-                DistanceFrom = Utils.CalculateHaversineDistance(origLat, origLon, r.Location.Y, r.Location.X)
-            }).OrderBy(r => r.DistanceFrom).ToList();
+                    RestaurantId = r.Id,
+                    Name = r.Name,
+                    RestaurantType = r.RestaurantType,
+                    Address = r.Address,
+                    City = r.City,
+                    Location = new Geolocation
+                    {
+                        Latitude = r.Location.Y,
+                        Longitude = r.Location.X
+                    },
+                    ProvideDelivery = r.ProvideDelivery,
+                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Description = r.Description,
+                    ReservationDeposit = r.ReservationDeposit,
+                    Tags = r.Tags.Select(t => t.Name).ToList(),
+                    DistanceFrom = origin.Distance(r.Location)
+                })
+                .ToListAsync();
 
             return nearRestaurants;
         }
