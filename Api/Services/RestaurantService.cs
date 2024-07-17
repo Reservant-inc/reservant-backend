@@ -60,6 +60,7 @@ namespace Reservant.Api.Services
         /// <param name="origLat">Latitude of the point to search from</param>
         /// <param name="origLon">Longitude of the point to search from</param>
         /// <param name="name">Search by name</param>
+        /// <param name="tag">Search restaurants that have a certain tag</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
@@ -69,7 +70,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
             double origLat, double origLon,
-            string? name,
+            string? name, string? tag,
             double? lat1, double? lon1, double? lat2, double? lon2,
             int page, int perPage)
         {
@@ -78,6 +79,11 @@ namespace Reservant.Api.Services
             if (name is not null)
             {
                 query = query.Where(r => r.Name.Contains(name.Trim()));
+            }
+
+            if (tag is not null)
+            {
+                query = query.Where(r => r.Tags.Any(t => t.Name == tag));
             }
 
             if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
