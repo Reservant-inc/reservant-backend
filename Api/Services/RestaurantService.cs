@@ -55,8 +55,11 @@ namespace Reservant.Api.Services
         GeometryFactory geometryFactory)
     {
         /// <summary>
-        /// Finds restaurant in a given rectangle defined by two geographical points.
+        /// Find restaurants by different criteria
         /// </summary>
+        /// <remarks>
+        /// Returns them sorted from the nearest to the farthest
+        /// </remarks>
         /// <param name="origLat">Latitude of the point to search from</param>
         /// <param name="origLon">Longitude of the point to search from</param>
         /// <param name="name">Search by name</param>
