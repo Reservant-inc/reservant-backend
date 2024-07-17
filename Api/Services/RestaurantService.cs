@@ -122,7 +122,6 @@ namespace Reservant.Api.Services
                 RestaurantId = r.Id,
                 Name = r.Name,
                 RestaurantType = r.RestaurantType,
-                Nip = r.Nip,
                 Address = r.Address,
                 City = r.City,
                 Location = new Geolocation
@@ -130,13 +129,11 @@ namespace Reservant.Api.Services
                     Latitude = r.Location.Y,
                     Longitude = r.Location.X
                 },
-                GroupId = r.GroupId,
                 ProvideDelivery = r.ProvideDelivery,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ReservationDeposit = r.ReservationDeposit,
                 Tags = r.Tags.Select(t => t.Name).ToList(),
-                IsVerified = r.VerifierId is not null,
                 DistanceFrom = Utils.CalculateHaversineDistance(origLat, origLon, r.Location.Y, r.Location.X)
             }).OrderBy(r => r.DistanceFrom).ToList();
 
