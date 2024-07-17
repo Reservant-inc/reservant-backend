@@ -57,45 +57,65 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Finds restaurant in a given rectangle defined by two geographical points.
         /// </summary>
-        /// <param name="lat1">Latitude of the first point</param>
-        /// <param name="lon1">Longitude of the first point</param>
-        /// <param name="lat2">Latitude of the second point</param>
-        /// <param name="lon2">Longitude of the second point</param>
+        /// <param name="origLat">Latitude of the point to search from</param>
+        /// <param name="origLon">Longitude of the point to search from</param>
+        /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
+        /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
+        /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
+        /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
         /// <returns></returns>
-        public async Task<Result<List<NearRestaurantVM>>> GetRestaurantsInAreaAsync(double lat1, double lon1, double lat2, double lon2)
+        public async Task<Result<List<NearRestaurantVM>>> FindRestaurantsAsync(
+            double origLat, double origLon,
+            double? lat1, double? lon1, double? lat2, double? lon2)
         {
-            var minLat = Math.Min(lat1, lat2);
-            var maxLat = Math.Max(lat1, lat2);
-            var minLon = Math.Min(lon1, lon2);
-            var maxLon = Math.Max(lon1, lon2);
-
-            var coordinates = new[]
-            {
-                new Coordinate(minLon, minLat),
-                new Coordinate(maxLon, minLat),
-                new Coordinate(maxLon, maxLat),
-                new Coordinate(minLon, maxLat),
-                new Coordinate(minLon, minLat)
-            };
-            var boundingBox = geometryFactory.CreatePolygon(coordinates);
-
-            if (!boundingBox.IsValid)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(boundingBox),
-                    ErrorMessage = "Given coordinates does not create a valid Polygon!",
-                    ErrorCode = ErrorCodes.WrongPolygonFormat
-                };
-            }
-
-            var restaurants = await context.Restaurants
-                .Where(r => boundingBox.Contains(r.Location))
+            IQueryable<Restaurant> query = context.Restaurants
                 .Include(r => r.Group)
                 .Include(r => r.Tables)
                 .Include(r => r.Photos)
-                .Include(r => r.Tags)
-                .ToListAsync();
+                .Include(r => r.Tags);
+
+            if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
+            {
+                if (lat1 is null || lon1 is null || lat2 is null || lon2 is null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = "To search within a rectangular area, all 4 coordinates " +
+                        $"must be provided: {nameof(lat1)}, {nameof(lon1)}, {nameof(lat2)}, {nameof(lon2)}",
+                        ErrorCode = ErrorCodes.WrongPolygonFormat
+                    };
+                }
+
+                var minLat = Math.Min(lat1.Value, lat2.Value);
+                var maxLat = Math.Max(lat1.Value, lat2.Value);
+                var minLon = Math.Min(lon1.Value, lon2.Value);
+                var maxLon = Math.Max(lon1.Value, lon2.Value);
+
+                var coordinates = new[]
+                {
+                    new Coordinate(minLon, minLat),
+                    new Coordinate(maxLon, minLat),
+                    new Coordinate(maxLon, maxLat),
+                    new Coordinate(minLon, maxLat),
+                    new Coordinate(minLon, minLat)
+                };
+                var boundingBox = geometryFactory.CreatePolygon(coordinates);
+
+                if (!boundingBox.IsValid)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(boundingBox),
+                        ErrorMessage = "Given coordinates does not create a valid Polygon!",
+                        ErrorCode = ErrorCodes.WrongPolygonFormat
+                    };
+                }
+
+                query = query.Where(r => boundingBox.Contains(r.Location));
+            }
+
+            var restaurants = await query.ToListAsync();
 
             var nearRestaurants = restaurants.Select(r => new NearRestaurantVM
             {
@@ -117,7 +137,7 @@ namespace Reservant.Api.Services
                 ReservationDeposit = r.ReservationDeposit,
                 Tags = r.Tags.Select(t => t.Name).ToList(),
                 IsVerified = r.VerifierId is not null,
-                DistanceFrom = Utils.CalculateHaversineDistance(boundingBox.Centroid.Y, boundingBox.Centroid.X, r.Location.Y, r.Location.X)
+                DistanceFrom = Utils.CalculateHaversineDistance(origLat, origLon, r.Location.Y, r.Location.X)
             }).OrderBy(r => r.DistanceFrom).ToList();
 
             return nearRestaurants;
