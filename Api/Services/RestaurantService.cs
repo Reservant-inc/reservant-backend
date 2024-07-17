@@ -17,7 +17,8 @@ using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
 using Reservant.Api.Models.Dtos.Event;
-using System.Diagnostics;
+using Reservant.Api.Models.Dtos.Visit;
+using Reservant.Api.Models.Dtos.User;
 
 
 
@@ -1201,6 +1202,101 @@ namespace Reservant.Api.Services
                 Rating = rating,
                 NumberReviews = numberReviews,
             };
+        }
+
+        /// <summary>
+        /// Get visits in a restaurant
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant.</param>
+        /// <param name="dateStart">Filter out visits before the date</param>
+        /// <param name="dateEnd">Filter out visits ater the date</param>
+        /// <param name="visitSorting">Order visits</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns>Paged list of visits</returns>
+        public async Task<Result<Pagination<VisitVM>>> GetRestaurantsvisitAsync(
+            int restaurantId,
+            DateOnly? dateStart,
+            DateOnly? dateEnd,
+            VisitSorting visitSorting,
+            int page,
+            int perPage)
+        {
+            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            IQueryable<Visit> query = context.Visits
+                .AsSplitQuery()
+                .Include(x => x.Table)
+                .Include(x => x.Participants)
+                .Include(x => x.Orders)
+                    .ThenInclude(o => o.OrderItems)
+                        .ThenInclude(oi => oi.MenuItem)
+                .Where(e => e.TableRestaurantId == restaurantId);
+
+            if (dateStart is not null)
+            {
+                query = query.Where(x => DateOnly.FromDateTime(x.Date) >= dateStart);
+            }
+
+            if (dateEnd is not null)
+            {
+                query = query.Where(x => DateOnly.FromDateTime(x.Date) <= dateEnd);
+            }
+
+            switch (visitSorting)
+            {
+                case VisitSorting.DateAsc:
+                    query = query.OrderBy(e => e.Date);
+                    break;
+                case VisitSorting.DateDesc:
+                    query = query.OrderByDescending(e => e.Date);
+                    break;
+                default:
+                    query = query.OrderBy(e => e.Date); // Default to ascending order if VisitSorting is unexpected
+                    break;
+            }
+
+            var result = await query.Select(e => new VisitVM
+                {
+                    VisitId = e.Id,
+                    Date = e.Date,
+                    NumberOfGuests = e.NumberOfGuests,
+                    PaymentTime = e.PaymentTime,
+                    Deposit = e.Deposit,
+                    ReservationDate = e.ReservationDate,
+                    Tip = e.Tip,
+                    Takeaway = e.Takeaway,
+                    ClientId = e.ClientId,
+                    RestaurantId = e.Table.RestaurantId,
+                    TableId = e.Table.Id,
+                    Participants = e.Participants.Select(p => new UserSummaryVM
+                    {
+                        UserId = p.Id,
+                        FirstName = p.FirstName,
+                        LastName = p.LastName
+                    }).ToList(),
+                    Orders = e.Orders.Select(o => new OrderSummaryVM
+                    {
+                        OrderId = o.Id,
+                        VisitId = o.VisitId,
+                        Date = o.Visit.Date,
+                        Note = o.Note,
+                        Cost = o.Cost, // This now safely computes Cost
+                        Status = o.Status
+                    }).ToList()
+                })
+                .PaginateAsync(page, perPage);
+
+            return result;
         }
     }
 }

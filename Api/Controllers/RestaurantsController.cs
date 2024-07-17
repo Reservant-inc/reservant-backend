@@ -8,6 +8,7 @@ using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Review;
+using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -206,4 +207,35 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return Ok(result.Value);
     }
+
+        /// <summary>
+        /// Get visits in a restaurant
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant.</param>
+        /// <param name="dateStart">Filter out visits before the date</param>
+        /// <param name="dateEnd">Filter out visits ater the date</param>
+        /// <param name="visitSorting">Order visits</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns>Paged list of visits</returns>
+        [HttpGet("{restaurantId:int}/visits")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<Pagination<VisitVM>>> GetRestaurantsvisit(
+            int restaurantId,
+            DateOnly? dateStart,
+            DateOnly? dateEnd,
+            VisitSorting visitSorting,
+            [FromQuery] int page = 0,
+            [FromQuery] int perPage = 10)
+        {
+            var result = await service.GetRestaurantsvisitAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+
+            if (result.IsError)
+            {
+                return result.ToValidationProblem();
+            }
+
+            return Ok(result.Value);
+        }
+
 }
