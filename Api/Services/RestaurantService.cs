@@ -1241,21 +1241,23 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var dateTimeStart = dateStart?.ToDateTime(TimeOnly.MinValue) ?? DateTime.MinValue;
-            var dateTimeEnd = dateEnd?.ToDateTime(TimeOnly.MaxValue) ?? DateTime.MaxValue;
-
             IQueryable<Visit> query = context.Visits
                 .Include(x => x.Table)
                 .Include(x => x.Participants)
                 .Include(x => x.Orders)
                     .ThenInclude(o => o.OrderItems)
                         .ThenInclude(oi => oi.MenuItem)
-                .Where(e => 
-                    e.TableRestaurantId == restaurantId && 
-                    !e.IsDeleted &&
-                    e.Date >= dateTimeStart &&
-                    e.Date <= dateTimeEnd
-                );
+                .Where(e => e.TableRestaurantId == restaurantId);
+
+            if (dateStart is not null)
+            {
+                query = query.Where(x => DateOnly.FromDateTime(x.Date) >= dateStart);
+            }
+
+            if (dateEnd is not null)
+            {
+                query = query.Where(x => DateOnly.FromDateTime(x.Date) <= dateEnd);
+            }
 
             switch (visitSorting)
             {
