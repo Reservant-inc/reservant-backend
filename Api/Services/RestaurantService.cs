@@ -77,7 +77,8 @@ namespace Reservant.Api.Services
             double? lat1, double? lon1, double? lat2, double? lon2,
             int page, int perPage)
         {
-            IQueryable<Restaurant> query = context.Restaurants;
+            IQueryable<Restaurant> query = context.Restaurants
+                .Where(r => r.VerifierId != null);
 
             if (name is not null)
             {
