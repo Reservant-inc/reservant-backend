@@ -228,12 +228,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             [FromQuery] int page = 0,
             [FromQuery] int perPage = 10)
         {
-            var userId = userManager.GetUserId(User);
-            if (userId is null)
-            {
-                return Unauthorized();
-            }
-
             var result = await service.GetRestaurantsvisitAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
 
             if (result.IsError)
