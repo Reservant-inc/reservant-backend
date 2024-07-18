@@ -1,4 +1,4 @@
-namespace Reservant.Api;
+namespace Reservant.Api.Documentation;
 
 /// <summary>
 /// Used to store the build time for the assembly
