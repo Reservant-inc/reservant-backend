@@ -6,7 +6,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// Photo of a restaurant
 /// </summary>
-public class RestaurantPhoto : ISoftDeletable
+public class RestaurantPhoto
 {
     /// <summary>
     /// ID of the restaurant
@@ -33,7 +33,4 @@ public class RestaurantPhoto : ISoftDeletable
     /// Navigation property for the photo upload
     /// </summary>
     public FileUpload Photo { get; set; } = null!;
-
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
 }

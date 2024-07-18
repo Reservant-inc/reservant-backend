@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Menu;
+using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -27,6 +29,29 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     public async Task<ActionResult<MenuVM>> GetSingleMenuById(int menuId)
     {
         var result = await service.GetSingleMenuAsync(menuId);
+
+        if (!result.IsError) return Ok(result.Value);
+
+        return result.ToValidationProblem();
+    }
+
+    /// <summary>
+    /// Get list of items of a single menu
+    /// </summary>
+    /// <param name="menuId">ID of the menu</param>
+    /// <param name="name">Search by name</param>
+    /// <param name="orderBy">Sorting order</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns></returns>
+    [HttpGet("/menus/{menuId:int}/items")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<MenuItemSummaryVM>>> GetMenuItems(
+        int menuId, int page = 0, int perPage = 20,
+        string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)
+    {
+        var result = await service.GetMenuItemsAsync(menuId, page, perPage, name, orderBy);
 
         if (!result.IsError) return Ok(result.Value);
 

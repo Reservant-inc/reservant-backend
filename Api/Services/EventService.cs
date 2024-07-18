@@ -241,7 +241,7 @@ namespace Reservant.Api.Services
                     NumberInterested = e.Interested.Count
                 });
 
-            return await query.PaginateAsync(page, perPage);
+            return await query.PaginateAsync(page, perPage, []);
         }
 
 
