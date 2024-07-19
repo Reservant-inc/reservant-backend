@@ -41,6 +41,11 @@ public class MessageThread : ISoftDeletable
     /// </summary>
     public ICollection<User> Participants { get; set; } = null!;
 
+    /// <summary>
+    /// Navigational collection for the messages
+    /// </summary>
+    public ICollection<Message> Messages { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }
