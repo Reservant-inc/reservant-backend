@@ -1061,7 +1061,7 @@ namespace Reservant.Api.Services
         /// <param name="createReviewRequest">template for data provided in a reveiw</param>
         /// <returns>View of a created review</returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        [ErrorCode(null, ErrorCodes.Duplicate)]
+        [ErrorCode(null, ErrorCodes.Duplicate, "If the user has already reviewed the restaurant")]
         [ValidatorErrorCodes<CreateReviewRequest>]
         [ValidatorErrorCodes<Review>]
         public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
