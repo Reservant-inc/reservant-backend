@@ -1,3 +1,4 @@
+using ErrorCodeDocs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -162,6 +163,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpPost("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes(nameof(RestaurantService.CreateReviewAsync))]
     public async Task<ActionResult<ReviewVM>> CreateReview(int restaurantId, CreateReviewRequest createReviewRequest)
     {
         var user = await userManager.GetUserAsync(User);

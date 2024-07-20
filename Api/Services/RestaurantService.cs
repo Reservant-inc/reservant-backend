@@ -19,6 +19,7 @@ using Reservant.Api.Validators;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Dtos.User;
+using ErrorCodeDocs;
 
 
 
@@ -1059,6 +1060,10 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of restaurant reciving review</param>
         /// <param name="createReviewRequest">template for data provided in a reveiw</param>
         /// <returns>View of a created review</returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.Duplicate)]
+        [ValidatorErrorCodes<CreateReviewRequest>]
+        [ValidatorErrorCodes<Review>]
         public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
         {
             var restaurant = await context.Restaurants
