@@ -60,10 +60,11 @@ namespace Reservant.Api.Services
         /// Find restaurants by different criteria
         /// </summary>
         /// <remarks>
-        /// Returns them sorted from the nearest to the farthest
+        /// Returns them sorted from the nearest to the farthest if origLat and origLon are provided;
+        /// Else sorts them alphabetically by name
         /// </remarks>
-        /// <param name="origLat">Latitude of the point to search from</param>
-        /// <param name="origLon">Longitude of the point to search from</param>
+        /// <param name="origLat">Latitude of the point to search from; if provided the restaurants will be sorted by distance</param>
+        /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
         /// <param name="name">Search by name</param>
         /// <param name="tag">Search restaurants that have a certain tag</param>
         /// <param name="page">Page number</param>
@@ -74,7 +75,7 @@ namespace Reservant.Api.Services
         /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
         /// <returns></returns>
         public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
-            double origLat, double origLon,
+            double? origLat, double? origLon,
             string? name, string? tag,
             double? lat1, double? lon1, double? lat2, double? lon2,
             int page, int perPage)
@@ -101,7 +102,7 @@ namespace Reservant.Api.Services
                         PropertyName = null,
                         ErrorMessage = "To search within a rectangular area, all 4 coordinates " +
                         $"must be provided: {nameof(lat1)}, {nameof(lon1)}, {nameof(lat2)}, {nameof(lon2)}",
-                        ErrorCode = ErrorCodes.WrongPolygonFormat
+                        ErrorCode = ErrorCodes.InvalidSearchParameters
                     };
                 }
 
@@ -126,17 +127,36 @@ namespace Reservant.Api.Services
                     {
                         PropertyName = nameof(boundingBox),
                         ErrorMessage = "Given coordinates does not create a valid Polygon!",
-                        ErrorCode = ErrorCodes.WrongPolygonFormat
+                        ErrorCode = ErrorCodes.InvalidSearchParameters
                     };
                 }
 
                 query = query.Where(r => boundingBox.Contains(r.Location));
             }
 
-            var origin = geometryFactory.CreatePoint(new Coordinate(origLon, origLat));
+            var origin = geometryFactory.CreatePoint();
+
+            if (origLat is not null || origLon is not null)
+            {
+                if (origLat is null || origLon is null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = $"To search starting from a point both {nameof(origLat)} {nameof(origLon)}",
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                    };
+                }
+
+                origin = geometryFactory.CreatePoint(new Coordinate(origLon!.Value, origLat!.Value));
+                query = query.OrderBy(r => origin.Distance(r.Location));
+            }
+            else
+            {
+                query = query.OrderBy(r => r.Name);
+            }
 
             var nearRestaurants = await query
-                .OrderBy(r => origin.Distance(r.Location))
                 .Select(r => new NearRestaurantVM
                 {
                     RestaurantId = r.Id,
@@ -154,7 +174,7 @@ namespace Reservant.Api.Services
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
-                    DistanceFrom = origin.Distance(r.Location),
+                    DistanceFrom = origin.IsEmpty ? null : origin.Distance(r.Location),
                     Rating = r.Reviews.Select(rv => (double?)rv.Stars).Average() ?? 0,
                     NumberReviews = r.Reviews.Count
                 })

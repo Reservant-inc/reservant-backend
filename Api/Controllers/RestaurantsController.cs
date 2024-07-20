@@ -26,10 +26,11 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// Find restaurants by different criteria
     /// </summary>
     /// <remarks>
-    /// Returns them sorted from the nearest to the farthest
+    /// Returns them sorted from the nearest to the farthest if origLat and origLon are provided;
+    /// Else sorts them alphabetically by name
     /// </remarks>
-    /// <param name="origLat">Latitude of the point to search from</param>
-    /// <param name="origLon">Longitude of the point to search from</param>
+    /// <param name="origLat">Latitude of the point to search from; if provided the restaurants will be sorted by distance</param>
+    /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
     /// <param name="name">Search by name</param>
     /// <param name="tag">Search restaurants that have a certain tag</param>
     /// <param name="page">Page number</param>
@@ -42,7 +43,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindRestaurants(
-        double origLat, double origLon,
+        double? origLat, double? origLon,
         string? name, string? tag,
         double? lat1, double? lon1, double? lat2, double? lon2,
         int page = 0, int perPage = 10)

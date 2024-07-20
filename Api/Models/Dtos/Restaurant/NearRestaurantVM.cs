@@ -83,7 +83,7 @@ public class NearRestaurantVM
     /// Distance from User
     /// </summary>
     [Required]
-    public required double DistanceFrom { get; init; }
+    public required double? DistanceFrom { get; init; }
 
     /// <summary>
     /// Rating of the restaurant based on the reviews
