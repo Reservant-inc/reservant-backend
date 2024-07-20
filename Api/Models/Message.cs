@@ -27,7 +27,7 @@ public class Message : ISoftDeletable
     /// <summary>
     /// Time when the message was read
     /// </summary>
-    public DateTime DateRead { get; set; }
+    public DateTime? DateRead { get; set; }
 
     /// <summary>
     /// ID of the user who sent the message

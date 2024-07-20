@@ -51,7 +51,6 @@ public class ThreadService(
             };
         }
 
-        // Add creator to the participants list
         var creator = await dbContext.Users.FindAsync(userId);
         if (creator != null && !participants.Any(p => p.Id == userId))
         {
@@ -64,7 +63,6 @@ public class ThreadService(
             CreationDate = DateTime.UtcNow,
             CreatorId = userId,
             Participants = participants,
-            //Messages = new List<Message>() //NIE DZIAŁĄ
         };
 
         var validationResult = await validationService.ValidateAsync(messageThread, userId);
@@ -210,20 +208,15 @@ public class ThreadService(
         };
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    /// <summary>
+    /// adds message to thread from provided id, provided user is its participant
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="userId">Request containing message to be passed</param>
+    /// <param name="request">Request containing message to be passed</param>
+    /// <returns>Adds message to the thread</returns>
     public async Task<Result<MessageVM>> CreateThreadsMessageAsync(int threadId, string userId, CreateMessageRequest request)
     {
-        //PROBLEM, ROBIE W POPRZEDNIEJ SESJII, W TEJ JUŻ NIE ŻYJE
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId);
@@ -248,7 +241,6 @@ public class ThreadService(
             };
         }
 
-
         var message = new Message
         {
             Contents = request.Contents,
@@ -257,11 +249,9 @@ public class ThreadService(
             MessageThreadId = threadId
         };
 
-        //CZEMU JA TO MUSZĘ ROBIĆ?!?!?!
-        if (messageThread.Messages==null)
-        {
-            messageThread.Messages = new List<Message>();
-        }
+        var user = await dbContext.Users
+        .Where(u => u.Id == userId)
+        .FirstOrDefaultAsync();
 
         messageThread.Messages.Add(message);
         await dbContext.SaveChangesAsync();
@@ -274,13 +264,21 @@ public class ThreadService(
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
-            AuthorId = message.AuthorId,
+            AuthorsFirstName = user.FirstName,
+            AuthorsLastName = user.LastName,
             MessageThreadId = message.MessageThreadId
         };
     }
 
-
-
+    /// <summary>
+    /// Get threads the logged-in user participates in
+    /// </summary>
+    /// <param name="threadId">id of thread</param>
+    /// <param name="userId">id of thread</param>
+    /// <param name="messageId">id of a message to dispaly</param>
+    /// <param name="perPage">Records per page</param>
+    /// <returns>returns paginated messages starting with provided message id </returns>
+   
     public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int messageId, int perPage)
     {
         var messageThread = await dbContext.MessageThreads
@@ -308,17 +306,19 @@ public class ThreadService(
         }
 
         var query = dbContext.Messages
-                .Where(t => t.MessageThreadId == threadId)
-                .OrderByDescending(t => t.DateSent)
-                .Select(t => new MessageVM
-                {
-                    Id = t.Id,
-                    Contents = t.Contents,
-                    DateSent = t.DateSent,
-                    DateRead = t.DateRead,
-                    AuthorId = t.AuthorId,
-                    MessageThreadId = t.MessageThreadId
-                });
+            .Include(m => m.Author)
+            .Where(m => m.MessageThreadId == threadId && m.Id > messageId)
+            .OrderByDescending(m => m.DateSent)
+            .Select(m => new MessageVM
+            {
+                Id = m.Id,
+                Contents = m.Contents,
+                DateSent = m.DateSent,
+                DateRead = m.DateRead,
+                AuthorsFirstName = m.Author.FirstName,
+                AuthorsLastName = m.Author.LastName,
+                MessageThreadId = m.MessageThreadId
+            });
 
         if (query.Count() == 0)
         {
@@ -330,183 +330,6 @@ public class ThreadService(
             };
         }
 
-        return await query.PaginateAsync(messageId, perPage, []);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //wyeksportować do thread services kiedy zaczną działać
-
-
-    /// <summary>
-    /// Updates a message by Id.
-    /// </summary>
-    /// <param name="messaged"></param>
-    /// <param name="request"></param>
-    /// <param name="userId">ID of the user making the request</param>
-    /// <returns></returns>
-    public async Task<Result<MessageVM>> UpdateMessageAsync(int messageId, UpdateMessageRequest request, string userId)
-    {
-        // var result = await validationService.ValidateAsync(request, userId);
-        // if (!result.IsValid)
-        // {
-        //     return result;
-        // }
-
-        var message = await dbContext.Messages
-            .FirstOrDefaultAsync(m => m.Id == messageId);
-
-        if (message == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "message not found",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
-        if (message.AuthorId!=userId)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "message was not send by provided user",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
-        message.Contents = request.Contents;
-    
-        // var validationResult = await validationService.ValidateAsync(message, userId);
-        // if (!validationResult.IsValid)
-        // {
-        //     return validationResult;
-        // }
-
-        dbContext.Messages.Update(message);
-        await dbContext.SaveChangesAsync();
-
-        return new MessageVM
-        {
-            Id = message.Id,
-            Contents = message.Contents,
-            DateSent = message.DateSent,
-            DateRead = message.DateRead,
-            AuthorId = message.AuthorId,
-            MessageThreadId = message.MessageThreadId
-        };
-        //CANT CHECK IF IT WORKS, RETURNS AS IF IT DID
-    
-    }
-
-
-
-    public async Task<Result<MessageVM>> MarkMessageAsReadByIdAsync(int mesageId, string userId)
-    {
-        var message = await dbContext.Messages
-        .Include(m => m.MessageThread)
-            .ThenInclude(m => m.Participants)
-        .FirstOrDefaultAsync(m => m.Id == mesageId);
-
-        if (message == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "Message not found",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
-        if (!message.MessageThread.Participants.Any(p => p.Id == userId))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "Thread not accasable to provided user.",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
-        if (message.MessageThread.CreatorId==userId)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "Message created by the same user can not be read by the same user",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
-         message.DateRead = DateTime.UtcNow;
-    
-        // var validationResult = await validationService.ValidateAsync(message, userId);
-        // if (!validationResult.IsValid)
-        // {
-        //     return validationResult;
-        // }
-
-        dbContext.Messages.Update(message);
-        await dbContext.SaveChangesAsync();
-
-        return new MessageVM
-        {
-            Id = message.Id,
-            Contents = message.Contents,
-            DateSent = message.DateSent,
-            DateRead = message.DateRead,
-            AuthorId = message.AuthorId,
-            MessageThreadId = message.MessageThreadId
-        };
-        //CANT CHECK IF IT WORKS, RETURNS AS IF IT DID
-    }
-
-
-    /// <summary>
-    /// Deletes a message thread.
-    /// </summary>
-    /// <param name="messageId"></param>
-    /// <param name="userId">ID of the user making the request</param>
-    /// <returns></returns>
-    public async Task<Result<bool>> DeleteMessageAsync(int messageId, string userId)
-    {
-        var message = await dbContext.Messages
-            .FirstOrDefaultAsync(t => t.Id == messageId);
-
-        if (message == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "Message not found",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
-        if (message.AuthorId != userId) 
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "Provided user is not the author",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
-        dbContext.Messages.Remove(message);
-        await dbContext.SaveChangesAsync();
-
-        return true;
+        return await query.PaginateAsync(0, perPage, []);
     }
 }

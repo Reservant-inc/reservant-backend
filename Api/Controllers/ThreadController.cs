@@ -122,17 +122,6 @@ public class ThreadsController(
         return Ok(result.Value);
     }
 
-
-
-
-
-
-
-
-
-
-
-
     /// <summary>
     /// adds message to thread from provided id, provided user is its participant
     /// </summary>
@@ -159,8 +148,6 @@ public class ThreadsController(
         return Ok(result.Value);
     }
 
-
-    //COŚ DZIWNIE ZWRACA
     /// <summary>
     /// Get threads the logged-in user participates in
     /// </summary>
@@ -168,7 +155,7 @@ public class ThreadsController(
     /// <param name="messageId">id of a message to dispaly</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>returns paginated messages starting with provided message id </returns>
-    [HttpGet("{threadId:int}/messticipatesages")]
+    [HttpGet("messages/{threadId:int}/messages")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(int threadId,int messageId, [FromQuery] int perPage = 10)
@@ -180,106 +167,13 @@ public class ThreadsController(
         }
 
         var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, messageId, perPage);
-        // if (result.IsError)
-        // {
-        //     return result.ToValidationProblem();
-        // } //IDK IT KILLS THE BUILD, WORKS NORMAL FOR ThreadSummaryVM
-
-        return Ok(result.Value);
-    }
-
-
-
-
-
-
-
-    //WYWALIĆ DO KONTROLERA POTEM, NIE ZAPOMINIJ USUNNĄ /messages
-
-    /// <summary>
-    /// Edit message
-    /// </summary>
-    /// <param name="messageId">ID of the message</param>
-    /// <param name="request">Message update request</param>
-    /// <returns>Updated message information</returns>
-    [HttpPut("messages/{messageId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult<MessageVM>> UpdateMessage(int messageId, [FromBody] UpdateMessageRequest request)
-    {
-        var userId = userManager.GetUserId(User);
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await threadService.UpdateMessageAsync(messageId, request, userId);
         if (result.IsError)
         {
             return result.ToValidationProblem();
-        }
+        } 
 
         return Ok(result.Value);
     }
-
-
-
-
-
-
-    /// <summary>
-    /// marks message as read
-    /// </summary>
-    /// <param name="messageId">ID of the message</param>
-    /// <returns>marks message as read</returns>
-    [HttpPost("messages/{messageId:int}/mark-read")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult<MessageVM>> MarkMessageAsReadById(int messageId)
-    {
-        var userId = userManager.GetUserId(User);
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await threadService.MarkMessageAsReadByIdAsync(messageId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
-    }
-
-
-
-
-    /// <summary>
-    /// Delete a message
-    /// </summary>
-    /// <param name="messageId">ID of the message</param>
-    /// <returns>Result of the deletion</returns>
-    [HttpDelete("messages/{messageId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult> DeleteMessage(int messageId)
-    {
-        var userId = userManager.GetUserId(User);
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await threadService.DeleteMessageAsync(messageId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
-    }
-
 }
 
 

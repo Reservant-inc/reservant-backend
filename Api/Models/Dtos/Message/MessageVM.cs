@@ -21,11 +21,15 @@ public class MessageVM
     /// <summary>
     /// DateRead of the message
     /// </summary>
-    public DateTime DateRead { get; set; }
+    public DateTime? DateRead { get; set; }
     /// <summary>
     /// AuthorId of the message
     /// </summary>
-    public string AuthorId { get; set; }
+    public string AuthorsFirstName { get; set; }
+    /// <summary>
+    /// AuthorId of the message
+    /// </summary>
+    public string AuthorsLastName { get; set; }
     /// <summary>
     /// MessageThreadId of the message
     /// </summary>

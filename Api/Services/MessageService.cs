@@ -23,64 +23,178 @@ public class MessageService(
     ApiDbContext dbContext,
     ValidationService validationService)
 {
-    // /// <summary>
-    // /// Updates a message by Id.
-    // /// </summary>
-    // /// <param name="messaged"></param>
-    // /// <param name="request"></param>
-    // /// <param name="userId">ID of the user making the request</param>
-    // /// <returns></returns>
-    // public async Task<Result<MessageVM>> UpdateMessageAsync(int messageId, UpdateMessageRequest request, string userId)
-    // {
-    //     var result = await validationService.ValidateAsync(request, userId);
-    //     if (!result.IsValid)
-    //     {
-    //         return result;
-    //     }
+     /// <summary>
+    /// Updates a message by Id.
+    /// </summary>
+    /// <param name="messageId"> id of a messfe</param>
+    /// <param name="request"> update request</param>
+    /// <param name="userId">ID of the user making the request</param>
+    /// <returns></returns>
+    public async Task<Result<MessageVM>> UpdateMessageAsync(int messageId, UpdateMessageRequest request, string userId)
+    {
+        var message = await dbContext.Messages
+        .Include(m => m.Author)
+            .FirstOrDefaultAsync(m => m.Id == messageId);
 
-    //     var message = await dbContext.Messages
-    //         .FirstOrDefaultAsync(m => m.Id == messageId);
+        if (message == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "message not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
 
-    //     if (message == null)
-    //     {
-    //         return new ValidationFailure
-    //         {
-    //             PropertyName = null,
-    //             ErrorMessage = "message not found",
-    //             ErrorCode = ErrorCodes.NotFound
-    //         };
-    //     }
+        if (message.AuthorId!=userId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "message was not send by provided user",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
 
-    //     if (message.AuthorId!=userId)
-    //     {
-    //         return new ValidationFailure
-    //         {
-    //             PropertyName = null,
-    //             ErrorMessage = "message was not send by provided user",
-    //             ErrorCode = ErrorCodes.AccessDenied
-    //         };
-    //     }
-
-    //     message.Contents = request.Contents;
+        message.Contents = request.Contents;
     
-    //     var validationResult = await validationService.ValidateAsync(message, userId);
-    //     if (!validationResult.IsValid)
-    //     {
-    //         return validationResult;
-    //     }
+        var validationResult = await validationService.ValidateAsync(message, userId);
+        if (!validationResult.IsValid)
+        {
+            return validationResult;
+        }
 
-    //     dbContext.Messages.Update(message);
-    //     await dbContext.SaveChangesAsync();
+        dbContext.Messages.Update(message);
+        await dbContext.SaveChangesAsync();
 
-    //     return new MessageVM
-    //     {
-    //         Id = message.Id,
-    //         Contents = message.Contents,
-    //         DateSent = message.DateSent,
-    //         DateRead = message.DateRead,
-    //         AuthorId = message.AuthorId,
-    //         MessageThreadId = message.MessageThreadId
-    //     };
-    // }
+        return new MessageVM
+        {
+            Id = message.Id,
+            Contents = message.Contents,
+            DateSent = message.DateSent,
+            DateRead = message.DateRead,
+            AuthorsFirstName = message.Author.FirstName,
+            AuthorsLastName = message.Author.LastName,
+            MessageThreadId = message.MessageThreadId
+        };
+    }
+
+
+    /// <summary>
+    /// marks message as read
+    /// </summary>
+    /// <param name="messageId">Id of the message</param>
+    /// <param name="userId">Id of the message</param>
+    /// <returns>marks message as read</returns>
+    public async Task<Result<MessageVM>> MarkMessageAsReadByIdAsync(int messageId, string userId)
+    {
+        var message = await dbContext.Messages
+        .Include(m => m.Author)
+        .Include(m => m.MessageThread)
+            .ThenInclude(m => m.Participants)
+        .FirstOrDefaultAsync(m => m.Id == messageId);
+
+        if (message == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Message not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        
+        if (message.DateRead != null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Already read",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+
+        if (!message.MessageThread.Participants.Any(p => p.Id == userId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Thread not accasable to provided user.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        if (message.MessageThread.CreatorId==userId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Message created by the same user can not be read by the same user",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+         message.DateRead = DateTime.UtcNow;
+    
+        var validationResult = await validationService.ValidateAsync(message, userId);
+        if (!validationResult.IsValid)
+        {
+            return validationResult;
+        }
+
+        dbContext.Messages.Update(message);
+        await dbContext.SaveChangesAsync();
+
+        return new MessageVM
+        {
+            Id = message.Id,
+            Contents = message.Contents,
+            DateSent = message.DateSent,
+            DateRead = message.DateRead,
+            AuthorsFirstName = message.Author.FirstName,
+            AuthorsLastName = message.Author.LastName,
+            MessageThreadId = message.MessageThreadId
+        };   
+    }
+
+
+    /// <summary>
+    /// Deletes a message thread.
+    /// </summary>
+    /// <param name="messageId">id of a message</param>
+    /// <param name="userId">ID of the user making the request</param>
+    /// <returns></returns>
+    public async Task<Result<bool>> DeleteMessageAsync(int messageId, string userId)
+    {
+        var message = await dbContext.Messages
+            .FirstOrDefaultAsync(t => t.Id == messageId);
+
+        if (message == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Message not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (message.AuthorId != userId) 
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Provided user is not the author",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        dbContext.Messages.Remove(message);
+        await dbContext.SaveChangesAsync();
+
+        return true;
+    }
 
 }
