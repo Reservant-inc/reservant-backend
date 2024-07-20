@@ -66,7 +66,7 @@ namespace Reservant.Api.Services
         /// <param name="origLat">Latitude of the point to search from; if provided the restaurants will be sorted by distance</param>
         /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
         /// <param name="name">Search by name</param>
-        /// <param name="tag">Search restaurants that have a certain tag</param>
+        /// <param name="tags">Search restaurants that have certain tags (up to 4)</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
@@ -76,7 +76,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
             double? origLat, double? origLon,
-            string? name, string? tag,
+            string? name, HashSet<string> tags,
             double? lat1, double? lon1, double? lat2, double? lon2,
             int page, int perPage)
         {
@@ -88,9 +88,22 @@ namespace Reservant.Api.Services
                 query = query.Where(r => r.Name.Contains(name.Trim()));
             }
 
-            if (tag is not null)
+            if (tags.Count > 0)
             {
-                query = query.Where(r => r.Tags.Any(t => t.Name == tag));
+                if (tags.Count > 4)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(tags),
+                        ErrorMessage = "Only up to 4 tags can be specified",
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                    };
+                }
+
+                foreach (var tag in tags)
+                {
+                    query = query.Where(r => r.Tags.Any(t => t.Name == tag));
+                }
             }
 
             if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
