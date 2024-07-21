@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
@@ -31,10 +33,17 @@ public class DebugController(
     /// </summary>
     [HttpPost("add-future-visit")]
     [Authorize(Roles = Roles.Customer)]
-    public async Task AddFutureVisit()
+    public async Task<ActionResult<VisitSummaryVM>> AddFutureVisit()
     {
         var user = await userManager.GetUserAsync(User);
-        await debugService.AddFutureVisitAsync(user);
+        
+        var result = await debugService.AddFutureVisitAsync(user);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+        return Ok(result.Value);
     }
     
     
