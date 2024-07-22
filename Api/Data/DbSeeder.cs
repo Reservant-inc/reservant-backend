@@ -315,6 +315,57 @@ public class DbSeeder(
             },
         };
 
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                RestaurantId = johnDoesGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 1, 1),
+                Contents = "Było bardzo smacznie, super obsługa, polecam",
+            },
+            new()
+            {
+                RestaurantId = johnDoesGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer1.Id,
+                Stars = 3,
+                CreatedAt = new DateTime(2024, 5, 10),
+                Contents = "Przeciętna ryba, średnia obsługa",
+                RestaurantResponse = "Proponujemy następnym razem zamówić schabowego ;)"
+            },
+            new()
+            {
+                RestaurantId = johnDoesGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer3.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 22),
+                Contents = "Genialnie!!!!! Wrócę na 100%!",
+                RestaurantResponse = "Dziękujemy :)"
+            },
+
+            new()
+            {
+                RestaurantId = johnDoesGroup.Restaurants.ElementAt(1).Id,
+                AuthorId = customer3.Id,
+                Stars = 2,
+                CreatedAt = new DateTime(2024, 5, 10),
+                Contents = "Baaardzo średnio, myślałem, że będzie na poziomie restauracji numer 1 pana John Doe, a okazało się słabiutko",
+            },
+            new()
+            {
+                RestaurantId = johnDoesGroup.Restaurants.ElementAt(1).Id,
+                AuthorId = customer1.Id,
+                Stars = 1,
+                CreatedAt = new DateTime(2024, 3, 11),
+                Contents = "Kompletna porażka! Jedzenie zimne, kelner nieuprzejmy - fatalnie!",
+            },
+
+        });
+   
+            
+
+
         // Dodaj przykładowe wydarzenia dla restauracji John Doe
         context.Events.AddRange(
             new Event
