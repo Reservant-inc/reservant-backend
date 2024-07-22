@@ -147,9 +147,9 @@ public static class ErrorCodes
     public const string ValueExceedsLimit = "ValueExceedsLimit";
 
     /// <summary>
-    /// Wrong polygon format
+    /// Search parameters are not valid
     /// </summary>
-    public const string WrongPolygonFormat = "WrongPolygonFormat";
+    public const string InvalidSearchParameters = "InvalidSearchParameters";
 
     /// <summary>
     /// Too late to join event
