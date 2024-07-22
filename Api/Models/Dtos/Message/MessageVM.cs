@@ -7,32 +7,32 @@ namespace Reservant.Api.Models.Dtos.Message;
 public class MessageVM
 {
     /// <summary>
-    /// Unique ID
+    /// Unique ID od a message
     /// </summary>
-    public int Id { get; set; }
+    public required int MessageId { get; set; }
     /// <summary>
     /// Contents of the message
     /// </summary>
-    public string Contents { get; set; }
+    public required string Contents { get; set; }
     /// <summary>
     /// DateSent of the message
     /// </summary>
-    public DateTime DateSent { get; set; }
+    public required DateTime DateSent { get; set; }
     /// <summary>
     /// DateRead of the message
     /// </summary>
-    public DateTime? DateRead { get; set; }
+    public required DateTime? DateRead { get; set; }
     /// <summary>
     /// AuthorId of the message
     /// </summary>
-    public string AuthorsFirstName { get; set; }
+    public required string AuthorsFirstName { get; set; }
     /// <summary>
     /// AuthorId of the message
     /// </summary>
-    public string AuthorsLastName { get; set; }
+    public required string AuthorsLastName { get; set; }
     /// <summary>
     /// MessageThreadId of the message
     /// </summary>
-    public int MessageThreadId { get; set; }
+    public required int MessageThreadId { get; set; }
 }
 

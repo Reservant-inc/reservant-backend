@@ -219,6 +219,7 @@ public class ThreadService(
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
+            .Include(t => t.Messages)
             .FirstOrDefaultAsync(t => t.Id == threadId);
 
         if (messageThread == null)
@@ -249,18 +250,33 @@ public class ThreadService(
             MessageThreadId = threadId
         };
 
+        var result = await validationService.ValidateAsync(message, userId);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
         var user = await dbContext.Users
         .Where(u => u.Id == userId)
         .FirstOrDefaultAsync();
 
+        if (messageThread.Messages == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "ITS A NULL, BIG SUPRISE",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+
         messageThread.Messages.Add(message);
         await dbContext.SaveChangesAsync();
 
-        messageThread.Messages.Add(message);
-
         return new MessageVM
         {
-            Id = message.Id,
+            MessageId = message.Id,
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
@@ -311,7 +327,7 @@ public class ThreadService(
             .OrderByDescending(m => m.DateSent)
             .Select(m => new MessageVM
             {
-                Id = m.Id,
+                MessageId = m.Id,
                 Contents = m.Contents,
                 DateSent = m.DateSent,
                 DateRead = m.DateRead,
@@ -319,16 +335,6 @@ public class ThreadService(
                 AuthorsLastName = m.Author.LastName,
                 MessageThreadId = m.MessageThreadId
             });
-
-        if (query.Count() == 0)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "No messages of provided thread found",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
 
         return await query.PaginateAsync(0, perPage, []);
     }

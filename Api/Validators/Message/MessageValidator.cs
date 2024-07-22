@@ -7,6 +7,8 @@ public class MessageValidator : AbstractValidator<Models.Message>
     {
         RuleFor(m => m.Contents)
             .NotEmpty()
-            .WithMessage("Contents cannot be empty.");
+            .WithMessage("Contents cannot be empty.")
+            .MaximumLength(200)
+            .WithMessage("Contents cannot be longer than 200 characters.");
     }
 }

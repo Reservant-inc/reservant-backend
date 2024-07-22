@@ -19,7 +19,7 @@ namespace Reservant.Api.Controllers;
 public class MessageController(
     UserManager<User> userManager,
     MessageService messageService
-    ) : ControllerBase
+    ) : StrictController
 {
     /// <summary>
     /// Edit message

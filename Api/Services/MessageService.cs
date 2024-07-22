@@ -69,7 +69,7 @@ public class MessageService(
 
         return new MessageVM
         {
-            Id = message.Id,
+            MessageId = message.Id,
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
@@ -105,51 +105,43 @@ public class MessageService(
         }
 
         
-        if (message.DateRead != null)
+        if (message.DateRead == null)
         {
-            return new ValidationFailure
+            if (!message.MessageThread.Participants.Any(p => p.Id == userId))
             {
-                PropertyName = null,
-                ErrorMessage = "Already read",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Thread not accasable to provided user.",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
 
-
-        if (!message.MessageThread.Participants.Any(p => p.Id == userId))
-        {
-            return new ValidationFailure
+            if (message.MessageThread.CreatorId==userId)
             {
-                PropertyName = null,
-                ErrorMessage = "Thread not accasable to provided user.",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Message created by the same user can not be read by the same user",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
 
-        if (message.MessageThread.CreatorId==userId)
-        {
-            return new ValidationFailure
+            message.DateRead = DateTime.UtcNow;
+        
+            var validationResult = await validationService.ValidateAsync(message, userId);
+            if (!validationResult.IsValid)
             {
-                PropertyName = null,
-                ErrorMessage = "Message created by the same user can not be read by the same user",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
+                return validationResult;
+            }
 
-         message.DateRead = DateTime.UtcNow;
-    
-        var validationResult = await validationService.ValidateAsync(message, userId);
-        if (!validationResult.IsValid)
-        {
-            return validationResult;
+            dbContext.Messages.Update(message);
+            await dbContext.SaveChangesAsync();
         }
-
-        dbContext.Messages.Update(message);
-        await dbContext.SaveChangesAsync();
 
         return new MessageVM
         {
-            Id = message.Id,
+            MessageId = message.Id,
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,

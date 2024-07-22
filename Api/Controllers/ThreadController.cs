@@ -155,7 +155,7 @@ public class ThreadsController(
     /// <param name="messageId">id of a message to dispaly</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>returns paginated messages starting with provided message id </returns>
-    [HttpGet("messages/{threadId:int}/messages")]
+    [HttpGet("{threadId:int}/messages")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(int threadId,int messageId, [FromQuery] int perPage = 10)
