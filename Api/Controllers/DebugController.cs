@@ -29,7 +29,7 @@ public class DebugController(
 
 
     /// <summary>
-    /// Creates random visit in the future
+    /// Creates example visit in the future
     /// </summary>
     [HttpPost("add-future-visit")]
     [Authorize(Roles = Roles.Customer)]
