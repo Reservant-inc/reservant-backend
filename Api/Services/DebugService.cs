@@ -57,13 +57,6 @@ public class DebugService(
             },
             user
         );
-
-        //var result = await validationService.ValidateAsync(visitResult.Value, user.Id);
-        //
-        // if (!result.IsValid)
-        // {
-        //     return result;
-        // }
         
         var orderResult = await orderService.CreateOrderAsync(
             new CreateOrderRequest
@@ -85,14 +78,7 @@ public class DebugService(
             },
             user
         );
-
-        //result = await validationService.ValidateAsync(orderResult.Value, user.Id);
-        //
-        // if (!result.IsValid)
-        // {
-        //     return result;
-        // }
-
+        
         return new VisitSummaryVM
         {
             ClientId = user.Id,
