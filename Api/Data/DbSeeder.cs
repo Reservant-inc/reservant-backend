@@ -506,6 +506,31 @@ public class DbSeeder(
                 Contents = "Smaczne dania i miła obsługa, choć wystrój mógłby być lepszy.",
             },
 
+            new()
+            {
+                RestaurantId = anonGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer1.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 7, 1),
+                Contents = "Bardzo smaczne potrawy, chociaż deser niczego nie urwał. Atmosfera super.",
+            },
+            new()
+            {
+                RestaurantId = anonGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 17),
+                Contents = "Wyśmienite jedzenie i obsługa na najwyższym poziomie. Absolutnie polecam!",
+            },
+            new()
+            {
+                RestaurantId = anonGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer3.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 20),
+                Contents = "Perfekcyjna kolacja! Wszystko było smaczne, a obsługa wyjątkowo pomocna.",
+            },
+
 
 
         });
