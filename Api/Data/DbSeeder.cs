@@ -548,7 +548,30 @@ public class DbSeeder(
                 Contents = "Dobre jedzenie, ale niektóre potrawy były trochę zbyt słone. Ogólnie pozytywnie.",
             },
 
-
+            new()
+            {
+                RestaurantId = waltersGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer1.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 7, 10),
+                Contents = "Fajne jedzenie, ale z zaplecza wydobywał się dziwny niebieski dym... podejrzane",
+            },
+            new()
+            {
+                RestaurantId = waltersGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 10),
+                Contents = "ŚWIETNIE!! Kucharz zaoferował też \"specjalny\", niebieski deser;))",
+            },
+            new()
+            {
+                RestaurantId = waltersGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 10),
+                Contents = "Super restauracja, okazało się że właściciel uczył mnie chemii. Może zapytam czy ma jakiś pomysł na rozwinięcie biznesu..",
+            },
 
         });
    
