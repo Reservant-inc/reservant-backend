@@ -353,7 +353,7 @@ namespace Reservant.Api.Services
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
                     IsVerified = r.VerifierId != null,
-                    Rating = r.Reviews.Average(review => review.Stars),
+                    Rating = r.Reviews.Average(review => (double?)review.Stars) ?? 0,
                     NumberReviews = r.Reviews.Count
                 })
                 .ToListAsync();
