@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using ErrorCodeDocs;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,7 @@ public class UserService(
     /// </summary>
     /// <param name="request"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
+    [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(
         RegisterCustomerSupportAgentRequest request, string? id = null)
     {
@@ -75,6 +77,7 @@ public class UserService(
     /// <param name="employer"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
     /// <returns></returns>
+    [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
         RegisterRestaurantEmployeeRequest request, User employer, string? id = null)
     {
@@ -114,6 +117,8 @@ public class UserService(
     /// <param name="request"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
     /// <returns></returns>
+    [ValidatorErrorCodes<RegisterCustomerRequest>]
+    [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
     {
         var result = await validationService.ValidateAsync(request, null);

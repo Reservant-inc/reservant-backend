@@ -72,7 +72,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId">ID of the restaurant</param>
     /// <response code="400">Restaurant already verified</response>
     [HttpPost("{restaurantId:int}/verify")]
-    [ProducesResponseType(200), ProducesResponseType(404),ProducesResponseType(400)]
+    [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
     [Authorize(Roles = Roles.CustomerSupportAgent)]
     public async Task<ActionResult> SetVerifiedId(int restaurantId)
     {
@@ -172,7 +172,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var result = await service.CreateReviewAsync( user,  restaurantId, createReviewRequest);
+        var result = await service.CreateReviewAsync(user, restaurantId, createReviewRequest);
 
         if (result.IsError)
         {
@@ -195,6 +195,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes(nameof(RestaurantService.GetReviewsAsync))]
     public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
         var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage);
@@ -216,6 +217,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns></returns>
     [HttpGet("{restaurantId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes(nameof(RestaurantService.GetRestaurantByIdAsync))]
     public async Task<ActionResult<RestaurantVM>> GetRestaurantDetails(int restaurantId)
     {
         var result = await service.GetRestaurantByIdAsync(restaurantId);
@@ -227,34 +229,35 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
-        /// <summary>
-        /// Get visits in a restaurant
-        /// </summary>
-        /// <param name="restaurantId">ID of the restaurant.</param>
-        /// <param name="dateStart">Filter out visits before the date</param>
-        /// <param name="dateEnd">Filter out visits ater the date</param>
-        /// <param name="visitSorting">Order visits</param>
-        /// <param name="page">Page number</param>
-        /// <param name="perPage">Items per page</param>
-        /// <returns>Paged list of visits</returns>
-        [HttpGet("{restaurantId:int}/visits")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
-            int restaurantId,
-            DateOnly? dateStart,
-            DateOnly? dateEnd,
-            VisitSorting visitSorting,
-            [FromQuery] int page = 0,
-            [FromQuery] int perPage = 10)
+    /// <summary>
+    /// Get visits in a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant.</param>
+    /// <param name="dateStart">Filter out visits before the date</param>
+    /// <param name="dateEnd">Filter out visits ater the date</param>
+    /// <param name="visitSorting">Order visits</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns>Paged list of visits</returns>
+    [HttpGet("{restaurantId:int}/visits")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes(nameof(RestaurantService.GetVisitsInRestaurantAsync))]
+    public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
+        int restaurantId,
+        DateOnly? dateStart,
+        DateOnly? dateEnd,
+        VisitSorting visitSorting,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 10)
+    {
+        var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+
+        if (result.IsError)
         {
-            var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
-
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return result.ToValidationProblem();
         }
+
+        return Ok(result.Value);
+    }
 
 }

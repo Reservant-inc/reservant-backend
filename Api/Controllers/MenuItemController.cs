@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ErrorCodeDocs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
@@ -27,6 +28,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpPost]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
+    [MethodErrorCodes(nameof(MenuItemsService.CreateMenuItemsAsync))]
     public async Task<ActionResult<MenuItemVM>> CreateMenuItems(CreateMenuItemRequest menuItem)
     {
         var user = await userManager.GetUserAsync(User);
@@ -54,6 +56,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpGet]
     [Route("{menuItemId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+    [MethodErrorCodes(nameof(MenuItemsService.GetMenuItemByIdAsync))]
     public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int menuItemId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -82,6 +85,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpPut("{menuItemId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+    [MethodErrorCodes(nameof(MenuItemsService.PutMenuItemByIdAsync))]
     public async Task<ActionResult<MenuItemVM>> PutMenuItemById(int menuItemId, UpdateMenuItemRequest request)
     {
         var user = await userManager.GetUserAsync(User);
@@ -107,6 +111,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpDelete("{menuItemId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes(nameof(MenuItemsService.DeleteMenuItemByIdAsync))]
     public async Task<ActionResult> DeleteMenuItemByIdAsync(int menuItemId)
     {
         var user = await userManager.GetUserAsync(User);

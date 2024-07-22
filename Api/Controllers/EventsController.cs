@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ErrorCodeDocs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
@@ -21,6 +22,7 @@ namespace Reservant.Api.Controllers
         [HttpPost]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes(nameof(EventService.CreateEventAsync))]
         public async Task<ActionResult<EventVM>> CreateEvent([FromBody] CreateEventRequest request)
         {
             var user = await userManager.GetUserAsync(User);
@@ -62,6 +64,7 @@ namespace Reservant.Api.Controllers
         [HttpPost("{eventId:int}/interested")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes(nameof(EventService.AddUserToEventAsync))]
         public async Task<ActionResult> AddUserToEvent(int eventId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -87,6 +90,7 @@ namespace Reservant.Api.Controllers
         [HttpDelete("{eventId:int}/interested")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes(nameof(EventService.DeleteUserFromEventAsync))]
         public async Task<ActionResult> DeleteUserFromEvent(int eventId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -117,6 +121,7 @@ namespace Reservant.Api.Controllers
         [HttpPut("{eventId:int}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes(nameof(EventService.UpdateEventAsync))]
         public async Task<ActionResult<EventVM>> UpdateEvent(int eventId, UpdateEventRequest request)
         {
             var user = await userManager.GetUserAsync(User);
@@ -141,6 +146,7 @@ namespace Reservant.Api.Controllers
         [HttpDelete("{eventId:int}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes(nameof(EventService.DeleteEventAsync))]
         public async Task<ActionResult> DeleteEvent(int eventId)
         {
             var user = await userManager.GetUserAsync(User);

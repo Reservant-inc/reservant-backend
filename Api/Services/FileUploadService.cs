@@ -1,3 +1,4 @@
+using ErrorCodeDocs;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -54,6 +55,8 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     /// Saves the given file to disk.
     /// </summary>
     /// <returns>Path to the saved file</returns>
+    [ErrorCode(nameof(UploadRequest.File), ErrorCodes.FileTooBig, "File too large")]
+    [ErrorCode(nameof(UploadRequest.File), ErrorCodes.UnacceptedContentType, "File content type not accepted")]
     public async Task<Result<UploadVM>> SaveFileAsync(UploadRequest request, string userId)
     {
         var fileSizeKb = request.File.Length / 1024;

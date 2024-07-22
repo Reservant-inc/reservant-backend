@@ -7,6 +7,7 @@ using Reservant.Api.Models.Dtos.FriendRequest;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using ErrorCodeDocs;
 
 namespace Reservant.Api.Controllers;
 
@@ -24,6 +25,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpPost("{userId}/send-request")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes(nameof(FriendService.SendFriendRequestAsync))]
     public async Task<ActionResult> SendFriendRequest(string userId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -49,6 +51,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpPost("{senderId}/mark-read")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes(nameof(FriendService.MarkFriendRequestAsReadAsync))]
     public async Task<ActionResult> MarkFriendRequestAsRead(string senderId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -74,6 +77,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpPost("{senderId}/accept-request")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes(nameof(FriendService.AcceptFriendRequestAsync))]
     public async Task<ActionResult> AcceptFriendRequest(string senderId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -99,6 +103,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpDelete("{userId}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes(nameof(FriendService.DeleteFriendAsync))]
     public async Task<ActionResult> DeleteFriend(string userId)
     {
         var user = await userManager.GetUserAsync(User);

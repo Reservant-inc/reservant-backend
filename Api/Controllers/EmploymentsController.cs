@@ -1,3 +1,4 @@
+using ErrorCodeDocs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [HttpDelete("{employmentId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes(nameof(EmploymentService.DeleteEmploymentAsync))]
     public async Task<ActionResult> DeleteEmployment(int employmentId)
     {
         var userId = userManager.GetUserId(User);
@@ -49,6 +51,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [HttpPut]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes(nameof(EmploymentService.UpdateBulkEmploymentAsync))]
     public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests) {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -73,6 +76,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [HttpDelete]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes(nameof(EmploymentService.DeleteBulkEmploymentAsync))]
     public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
