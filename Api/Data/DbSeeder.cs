@@ -531,6 +531,23 @@ public class DbSeeder(
                 Contents = "Perfekcyjna kolacja! Wszystko było smaczne, a obsługa wyjątkowo pomocna.",
             },
 
+            new()
+            {
+                RestaurantId = geraltsGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer1.Id,
+                Stars = 3,
+                CreatedAt = new DateTime(2024, 7, 19),
+                Contents = "Średnie jedzenie, ale przyjemna atmosfera. Może wrócę spróbować innych dań.",
+            },
+            new()
+            {
+                RestaurantId = geraltsGroup.Restaurants.ElementAt(0).Id,
+                AuthorId = customer3.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 7, 22),
+                Contents = "Dobre jedzenie, ale niektóre potrawy były trochę zbyt słone. Ogólnie pozytywnie.",
+            },
+
 
 
         });
