@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.OrderItem;
 using Reservant.Api.Models.Dtos.Visit;
@@ -19,7 +20,7 @@ public class DebugService(
     ApiDbContext context,
     VisitService visitService,
     OrderService orderService,
-    ValidationService validationService,
+    UserService userService,
     DbSeeder dbSeeder,
     IOptions<FileUploadsOptions> uploadOptions
     )
@@ -42,20 +43,35 @@ public class DebugService(
     /// <summary>
     /// Creates visit in the future
     /// </summary>
-    public async Task<VisitSummaryVM> AddFutureVisitAsync(User user)
+    public async Task<VisitSummaryVM> AddFutureVisitAsync()
     {
+        
+        var exampleCustomer = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
+        {
+            Login = "exampleCustomer",
+            Email = "customer@mail.com",
+            Password = "Pa$$w0rd",
+            FirstName = "Customer",
+            LastName = "Przykładowski",
+            PhoneNumber = "+48123456769",
+            BirthDate = new DateOnly(2000, 1, 1)
+        }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
+        
+        
+        
+        
         var visitResult = await visitService.CreateVisitAsync(
             new CreateVisitRequest
             {
                 Date = new DateTime(2030, 3, 23, 14, 0, 0),
                 NumberOfGuests = 1,
-                Participants = [user.Id],
+                Participants = [exampleCustomer.Id],
                 RestaurantId = 1,
                 TableId = 1,
                 Takeaway = false,
                 Tip = new decimal(1.50)
             },
-            user
+            exampleCustomer
         );
         
         var orderResult = await orderService.CreateOrderAsync(
@@ -69,19 +85,19 @@ public class DebugService(
                     },
                     new CreateOrderItemRequest
                     {
-                        MenuItemId = 0,
+                        MenuItemId = 2,
                         Amount = 4
                     }
                 ],
                 Note = "This is a debug note",
                 VisitId = visitResult.Value.VisitId
             },
-            user
+            exampleCustomer
         );
         
         return new VisitSummaryVM
         {
-            ClientId = user.Id,
+            ClientId = exampleCustomer.Id,
             Date = visitResult.Value.Date,
             Deposit = visitResult.Value.Deposit,
             NumberOfPeople = visitResult.Value.NumberOfPeople,
