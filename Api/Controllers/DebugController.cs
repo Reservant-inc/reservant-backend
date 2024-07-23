@@ -38,12 +38,8 @@ public class DebugController(
         var user = await userManager.GetUserAsync(User);
         
         var result = await debugService.AddFutureVisitAsync(user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-        return Ok(result.Value);
+        
+        return Ok(result);
     }
     
     
