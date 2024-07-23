@@ -40,9 +40,9 @@ public class DebugService(
     }
 
     /// <summary>
-    /// Creates visit in a future
+    /// Creates visit in the future
     /// </summary>
-    public async Task<Result<VisitSummaryVM>> AddFutureVisitAsync(User user)
+    public async Task<VisitSummaryVM> AddFutureVisitAsync(User user)
     {
         var visitResult = await visitService.CreateVisitAsync(
             new CreateVisitRequest
