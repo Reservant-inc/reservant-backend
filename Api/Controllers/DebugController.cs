@@ -32,13 +32,9 @@ public class DebugController(
     /// Creates example visit in the future
     /// </summary>
     [HttpPost("add-future-visit")]
-    [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<VisitSummaryVM>> AddFutureVisit()
     {
-        var user = await userManager.GetUserAsync(User);
-        
-        var result = await debugService.AddFutureVisitAsync(user);
-        
+        var result = await debugService.AddFutureVisitAsync();
         return Ok(result);
     }
     
