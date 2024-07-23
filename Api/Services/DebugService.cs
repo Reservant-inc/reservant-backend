@@ -45,7 +45,6 @@ public class DebugService(
     /// </summary>
     public async Task<VisitSummaryVM> AddFutureVisitAsync()
     {
-        
         var exampleCustomer = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
             Login = "exampleCustomer",
@@ -55,12 +54,12 @@ public class DebugService(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456769",
             BirthDate = new DateOnly(2000, 1, 1)
-        }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
+        }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f28")).OrThrow();
         
         
         
         
-        var visitResult = await visitService.CreateVisitAsync(
+        var visitResult = (await visitService.CreateVisitAsync(
             new CreateVisitRequest
             {
                 Date = new DateTime(2030, 3, 23, 14, 0, 0),
@@ -72,9 +71,9 @@ public class DebugService(
                 Tip = new decimal(1.50)
             },
             exampleCustomer
-        );
+        )).OrThrow();
         
-        var orderResult = await orderService.CreateOrderAsync(
+        var orderResult = (await orderService.CreateOrderAsync(
             new CreateOrderRequest
             {
                 Items = [
@@ -90,20 +89,20 @@ public class DebugService(
                     }
                 ],
                 Note = "This is a debug note",
-                VisitId = visitResult.Value.VisitId
+                VisitId = visitResult.VisitId
             },
             exampleCustomer
-        );
+        )).OrThrow();
         
         return new VisitSummaryVM
         {
             ClientId = exampleCustomer.Id,
-            Date = visitResult.Value.Date,
-            Deposit = visitResult.Value.Deposit,
-            NumberOfPeople = visitResult.Value.NumberOfPeople,
-            RestaurantId = visitResult.Value.RestaurantId,
-            Takeaway = visitResult.Value.Takeaway,
-            VisitId = visitResult.Value.VisitId
+            Date = visitResult.Date,
+            Deposit = visitResult.Deposit,
+            NumberOfPeople = visitResult.NumberOfPeople,
+            RestaurantId = visitResult.RestaurantId,
+            Takeaway = visitResult.Takeaway,
+            VisitId = visitResult.VisitId
         };
     }
     
