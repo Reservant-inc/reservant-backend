@@ -634,6 +634,40 @@ public class DbSeeder(
             ]
         });
 
+        var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
+        var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
+
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                RestaurantId = johnDoes.Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 1, 1),
+                Contents = "Było bardzo smacznie, super obsługa, polecam",
+            },
+            new()
+            {
+                RestaurantId = johnDoes.Id,
+                AuthorId = customer1.Id,
+                Stars = 3,
+                CreatedAt = new DateTime(2024, 5, 10),
+                Contents = "Przeciętna ryba, średnia obsługa",
+                RestaurantResponse = "Proponujemy następnym razem zamówić schabowego ;)"
+            },
+            new()
+            {
+                RestaurantId = johnDoes.Id,
+                AuthorId = customer3.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 22),
+                Contents = "Genialnie!!!!! Wrócę na 100%!",
+                RestaurantResponse = "Dziękujemy :)"
+            },
+        });
+
         await context.SaveChangesAsync();
 
         var hallEmployee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
@@ -771,6 +805,30 @@ public class DbSeeder(
             ]
         });
 
+        var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
+        var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
+
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                RestaurantId = johnDoes2.Id,
+                AuthorId = customer3.Id,
+                Stars = 2,
+                CreatedAt = new DateTime(2024, 5, 10),
+                Contents = "Baaardzo średnio, myślałem, że będzie na poziomie restauracji numer 1 pana John Doe, a okazało się słabiutko",
+            },
+            new()
+            {
+                RestaurantId = johnDoes2.Id,
+                AuthorId = customer1.Id,
+                Stars = 1,
+                CreatedAt = new DateTime(2024, 3, 11),
+                Contents = "Kompletna porażka! Jedzenie zimne, kelner nieuprzejmy - fatalnie!",
+            },
+        });
+
         await context.SaveChangesAsync();
 
         var employee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
@@ -886,7 +944,157 @@ public class DbSeeder(
             ]
         });
 
+        var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
+        var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
 
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 3, 11),
+                Contents = "Fantastyczne jedzenie i wspaniała obsługa! Na pewno wrócę.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 3, 20),
+                Contents = "Najlepsza restauracja w mieście! Wszystko było perfekcyjne",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 3, 25),
+                Contents = "Rewelacyjne doświadczenie kulinarne. Na pewno tu wrócę!",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 5, 18),
+                Contents = "Bardzo dobre jedzenie, choć niektóre dania były zbyt przyprawione.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 3,
+                CreatedAt = new DateTime(2024, 6, 1),
+                Contents = "Atmosfera przyjemna, ale jedzenie mogłoby być lepsze.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 3,
+                CreatedAt = new DateTime(2024, 6, 5),
+                Contents = "Nic specjalnego, ale też nie było źle. Średnia restauracja.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 2,
+                CreatedAt = new DateTime(2024, 6, 28),
+                Contents = "Jedzenie poniżej oczekiwań i zbyt głośno. Nie polecam.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 1,
+                CreatedAt = new DateTime(2024, 7, 11),
+                Contents = "Totalna porażka! Wszystko było nie tak, jak powinno.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer1.Id,
+                Stars = 1,
+                CreatedAt = new DateTime(2024, 7, 20),
+                Contents = "Najgorsza restauracja, w jakiej byłem. Nic tu nie działało jak należy.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer2.Id,
+                Stars = 2,
+                CreatedAt = new DateTime(2024, 3, 15),
+                Contents = "Słabe jedzenie i nieprzyjemna obsługa. Nie polecam.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer2.Id,
+                Stars = 2,
+                CreatedAt = new DateTime(2024, 4, 20),
+                Contents = "Zbyt długi czas oczekiwania na jedzenie i nieuprzejma obsługa.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer2.Id,
+                Stars = 3,
+                CreatedAt = new DateTime(2024, 6, 1),
+                Contents = "Nic specjalnego, ale też nie było źle. Średnia restauracja.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 1),
+                Contents = "Przepyszne dania i fantastyczny wystrój. Warto odwiedzić!",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 5),
+                Contents = "Rewelacyjne doświadczenie kulinarne. Na pewno tu wrócę!",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 15),
+                Contents = "Najlepsza restauracja w mieście! Wszystko było perfekcyjne.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer3.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 5, 10),
+                Contents = "Bardzo smaczne potrawy, choć trochę drogie. Atmosfera na plus.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer3.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 6, 10),
+                Contents = "Bardzo dobre jedzenie, choć niektóre dania były zbyt przyprawione.",
+            },
+            new()
+            {
+                RestaurantId = kowalskisRestaurant.Id,
+                AuthorId = customer3.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 7, 10),
+                Contents = "Smaczne dania i miła obsługa, choć wystrój mógłby być lepszy.",
+            },
+        });
 
         await context.SaveChangesAsync();
 
@@ -1098,6 +1306,38 @@ public class DbSeeder(
             ]
         });
 
+        var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
+        var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
+
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                RestaurantId = anons.Id,
+                AuthorId = customer1.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 7, 1),
+                Contents = "Bardzo smaczne potrawy, chociaż deser niczego nie urwał. Atmosfera super.",
+            },
+            new()
+            {
+                RestaurantId = anons.Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 17),
+                Contents = "Wyśmienite jedzenie i obsługa na najwyższym poziomie. Absolutnie polecam!",
+            },
+            new()
+            {
+                RestaurantId = anons.Id,
+                AuthorId = customer3.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 20),
+                Contents = "Perfekcyjna kolacja! Wszystko było smaczne, a obsługa wyjątkowo pomocna.",
+            },
+        });
+
         await context.SaveChangesAsync();
     }
 
@@ -1298,6 +1538,30 @@ public class DbSeeder(
                     Photo = await RequireFileUpload("owner2.png", geralt)
                 }
             ]
+        });
+
+        var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
+        var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
+
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                RestaurantId = geralts.Id,
+                AuthorId = customer1.Id,
+                Stars = 3,
+                CreatedAt = new DateTime(2024, 7, 19),
+                Contents = "Średnie jedzenie, ale przyjemna atmosfera. Może wrócę spróbować innych dań.",
+            },
+            new()
+            {
+                RestaurantId = geralts.Id,
+                AuthorId = customer3.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 7, 22),
+                Contents = "Dobre jedzenie, ale niektóre potrawy były trochę zbyt słone. Ogólnie pozytywnie.",
+            },
         });
 
         await context.SaveChangesAsync();
@@ -1674,6 +1938,38 @@ public class DbSeeder(
                     Photo = await RequireFileUpload("drinki.png", walter)
                 }
             ]
+        });
+
+        var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
+        var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
+
+        context.Reviews.AddRange(new List<Review>
+        {
+            new()
+            {
+                RestaurantId = walters.Id,
+                AuthorId = customer1.Id,
+                Stars = 4,
+                CreatedAt = new DateTime(2024, 7, 10),
+                Contents = "Fajne jedzenie, ale z zaplecza wydobywał się dziwny niebieski dym... podejrzane",
+            },
+            new()
+            {
+                RestaurantId = walters.Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 10),
+                Contents = "ŚWIETNIE!! Kucharz zaoferował też \"specjalny\", niebieski deser;))",
+            },
+            new()
+            {
+                RestaurantId = walters.Id,
+                AuthorId = customer2.Id,
+                Stars = 5,
+                CreatedAt = new DateTime(2024, 7, 10),
+                Contents = "Super restauracja, okazało się że właściciel uczył mnie chemii. Może zapytam czy ma jakiś pomysł na rozwinięcie biznesu..",
+            },
         });
 
         await context.SaveChangesAsync();
