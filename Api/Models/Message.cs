@@ -17,6 +17,7 @@ public class Message : ISoftDeletable
     /// <summary>
     /// Contents of the message
     /// </summary>
+    [StringLength(200)]
     public required string Contents { get; set; }
 
     /// <summary>
@@ -32,6 +33,7 @@ public class Message : ISoftDeletable
     /// <summary>
     /// ID of the user who sent the message
     /// </summary>
+    [StringLength(36)]
     public required string AuthorId { get; set; }
 
     /// <summary>
