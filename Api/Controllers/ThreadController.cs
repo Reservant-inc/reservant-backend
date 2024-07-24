@@ -123,7 +123,7 @@ public class ThreadsController(
     }
 
     /// <summary>
-    /// adds message to thread from provided id, provided user is its participant
+    /// Send message to thread
     /// </summary>
     /// <param name="threadId">ID of the thread</param>
     /// <param name="createMessageRequest">Request containing message to be passed</param>

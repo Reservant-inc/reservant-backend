@@ -48,7 +48,7 @@ public class MessageController(
     }
 
     /// <summary>
-    /// marks message as read
+    /// Marks message as read
     /// </summary>
     /// <param name="messageId">ID of the message</param>
     /// <returns>marks message as read</returns>
