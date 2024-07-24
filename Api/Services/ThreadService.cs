@@ -278,10 +278,10 @@ public class ThreadService(
     /// </summary>
     /// <param name="threadId">id of thread</param>
     /// <param name="userId">id of thread</param>
-    /// <param name="messageId">id of a message to dispaly</param>
+    /// <param name="returnBefore">Return messages before (&lt;) the time. Used for pagination</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>returns paginated messages starting with provided message id </returns>
-    public async Task<Result<List<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int messageId, int perPage)
+    public async Task<Result<List<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, DateTime? returnBefore, int perPage)
     {
         if (perPage > 100)
         {
@@ -319,7 +319,14 @@ public class ThreadService(
 
         var query = dbContext.Messages
             .Include(m => m.Author)
-            .Where(m => m.MessageThreadId == threadId && m.Id > messageId)
+            .Where(m => m.MessageThreadId == threadId);
+        
+        if (returnBefore is not null)
+        {
+            query = query.Where(m => m.DateSent < returnBefore);
+        }
+
+        return await query
             .OrderByDescending(m => m.DateSent)
             .Select(m => new MessageVM
             {
@@ -330,9 +337,7 @@ public class ThreadService(
                 AuthorsFirstName = m.Author.FirstName,
                 AuthorsLastName = m.Author.LastName,
                 MessageThreadId = m.MessageThreadId
-            });
-
-        return await query
+            })
             .Take(perPage)
             .ToListAsync();
     }

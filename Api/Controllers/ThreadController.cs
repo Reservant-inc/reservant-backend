@@ -152,13 +152,13 @@ public class ThreadsController(
     /// Get threads the logged-in user participates in
     /// </summary>
     /// <param name="threadId">id of thread</param>
-    /// <param name="messageId">id of a message to dispaly</param>
+    /// <param name="returnBefore">Return messages before (&lt;) the time. Used for pagination</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>returns paginated messages starting with provided message id </returns>
     [HttpGet("{threadId:int}/messages")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<List<MessageVM>>> GetThreadMessagesById(int threadId,int messageId, [FromQuery] int perPage = 100)
+    public async Task<ActionResult<List<MessageVM>>> GetThreadMessagesById(int threadId, DateTime? returnBefore = null, [FromQuery] int perPage = 100)
     {
         var userId = userManager.GetUserId(User);
         if (userId == null)
@@ -166,7 +166,7 @@ public class ThreadsController(
             return Unauthorized();
         }
 
-        var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, messageId, perPage);
+        var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, returnBefore, perPage);
         if (result.IsError)
         {
             return result.ToValidationProblem();
