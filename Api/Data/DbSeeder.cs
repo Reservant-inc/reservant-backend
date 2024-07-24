@@ -1689,21 +1689,12 @@ public class DbSeeder(
     /// </summary>
     public async Task<VisitSummaryVM> AddFutureVisitAsync()
     {
-        var exampleCustomer = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
-        {
-            Login = "exampleCustomer",
-            Email = "customer@mail.com",
-            Password = "Pa$$w0rd",
-            FirstName = "Customer",
-            LastName = "Przykładowski",
-            PhoneNumber = "+48123456769",
-            BirthDate = new DateOnly(2000, 1, 1)
-        }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f28")).OrThrow();
+        var exampleCustomer = await context.Users.FirstAsync(u => u.UserName == "customer");
 
         var visitResult = (await visitService.CreateVisitAsync(
             new CreateVisitRequest
             {
-                Date = new DateTime(2030, 3, 23, 14, 0, 0),
+                Date = DateTime.UtcNow.AddDays(1),
                 NumberOfGuests = 1,
                 Participants = [exampleCustomer.Id],
                 RestaurantId = 1,
