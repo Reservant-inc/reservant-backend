@@ -218,8 +218,6 @@ public class ThreadService(
     public async Task<Result<MessageVM>> CreateThreadsMessageAsync(int threadId, string userId, CreateMessageRequest request)
     {
         var messageThread = await dbContext.MessageThreads
-            .Include(t => t.Participants)
-            .Include(t => t.Messages)
             .FirstOrDefaultAsync(t => t.Id == threadId);
 
         if (messageThread == null)
@@ -257,21 +255,10 @@ public class ThreadService(
         }
 
         var user = await dbContext.Users
-        .Where(u => u.Id == userId)
-        .FirstOrDefaultAsync();
+            .Where(u => u.Id == userId)
+            .FirstAsync();
 
-        if (messageThread.Messages == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "ITS A NULL, BIG SUPRISE",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
-
-        messageThread.Messages.Add(message);
+        dbContext.Add(message);
         await dbContext.SaveChangesAsync();
 
         return new MessageVM
@@ -305,7 +292,7 @@ public class ThreadService(
                 ErrorCode = ErrorCodes.InvalidPerPageValue,
             };
         }
-   
+
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId);
