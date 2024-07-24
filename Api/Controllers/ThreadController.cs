@@ -19,7 +19,7 @@ namespace Reservant.Api.Controllers;
 public class ThreadsController(
     UserManager<User> userManager,
     ThreadService threadService
-    ) : ControllerBase
+    ) : StrictController
 {
     /// <summary>
     /// Create a new thread
