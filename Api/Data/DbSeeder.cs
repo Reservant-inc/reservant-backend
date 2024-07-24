@@ -6,7 +6,10 @@ using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Auth;
+using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Models.Dtos.OrderItem;
 using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
@@ -21,6 +24,8 @@ public class DbSeeder(
     RoleManager<IdentityRole> roleManager,
     UserService userService,
     RestaurantService restaurantService,
+    VisitService visitService,
+    OrderService orderService,
     ILogger<DbSeeder> logger,
     IOptions<FileUploadsOptions> fileUploadsOptions,
     GeometryFactory geometryFactory)
@@ -1973,5 +1978,59 @@ public class DbSeeder(
         });
 
         await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Creates visit in the future
+    /// </summary>
+    public async Task<VisitSummaryVM> AddFutureVisitAsync()
+    {
+        var exampleCustomer = await context.Users.FirstAsync(u => u.UserName == "customer");
+
+        var visitResult = (await visitService.CreateVisitAsync(
+            new CreateVisitRequest
+            {
+                Date = DateTime.UtcNow.AddDays(1),
+                NumberOfGuests = 1,
+                Participants = [exampleCustomer.Id],
+                RestaurantId = 1,
+                TableId = 1,
+                Takeaway = false,
+                Tip = new decimal(1.50)
+            },
+            exampleCustomer
+        )).OrThrow();
+
+        var orderResult = (await orderService.CreateOrderAsync(
+            new CreateOrderRequest
+            {
+                Items = [
+                    new CreateOrderItemRequest
+                    {
+                        MenuItemId = 1,
+                        Amount = 2
+                    },
+                    new CreateOrderItemRequest
+                    {
+                        MenuItemId = 2,
+                        Amount = 4
+                    }
+                ],
+                Note = "This is a debug note",
+                VisitId = visitResult.VisitId
+            },
+            exampleCustomer
+        )).OrThrow();
+
+        return new VisitSummaryVM
+        {
+            ClientId = exampleCustomer.Id,
+            Date = visitResult.Date,
+            Deposit = visitResult.Deposit,
+            NumberOfPeople = visitResult.NumberOfPeople,
+            RestaurantId = visitResult.RestaurantId,
+            Takeaway = visitResult.Takeaway,
+            VisitId = visitResult.VisitId
+        };
     }
 }

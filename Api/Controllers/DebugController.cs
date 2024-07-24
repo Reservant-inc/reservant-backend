@@ -1,5 +1,12 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Data;
+using Reservant.Api.Identity;
+using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Services;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
@@ -7,7 +14,10 @@ namespace Reservant.Api.Controllers;
 /// Debugging functions
 /// </summary>
 [ApiController, Route("/debug")]
-public class DebugController(DebugService debugService) : StrictController
+public class DebugController(
+    DebugService debugService,
+    DbSeeder dbSeeder
+    ) : StrictController
 {
     /// <summary>
     /// Use this if you get a "no such column" error
@@ -17,4 +27,17 @@ public class DebugController(DebugService debugService) : StrictController
     {
         await debugService.RecreateDatabase();
     }
+
+
+    /// <summary>
+    /// Creates example visit in the future
+    /// </summary>
+    [HttpPost("add-future-visit")]
+    public async Task<ActionResult<VisitSummaryVM>> AddFutureVisit()
+    {
+        var result = await dbSeeder.AddFutureVisitAsync();
+        return Ok(result);
+    }
+    
+    
 }
