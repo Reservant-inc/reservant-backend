@@ -2,10 +2,12 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Message;
 using Reservant.Api.Models.Dtos.Thread;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Validation;
@@ -49,7 +51,6 @@ public class ThreadService(
             };
         }
 
-        // Add creator to the participants list
         var creator = await dbContext.Users.FindAsync(userId);
         if (creator != null && !participants.Any(p => p.Id == userId))
         {
@@ -61,7 +62,7 @@ public class ThreadService(
             Title = request.Title,
             CreationDate = DateTime.UtcNow,
             CreatorId = userId,
-            Participants = participants
+            Participants = participants,
         };
 
         var validationResult = await validationService.ValidateAsync(messageThread, userId);
@@ -205,5 +206,134 @@ public class ThreadService(
             Title = messageThread.Title,
             Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
         };
+    }
+
+    /// <summary>
+    /// Send message to thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="userId">Request containing message to be passed</param>
+    /// <param name="request">Request containing message to be passed</param>
+    /// <returns>Adds message to the thread</returns>
+    public async Task<Result<MessageVM>> CreateThreadsMessageAsync(int threadId, string userId, CreateMessageRequest request)
+    {
+        var messageThread = await dbContext.MessageThreads
+            .FirstOrDefaultAsync(t => t.Id == threadId);
+
+        if (messageThread == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Thread not found or you are not a participant.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (!messageThread.Participants.Any(p => p.Id == userId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Thread not accasable to provided user.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        var message = new Message
+        {
+            Contents = request.Contents,
+            DateSent = DateTime.UtcNow,
+            AuthorId = userId,
+            MessageThreadId = threadId
+        };
+
+        var result = await validationService.ValidateAsync(message, userId);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
+        var user = await dbContext.Users
+            .Where(u => u.Id == userId)
+            .FirstAsync();
+
+        dbContext.Add(message);
+        await dbContext.SaveChangesAsync();
+
+        return new MessageVM
+        {
+            MessageId = message.Id,
+            Contents = message.Contents,
+            DateSent = message.DateSent,
+            DateRead = message.DateRead,
+            AuthorsFirstName = user.FirstName,
+            AuthorsLastName = user.LastName,
+            MessageThreadId = message.MessageThreadId
+        };
+    }
+
+    /// <summary>
+    /// Get threads the logged-in user participates in
+    /// </summary>
+    /// <param name="threadId">id of thread</param>
+    /// <param name="userId">id of thread</param>
+    /// <param name="messageId">id of a message to dispaly</param>
+    /// <param name="perPage">Records per page</param>
+    /// <returns>returns paginated messages starting with provided message id </returns>
+    public async Task<Result<List<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int messageId, int perPage)
+    {
+        if (perPage > 100)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(perPage),
+                ErrorMessage = "Can load at most 100 messages at once",
+                ErrorCode = ErrorCodes.InvalidPerPageValue,
+            };
+        }
+
+        var messageThread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
+            .FirstOrDefaultAsync(t => t.Id == threadId);
+
+        if (messageThread == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Thread not found or you are not a participant.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (!messageThread.Participants.Any(p => p.Id == userId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Thread not accasable to provided user.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        var query = dbContext.Messages
+            .Include(m => m.Author)
+            .Where(m => m.MessageThreadId == threadId && m.Id > messageId)
+            .OrderByDescending(m => m.DateSent)
+            .Select(m => new MessageVM
+            {
+                MessageId = m.Id,
+                Contents = m.Contents,
+                DateSent = m.DateSent,
+                DateRead = m.DateRead,
+                AuthorsFirstName = m.Author.FirstName,
+                AuthorsLastName = m.Author.LastName,
+                MessageThreadId = m.MessageThreadId
+            });
+
+        return await query
+            .Take(perPage)
+            .ToListAsync();
     }
 }

@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Message;
 using Reservant.Api.Models.Dtos.Thread;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using Reservant.Api.Models.Dtos;
+
 
 namespace Reservant.Api.Controllers;
 
@@ -118,4 +121,60 @@ public class ThreadsController(
 
         return Ok(result.Value);
     }
+
+    /// <summary>
+    /// Send message to thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="createMessageRequest">Request containing message to be passed</param>
+    /// <returns>Adds message to the thread</returns>
+    [HttpPost("{threadId:int}/messages")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<MessageVM>> CreateThreadsMessages(int threadId,CreateMessageRequest createMessageRequest)
+    {
+        var userId = userManager.GetUserId(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await threadService.CreateThreadsMessageAsync(threadId, userId,createMessageRequest);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Get threads the logged-in user participates in
+    /// </summary>
+    /// <param name="threadId">id of thread</param>
+    /// <param name="messageId">id of a message to dispaly</param>
+    /// <param name="perPage">Records per page</param>
+    /// <returns>returns paginated messages starting with provided message id </returns>
+    [HttpGet("{threadId:int}/messages")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<MessageVM>>> GetThreadMessagesById(int threadId,int messageId, [FromQuery] int perPage = 100)
+    {
+        var userId = userManager.GetUserId(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, messageId, perPage);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        } 
+
+        return Ok(result.Value);
+    }
 }
+
+
+

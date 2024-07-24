@@ -17,6 +17,7 @@ public class Message : ISoftDeletable
     /// <summary>
     /// Contents of the message
     /// </summary>
+    [StringLength(200)]
     public required string Contents { get; set; }
 
     /// <summary>
@@ -27,11 +28,12 @@ public class Message : ISoftDeletable
     /// <summary>
     /// Time when the message was read
     /// </summary>
-    public DateTime DateRead { get; set; }
+    public DateTime? DateRead { get; set; }
 
     /// <summary>
     /// ID of the user who sent the message
     /// </summary>
+    [StringLength(36)]
     public required string AuthorId { get; set; }
 
     /// <summary>
