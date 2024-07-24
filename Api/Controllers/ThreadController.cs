@@ -157,8 +157,8 @@ public class ThreadsController(
     /// <returns>returns paginated messages starting with provided message id </returns>
     [HttpGet("{threadId:int}/messages")]
     [Authorize(Roles = Roles.Customer)]
-    [ProducesResponseType(200), ProducesResponseType(401)]
-    public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(int threadId,int messageId, [FromQuery] int perPage = 10)
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<MessageVM>>> GetThreadMessagesById(int threadId,int messageId, [FromQuery] int perPage = 100)
     {
         var userId = userManager.GetUserId(User);
         if (userId == null)

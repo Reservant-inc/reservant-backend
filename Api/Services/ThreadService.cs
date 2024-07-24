@@ -294,9 +294,18 @@ public class ThreadService(
     /// <param name="messageId">id of a message to dispaly</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>returns paginated messages starting with provided message id </returns>
-   
-    public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int messageId, int perPage)
+    public async Task<Result<List<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int messageId, int perPage)
     {
+        if (perPage > 100)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(perPage),
+                ErrorMessage = "Can load at most 100 messages at once",
+                ErrorCode = ErrorCodes.InvalidPerPageValue,
+            };
+        }
+   
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId);
@@ -336,6 +345,8 @@ public class ThreadService(
                 MessageThreadId = m.MessageThreadId
             });
 
-        return await query.PaginateAsync(0, perPage, []);
+        return await query
+            .Take(perPage)
+            .ToListAsync();
     }
 }
