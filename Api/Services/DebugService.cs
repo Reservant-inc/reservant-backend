@@ -18,9 +18,6 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class DebugService(
     ApiDbContext context,
-    VisitService visitService,
-    OrderService orderService,
-    UserService userService,
     DbSeeder dbSeeder,
     IOptions<FileUploadsOptions> uploadOptions
     )
@@ -39,72 +36,4 @@ public class DebugService(
         await context.Database.EnsureCreatedAsync();
         await dbSeeder.SeedDataAsync();
     }
-
-    /// <summary>
-    /// Creates visit in the future
-    /// </summary>
-    public async Task<VisitSummaryVM> AddFutureVisitAsync()
-    {
-        var exampleCustomer = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
-        {
-            Login = "exampleCustomer",
-            Email = "customer@mail.com",
-            Password = "Pa$$w0rd",
-            FirstName = "Customer",
-            LastName = "Przykładowski",
-            PhoneNumber = "+48123456769",
-            BirthDate = new DateOnly(2000, 1, 1)
-        }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f28")).OrThrow();
-        
-        
-        
-        
-        var visitResult = (await visitService.CreateVisitAsync(
-            new CreateVisitRequest
-            {
-                Date = new DateTime(2030, 3, 23, 14, 0, 0),
-                NumberOfGuests = 1,
-                Participants = [exampleCustomer.Id],
-                RestaurantId = 1,
-                TableId = 1,
-                Takeaway = false,
-                Tip = new decimal(1.50)
-            },
-            exampleCustomer
-        )).OrThrow();
-        
-        var orderResult = (await orderService.CreateOrderAsync(
-            new CreateOrderRequest
-            {
-                Items = [
-                    new CreateOrderItemRequest
-                    {
-                        MenuItemId = 1,
-                        Amount = 2
-                    },
-                    new CreateOrderItemRequest
-                    {
-                        MenuItemId = 2,
-                        Amount = 4
-                    }
-                ],
-                Note = "This is a debug note",
-                VisitId = visitResult.VisitId
-            },
-            exampleCustomer
-        )).OrThrow();
-        
-        return new VisitSummaryVM
-        {
-            ClientId = exampleCustomer.Id,
-            Date = visitResult.Date,
-            Deposit = visitResult.Deposit,
-            NumberOfPeople = visitResult.NumberOfPeople,
-            RestaurantId = visitResult.RestaurantId,
-            Takeaway = visitResult.Takeaway,
-            VisitId = visitResult.VisitId
-        };
-    }
-    
-    
 }

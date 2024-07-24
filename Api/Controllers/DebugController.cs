@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Visit;
@@ -15,7 +16,7 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/debug")]
 public class DebugController(
     DebugService debugService,
-    UserManager<User> userManager
+    DbSeeder dbSeeder
     ) : StrictController
 {
     /// <summary>
@@ -34,7 +35,7 @@ public class DebugController(
     [HttpPost("add-future-visit")]
     public async Task<ActionResult<VisitSummaryVM>> AddFutureVisit()
     {
-        var result = await debugService.AddFutureVisitAsync();
+        var result = await dbSeeder.AddFutureVisitAsync();
         return Ok(result);
     }
     
