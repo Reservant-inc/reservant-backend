@@ -128,7 +128,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     }
 
     /// <summary>
-    /// Deletes a restaurant group
+    /// Deletes a restaurant group with all the restaurants in it
     /// </summary>
     /// <param name="groupId">id of the restaurant group that will be deleted</param>
     /// <returns></returns>
