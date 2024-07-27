@@ -9,9 +9,10 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Dtos.Visit;
+using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-
+using Reservant.Api.Models.Dtos.MenuItem;
 namespace Reservant.Api.Controllers;
 
 
@@ -226,34 +227,86 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
-        /// <summary>
-        /// Get visits in a restaurant
-        /// </summary>
-        /// <param name="restaurantId">ID of the restaurant.</param>
-        /// <param name="dateStart">Filter out visits before the date</param>
-        /// <param name="dateEnd">Filter out visits ater the date</param>
-        /// <param name="visitSorting">Order visits</param>
-        /// <param name="page">Page number</param>
-        /// <param name="perPage">Items per page</param>
-        /// <returns>Paged list of visits</returns>
-        [HttpGet("{restaurantId:int}/visits")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
-            int restaurantId,
-            DateOnly? dateStart,
-            DateOnly? dateEnd,
-            VisitSorting visitSorting,
-            [FromQuery] int page = 0,
-            [FromQuery] int perPage = 10)
+    /// <summary>
+    /// Get visits in a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant.</param>
+    /// <param name="dateStart">Filter out visits before the date</param>
+    /// <param name="dateEnd">Filter out visits ater the date</param>
+    /// <param name="visitSorting">Order visits</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns>Paged list of visits</returns>
+    [HttpGet("{restaurantId:int}/visits")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
+        int restaurantId,
+        DateOnly? dateStart,
+        DateOnly? dateEnd,
+        VisitSorting visitSorting,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 10)
+    {
+        var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+
+        if (result.IsError)
         {
-            var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
-
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return result.ToValidationProblem();
         }
+
+        return Ok(result.Value);
+    }
+
+
+
+
+
+
+    /// <summary>
+    /// Get list of menus by given restaurant id
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("{restaurantId:int}/menus")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
+    {
+        var result = await service.GetMenusCustomerAsync(restaurantId);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Gets menu items from the given restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <returns>The found list of menuItems</returns>
+    [HttpGet("{restaurantId:int}/menu-items")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
+    public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
+
+        if (res.IsError)
+        {
+            return res.ToValidationProblem();
+        }
+
+        return Ok(res.Value);
+    }
+
 
 }

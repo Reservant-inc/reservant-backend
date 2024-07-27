@@ -222,9 +222,12 @@ namespace Reservant.Api.Controllers
         [HttpGet("{restaurantId:int}/menus")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
         {
-            var result = await restaurantService.GetMenusAsync(restaurantId);
+            var user = await userManager.GetUserAsync(User);
+
+            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user);
 
             if (result == null)
             {
@@ -240,6 +243,7 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId">ID of the restaurant</param>
         /// <returns>The found list of menuItems</returns>
         [HttpGet("{restaurantId:int}/menu-items")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
@@ -249,7 +253,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var res = await restaurantService.GetMenuItemsAsync(user, restaurantId);
+            var res = await restaurantService.GetMenuItemsOwnerAsync(user, restaurantId);
 
             if (res.IsError)
             {
