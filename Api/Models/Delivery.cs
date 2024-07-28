@@ -20,7 +20,7 @@ public class Delivery : ISoftDeletable
     /// <summary>
     /// When was delivered
     /// </summary>
-    public DateTime DeliveredTime { get; set; }
+    public DateTime? DeliveredTime { get; set; }
 
     /// <summary>
     /// ID of the restaurant
@@ -35,12 +35,12 @@ public class Delivery : ISoftDeletable
     /// <summary>
     /// ID of the user who received the delivery
     /// </summary>
-    public string UserId { get; set; } = null!;
+    public string? UserId { get; set; } = null!;
 
     /// <summary>
     /// Navigation property for the user who received the delivery
     /// </summary>
-    public User User { get; set; } = null!;
+    public User? User { get; set; } = null!;
 
     /// <summary>
     /// Ingredients delivered

@@ -25,12 +25,12 @@ public class IngredientDelivery : ISoftDeletable
     /// <summary>
     /// Actual amount delivered
     /// </summary>
-    public double AmountDelivered { get; set; }
+    public double? AmountDelivered { get; set; }
 
     /// <summary>
     /// Expiry date of the ingredient
     /// </summary>
-    public DateTime ExpiryDate { get; set; }
+    public DateTime? ExpiryDate { get; set; }
 
     /// <summary>
     /// Branded name of the ingredient as seen in the store
