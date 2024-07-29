@@ -1,20 +1,19 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: ''
-assignees: ''
-
+about: Zaproponuj nową końcówkę lub funkcjonalność
+title: "[FEATURE]: "
+labels: enhancement
+assignees: linewelder
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Czy prośba o funkcję jest związana z problemem? Opisz go
+Jasny i zwięzły opis problemu. Na przykład. Zawsze jestem sfrustrowany, gdy [...]
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## Opisz rozwiązanie, którego oczekujesz
+Jasny i zwięzły opis tego, co chcesz osiągnąć.
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## Opisz alternatywy, które rozważałeś (opcjonalnie)
+Jasny i zwięzły opis wszelkich alternatywnych rozwiązań lub funkcji, które rozważałeś.
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## Dodatkowy kontekst (opcjonalnie)
+Dodaj tutaj wszelkie inne informacje lub zrzuty ekranu dotyczące żądanej funkcji.
