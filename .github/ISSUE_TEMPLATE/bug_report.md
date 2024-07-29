@@ -1,38 +1,28 @@
 ---
 name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
-
+about: Zgłoś rzecz o poprawy
+title: "[BUG]: "
+labels: bug
+assignees: linewelder 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+- [ ] **__Sprawdziłem i nikt nie zgłosił jeszcze takiego błędu na issues__**
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## Opisz błąd
+Jasny i zwięzły opis błędu.
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## Do odtworzenia
+Kroki do odtworzenia zachowania:
+1. Przejdź do „...
+2. Kliknij na „....
+3. Przewiń w dół do „....
+4. Zobacz błąd
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## Oczekiwane zachowanie
+Jasny i zwięzły opis oczekiwanego zachowania.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## Zrzuty ekranu (opcjonalnie)
+Jeśli dotyczy, dodaj zrzuty ekranu, które pomogą wyjaśnić problem.
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+## Dodatkowy kontekst (opcjonalnie)
+Dodaj tutaj wszelkie inne informacje dotyczące problemu.
