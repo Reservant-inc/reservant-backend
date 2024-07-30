@@ -4,6 +4,7 @@ about: Zaproponuj nową końcówkę lub funkcjonalność
 title: "[FEATURE]: "
 labels: enhancement
 assignees: linewelder
+
 ---
 
 ## Czy prośba o funkcję jest związana z problemem? Opisz go

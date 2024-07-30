@@ -3,7 +3,8 @@ name: Bug report
 about: Zgłoś rzecz o poprawy
 title: "[BUG]: "
 labels: bug
-assignees: linewelder 
+assignees: linewelder
+
 ---
 
 - [ ] **__Sprawdziłem i nikt nie zgłosił jeszcze takiego błędu na issues__**
