@@ -1,10 +1,9 @@
 ---
-name: Custom issue template
-about: Describe this issue template's purpose here.
+name: Custom issue
+about: Issue, który dotyczy innych rzeczy
 title: ''
 labels: ''
-assignees: ''
-
+assignees: linewelder
 ---
 
 
