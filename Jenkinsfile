@@ -20,5 +20,11 @@ pipeline {
                 sh "docker run --detach --name kuchnia --network kuchnia -p 12038:8080 -v /var/lib/docker/volumes/kuchnia_config/_data/config.json:/app/appsettings.Production.json ${imageTag}"
             }
         }
+
+        stage('Run tests') {
+            steps {
+                sh "/opt/postman_tests/run_tests.sh"
+            }
+        }
     }
 }
