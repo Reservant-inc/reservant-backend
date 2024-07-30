@@ -23,7 +23,7 @@ pipeline {
 
         stage('Run tests') {
             steps {
-                sh "/opt/postman_tests/run_tests.sh"
+                sh "/var/jenkins_home/scripts/run_tests.sh"
             }
         }
     }
