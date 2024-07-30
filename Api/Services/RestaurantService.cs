@@ -331,7 +331,6 @@ namespace Reservant.Api.Services
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
-                .Include(r => r.Reviews)
                 .Where(r => name == null || r.Name.Contains(name.Trim()))
                 .Select(r => new RestaurantSummaryVM
                 {
@@ -1230,7 +1229,37 @@ namespace Reservant.Api.Services
                 .Include(restaurant => restaurant.Tables)
                 .Include(restaurant => restaurant.Photos)
                 .Include(restaurant => restaurant.Tags)
-                .FirstOrDefaultAsync(x => x.Id == restaurantId && x.VerifierId != null);
+                .Where(x => x.Id == restaurantId && x.VerifierId != null)
+                .Select(restaurant => new RestaurantVM
+                {
+                    RestaurantId = restaurant.Id,
+                    Name = restaurant.Name,
+                    RestaurantType = restaurant.RestaurantType,
+                    Address = restaurant.Address,
+                    PostalIndex = restaurant.PostalIndex,
+                    City = restaurant.City,
+                    Location = new Geolocation
+                    {
+                        Latitude = restaurant.Location.Y,
+                        Longitude = restaurant.Location.X
+                    },
+                    Tables = restaurant.Tables.Select(x => new TableVM
+                    {
+                        Capacity = x.Capacity,
+                        TableId = x.Id
+                    }).ToList(),
+                    ProvideDelivery = restaurant.ProvideDelivery,
+                    Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                    Photos = restaurant.Photos
+                    .Select(x => uploadService.GetPathForFileName(x.PhotoFileName))
+                    .ToList(),
+                    Description = restaurant.Description,
+                    ReservationDeposit = restaurant.ReservationDeposit,
+                    Tags = restaurant.Tags.Select(x => x.Name).ToList(),
+                    Rating = restaurant.Reviews.Average(review => (double?)review.Stars) ?? 0,
+                    NumberReviews = restaurant.Reviews.Count,
+                })
+                .FirstOrDefaultAsync();
             if (restaurant is null)
             {
                 return new ValidationFailure
@@ -1241,37 +1270,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var (rating, numberReviews) = await GetReviewSummary(restaurant);
+            //var (rating, numberReviews) = await GetReviewSummary(restaurant);
 
-            return new RestaurantVM
-            {
-                RestaurantId = restaurant.Id,
-                Name = restaurant.Name,
-                RestaurantType = restaurant.RestaurantType,
-                Address = restaurant.Address,
-                PostalIndex = restaurant.PostalIndex,
-                City = restaurant.City,
-                Location = new Geolocation
-                {
-                    Latitude = restaurant.Location.Y,
-                    Longitude = restaurant.Location.X
-                },
-                Tables = restaurant.Tables.Select(x => new TableVM
-                {
-                    Capacity = x.Capacity,
-                    TableId = x.Id
-                }).ToList(),
-                ProvideDelivery = restaurant.ProvideDelivery,
-                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-                Photos = restaurant.Photos
-                    .Select(x => uploadService.GetPathForFileName(x.PhotoFileName))
-                    .ToList(),
-                Description = restaurant.Description,
-                ReservationDeposit = restaurant.ReservationDeposit,
-                Tags = restaurant.Tags.Select(x => x.Name).ToList(),
-                Rating = rating,
-                NumberReviews = numberReviews,
-            };
+            return restaurant;
         }
 
         /// <summary>
