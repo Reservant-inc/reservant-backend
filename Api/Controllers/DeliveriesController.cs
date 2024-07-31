@@ -17,13 +17,30 @@ public class DeliveriesController(
     ) : StrictController
 {
 
+    [HttpGet]
+    [Route("/deliveries/{id:int}")]
+    public async Task<ActionResult<DeliveryVM>> GetDelivery(int id)
+    {
+
+        var result = await deliveryService.GetDeliveryAsync(id);
+        
+        if (!result.IsError)
+        {
+            return Ok(result.Value);
+        }
+        return result.ToValidationProblem();
+    }
+    
+    
+    
+    
 
     [HttpPost]
-    public async Task<ActionResult<DeliveryVM>> createDelivery(DeliveryVM deliveryVM)
+    public async Task<ActionResult<DeliveryVM>> CreateDelivery(DeliveryVM deliveryVM)
     {
         var user = await userManager.GetUserAsync(User);
 
-        var result = await deliveryService.createDeliveryAsync(deliveryVM, user);
+        var result = await deliveryService.CreateDeliveryAsync(deliveryVM, user);
 
         if (!result.IsError)
         {
