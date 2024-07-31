@@ -14,7 +14,8 @@ namespace Reservant.Api.Services;
 /// <param name="context"></param>
 public class DeliveryService(
     ApiDbContext context, 
-    ValidationService validationService
+    ValidationService validationService,
+    FileUploadService uploadService
     )
 {
 
@@ -24,6 +25,8 @@ public class DeliveryService(
 
         var delivery = await context.Deliveries
             .Include(e => e.Positions)
+            .ThenInclude(deliveryPosition => deliveryPosition.MenuItem)
+            .ThenInclude(menuItem => menuItem.Photo)
             .FirstOrDefaultAsync(delivery => delivery.Id == id);
         
         if (delivery is null)
@@ -36,37 +39,52 @@ public class DeliveryService(
             };
         }
         
-        return new DeliveryVM
+        var deliveryVM = new DeliveryVM
         {
             Id = delivery.Id,
-            Positions = delivery.Positions
+            Positions = delivery.Positions.Select(p => new DeliveryPositionVM
+            {
+                Id = p.Id,
+                MenuItem = new MenuItemVM
+                {
+                    MenuItemId = p.MenuItem.Id,
+                    AlcoholPercentage = p.MenuItem.AlcoholPercentage,
+                    AlternateName = p.MenuItem.AlternateName,
+                    Name = p.MenuItem.Name,
+                    Photo = uploadService.GetPathForFileName(p.MenuItem.PhotoFileName),
+                    Price = p.MenuItem.Price
+                },
+                Quantity = p.Quantity
+            }).ToList()
         };
+        
+        return deliveryVM;
     }
 
 
 
 
-    public async Task<Result<DeliveryVM>> CreateDeliveryAsync(DeliveryVM deliveryVM, User user)
-    {
-        var delivery = new Delivery()
-        {
-            Positions = deliveryVM.Positions
-        };
-
-
-        await validationService.ValidateAsync(delivery, user.Id);
-        
-        
-        await context.Deliveries.AddAsync(delivery);
-        await context.SaveChangesAsync();
-
-
-        return new DeliveryVM()
-        {
-            Id = delivery.Id,
-            Positions = delivery.Positions
-        };
-    }
+    // public async Task<Result<DeliveryVM>> CreateDeliveryAsync(DeliveryVM deliveryVM, User user)
+    // {
+    //     var delivery = new Delivery()
+    //     {
+    //         Positions = deliveryVM.Positions
+    //     };
+    //
+    //
+    //     await validationService.ValidateAsync(delivery, user.Id);
+    //     
+    //     
+    //     await context.Deliveries.AddAsync(delivery);
+    //     await context.SaveChangesAsync();
+    //
+    //
+    //     return new DeliveryVM()
+    //     {
+    //         Id = delivery.Id,
+    //         Positions = delivery.Positions
+    //     };
+    // }
     
     
     

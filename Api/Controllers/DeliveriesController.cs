@@ -39,12 +39,12 @@ public class DeliveriesController(
     
 
     [HttpPost]
-    public async Task<ActionResult<DeliveryVM>> CreateDelivery(DeliveryVM deliveryVM)
+    public async Task<ActionResult<DeliveryVM>> CreateDelivery(CreateDeliveryRequest deliveryVM)
     {
         var user = await userManager.GetUserAsync(User);
-
+    
         var result = await deliveryService.CreateDeliveryAsync(deliveryVM, user);
-
+    
         if (!result.IsError)
         {
             return Ok(result.Value);

@@ -7,7 +7,7 @@ namespace Reservant.Api.Models.Dtos.Delivery;
 /// <summary>
 /// Information about delivery.
 /// </summary>
-public class DeliveryVM()
+public class DeliveryVM
 {
     /// <summary>
     /// Unique identifier for the delivery record.
@@ -19,5 +19,5 @@ public class DeliveryVM()
     /// <summary>
     /// Positions
     /// </summary>
-    public required List<DeliveryPosition> Positions { get; init; }
+    public required List<DeliveryPositionVM> Positions { get; init; }
 }

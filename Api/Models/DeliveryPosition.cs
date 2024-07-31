@@ -10,6 +10,7 @@ public class DeliveryPosition
     [Required]
     public MenuItem MenuItem { get; set; }
 
-    [Required] public int Quantity { get; set; }
+    [Required] 
+    public int Quantity { get; set; }
     
 }
