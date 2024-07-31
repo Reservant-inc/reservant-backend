@@ -64,27 +64,44 @@ public class DeliveryService(
 
 
 
-    // public async Task<Result<DeliveryVM>> CreateDeliveryAsync(DeliveryVM deliveryVM, User user)
-    // {
-    //     var delivery = new Delivery()
-    //     {
-    //         Positions = deliveryVM.Positions
-    //     };
-    //
-    //
-    //     await validationService.ValidateAsync(delivery, user.Id);
-    //     
-    //     
-    //     await context.Deliveries.AddAsync(delivery);
-    //     await context.SaveChangesAsync();
-    //
-    //
-    //     return new DeliveryVM()
-    //     {
-    //         Id = delivery.Id,
-    //         Positions = delivery.Positions
-    //     };
-    // }
+    public async Task<Result<DeliveryVM>> CreateDeliveryAsync(DeliveryVM deliveryVM, User user)
+    {
+
+        var menuItems = context.
+        
+        
+        var delivery = new Delivery
+        {
+            Positions = deliveryVM.Positions.Select(p => new DeliveryPosition
+            {
+                MenuItem = new MenuItem()
+                {
+                    Id = p.MenuItem.MenuItemId,
+                    AlcoholPercentage = p.MenuItem.AlcoholPercentage,
+                    AlternateName = p.MenuItem.AlternateName,
+                    Name = p.MenuItem.Name,
+                    Photo = uploadService.GetPathForFileName(p.MenuItem.Photo),
+                    Price = p.MenuItem.Price
+                    
+                },
+                Quantity = p.Quantity
+            }).ToList()
+        };
+    
+    
+        await validationService.ValidateAsync(delivery, user.Id);
+        
+        
+        await context.Deliveries.AddAsync(delivery);
+        await context.SaveChangesAsync();
+    
+    
+        return new DeliveryVM()
+        {
+            Id = delivery.Id,
+            Positions = delivery.Positions
+        };
+    }
     
     
     
