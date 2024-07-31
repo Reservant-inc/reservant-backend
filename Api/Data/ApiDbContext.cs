@@ -43,6 +43,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     public DbSet<MessageThread> MessageThreads { get; init; } = null!;
 
     public DbSet<Message> Messages { get; init; } = null!;
+    
+    public DbSet<Delivery> Deliveries { get; init; } = null!;
 
     public DbSet<PaymentTransaction> PaymentTransactions { get; init; } = null!;
 
