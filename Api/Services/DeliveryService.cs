@@ -64,43 +64,67 @@ public class DeliveryService(
 
 
 
-    public async Task<Result<DeliveryVM>> CreateDeliveryAsync(DeliveryVM deliveryVM, User user)
+    public async Task<Result<DeliveryVM>> CreateDeliveryAsync(CreateDeliveryRequest deliveryVM, User user)
     {
-
-        var menuItems = context.
         
+
+        var menuItemIds = deliveryVM.Positions.Select(p => p.MenuItem.MenuItemId).ToList();
+
+        var menuItems = await context.MenuItems
+            .Where(mi => menuItemIds.Contains(mi.Id))
+            .ToDictionaryAsync(mi => mi.Id);
+
+        if (menuItems.Count != menuItemIds.Count)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound
+            };
+        }
         
         var delivery = new Delivery
         {
             Positions = deliveryVM.Positions.Select(p => new DeliveryPosition
             {
-                MenuItem = new MenuItem()
+                MenuItem = menuItems[p.MenuItem.MenuItemId],
+                Quantity = p.Quantity
+            }).ToList()
+        };
+
+        
+        var validationResult = await validationService.ValidateAsync(delivery, user.Id);
+        
+        if (!validationResult.IsValid)
+        {
+            return validationResult;
+        }
+
+
+        await context.Deliveries.AddAsync(delivery);
+        await context.SaveChangesAsync();
+
+
+        var createdDeliveryVM = new DeliveryVM
+        {
+            Id = delivery.Id,
+            Positions = delivery.Positions.Select(p => new DeliveryPositionVM
+            {
+                Id = p.Id,
+                MenuItem = new MenuItemVM
                 {
-                    Id = p.MenuItem.MenuItemId,
+                    MenuItemId = p.MenuItem.Id,
                     AlcoholPercentage = p.MenuItem.AlcoholPercentage,
                     AlternateName = p.MenuItem.AlternateName,
                     Name = p.MenuItem.Name,
-                    Photo = uploadService.GetPathForFileName(p.MenuItem.Photo),
+                    Photo = uploadService.GetPathForFileName(p.MenuItem.PhotoFileName),
                     Price = p.MenuItem.Price
-                    
                 },
                 Quantity = p.Quantity
             }).ToList()
         };
-    
-    
-        await validationService.ValidateAsync(delivery, user.Id);
-        
-        
-        await context.Deliveries.AddAsync(delivery);
-        await context.SaveChangesAsync();
-    
-    
-        return new DeliveryVM()
-        {
-            Id = delivery.Id,
-            Positions = delivery.Positions
-        };
+
+        return createdDeliveryVM;
     }
     
     
