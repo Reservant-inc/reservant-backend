@@ -8,7 +8,7 @@ namespace Reservant.Api.Validators.Delivery;
 /// <summary>
 /// Validator for AddEmployeeRequest
 /// </summary>
-public class AddDeliveryValidator : AbstractValidator<DeliveryVM>
+public class AddDeliveryValidator : AbstractValidator<CreateDeliveryRequest>
 {
     
     
