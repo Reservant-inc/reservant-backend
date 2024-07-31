@@ -18,8 +18,7 @@ public class DeliveryService(
     FileUploadService uploadService
     )
 {
-
-
+    
     public async Task<Result<DeliveryVM>> GetDeliveryAsync(int id)
     {
 
@@ -60,9 +59,7 @@ public class DeliveryService(
         return deliveryVM;
     }
 
-
-
-
+    
     public async Task<Result<DeliveryVM>> CreateDeliveryAsync(CreateDeliveryRequest deliveryVM, User user)
     {
         

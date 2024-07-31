@@ -21,7 +21,7 @@ public class DeliveriesController(
 
     [HttpGet]
     [Route("/deliveries/{id:int}")]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
+    [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
     public async Task<ActionResult<DeliveryVM>> GetDelivery(int id)
     {
 
