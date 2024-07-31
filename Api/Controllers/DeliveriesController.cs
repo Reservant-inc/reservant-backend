@@ -18,14 +18,18 @@ public class DeliveriesController(
     DeliveryService deliveryService
     ) : StrictController
 {
-
+    /// <summary>
+    /// Gets delivery with given id
+    /// </summary>
+    /// <param name="deliveryId"> Delivery id </param>
+    /// <returns></returns>
     [HttpGet]
-    [Route("/deliveries/{id:int}")]
+    [Route("/deliveries/{deliveryId:int}")]
     [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
-    public async Task<ActionResult<DeliveryVM>> GetDelivery(int id)
+    public async Task<ActionResult<DeliveryVM>> GetDelivery(int deliveryId)
     {
 
-        var result = await deliveryService.GetDeliveryAsync(id);
+        var result = await deliveryService.GetDeliveryAsync(deliveryId);
         
         if (!result.IsError)
         {
@@ -34,6 +38,11 @@ public class DeliveriesController(
         return result.ToValidationProblem();
     }
 
+    /// <summary>
+    /// Creates delivery
+    /// </summary>
+    /// <param name="deliveryVM">Info about delivery (products, quantity) </param>
+    /// <returns>Created DeliveryVM</returns>
     [HttpPost]
     public async Task<ActionResult<DeliveryVM>> CreateDelivery(CreateDeliveryRequest deliveryVM)
     {
@@ -47,12 +56,5 @@ public class DeliveriesController(
         }
         return result.ToValidationProblem();
     }
-    
-    
-    
-    
-    
-    
-    
     
 }

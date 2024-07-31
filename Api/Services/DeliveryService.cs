@@ -18,21 +18,25 @@ public class DeliveryService(
     FileUploadService uploadService
     )
 {
-    
-    public async Task<Result<DeliveryVM>> GetDeliveryAsync(int id)
+    /// <summary>
+    /// Gets delivery with given id
+    /// </summary>
+    /// <param name="deliveryId"> Delivery id </param>
+    /// <returns></returns>
+    public async Task<Result<DeliveryVM>> GetDeliveryAsync(int deliveryId)
     {
 
         var delivery = await context.Deliveries
             .Include(e => e.Positions)
             .ThenInclude(deliveryPosition => deliveryPosition.MenuItem)
             .ThenInclude(menuItem => menuItem.Photo)
-            .FirstOrDefaultAsync(delivery => delivery.Id == id);
+            .FirstOrDefaultAsync(delivery => delivery.Id == deliveryId);
         
         if (delivery is null)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(id),
+                PropertyName = nameof(deliveryId),
                 ErrorCode = ErrorCodes.NotFound,
                 ErrorMessage = ErrorCodes.NotFound
             };
@@ -59,7 +63,11 @@ public class DeliveryService(
         return deliveryVM;
     }
 
-    
+    /// <summary>
+    /// Creates delivery
+    /// </summary>
+    /// <param name="deliveryVM">Info about delivery (products, quantity) </param>
+    /// <returns>Created DeliveryVM</returns>
     public async Task<Result<DeliveryVM>> CreateDeliveryAsync(CreateDeliveryRequest deliveryVM, User user)
     {
         
