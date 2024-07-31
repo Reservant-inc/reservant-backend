@@ -44,7 +44,6 @@ public class DeliveryService(
             Id = delivery.Id,
             Positions = delivery.Positions.Select(p => new DeliveryPositionVM
             {
-                Id = p.Id,
                 MenuItem = new MenuItemVM
                 {
                     MenuItemId = p.MenuItem.Id,
@@ -110,7 +109,6 @@ public class DeliveryService(
             Id = delivery.Id,
             Positions = delivery.Positions.Select(p => new DeliveryPositionVM
             {
-                Id = p.Id,
                 MenuItem = new MenuItemVM
                 {
                     MenuItemId = p.MenuItem.Id,

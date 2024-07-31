@@ -5,11 +5,10 @@ namespace Reservant.Api.Models.Dtos.Delivery;
 
 public class DeliveryPositionVM
 {
-    public required int Id { get; set; }
 
     [Required]
-    public required MenuItemVM MenuItem { get; set; }
+    public required MenuItemVM MenuItem { get; init; }
 
     [Required] 
-    public required int Quantity { get; set; }
+    public required int Quantity { get; init; }
 }

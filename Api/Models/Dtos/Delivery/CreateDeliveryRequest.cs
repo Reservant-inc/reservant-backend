@@ -2,12 +2,7 @@
 
 public class CreateDeliveryRequest
 {
-    /// <summary>
-    /// Unique identifier for the delivery record.
-    /// </summary>
-    public required int Id { get; init; }
     
-
     /// <summary>
     /// Positions
     /// </summary>

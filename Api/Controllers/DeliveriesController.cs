@@ -33,10 +33,6 @@ public class DeliveriesController(
         }
         return result.ToValidationProblem();
     }
-    
-    
-    
-    
 
     [HttpPost]
     public async Task<ActionResult<DeliveryVM>> CreateDelivery(CreateDeliveryRequest deliveryVM)
