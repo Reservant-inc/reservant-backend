@@ -15,8 +15,8 @@ public class AddDeliveryValidator : AbstractValidator<DeliveryVM>
     /// <inheritdoc />
     public AddDeliveryValidator(ApiDbContext context) {
         
-        RuleFor(delivery => delivery.positions)
-            .Must(position => position.Item2 > 0)
+        RuleForEach(delivery => delivery.Positions)
+            .Must(position => position.Quantity > 0)
             .WithErrorCode(ErrorCodes.DeliveryItemTooLow)
             .WithMessage(ErrorCodes.DeliveryItemTooLow);
 

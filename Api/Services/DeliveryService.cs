@@ -23,7 +23,7 @@ public class DeliveryService(
     {
 
         var delivery = await context.Deliveries
-            .Include(e => e.positions.Item1)
+            .Include(e => e.Positions)
             .FirstOrDefaultAsync(delivery => delivery.Id == id);
         
         if (delivery is null)
@@ -39,7 +39,7 @@ public class DeliveryService(
         return new DeliveryVM
         {
             Id = delivery.Id,
-            positions = delivery.positions
+            Positions = delivery.Positions
         };
     }
 
@@ -50,7 +50,7 @@ public class DeliveryService(
     {
         var delivery = new Delivery()
         {
-            positions = deliveryVM.positions
+            Positions = deliveryVM.Positions
         };
 
 
@@ -64,7 +64,7 @@ public class DeliveryService(
         return new DeliveryVM()
         {
             Id = delivery.Id,
-            positions = delivery.positions
+            Positions = delivery.Positions
         };
     }
     

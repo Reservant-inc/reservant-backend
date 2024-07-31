@@ -15,8 +15,9 @@ public class DeliveryVM()
 
     public required int Id { get; init; }
     
+
     /// <summary>
     /// Positions
     /// </summary>
-    public required Tuple<MenuItemVM, int> positions { get; init; }
+    public required List<DeliveryPosition> Positions { get; init; }
 }

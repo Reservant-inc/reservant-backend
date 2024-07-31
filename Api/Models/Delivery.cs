@@ -16,13 +16,13 @@ public class Delivery : ISoftDeletable
     /// </summary>
     [Key]
     public int Id { get; set; }
-    
+
     /// <summary>
     /// Positions
     /// </summary>
-    [Required] 
-    public Tuple<MenuItemVM, int> positions { get; set; }
-    
+    [Required]
+    public List<DeliveryPosition> Positions { get; set; }
+
     // navigation?
     
     
