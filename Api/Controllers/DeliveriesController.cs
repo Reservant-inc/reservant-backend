@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Services;
@@ -19,6 +21,7 @@ public class DeliveriesController(
 
     [HttpGet]
     [Route("/deliveries/{id:int}")]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
     public async Task<ActionResult<DeliveryVM>> GetDelivery(int id)
     {
 
