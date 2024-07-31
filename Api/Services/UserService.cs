@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using ErrorCodeDocs;
+using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

@@ -8,8 +8,8 @@ using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Models.Dtos.MenuItem;
-using ErrorCodeDocs;
 using Reservant.Api.Validators;
+using ErrorCodeDocs.Attributes;
 
 
 namespace Reservant.Api.Controllers

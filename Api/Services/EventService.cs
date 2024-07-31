@@ -7,8 +7,7 @@ using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
-using ErrorCodeDocs;
-using Azure.Core;
+using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services
 {

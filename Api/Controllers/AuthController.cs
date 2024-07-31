@@ -1,5 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
-using ErrorCodeDocs;
+using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

@@ -6,7 +6,7 @@ using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validators;
-using ErrorCodeDocs;
+using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services;
 

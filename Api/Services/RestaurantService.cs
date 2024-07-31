@@ -19,7 +19,7 @@ using Reservant.Api.Validators;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Dtos.User;
-using ErrorCodeDocs;
+using ErrorCodeDocs.Attributes;
 
 
 

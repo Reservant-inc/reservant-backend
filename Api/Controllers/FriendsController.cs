@@ -7,7 +7,7 @@ using Reservant.Api.Models.Dtos.FriendRequest;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using ErrorCodeDocs;
+using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;
 
