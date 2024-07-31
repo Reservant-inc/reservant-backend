@@ -25,7 +25,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpPost("{userId}/send-request")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    [MethodErrorCodes(nameof(FriendService.SendFriendRequestAsync))]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.SendFriendRequestAsync))]
     public async Task<ActionResult> SendFriendRequest(string userId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -51,7 +51,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpPost("{senderId}/mark-read")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    [MethodErrorCodes(nameof(FriendService.MarkFriendRequestAsReadAsync))]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.MarkFriendRequestAsReadAsync))]
     public async Task<ActionResult> MarkFriendRequestAsRead(string senderId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -77,7 +77,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpPost("{senderId}/accept-request")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    [MethodErrorCodes(nameof(FriendService.AcceptFriendRequestAsync))]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.AcceptFriendRequestAsync))]
     public async Task<ActionResult> AcceptFriendRequest(string senderId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -103,7 +103,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpDelete("{userId}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    [MethodErrorCodes(nameof(FriendService.DeleteFriendAsync))]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.DeleteFriendAsync))]
     public async Task<ActionResult> DeleteFriend(string userId)
     {
         var user = await userManager.GetUserAsync(User);

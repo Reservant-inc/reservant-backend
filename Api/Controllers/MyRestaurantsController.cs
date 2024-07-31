@@ -34,7 +34,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes(nameof(RestaurantService.CreateRestaurantAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.CreateRestaurantAsync))]
         public async Task<ActionResult<MyRestaurantVM>> CreateRestaurant(CreateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
@@ -102,7 +102,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpPost("{restaurantId:int}/employees")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes(nameof(RestaurantService.AddEmployeeAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.AddEmployeeAsync))]
         public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int restaurantId)
         {
             var userId = userManager.GetUserId(User);
@@ -128,7 +128,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpPost("{restaurantId:int}/move-to-group")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes(nameof(RestaurantService.MoveRestaurantToGroupAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.MoveRestaurantToGroupAsync))]
         public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int restaurantId, MoveToGroupRequest request)
         {
             var user = await userManager.GetUserAsync(User);
@@ -152,7 +152,7 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId">ID of the restaurant</param>
         [HttpGet("{restaurantId:int}/employees")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes(nameof(RestaurantService.GetEmployeesAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesAsync))]
         public async Task<ActionResult<List<RestaurantEmployeeVM>>> GetEmployees(int restaurantId)
         {
             var userId = userManager.GetUserId(User);
@@ -179,7 +179,7 @@ namespace Reservant.Api.Controllers
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        [MethodErrorCodes(nameof(RestaurantService.UpdateRestaurantAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.UpdateRestaurantAsync))]
         public async Task<ActionResult<MyRestaurantVM>> EditRestaurantInfo(int restaurantId, UpdateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
@@ -205,7 +205,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpPost("validate-first-step")]
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-        [MethodErrorCodes(nameof(RestaurantService.ValidateFirstStepAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ValidateFirstStepAsync))]
         public async Task<ActionResult> ValidateFirstStep(ValidateRestaurantFirstStepRequest dto)
         {
             var user = await userManager.GetUserAsync(User);
@@ -251,7 +251,7 @@ namespace Reservant.Api.Controllers
         /// <returns>The found list of menuItems</returns>
         [HttpGet("{restaurantId:int}/menu-items")]
         [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-        [MethodErrorCodes(nameof(RestaurantService.GetMenuItemsAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsAsync))]
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -276,7 +276,7 @@ namespace Reservant.Api.Controllers
         /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
         [HttpDelete("{restaurantId:int}")]
         [ProducesResponseType(204), ProducesResponseType(404)]
-        [MethodErrorCodes(nameof(RestaurantService.SoftDeleteRestaurantAsync))]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.SoftDeleteRestaurantAsync))]
         public async Task<ActionResult> SoftDeleteRestaurant(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);

@@ -22,7 +22,7 @@ public class FileUploadsController(FileUploadService fileUploadService, UserMana
     [HttpPost]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(FileUploadService.SaveFileAsync))]
+    [MethodErrorCodes<FileUploadService>(nameof(FileUploadService.SaveFileAsync))]
     public async Task<ActionResult<UploadVM>> UploadFile([FromForm] UploadRequest request)
     {
         var userId = userManager.GetUserId(User);

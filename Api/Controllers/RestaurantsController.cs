@@ -163,7 +163,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpPost("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    [MethodErrorCodes(nameof(RestaurantService.CreateReviewAsync))]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.CreateReviewAsync))]
     public async Task<ActionResult<ReviewVM>> CreateReview(int restaurantId, CreateReviewRequest createReviewRequest)
     {
         var user = await userManager.GetUserAsync(User);
@@ -195,7 +195,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    [MethodErrorCodes(nameof(RestaurantService.GetReviewsAsync))]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetReviewsAsync))]
     public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
         var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage);
@@ -217,7 +217,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns></returns>
     [HttpGet("{restaurantId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantService.GetRestaurantByIdAsync))]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetRestaurantByIdAsync))]
     public async Task<ActionResult<RestaurantVM>> GetRestaurantDetails(int restaurantId)
     {
         var result = await service.GetRestaurantByIdAsync(restaurantId);
@@ -241,7 +241,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns>Paged list of visits</returns>
     [HttpGet("{restaurantId:int}/visits")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantService.GetVisitsInRestaurantAsync))]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetVisitsInRestaurantAsync))]
     public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
         int restaurantId,
         DateOnly? dateStart,

@@ -28,7 +28,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpPost]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-    [MethodErrorCodes(nameof(MenuItemsService.CreateMenuItemsAsync))]
+    [MethodErrorCodes<MenuItemsService>(nameof(MenuItemsService.CreateMenuItemsAsync))]
     public async Task<ActionResult<MenuItemVM>> CreateMenuItems(CreateMenuItemRequest menuItem)
     {
         var user = await userManager.GetUserAsync(User);
@@ -56,7 +56,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpGet]
     [Route("{menuItemId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-    [MethodErrorCodes(nameof(MenuItemsService.GetMenuItemByIdAsync))]
+    [MethodErrorCodes<MenuItemsService>(nameof(MenuItemsService.GetMenuItemByIdAsync))]
     public async Task<ActionResult<MenuItemVM>> GetMenuItemById(int menuItemId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -85,7 +85,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpPut("{menuItemId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-    [MethodErrorCodes(nameof(MenuItemsService.PutMenuItemByIdAsync))]
+    [MethodErrorCodes<MenuItemsService>(nameof(MenuItemsService.PutMenuItemByIdAsync))]
     public async Task<ActionResult<MenuItemVM>> PutMenuItemById(int menuItemId, UpdateMenuItemRequest request)
     {
         var user = await userManager.GetUserAsync(User);
@@ -111,7 +111,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [HttpDelete("{menuItemId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(MenuItemsService.DeleteMenuItemByIdAsync))]
+    [MethodErrorCodes<MenuItemsService>(nameof(MenuItemsService.DeleteMenuItemByIdAsync))]
     public async Task<ActionResult> DeleteMenuItemByIdAsync(int menuItemId)
     {
         var user = await userManager.GetUserAsync(User);

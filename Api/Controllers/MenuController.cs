@@ -27,7 +27,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpGet("/menus/{menuId:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantMenuService.GetSingleMenuAsync))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.GetSingleMenuAsync))]
     public async Task<ActionResult<MenuVM>> GetSingleMenuById(int menuId)
     {
         var result = await service.GetSingleMenuAsync(menuId);
@@ -49,7 +49,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpGet("/menus/{menuId:int}/items")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantService.GetMenuItemsAsync))]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsAsync))]
     public async Task<ActionResult<Pagination<MenuItemSummaryVM>>> GetMenuItems(
         int menuId, int page = 0, int perPage = 20,
         string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)
@@ -70,7 +70,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantMenuService.PostMenuToRestaurant))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.PostMenuToRestaurant))]
     public async Task<ActionResult<MenuSummaryVM>> CreateMenu(CreateMenuRequest req)
     {
         var user = await userManager.GetUserAsync(User);
@@ -97,7 +97,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
-    [MethodErrorCodes(nameof(RestaurantMenuService.AddItemsToMenuAsync))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.AddItemsToMenuAsync))]
     public async Task<ActionResult<MenuVM>> AddToMenu(int menuId, AddItemsRequest request)
     {
         var user = await userManager.GetUserAsync(User);
@@ -123,7 +123,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantMenuService.UpdateMenuAsync))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.UpdateMenuAsync))]
     public async Task<ActionResult<MenuVM>> UpdateMenu(UpdateMenuRequest request, int menuId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -145,7 +145,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpDelete("{menuId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantMenuService.DeleteMenuAsync))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.DeleteMenuAsync))]
     public async Task<ActionResult> DeleteMenu(int menuId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -174,7 +174,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpDelete]
     [Route("{menuId:int}/items")]
     [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
-    [MethodErrorCodes(nameof(RestaurantMenuService.RemoveMenuItemFromMenuAsync))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.RemoveMenuItemFromMenuAsync))]
     public async Task<ActionResult> RemoveMenuItemFromMenu(int menuId, RemoveItemsRequest req)
     {
         var user = await userManager.GetUserAsync(User);
