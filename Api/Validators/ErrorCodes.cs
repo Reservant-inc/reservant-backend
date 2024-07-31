@@ -160,4 +160,7 @@ public static class ErrorCodes
     /// MustJoinUntil must be before Time
     /// </summary>
     public const string MustJoinUntilMustBeBeforeEventTime = "MustJoinUntilMustBeBeforeEventTime";
+
+    public const string DeliveryItemTooLow = "DeliveryItemTooLow";
+
 }
