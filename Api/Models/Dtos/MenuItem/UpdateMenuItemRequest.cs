@@ -29,4 +29,6 @@ public class UpdateMenuItemRequest
     /// File name of the photo
     /// </summary>
     public required string Photo { get; set; }
+
+    public List<IngredientRequest> Ingredients { get; set; } = new();
 }
