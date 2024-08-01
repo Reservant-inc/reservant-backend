@@ -7,11 +7,15 @@ namespace ErrorCodeDocs;
 /// <summary>
 /// Methods to aggregate error codes for a selected method
 /// </summary>
-/// <param name="getValidatorsFromAssembly">Assembly to get validators from</param>
+/// 
 public class ErrorCodesAggregator
 {
     private readonly Dictionary<Type, Type> _validators = [];
 
+    /// <summary>
+    /// Construct the object with a given assembly
+    /// </summary>
+    /// <param name="getValidatorsFromAssembly">Assembly to get validators from</param>
     public ErrorCodesAggregator(Assembly getValidatorsFromAssembly)
     {
         var validators = AssemblyScanner.FindValidatorsInAssembly(getValidatorsFromAssembly);
@@ -75,6 +79,16 @@ public class ErrorCodesAggregator
         }
     }
 
+    /// <summary>
+    /// Get error codes that can be returned by a validator
+    /// </summary>
+    /// <param name="attribute">
+    /// <see cref="ValidatorErrorCodesAttribute{TValidated}"/> that references
+    /// the validator
+    /// </param>
+    /// <exception cref="ArgumentException">
+    /// If the attribute is not a <see cref="ValidatorErrorCodesAttribute{TValidated}"/>
+    /// </exception>
     private IEnumerable<ErrorCodeDescription> GetValidatorErrorCodes(Attribute attribute)
     {
         if (attribute.GetType().GetGenericTypeDefinition() != typeof(ValidatorErrorCodesAttribute<>))
@@ -119,6 +133,10 @@ public class ErrorCodesAggregator
         return propertyName;
     }
 
+    /// <summary>
+    /// Get a validator instance for a validated type
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If validator for the type not found</exception>
     private IValidator FindValidator(Type validatedType)
     {
         if (!_validators.TryGetValue(validatedType, out var validatorType))

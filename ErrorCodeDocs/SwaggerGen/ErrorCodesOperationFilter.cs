@@ -14,6 +14,7 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
 {
     private readonly ErrorCodesAggregator _aggregator = new(getValidatorsFromAssembly);
 
+    /// <inheritdoc/>
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         var errorCodes = _aggregator.GetErrorCodes(context.MethodInfo);
