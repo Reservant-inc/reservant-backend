@@ -87,16 +87,36 @@ public class ErrorCodesAggregator
         var validatorDescriptor = FindValidator(validatedType).CreateDescriptor();
         foreach (var rule in validatorDescriptor.Rules)
         {
+            var propertyName = GetPropertyNameForRule(rule);
+
             foreach (var component in rule.Components)
             {
                 yield return new ErrorCodeDescription
                 {
-                    PropertyName = rule.PropertyName,
+                    PropertyName = propertyName,
                     ErrorCode = component.ErrorCode ?? component.Validator.Name,
                     Description = component.GetUnformattedErrorMessage(),
                 };
             }
         }
+    }
+
+    /// <summary>
+    /// Return property name for a validation rule as it is returned
+    /// when the rule has failed
+    /// </summary>
+    private string GetPropertyNameForRule(IValidationRule rule)
+    {
+        var propertyName = rule.PropertyName;
+        var isRuleForEach = rule.GetType()
+            .GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionRule<,>));
+        if (isRuleForEach)
+        {
+            propertyName += "[<index>]";
+        }
+
+        return propertyName;
     }
 
     private IValidator FindValidator(Type validatedType)
