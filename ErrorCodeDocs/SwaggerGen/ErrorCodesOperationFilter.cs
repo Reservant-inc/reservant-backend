@@ -26,7 +26,7 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
         {
             if (!hasTitle)
             {
-                description.AppendLine($"\n### Possible error codes:");
+                description.AppendLine($"\n<details><summary>Possible error codes</summary>");
                 hasTitle = true;
             }
 
@@ -46,6 +46,7 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
 
         if (hasTitle)
         {
+            description.AppendLine("</details>");
             operation.Description = description.ToString();
         }
     }
