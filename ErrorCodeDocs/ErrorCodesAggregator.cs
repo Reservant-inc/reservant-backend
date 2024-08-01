@@ -6,7 +6,7 @@ namespace ErrorCodeDocs;
 /// <summary>
 /// Methods to aggregate error codes for a selected method
 /// </summary>
-public static class ErrorCodes
+public static class ErrorCodesAggregator
 {
     /// <summary>
     /// Get error codes that can be returned from a method

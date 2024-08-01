@@ -11,7 +11,7 @@ internal class ErrorCodesOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        var errorCodes = ErrorCodes.GetErrorCodes(context.MethodInfo);
+        var errorCodes = ErrorCodesAggregator.GetErrorCodes(context.MethodInfo);
 
         var hasTitle = false;
         var description = new StringBuilder(operation.Description);
