@@ -1,3 +1,4 @@
+using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ public class FileUploadsController(FileUploadService fileUploadService, UserMana
     [HttpPost]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<FileUploadService>(nameof(FileUploadService.SaveFileAsync))]
     public async Task<ActionResult<UploadVM>> UploadFile([FromForm] UploadRequest request)
     {
         var userId = userManager.GetUserId(User);

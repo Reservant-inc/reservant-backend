@@ -1,3 +1,4 @@
+using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
@@ -19,6 +20,8 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <param name="employmentId">ID of the employment record to terminate.</param>
     /// <param name="userId">ID of the current user, who must be the owner of the restaurant to authorize the termination.</param>
     /// <returns>The bool returned inside the result does not mean anything</returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
     public async Task<Result<bool>> DeleteEmploymentAsync(int employmentId, string userId)
     {
         var employment = await context.Employments
@@ -55,6 +58,8 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <param name="employmentIds"></param>
     /// <param name="user"></param>
     /// <returns></returns>
+    [ErrorCode("<employmentId>", ErrorCodes.NotFound)]
+    [ErrorCode("<employmentId>", ErrorCodes.AccessDenied)]
     public async Task<Result<bool>> DeleteBulkEmploymentAsync(List<int> employmentIds, User user)
     {
 
@@ -101,6 +106,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <param name="listRequest"></param>
     /// <param name="user"></param>
     /// <returns></returns>
+    [ErrorCode(nameof(UpdateEmploymentRequest.EmploymentId), ErrorCodes.NotFound)]
     public async Task<Result<bool>> UpdateBulkEmploymentAsync(List<UpdateEmploymentRequest> listRequest, User user)
     {
         foreach (var request in listRequest)

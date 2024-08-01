@@ -48,11 +48,11 @@ public class AuthorizationOperationFilter : IOperationFilter
         if (roles.Count > 0)
         {
             var rolesStr = string.Join(", ", roles);
-            operation.Description += $"<p><b>Required Roles:</b> {rolesStr}</p>";
+            operation.Description += $"\n\n**Required Roles:** {rolesStr}";
         }
         else if (authorizationRequired)
         {
-            operation.Description += "<p><b>Authentication required</b></p>";
+            operation.Description += "\n\n**Authentication required**";
         }
     }
 }

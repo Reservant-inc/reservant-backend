@@ -46,6 +46,10 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
     public DbSet<PaymentTransaction> PaymentTransactions { get; init; } = null!;
 
+    public DbSet<Ingredient> Ingredients { get; init; } = null!;
+
+    public DbSet<Delivery> Deliveries { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
@@ -94,6 +98,11 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
         builder.Entity<OrderItem>(eb =>
         {
             eb.HasKey(oi => new { oi.MenuItemId, oi.OrderId });
+        });
+
+        builder.Entity<IngredientDelivery>(eb =>
+        {
+            eb.HasKey(id => new { id.DeliveryId, id.IngredientId });
         });
 
         builder.Entity<User>(eb =>
