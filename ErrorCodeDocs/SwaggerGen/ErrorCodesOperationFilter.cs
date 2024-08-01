@@ -25,10 +25,10 @@ internal class ErrorCodesOperationFilter : IOperationFilter
             }
 
             description.Append(
-                $"- **\"{errorCode.PropertyName}\":** {errorCode.ErrorCode}");
+                $"- **\"{errorCode.PropertyName}\": {errorCode.ErrorCode}**");
             if (errorCode.Description is not null)
             {
-                description.Append($" _({errorCode.Description})_");
+                description.Append($"<br>_{errorCode.Description}_");
             }
 
             description.AppendLine();
