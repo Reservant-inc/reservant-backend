@@ -30,7 +30,8 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
                 hasTitle = true;
             }
 
-            var propertyName = HttpUtility.HtmlEncode(errorCode.PropertyName);
+            var propertyName = HttpUtility.HtmlEncode(
+                errorCode.PropertyName is null ? null : PropertyPathToCamelCase(errorCode.PropertyName));
             var codeDescription = HttpUtility.HtmlEncode(errorCode.Description);
 
             description.Append(
@@ -48,4 +49,15 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
             operation.Description = description.ToString();
         }
     }
+
+    /// <summary>
+    /// Convert a property path to camel case (example: 'PropertyName.Test' -> 'propertyName.test')
+    /// </summary>
+    /// <param name="str">The string to convert</param>
+    public static string PropertyPathToCamelCase(string str) =>
+        string.Join('.',
+            str.Split('.')
+                .Select(name => name.Length == 0
+                    ? name
+                    : char.ToLower(name[0]) + name[1..]));
 }
