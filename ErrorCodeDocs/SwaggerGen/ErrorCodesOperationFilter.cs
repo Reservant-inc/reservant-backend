@@ -2,6 +2,7 @@
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
+using System.Web;
 
 namespace ErrorCodeDocs.SwaggerGen;
 
@@ -28,11 +29,14 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
                 hasTitle = true;
             }
 
+            var propertyName = HttpUtility.HtmlEncode(errorCode.PropertyName);
+            var codeDescription = HttpUtility.HtmlEncode(errorCode.Description);
+
             description.Append(
-                $"- **\"{errorCode.PropertyName}\": {errorCode.ErrorCode}**");
+                $"- **\"{propertyName}\": {errorCode.ErrorCode}**");
             if (errorCode.Description is not null)
             {
-                description.Append($"<br>_{errorCode.Description}_");
+                description.Append($"<br>_{codeDescription}_");
             }
 
             description.AppendLine();
