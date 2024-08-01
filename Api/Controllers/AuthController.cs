@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,7 @@ public class AuthController(
     [ProducesResponseType(200),
      ProducesResponseType(400),
      ProducesResponseType(401)]
+    [MethodErrorCodes<UserService>(nameof(UserService.RegisterRestaurantEmployeeAsync))]
     public async Task<ActionResult<UserVM>> RegisterRestaurantEmployee(RegisterRestaurantEmployeeRequest request)
     {
         var user = await userManager.GetUserAsync(User);
@@ -61,6 +63,7 @@ public class AuthController(
     /// </summary>
     [HttpPost("register-customer-support-agent")]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<UserService>(nameof(UserService.RegisterCustomerSupportAgentAsync))]
     public async Task<ActionResult<UserVM>> RegisterCustomerSupportAgent(RegisterCustomerSupportAgentRequest request)
     {
         var result = await userService.RegisterCustomerSupportAgentAsync(request);
@@ -125,6 +128,7 @@ public class AuthController(
     /// </summary>
     [HttpPost("register-customer")]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<UserService>(nameof(UserService.RegisterCustomerAsync))]
     public async Task<ActionResult<UserVM>> RegisterCustomer(RegisterCustomerRequest request)
     {
         var result = await userService.RegisterCustomerAsync(request);

@@ -7,6 +7,7 @@ using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services
 {
@@ -21,6 +22,9 @@ namespace Reservant.Api.Services
         /// <param name="request"></param>
         /// <param name="user"></param>
         /// <returns></returns>
+        [ValidatorErrorCodes<CreateEventRequest>]
+        [ErrorCode(nameof(CreateEventRequest.RestaurantId), ErrorCodes.NotFound)]
+        [ValidatorErrorCodes<Event>]
         public async Task<Result<EventVM>> CreateEventAsync(CreateEventRequest request, User user)
         {
             var result = await validationService.ValidateAsync(request, user.Id);
@@ -82,6 +86,7 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Get information about an Event
         /// </summary>
+        [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<EventVM>> GetEventAsync(int id)
         {
             var checkedEvent = await context.Events
@@ -148,6 +153,8 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Add user from event's interested list
         /// </summary>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.Duplicate, "User is already interested in the event")]
         public async Task<Result<bool>> AddUserToEventAsync(int id, User user)
         {
             var eventFound = await context.Events
@@ -183,6 +190,8 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Remove user from event's interested list
         /// </summary>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.Duplicate, "User is not interested in the event")]
         public async Task<Result<bool>> DeleteUserFromEventAsync(int id, User user)
         {
             var eventFound = await context.Events
@@ -252,6 +261,10 @@ namespace Reservant.Api.Services
         /// <param name="request">The new details for the event.</param>
         /// <param name="user">The user updating the event.</param>
         /// <returns>A Result object containing the updated event or validation failures.</returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "Only the user who created the event can modify it")]
+        [ErrorCode(nameof(UpdateEventRequest.RestaurantId), ErrorCodes.RestaurantDoesNotExist, "Restaurant with ID not found")]
+        [ValidatorErrorCodes<Event>]
         public async Task<Result<EventVM>> UpdateEventAsync(int eventId, UpdateEventRequest request, User user)
         {
            var eventToUpdate = await context.Events
@@ -332,6 +345,8 @@ namespace Reservant.Api.Services
         /// <param name="eventId">The id of the event to delete.</param>
         /// <param name="user">User to check permissions</param>
         /// <returns>A Result object containing a boolean indicating success or a validation failure.</returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "Only the user who created the event can delete it")]
         public async Task<Result<bool>> DeleteEventAsync(int eventId, User user)
         {
             var eventToDelete = await context.Events

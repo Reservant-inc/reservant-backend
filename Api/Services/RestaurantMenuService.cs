@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using ErrorCodeDocs.Attributes;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
@@ -25,6 +26,7 @@ public class RestaurantMenuService(
     /// </summary>
     /// <param name="menuId"> Id of the menu.</param>
     /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
     public async Task<Result<MenuVM>> GetSingleMenuAsync(int menuId)
     {
         var menu = await context.Menus
@@ -71,6 +73,8 @@ public class RestaurantMenuService(
     /// <param name="req">Request for Menu to be created.</param>
     /// <param name="user">Currently logged-in user</param>
     /// <returns></returns>
+    [ErrorCode(nameof(CreateMenuRequest.RestaurantId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(CreateMenuRequest.RestaurantId), ErrorCodes.AccessDenied, $"User is not the owner of the restaurant with ID")]
     public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(CreateMenuRequest req, User user)
     {
         var restaurant = await context.Restaurants
@@ -139,6 +143,11 @@ public class RestaurantMenuService(
     /// <param name="menuId">ID of the Menu</param>
     /// <param name="request">Information about the items</param>
     /// <param name="user">Currently logged-in user</param>
+    [ErrorCode("<menuId>", ErrorCodes.NotFound)]
+    [ErrorCode(nameof(Menu.Id), ErrorCodes.AccessDenied, "User is not the owner of the restaurant that contains menu ID")]
+    [ErrorCode(nameof(AddItemsRequest.ItemIds), ErrorCodes.BelongsToAnotherRestaurant, "MenuItems with IDs belong to another restaurant")]
+    [ErrorCode(nameof(AddItemsRequest.ItemIds), ErrorCodes.NotFound)]
+    [ValidatorErrorCodes<Menu>]
     public async Task<Result<MenuVM>> AddItemsToMenuAsync(int menuId, AddItemsRequest request, User user)
     {
         var menuToUpdate = await context.Menus
@@ -244,6 +253,9 @@ public class RestaurantMenuService(
     /// <param name="menuId">ID of the Menu to update</param>
     /// <param name="user">Currently logged-in user</param>
     /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User not permitted to edit menu with ID.")]
+    [ValidatorErrorCodes<Menu>]
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
         // Getting menu
@@ -317,6 +329,8 @@ public class RestaurantMenuService(
     /// </summary>
     /// <param name="id">ID of the menu to delete</param>
     /// <param name="user">Currently logged-in user</param>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "Menu is not owned by user")]
     public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
     {
         var menu = await context.Menus.Where(m => m.Id == id)
@@ -372,6 +386,7 @@ public class RestaurantMenuService(
     /// Remove a MenuItem from a Menu
     /// </summary>
     /// <returns>MenuItem</returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
     public async Task<RemoveMenuItemResult> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
     {
         var menuItemIds = req.ItemIds;
@@ -416,6 +431,7 @@ public class RestaurantMenuService(
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
     /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
     public async Task<Result<Pagination<MenuItemSummaryVM>>> GetMenuItemsAsync(
         int menuId, int page, int perPage,
         string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)

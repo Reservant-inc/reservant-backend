@@ -19,6 +19,7 @@ using Reservant.Api.Validators;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Dtos.User;
+using ErrorCodeDocs.Attributes;
 
 
 
@@ -202,6 +203,10 @@ namespace Reservant.Api.Services
         /// <param name="request"></param>
         /// <param name="user"></param>
         /// <returns></returns>
+        [ErrorCode(nameof(CreateRestaurantRequest.GroupId), ErrorCodes.NotFound)]
+        [ErrorCode(nameof(CreateRestaurantRequest.GroupId), ErrorCodes.AccessDenied, "Group with ID is not owned by the current user")]
+        [ValidatorErrorCodes<CreateRestaurantRequest>]
+        [ValidatorErrorCodes<Restaurant>]
         public async Task<Result<MyRestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
         {
             RestaurantGroup? group;
@@ -425,6 +430,12 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
         /// <param name="employerId">ID of the current user (restaurant owner)</param>
         /// <returns>The bool returned inside the result does not mean anything</returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ValidatorErrorCodes<AddEmployeeRequest>]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant not owned by user")]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.NotFound)]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.AccessDenied, "User is not a restaurant employee or is not employee of the restaurant owner")]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed, "Employee is alredy employed in a restaurant")]
         public async Task<Result<bool>> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
             string employerId)
         {
@@ -516,6 +527,8 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of the restaurant</param>
         /// <param name="request">Request details</param>
         /// <param name="user">Currently logged-in user</param>
+        [ErrorCode(nameof(MoveToGroupRequest.GroupId), ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<RestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId,
             MoveToGroupRequest request, User user)
         {
@@ -589,6 +602,8 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="id">ID of the restaurants</param>
         /// <param name="userId">ID of the current user (to check permissions)</param>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant with ID is not owned by the current user")]
         public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, string userId)
         {
             var restaurant = await context.Restaurants
@@ -643,6 +658,10 @@ namespace Reservant.Api.Services
         /// <param name="id">ID of the restaurant</param>
         /// <param name="request">Request with new restaurant data</param>
         /// <param name="user">User requesting a update</param>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "User is not the owner of this restaurant.")]
+        [ValidatorErrorCodes<UpdateRestaurantRequest>]
+        [ValidatorErrorCodes<Restaurant>]
         public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
         {
             var restaurant = await context.Restaurants
@@ -787,6 +806,8 @@ namespace Reservant.Api.Services
         /// <param name="dto"></param>
         /// <param name="user"></param>
         /// <returns></returns>
+        [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.NotFound)]
+        [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.AccessDenied, "Group with ID is not owned by the current user")]
         public async Task<Result<bool>> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
         {
             var result = await validationService.ValidateAsync(dto, user.Id);
@@ -863,6 +884,7 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <param name="restaurantId"></param>
         /// <returns>MenuItems</returns>
+        [ValidatorErrorCodes<User>]
         public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
         {
             var isRestaurantValid = await menuItemsService.ValidateRestaurant(user, restaurantId);
@@ -891,6 +913,7 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="user"></param>
         /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
@@ -1092,6 +1115,10 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of restaurant reciving review</param>
         /// <param name="createReviewRequest">template for data provided in a reveiw</param>
         /// <returns>View of a created review</returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.Duplicate, "If the user has already reviewed the restaurant")]
+        [ValidatorErrorCodes<CreateReviewRequest>]
+        [ValidatorErrorCodes<Review>]
         public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
         {
             var restaurant = await context.Restaurants
@@ -1159,6 +1186,7 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Get reviews for a restaurant
         /// </summary>
+        [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
             var restaurant = await context.Restaurants.FindAsync(restaurantId);
@@ -1224,6 +1252,7 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of the restaurant</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
+        [ErrorCode(null, nameof(ErrorCodes.NotFound))]
         public async Task<Result<RestaurantVM>> GetRestaurantByIdAsync(int restaurantId)
         {
             var restaurant = await context.Restaurants
@@ -1284,6 +1313,7 @@ namespace Reservant.Api.Services
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         /// <returns>Paged list of visits</returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<Pagination<VisitVM>>> GetVisitsInRestaurantAsync(
             int restaurantId,
             DateOnly? dateStart,

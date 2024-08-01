@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using ErrorCodeDocs.SwaggerGen;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -123,6 +124,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     options.AddOperationFilterInstance(new AuthorizationOperationFilter());
+    options.IncludeErrorCodes(Assembly.GetExecutingAssembly());
 });
 
 builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();

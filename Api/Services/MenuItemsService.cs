@@ -5,6 +5,7 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
+using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services
 {
@@ -22,6 +23,9 @@ namespace Reservant.Api.Services
         /// <param name="user">The current user, must be a restaurant owner</param>
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
+        [ErrorCode(nameof(CreateMenuItemRequest.RestaurantId), ErrorCodes.NotFound)]
+        [ValidatorErrorCodes<CreateMenuItemRequest>]
+        [ValidatorErrorCodes<MenuItem>]
         public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
             Restaurant? restaurant;
@@ -80,6 +84,7 @@ namespace Reservant.Api.Services
         /// Validates and gets menu item by given id
         /// </summary>
         /// <returns>MenuItem</returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int menuItemId)
         {
             var item = await context.MenuItems
@@ -148,6 +153,10 @@ namespace Reservant.Api.Services
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "MenuItem doesn't belong to a restaurant owned by the user")]
+        [ValidatorErrorCodes<UpdateMenuItemRequest>]
+        [ValidatorErrorCodes<MenuItem>]
         public async Task<Result<MenuItemVM>> PutMenuItemByIdAsync(User user, int id, UpdateMenuItemRequest request)
         {
             var item = await context.MenuItems
@@ -213,6 +222,8 @@ namespace Reservant.Api.Services
         /// <param name="id">id of the menu item</param>
         /// <param name="user">owner of the item</param>
         /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "Item does not belong to the user.")]
         public async Task<Result<bool>> DeleteMenuItemByIdAsync(int id, User user)
         {
             var menuItem = await context.MenuItems.Where(m => m.Id == id)

@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{2D24AA98-0616-4DE9-BFB5-C6F375112CBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorCodeDocs", "ErrorCodeDocs\ErrorCodeDocs.csproj", "{4AAC0566-A6B6-4622-8D50-B40345445123}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,15 @@ Global
 		{2D24AA98-0616-4DE9-BFB5-C6F375112CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D24AA98-0616-4DE9-BFB5-C6F375112CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D24AA98-0616-4DE9-BFB5-C6F375112CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AAC0566-A6B6-4622-8D50-B40345445123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AAC0566-A6B6-4622-8D50-B40345445123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AAC0566-A6B6-4622-8D50-B40345445123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AAC0566-A6B6-4622-8D50-B40345445123}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1120EFF7-450A-4EBE-974F-3B205F8721F9}
 	EndGlobalSection
 EndGlobal
