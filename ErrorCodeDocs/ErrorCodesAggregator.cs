@@ -1,4 +1,5 @@
 ﻿using ErrorCodeDocs.Attributes;
+using FluentValidation;
 using System.Reflection;
 
 namespace ErrorCodeDocs;
@@ -6,13 +7,27 @@ namespace ErrorCodeDocs;
 /// <summary>
 /// Methods to aggregate error codes for a selected method
 /// </summary>
-public static class ErrorCodesAggregator
+/// <param name="getValidatorsFromAssembly">Assembly to get validators from</param>
+public class ErrorCodesAggregator
 {
+    private readonly Dictionary<Type, Type> _validators = [];
+
+    public ErrorCodesAggregator(Assembly getValidatorsFromAssembly)
+    {
+        var validators = AssemblyScanner.FindValidatorsInAssembly(getValidatorsFromAssembly);
+        foreach (var validator in validators)
+        {
+            var validatedType = validator.InterfaceType.GetGenericArguments()[0];
+            var validatorType = validator.ValidatorType;
+            _validators.Add(validatedType, validatorType);
+        }
+    }
+
     /// <summary>
     /// Get error codes that can be returned from a method
     /// </summary>
     /// <param name="method">The method</param>
-    public static IEnumerable<ErrorCodeDescription> GetErrorCodes(MethodInfo method)
+    public IEnumerable<ErrorCodeDescription> GetErrorCodes(MethodInfo method)
     {
         foreach (var errorCode in method.GetCustomAttributes<ErrorCodeAttribute>())
         {
@@ -26,6 +41,14 @@ public static class ErrorCodesAggregator
                 yield return errorCode;
             }
         }
+
+        foreach (var inheritedMethod in method.GetCustomAttributes(typeof(ValidatorErrorCodesAttribute<>)))
+        {
+            foreach (var errorCode in GetValidatorErrorCodes(inheritedMethod))
+            {
+                yield return errorCode;
+            }
+        }
     }
 
     /// <summary>
@@ -34,7 +57,7 @@ public static class ErrorCodesAggregator
     /// <param name="attribute">The attribute, must inherit from <see cref="MethodErrorCodesAttribute"/></param>
     /// <exception cref="ArgumentException">The attribute does not inherit from <see cref="MethodErrorCodesAttribute"/></exception>
     /// <exception cref="InvalidOperationException">The method referenced was not found</exception>
-    private static IEnumerable<ErrorCodeDescription> GetReferencedMethodErrorCodes(Attribute attribute)
+    private IEnumerable<ErrorCodeDescription> GetReferencedMethodErrorCodes(Attribute attribute)
     {
         if (attribute is not MethodErrorCodesAttribute methodAttribute)
         {
@@ -50,5 +73,44 @@ public static class ErrorCodesAggregator
         {
             yield return errorCode;
         }
+    }
+
+    private IEnumerable<ErrorCodeDescription> GetValidatorErrorCodes(Attribute attribute)
+    {
+        if (attribute.GetType().GetGenericTypeDefinition() != typeof(ValidatorErrorCodesAttribute<>))
+        {
+            throw new ArgumentException(
+                "Attribute must be a ValidatorErrorCodesAttribute", nameof(attribute));
+        }
+
+        var validatedType = attribute.GetType().GetGenericArguments()[0];
+        var validatorDescriptor = FindValidator(validatedType).CreateDescriptor();
+        foreach (var rule in validatorDescriptor.Rules)
+        {
+            foreach (var component in rule.Components)
+            {
+                yield return new ErrorCodeDescription
+                {
+                    PropertyName = rule.PropertyName,
+                    ErrorCode = component.ErrorCode ?? component.Validator.Name,
+                    Description = component.GetUnformattedErrorMessage(),
+                };
+            }
+        }
+    }
+
+    private IValidator FindValidator(Type validatedType)
+    {
+        if (!_validators.TryGetValue(validatedType, out var validatorType))
+        {
+            throw new InvalidOperationException(
+                $"Validator for type {validatedType.Name} not found");
+        }
+
+        var constructor = validatorType.GetConstructors()[0];
+        var numberOfParameters = constructor.GetParameters().Length;
+        // We supply nulls for arguments which is OK since we only construct
+        // the validator to get the rule list
+        return (IValidator)constructor.Invoke(new object[numberOfParameters]);
     }
 }

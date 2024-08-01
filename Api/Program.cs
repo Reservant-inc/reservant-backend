@@ -124,7 +124,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     options.AddOperationFilterInstance(new AuthorizationOperationFilter());
-    options.IncludeErrorCodes();
+    options.IncludeErrorCodes(Assembly.GetExecutingAssembly());
 });
 
 builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 
 namespace ErrorCodeDocs.SwaggerGen;
 
@@ -12,8 +13,11 @@ public static class SwaggerGenOptionsExtensions
     /// Display possible error code descriptions in Swagger
     /// </summary>
     /// <param name="options">SwaggerGenOptions</param>
-    public static void IncludeErrorCodes(this SwaggerGenOptions options)
+    /// <param name="getValidatorsFromAssembly">Assembly to get validators from</param>
+    public static void IncludeErrorCodes(
+        this SwaggerGenOptions options, Assembly getValidatorsFromAssembly)
     {
-        options.OperationFilter<ErrorCodesOperationFilter>();
+        options.AddOperationFilterInstance(
+            new ErrorCodesOperationFilter(getValidatorsFromAssembly));
     }
 }

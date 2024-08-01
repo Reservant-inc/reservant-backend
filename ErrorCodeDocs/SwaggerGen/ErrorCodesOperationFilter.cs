@@ -1,5 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using System.Text;
 
 namespace ErrorCodeDocs.SwaggerGen;
@@ -7,11 +8,14 @@ namespace ErrorCodeDocs.SwaggerGen;
 /// <summary>
 /// Operation filter that adds error code information to Swagger
 /// </summary>
-internal class ErrorCodesOperationFilter : IOperationFilter
+/// <param name="getValidatorsFromAssembly">Assembly to get validators from</param>
+internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : IOperationFilter
 {
+    private readonly ErrorCodesAggregator _aggregator = new(getValidatorsFromAssembly);
+
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        var errorCodes = ErrorCodesAggregator.GetErrorCodes(context.MethodInfo);
+        var errorCodes = _aggregator.GetErrorCodes(context.MethodInfo);
 
         var hasTitle = false;
         var description = new StringBuilder(operation.Description);
