@@ -51,6 +51,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
+                    PropertyName = nameof(req.Ingredients),
                     ErrorMessage = "One or more ingredients were not found in the database",
                     ErrorCode = ErrorCodes.NotFound
                 };
