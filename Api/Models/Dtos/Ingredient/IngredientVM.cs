@@ -31,6 +31,4 @@ public class IngredientVM
     /// When added to the shopping list, the amount to order
     /// </summary>
     public required double? AmountToOrder { get; set; }
-
-    public required double AmountUsed { get; set; }
 }

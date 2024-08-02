@@ -91,13 +91,10 @@ namespace Reservant.Api.Services
                 Price = menuItem.Price,
                 AlcoholPercentage = menuItem.AlcoholPercentage,
                 Photo = menuItem.PhotoFileName,
-                Ingredients = menuItem.Ingredients.Select(i => new IngredientVM
+                Ingredients = menuItem.Ingredients.Select(i => new MenuItemIngredientVM
                 {
-                    Id = i.Ingredient.Id,
+                    IngredientId = i.Ingredient.Id,
                     PublicName = i.Ingredient.PublicName,
-                    UnitOfMeasurement = i.Ingredient.UnitOfMeasurement,
-                    MinimalAmount = i.Ingredient.MinimalAmount,
-                    AmountToOrder = i.Ingredient.AmountToOrder,
                     AmountUsed = i.AmountUsed
                 }).ToList()
             };
@@ -133,13 +130,11 @@ namespace Reservant.Api.Services
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
                 Photo = uploadService.GetPathForFileName(item.PhotoFileName),
-                Ingredients = item.Ingredients.Select(i => new IngredientVM
+                Ingredients = item.Ingredients.Select(i => new MenuItemIngredientVM
                 {
-                    Id = i.Ingredient.Id,
+                    IngredientId = i.Ingredient.Id,
                     PublicName = i.Ingredient.PublicName,
-                    UnitOfMeasurement = i.Ingredient.UnitOfMeasurement,
-                    MinimalAmount = i.Ingredient.MinimalAmount,
-                    AmountToOrder = i.Ingredient.AmountToOrder
+                    AmountUsed = i.AmountUsed,
                 }).ToList()
             };
         }
@@ -275,13 +270,10 @@ namespace Reservant.Api.Services
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
                 Photo = item.PhotoFileName,
-                Ingredients = item.Ingredients.Select(i => new IngredientVM
+                Ingredients = item.Ingredients.Select(i => new MenuItemIngredientVM
                 {
-                    Id = i.Ingredient.Id,
+                    IngredientId = i.Ingredient.Id,
                     PublicName = i.Ingredient.PublicName,
-                    UnitOfMeasurement = i.Ingredient.UnitOfMeasurement,
-                    MinimalAmount = i.Ingredient.MinimalAmount,
-                    AmountToOrder = i.Ingredient.AmountToOrder,
                     AmountUsed = i.AmountUsed
                 }).ToList()
             };

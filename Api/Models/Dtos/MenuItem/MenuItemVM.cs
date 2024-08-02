@@ -46,5 +46,5 @@ public class MenuItemVM
     /// <summary>
     /// Ingredients used in the menu item
     /// </summary>
-    public required List<IngredientVM> Ingredients { get; set; }
+    public required List<MenuItemIngredientVM> Ingredients { get; set; }
 }
