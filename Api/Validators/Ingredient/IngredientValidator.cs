@@ -1,8 +1,14 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models;
 
-public class IngredientValidator : AbstractValidator<Ingredient>
+namespace Reservant.Api.Validators.Ingredient;
+
+
+/// <summary>
+/// Validator for Ingredient
+/// </summary>
+public class IngredientValidator : AbstractValidator<Models.Ingredient>
 {
+    /// <inheritdoc/>
     public IngredientValidator()
     {
         RuleFor(x => x.PublicName).NotEmpty().WithMessage("PublicName cannot be empty.");

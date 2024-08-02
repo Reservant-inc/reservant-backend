@@ -1,14 +1,14 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 
-namespace Reservant.Api.Validators;
+namespace Reservant.Api.Validators.Ingredient;
 
 /// <summary>
 /// Validator for CreateIngredientRequest
 /// </summary>
 public class CreateIngredientRequestValidator : AbstractValidator<CreateIngredientRequest>
 {
+    /// <inheritdoc/>
     public CreateIngredientRequestValidator()
     {
         RuleFor(i => i.PublicName)
