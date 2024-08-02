@@ -50,7 +50,7 @@ public class IngredientService(
 
         return new IngredientVM
         {
-            Id = ingredient.Id,
+            IngredientId = ingredient.Id,
             PublicName = ingredient.PublicName,
             UnitOfMeasurement = ingredient.UnitOfMeasurement,
             MinimalAmount = ingredient.MinimalAmount,

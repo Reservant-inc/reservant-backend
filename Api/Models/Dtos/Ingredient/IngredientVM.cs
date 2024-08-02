@@ -10,7 +10,7 @@ public class IngredientVM
     /// <summary>
     /// Unique ID of the ingredient
     /// </summary>
-    public required int Id { get; set; }
+    public required int IngredientId { get; set; }
 
     /// <summary>
     /// Name of the ingredient item as shown to the customer
