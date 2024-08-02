@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Models;
@@ -49,6 +50,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     public DbSet<Ingredient> Ingredients { get; init; } = null!;
 
     public DbSet<Delivery> Deliveries { get; init; } = null!;
+
+    public DbSet<IngredientMenuItem> IngredientMenuItems { get; set; } = null!;
 
     /// <summary>
     /// Drop all tables in the database
@@ -130,6 +133,19 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
             eb.HasMany<FriendRequest>(u => u.IncomingRequests)
                 .WithOne(fr => fr.Receiver);
         });
+
+        builder.Entity<IngredientMenuItem>()
+                .HasKey(im => new { im.MenuItemId, im.IngredientId });
+
+        builder.Entity<IngredientMenuItem>()
+            .HasOne(im => im.MenuItem)
+            .WithMany(mi => mi.Ingredients)
+            .HasForeignKey(im => im.MenuItemId);
+
+        builder.Entity<IngredientMenuItem>()
+            .HasOne(im => im.Ingredient)
+            .WithMany()
+            .HasForeignKey(im => im.IngredientId);
 
         var softDeletableEntities =
             from prop in GetType().GetProperties()

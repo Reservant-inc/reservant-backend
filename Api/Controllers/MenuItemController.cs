@@ -72,9 +72,9 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
             return res.ToValidationProblem();
         }
 
-
         return Ok(res.Value);
     }
+
 
     /// <summary>
     /// Changes the menuitem with the given id
@@ -103,6 +103,8 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
 
         return Ok(res.Value);
     }
+
+
     /// <summary>
     /// Deletes chosen menu item
     /// </summary>
