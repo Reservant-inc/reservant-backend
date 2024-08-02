@@ -1,3 +1,5 @@
+using Reservant.Api.Models.Dtos.Ingredient;
+
 namespace Reservant.Api.Models.Dtos.MenuItem;
 
 /// <summary>

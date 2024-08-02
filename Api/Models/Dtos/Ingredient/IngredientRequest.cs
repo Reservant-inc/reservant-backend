@@ -1,4 +1,4 @@
-﻿namespace Reservant.Api.Models.Dtos.MenuItem;
+﻿namespace Reservant.Api.Models.Dtos.Ingredient;
 
 /// <summary>
 /// Used in DTOs to specify menu item ingredients
