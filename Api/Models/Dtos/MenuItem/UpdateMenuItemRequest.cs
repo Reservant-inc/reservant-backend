@@ -30,5 +30,8 @@ public class UpdateMenuItemRequest
     /// </summary>
     public required string Photo { get; set; }
 
+    /// <summary>
+    /// Ingredients required to make the item
+    /// </summary>
     public required List<IngredientRequest> Ingredients { get; set; }
 }
