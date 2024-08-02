@@ -35,7 +35,7 @@ namespace Reservant.Api.Models.Dtos.MenuItem
         /// </summary>
         public required string Photo { get; set; }
 
-        public List<IngredientRequest> Ingredients { get; set; } = new();
+        public required List<IngredientRequest> Ingredients { get; set; }
 
     }
 }
