@@ -21,12 +21,9 @@ public class CreateIngredientRequestValidator : AbstractValidator<CreateIngredie
             .WithMessage("UnitOfMeasurement must be a valid value.");
 
         RuleFor(i => i.MinimalAmount)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("MinimalAmount must be greater than or equal to 0.");
+            .GreaterOrEqualToZero();
 
         RuleFor(i => i.AmountToOrder)
-            .GreaterThanOrEqualTo(0)
-            .When(i => i.AmountToOrder.HasValue)
-            .WithMessage("AmountToOrder must be greater than or equal to 0.");
+            .GreaterOrEqualToZero();
     }
 }
