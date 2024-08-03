@@ -32,7 +32,7 @@ namespace Reservant.Api.Services
     /// <summary>
     /// Service responsible for managing user authentication
     /// </summary>
-    public class AccesService(
+    public class AuthorizationService(
         UserManager<User> userManager, 
         ApiDbContext context
         )
@@ -42,21 +42,22 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="restaurantId">The id of restaurant</param>
         /// <param name="user">The user to be tested as owner</param>
-        public async Task<Result<bool>> verifyOwnerRole(int restaurantId,User user)
+        public async Task<Result<bool>> VerifyOwnerRole(int restaurantId, User user)
         {
-            var restaurantGroup = await context
-                .RestaurantGroups
-                    .Include (g => g.Restaurants)
-                .Where (r => r.OwnerId == user.Id)
-                .FirstOrDefaultAsync ();
+            var restaurant = await context
+                .Restaurants
+                .Include(x => x.Group)
+                .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
 
-            if(restaurantGroup==null)
-                return false;
-            if(!restaurantGroup.Restaurants.Any(r=>r.Id==restaurantId))   
-                return false; 
+            if (restaurant == null)
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is not the owner of the restaurant.",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
             return true;
         }
-
 
     }
 }

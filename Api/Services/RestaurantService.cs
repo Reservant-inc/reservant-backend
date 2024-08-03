@@ -56,7 +56,7 @@ namespace Reservant.Api.Services
         MenuItemsService menuItemsService,
         ValidationService validationService,
         GeometryFactory geometryFactory,
-        AccesService accesService)
+        AuthorizationService authorizationService)
     {
         /// <summary>
         /// Find restaurants by different criteria
@@ -826,11 +826,11 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Returns a list of menus of specific restaurant (owner version)
+        /// Returns a list of menus of a specific restaurant (owner version)
         /// </summary>
-        /// <param name="id"> Id of the restaurant.</param>
-        /// <returns></returns>
-        public async Task<List<MenuSummaryVM>?> GetMenusCustomerAsync(int id)
+        /// <param name="id">Id of the restaurant.</param>
+        /// <returns>A Result object containing a list of MenuSummaryVM or an error message.</returns>
+        public async Task<Result<List<MenuSummaryVM>>> GetMenusCustomerAsync(int id)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
@@ -839,7 +839,12 @@ namespace Reservant.Api.Services
 
             if (restaurant == null)
             {
-                return null;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(id),
+                    ErrorMessage = $"Restaurant with ID {id} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             var menus = restaurant.Menus
@@ -857,6 +862,7 @@ namespace Reservant.Api.Services
 
             return menus;
         }
+
 
 
         /// <summary>
@@ -1376,7 +1382,7 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="id"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<List<MenuSummaryVM>?> GetMenusOwnerAsync(int id,User user)
+        public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
@@ -1385,15 +1391,24 @@ namespace Reservant.Api.Services
 
             if (restaurant == null)
             {
-                return null;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(id),
+                    ErrorMessage = $"Restaurant with ID {id} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
-            var result = await accesService.verifyOwnerRole(id, user);
-            if(!result.Value)
+            var result = await authorizationService.VerifyOwnerRole(id, user);
+            if (!result.Value)
             {
-                return null;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(id),
+                    ErrorMessage = $"Restaurant with ID {id} does not belong to user",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
-
 
             var menus = restaurant.Menus
                 .Select(menu => new MenuSummaryVM
@@ -1408,8 +1423,9 @@ namespace Reservant.Api.Services
                 })
                 .ToList();
 
-            return menus;
+            return new Result<List<MenuSummaryVM>>(menus);
         }
+
 
 
         /// <summary>
@@ -1420,14 +1436,13 @@ namespace Reservant.Api.Services
         /// <returns>MenuItems</returns>
         public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(User user, int restaurantId)
         {
-            var isRestaurantValid = await menuItemsService.ValidateRestaurant(user, restaurantId);
 
-            if (isRestaurantValid.IsError)
+            var result = await authorizationService.VerifyOwnerRole(restaurantId, user);
+            if (result.IsError)
             {
-                return isRestaurantValid.Errors;
+                return result.Errors;
             }
-
-            var result = await accesService.verifyOwnerRole(restaurantId, user);
+             
             if(!result.Value)
             {
                 return new ValidationFailure

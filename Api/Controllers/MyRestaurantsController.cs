@@ -229,12 +229,13 @@ namespace Reservant.Api.Controllers
 
             var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user);
 
-            if (result == null)
+            if (result.IsError)
             {
-                return NotFound();
+                return result.ToValidationProblem();
             }
 
-            return Ok(result);
+
+            return Ok(result.Value);
         }
 
         /// <summary>

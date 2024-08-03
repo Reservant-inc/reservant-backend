@@ -257,11 +257,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
-
-
-
-
-
+    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     /// <summary>
     /// Get list of menus by given restaurant id
     /// </summary>
@@ -274,12 +270,12 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     {
         var result = await service.GetMenusCustomerAsync(restaurantId);
 
-        if (result == null)
+        if (result.IsError)
         {
-            return NotFound();
+            return result.ToValidationProblem();
         }
 
-        return Ok(result);
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -288,7 +284,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId">ID of the restaurant</param>
     /// <returns>The found list of menuItems</returns>
     [HttpGet("{restaurantId:int}/menu-items")]
-    [Authorize(Roles = Roles.RestaurantOwner)]
+    [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
     {
