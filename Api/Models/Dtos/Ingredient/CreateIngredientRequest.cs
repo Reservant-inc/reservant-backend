@@ -1,22 +1,15 @@
 ﻿using Reservant.Api.Models.Enums;
-using System.ComponentModel.DataAnnotations;
 
-namespace Reservant.Api.Models;
+namespace Reservant.Api.Models.Dtos;
 
 /// <summary>
-/// Concrete ingredient item
+/// Request to create a new ingredient
 /// </summary>
-public class Ingredient
+public class CreateIngredientRequest
 {
-    /// <summary>
-    /// Unique ID
-    /// </summary>
-    public int Id { get; set; }
-
     /// <summary>
     /// Name of the ingredient item as shown to the customer
     /// </summary>
-    [StringLength(20)]
     public required string PublicName { get; set; }
 
     /// <summary>
@@ -33,14 +26,4 @@ public class Ingredient
     /// When added to the shopping list, the amount to order
     /// </summary>
     public double? AmountToOrder { get; set; }
-
-    /// <summary>
-    /// Deliveries that resupplied the ingredient
-    /// </summary>
-    public ICollection<IngredientDelivery> Deliveries { get; set; } = null!;
-
-    /// <summary>
-    /// MenueItems ingrendiant is used in
-    /// </summary>
-    public ICollection<IngredientMenuItem> MenuItems { get; set; } = null!; 
 }

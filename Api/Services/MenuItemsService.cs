@@ -5,6 +5,7 @@ using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
+using Reservant.Api.Models.Dtos.Ingredient;
 using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services
@@ -28,9 +29,7 @@ namespace Reservant.Api.Services
         [ValidatorErrorCodes<MenuItem>]
         public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
-            Restaurant? restaurant;
-
-            restaurant = await context.Restaurants.FindAsync(req.RestaurantId);
+            var restaurant = await context.Restaurants.FindAsync(req.RestaurantId);
 
             if (restaurant is null)
             {
@@ -48,6 +47,27 @@ namespace Reservant.Api.Services
                 return result;
             }
 
+            var ingredients = await context.Ingredients
+                .Where(i => req.Ingredients.Select(ir => ir.IngredientId).Contains(i.Id))
+                .ToListAsync();
+
+            if (ingredients.Count != req.Ingredients.Count)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(req.Ingredients),
+                    ErrorMessage = "One or more ingredients were not found in the database",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var ingredientMenuItems = req.Ingredients.Select(i => new IngredientMenuItem
+            {
+                IngredientId = i.IngredientId,
+                AmountUsed = i.AmountUsed,
+                Ingredient = ingredients.First(ing => ing.Id == i.IngredientId)
+            }).ToList();
+
             var menuItem = new MenuItem()
             {
                 Price = req.Price,
@@ -55,9 +75,9 @@ namespace Reservant.Api.Services
                 AlternateName = req.AlternateName?.Trim(),
                 AlcoholPercentage = req.AlcoholPercentage,
                 RestaurantId = req.RestaurantId,
-                PhotoFileName = req.Photo
+                PhotoFileName = req.Photo,
+                Ingredients = ingredientMenuItems
             };
-
 
             result = await validationService.ValidateAsync(menuItem, user.Id);
             if (!result.IsValid)
@@ -75,7 +95,13 @@ namespace Reservant.Api.Services
                 AlternateName = menuItem.AlternateName,
                 Price = menuItem.Price,
                 AlcoholPercentage = menuItem.AlcoholPercentage,
-                Photo = menuItem.PhotoFileName
+                Photo = menuItem.PhotoFileName,
+                Ingredients = menuItem.Ingredients.Select(i => new MenuItemIngredientVM
+                {
+                    IngredientId = i.Ingredient.Id,
+                    PublicName = i.Ingredient.PublicName,
+                    AmountUsed = i.AmountUsed
+                }).ToList()
             };
         }
 
@@ -88,6 +114,8 @@ namespace Reservant.Api.Services
         public async Task<Result<MenuItemVM>> GetMenuItemByIdAsync(User user, int menuItemId)
         {
             var item = await context.MenuItems
+                .Include(i => i.Ingredients)
+                .ThenInclude(mi => mi.Ingredient)
                 .FirstOrDefaultAsync(i => i.Id == menuItemId);
 
             if (item == null)
@@ -107,9 +135,16 @@ namespace Reservant.Api.Services
                 AlternateName = item.AlternateName,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(item.PhotoFileName)
+                Photo = uploadService.GetPathForFileName(item.PhotoFileName),
+                Ingredients = item.Ingredients.Select(i => new MenuItemIngredientVM
+                {
+                    IngredientId = i.Ingredient.Id,
+                    PublicName = i.Ingredient.PublicName,
+                    AmountUsed = i.AmountUsed,
+                }).ToList()
             };
         }
+
 
         /// <summary>
         /// Check if the restaurant with the given ID exists and the given user is its owner
@@ -162,8 +197,9 @@ namespace Reservant.Api.Services
             var item = await context.MenuItems
                 .Include(r => r.Restaurant)
                 .Include(r => r.Restaurant.Group)
+                .Include(i => i.Ingredients)
+                .ThenInclude(mi => mi.Ingredient)
                 .FirstOrDefaultAsync(i => i.Id == id);
-
 
             if (item is null)
             {
@@ -174,7 +210,6 @@ namespace Reservant.Api.Services
                 };
             }
 
-            //check if menuitem belongs to a restaurant owned by user
             if (item.Restaurant.Group.OwnerId != user.Id)
             {
                 return new ValidationFailure
@@ -196,6 +231,38 @@ namespace Reservant.Api.Services
             item.AlcoholPercentage = request.AlcoholPercentage;
             item.PhotoFileName = request.Photo;
 
+            var ingredients = await context.Ingredients
+                .Where(i => request.Ingredients.Select(ir => ir.IngredientId).Contains(i.Id))
+                .ToListAsync();
+
+            if (ingredients.Count != request.Ingredients.Count)
+            {
+                return new ValidationFailure
+                {
+                    ErrorMessage = "One or more ingredients were not found in the database",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            // Usuń stare instancje IngredientMenuItem
+            context.IngredientMenuItems.RemoveRange(item.Ingredients);
+            await context.SaveChangesAsync();
+
+            // Odłącz istniejące encje od kontekstu
+            foreach (var ingredientMenuItem in item.Ingredients)
+            {
+                context.Entry(ingredientMenuItem).State = EntityState.Detached;
+            }
+
+            // Dodaj nowe instancje IngredientMenuItem
+            item.Ingredients = request.Ingredients.Select(i => new IngredientMenuItem
+            {
+                IngredientId = i.IngredientId,
+                AmountUsed = i.AmountUsed,
+                Ingredient = ingredients.First(ing => ing.Id == i.IngredientId)
+            }).ToList();
+
+            context.MenuItems.Update(item);
 
             result = await validationService.ValidateAsync(item, user.Id);
             if (!result.IsValid)
@@ -212,9 +279,16 @@ namespace Reservant.Api.Services
                 AlternateName = item.AlternateName,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
-                Photo = item.PhotoFileName
+                Photo = item.PhotoFileName,
+                Ingredients = item.Ingredients.Select(i => new MenuItemIngredientVM
+                {
+                    IngredientId = i.Ingredient.Id,
+                    PublicName = i.Ingredient.PublicName,
+                    AmountUsed = i.AmountUsed
+                }).ToList()
             };
         }
+
 
         /// <summary>
         /// service that deletes a menu item

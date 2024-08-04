@@ -1,3 +1,5 @@
+using Reservant.Api.Models.Dtos.Ingredient;
+
 namespace Reservant.Api.Models.Dtos.MenuItem;
 
 /// <summary>
@@ -29,4 +31,9 @@ public class UpdateMenuItemRequest
     /// File name of the photo
     /// </summary>
     public required string Photo { get; set; }
+
+    /// <summary>
+    /// Ingredients required to make the item
+    /// </summary>
+    public required List<IngredientRequest> Ingredients { get; set; }
 }

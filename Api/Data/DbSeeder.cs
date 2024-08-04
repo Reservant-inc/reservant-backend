@@ -584,6 +584,96 @@ public class DbSeeder(
 
         context.Restaurants.Add(johnDoes);
 
+        //HERE1
+        var pizzaMozzarella = new MenuItem
+        {
+            Name = "Pizza z mozzarellą",
+            Price = 39m,
+            AlcoholPercentage = null,
+            Restaurant = johnDoes,
+            PhotoFileName = null!,
+            Photo = await RequireFileUpload("ResPizza1.jpg", johnDoe)
+        };
+
+        var pizzaOlives = new MenuItem
+        {
+            Name = "Pizza z oliwami",
+            Price = 45m,
+            AlcoholPercentage = null,
+            Restaurant = johnDoes,
+            PhotoFileName = null!,
+            Photo = await RequireFileUpload("ResPizza2.jpg", johnDoe)
+        };
+
+        var beer = new MenuItem
+        {
+            Name = "Piwo",
+            Price = 8m,
+            AlcoholPercentage = 4.6m,
+            Restaurant = johnDoes,
+            PhotoFileName = null!,
+            Photo = await RequireFileUpload("piwo.png", johnDoe)
+        };
+
+        var dough = new Ingredient
+        {
+            PublicName = "Dough",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 500,
+            AmountToOrder = 1000
+        };
+
+        var tomatoSauce = new Ingredient
+        {
+            PublicName = "Tomato sauce",
+            UnitOfMeasurement = UnitOfMeasurement.Liter,
+            MinimalAmount = 0.5,
+            AmountToOrder = 1
+        };
+
+        var mozzarella = new Ingredient
+        {
+            PublicName = "Mozzarella",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 200,
+            AmountToOrder = 500
+        };
+
+        var olives = new Ingredient
+        {
+            PublicName = "Olives",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 100,
+            AmountToOrder = 200
+        };
+
+        var orderedBeer = new Ingredient
+        {
+            PublicName = "ordered beer",
+            UnitOfMeasurement = UnitOfMeasurement.Liter,
+            MinimalAmount = 1,
+            AmountToOrder = 5
+        };
+
+        pizzaMozzarella.Ingredients = new List<IngredientMenuItem>
+        {
+            new IngredientMenuItem { Ingredient = dough, AmountUsed = 300 },
+            new IngredientMenuItem { Ingredient = tomatoSauce, AmountUsed = 200 },
+            new IngredientMenuItem { Ingredient = mozzarella, AmountUsed = 200 }
+        };
+
+        pizzaOlives.Ingredients = new List<IngredientMenuItem>
+        {
+            new IngredientMenuItem { Ingredient = dough, AmountUsed = 300 },
+            new IngredientMenuItem { Ingredient = tomatoSauce, AmountUsed = 200 },
+            new IngredientMenuItem { Ingredient = olives, AmountUsed = 100 }
+        };
+
+        beer.Ingredients = new List<IngredientMenuItem>
+        {
+            new IngredientMenuItem { Ingredient = orderedBeer, AmountUsed = 0.5 }
+        };
+
         context.Menus.Add(new Menu
         {
             Name = "Menu jedzeniowe",
@@ -593,27 +683,11 @@ public class DbSeeder(
             PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = johnDoes,
-            MenuItems =
-            [
-                new MenuItem
-                {
-                    Name = "Pizza z mozzarellą",
-                    Price = 39m,
-                    AlcoholPercentage = null,
-                    Restaurant = johnDoes,
-                    PhotoFileName = null!,
-                    Photo = await RequireFileUpload("ResPizza1.jpg", johnDoe)
-                },
-                new MenuItem
-                {
-                    Name = "Pizza z oliwami",
-                    Price = 45m,
-                    AlcoholPercentage = null,
-                    Restaurant = johnDoes,
-                    PhotoFileName = null!,
-                    Photo = await RequireFileUpload("ResPizza2.jpg", johnDoe)
-                }
-            ]
+            MenuItems = new List<MenuItem>
+            {
+                pizzaMozzarella,
+                pizzaOlives
+            }
         });
 
         context.Menus.Add(new Menu
@@ -625,19 +699,15 @@ public class DbSeeder(
             PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = johnDoes,
-            MenuItems =
-            [
-                new MenuItem
-                {
-                    Name = "Piwo",
-                    Price = 8m,
-                    AlcoholPercentage = 4.6m,
-                    Restaurant = johnDoes,
-                    PhotoFileName = null!,
-                    Photo = await RequireFileUpload("piwo.png", johnDoe)
-                }
-            ]
+            MenuItems = new List<MenuItem>
+            {
+                beer
+            }
         });
+
+        await context.SaveChangesAsync();
+
+        ///HERE1
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -907,12 +977,37 @@ public class DbSeeder(
         };
 
         context.Restaurants.Add(kowalskisRestaurant);
+
+        //HERE2
+        var rice = new Ingredient
+        {
+            PublicName = "Rice",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 200,
+            AmountToOrder = 500
+        };
+
+        var tofu = new Ingredient
+        {
+            PublicName = "Tofu",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 100,
+            AmountToOrder = 200
+        };
+
+        var noodles = new Ingredient
+        {
+            PublicName = "Noodles",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 150,
+            AmountToOrder = 300
+        };
+
         context.Menus.Add(new Menu
         {
             Name = "Menu jedzenie",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-
             Photo = await RequireFileUpload("menu.png", kowalski),
             PhotoFileName = null!,
             MenuType = MenuType.Food,
@@ -926,7 +1021,13 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("padthai.png", kowalski)
+                    Photo = await RequireFileUpload("padthai.png", kowalski),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = rice, AmountUsed = 200 },
+                        new IngredientMenuItem { Ingredient = tofu, AmountUsed = 100 },
+                        new IngredientMenuItem { Ingredient = noodles, AmountUsed = 150 }
+                    }
                 },
                 new MenuItem
                 {
@@ -935,7 +1036,11 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("restaurantboss3.PNG", kowalski)
+                    Photo = await RequireFileUpload("restaurantboss3.PNG", kowalski),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = rice, AmountUsed = 200 }
+                    }
                 },
                 new MenuItem
                 {
@@ -944,10 +1049,16 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = kowalskisRestaurant,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("ResSushi2.jpg", kowalski)
+                    Photo = await RequireFileUpload("ResSushi2.jpg", kowalski),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = noodles, AmountUsed = 150 }
+                    }
                 }
             ]
         });
+        ///HERE2
+
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1256,6 +1367,39 @@ public class DbSeeder(
 
         context.Restaurants.Add(anons);
 
+        //HERE3
+        var bun = new Ingredient
+        {
+            PublicName = "Bun",
+            UnitOfMeasurement = UnitOfMeasurement.Unit,
+            MinimalAmount = 2,
+            AmountToOrder = 10
+        };
+
+        var beefPatty = new Ingredient
+        {
+            PublicName = "Beef Patty",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 100,
+            AmountToOrder = 500
+        };
+
+        var cheese = new Ingredient
+        {
+            PublicName = "Cheese",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 50,
+            AmountToOrder = 250
+        };
+
+        var beer = new Ingredient
+        {
+            PublicName = "Beer",
+            UnitOfMeasurement = UnitOfMeasurement.Liter,
+            MinimalAmount = 1,
+            AmountToOrder = 5
+        };
+
         context.Menus.Add(new Menu
         {
             Name = "Menu jedzeniowe",
@@ -1274,7 +1418,12 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = anons,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("ResBurger1.jpg", anon)
+                    Photo = await RequireFileUpload("ResBurger1.jpg", anon),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = bun, AmountUsed = 2 },
+                        new IngredientMenuItem { Ingredient = beefPatty, AmountUsed = 100 }
+                    }
                 },
                 new MenuItem
                 {
@@ -1283,7 +1432,13 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = anons,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("ResBurger2.jpg", anon)
+                    Photo = await RequireFileUpload("ResBurger2.jpg", anon),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = bun, AmountUsed = 2 },
+                        new IngredientMenuItem { Ingredient = beefPatty, AmountUsed = 100 },
+                        new IngredientMenuItem { Ingredient = cheese, AmountUsed = 50 }
+                    }
                 }
             ]
         });
@@ -1306,10 +1461,15 @@ public class DbSeeder(
                     AlcoholPercentage = 4.6m,
                     Restaurant = anons,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("woda.png", anon)
+                    Photo = await RequireFileUpload("woda.png", anon),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = beer, AmountUsed = 0.5 }
+                    }
                 }
             ]
         });
+        ///HERE3
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1490,6 +1650,31 @@ public class DbSeeder(
 
         context.Restaurants.Add(geralts);
 
+        //HERE4
+        var noodles = new Ingredient
+        {
+            PublicName = "Noodles",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 150,
+            AmountToOrder = 300
+        };
+
+        var beef = new Ingredient
+        {
+            PublicName = "Beef",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 200,
+            AmountToOrder = 1000
+        };
+
+        var beer = new Ingredient
+        {
+            PublicName = "Beer",
+            UnitOfMeasurement = UnitOfMeasurement.Liter,
+            MinimalAmount = 1,
+            AmountToOrder = 5
+        };
+
         context.Menus.Add(new Menu
         {
             Name = "Menu jedzeniowe",
@@ -1508,7 +1693,11 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = geralts,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("ramen.png", geralt)
+                    Photo = await RequireFileUpload("ramen.png", geralt),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = noodles, AmountUsed = 150 }
+                    }
                 },
                 new MenuItem
                 {
@@ -1517,7 +1706,11 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = geralts,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("stek.png", geralt)
+                    Photo = await RequireFileUpload("stek.png", geralt),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = beef, AmountUsed = 200 }
+                    }
                 }
             ]
         });
@@ -1540,10 +1733,15 @@ public class DbSeeder(
                     AlcoholPercentage = 4.6m,
                     Restaurant = geralts,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("owner2.png", geralt)
+                    Photo = await RequireFileUpload("owner2.png", geralt),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = beer, AmountUsed = 0.5 }
+                    }
                 }
             ]
         });
+        ///HERE4
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1709,6 +1907,31 @@ public class DbSeeder(
 
         context.Restaurants.Add(atreides);
 
+        //HERE5
+        var chicken = new Ingredient
+        {
+            PublicName = "Chicken",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 200,
+            AmountToOrder = 1000
+        };
+
+        var pasta = new Ingredient
+        {
+            PublicName = "Pasta",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 150,
+            AmountToOrder = 300
+        };
+
+        var beer = new Ingredient
+        {
+            PublicName = "Beer",
+            UnitOfMeasurement = UnitOfMeasurement.Liter,
+            MinimalAmount = 1,
+            AmountToOrder = 5
+        };
+
         context.Menus.Add(new Menu
         {
             Name = "Menu jedzeniowe",
@@ -1727,16 +1950,24 @@ public class DbSeeder(
                     AlcoholPercentage = null,
                     Restaurant = atreides,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("kurczak.png", paul)
+                    Photo = await RequireFileUpload("kurczak.png", paul),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = chicken, AmountUsed = 200 }
+                    }
                 },
                 new MenuItem
                 {
-                    Name = "pasta",
+                    Name = "Pasta",
                     Price = 25m,
                     AlcoholPercentage = null,
                     Restaurant = atreides,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("makarony.png", paul)
+                    Photo = await RequireFileUpload("makarony.png", paul),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = pasta, AmountUsed = 150 }
+                    }
                 }
             ]
         });
@@ -1759,10 +1990,16 @@ public class DbSeeder(
                     AlcoholPercentage = 4.6m,
                     Restaurant = atreides,
                     PhotoFileName = null!,
-                    Photo = await RequireFileUpload("human2.png", paul)
+                    Photo = await RequireFileUpload("human2.png", paul),
+                    Ingredients = new List<IngredientMenuItem>
+                    {
+                        new IngredientMenuItem { Ingredient = beer, AmountUsed = 0.5 }
+                    }
                 }
             ]
         });
+        //HERE5
+
 
         await context.SaveChangesAsync();
     }

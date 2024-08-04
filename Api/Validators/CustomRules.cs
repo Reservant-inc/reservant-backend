@@ -229,6 +229,18 @@ public static class CustomRules
     }
 
     /// <summary>
+    /// Validates that the value is greater than or equal to zero.
+    /// </summary>
+    public static IRuleBuilderOptions<T, TProperty?> GreaterOrEqualToZero<T, TProperty>(
+        this IRuleBuilder<T, TProperty?> builder) where TProperty : struct, INumber<TProperty>
+    {
+        return builder
+            .Must(value => value is null || value.Value! >= TProperty.Zero)
+            .WithErrorCode(ErrorCodes.ValueLessThanZero)
+            .WithMessage("The value must be greater than or equal to zero.");
+    }
+
+    /// <summary>
     /// Validates that the value is greater than or equal to one.
     /// </summary>
     public static IRuleBuilderOptions<T, TProperty> GreaterOrEqualToOne<T, TProperty>(
@@ -236,6 +248,18 @@ public static class CustomRules
     {
         return builder
             .GreaterThanOrEqualTo(TProperty.One)
+            .WithErrorCode(ErrorCodes.ValueLessThanOne)
+            .WithMessage("The value must be greater than or equal to one.");
+    }
+
+    /// <summary>
+    /// Validates that the value is greater than or equal to one.
+    /// </summary>
+    public static IRuleBuilderOptions<T, TProperty?> GreaterOrEqualToOne<T, TProperty>(
+        this IRuleBuilder<T, TProperty?> builder) where TProperty : struct, INumber<TProperty>
+    {
+        return builder
+            .Must(value => value is null || value.Value! >= TProperty.One)
             .WithErrorCode(ErrorCodes.ValueLessThanOne)
             .WithMessage("The value must be greater than or equal to one.");
     }

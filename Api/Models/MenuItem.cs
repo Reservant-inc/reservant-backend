@@ -65,6 +65,11 @@ public class MenuItem : ISoftDeletable
     /// </summary>
     public FileUpload Photo { get; set; } = null!;
 
+    /// <summary>
+    /// Navigation property for the ingredients
+    /// </summary>
+    public ICollection<IngredientMenuItem> Ingredients { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }

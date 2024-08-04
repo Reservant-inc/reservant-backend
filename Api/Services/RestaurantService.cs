@@ -20,6 +20,7 @@ using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Dtos.User;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Models.Dtos.Ingredient;
 
 
 
@@ -903,7 +904,15 @@ namespace Reservant.Api.Services
                     AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName)
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
+                    Ingredients = i.Ingredients
+                        .Select(mii => new MenuItemIngredientVM
+                        {
+                            IngredientId = mii.IngredientId,
+                            PublicName = mii.Ingredient.PublicName,
+                            AmountUsed = mii.AmountUsed,
+                        })
+                        .ToList(),
                 }).ToListAsync();
         }
 

@@ -1,3 +1,4 @@
+using Reservant.Api.Models.Dtos.Ingredient;
 using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Models.Dtos.MenuItem;
@@ -41,4 +42,9 @@ public class MenuItemVM
     /// </summary>
     [Required, StringLength(50)]
     public required string Photo { get; set; }
+
+    /// <summary>
+    /// Ingredients used in the menu item
+    /// </summary>
+    public required List<MenuItemIngredientVM> Ingredients { get; set; }
 }
