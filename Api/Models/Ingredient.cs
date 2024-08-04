@@ -35,12 +35,12 @@ public class Ingredient
     public double? AmountToOrder { get; set; }
 
     /// <summary>
-    /// Current amount
-    /// </summary>
-    public double Amount { get; set; }
-
-    /// <summary>
     /// Deliveries that resupplied the ingredient
     /// </summary>
     public ICollection<IngredientDelivery> Deliveries { get; set; } = null!;
+
+    /// <summary>
+    /// MenueItems ingrendiant is used in
+    /// </summary>
+    public ICollection<IngredientMenuItem> MenuItems { get; set; } = null!; 
 }
