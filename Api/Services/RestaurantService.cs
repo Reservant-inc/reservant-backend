@@ -21,6 +21,8 @@ using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Dtos.User;
 using ErrorCodeDocs.Attributes;
 using Reservant.Api.Models.Dtos.Ingredient;
+using Reservant.Api.Models.Dtos.Delivery;
+using Microsoft.AspNetCore.Mvc;
 
 
 
@@ -1406,6 +1408,72 @@ namespace Reservant.Api.Services
                 .PaginateAsync(page, perPage, Enum.GetNames<VisitSorting>());
 
             return result;
+        }
+
+        /// <summary>
+        /// Get deliveries in a restaurant
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant</param>
+        /// <param name="returnDelivered">If true, return finished deliveries, unfinished otherwise</param>
+        /// <param name="userId">Search by user ID</param>
+        /// <param name="userName">Search by user name</param>
+        /// <param name="orderBy">Order results by</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        [ErrorCode(null, ErrorCodes.NotFound, "Restaurant with the given ID not found")]
+        public async Task<Result<Pagination<DeliverySummaryVM>>> GetDeliveriesInRestaurantAsync(
+            int restaurantId,
+            bool returnDelivered,
+            string? userId,
+            string? userName,
+            DeliverySorting orderBy,
+            int page = 0,
+            int perPage = 10)
+        {
+            if (!await context.Restaurants.AnyAsync(r => r.Id == restaurantId))
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                };
+            }
+
+            var query = context.Deliveries
+                .Where(d => d.RestaurantId == restaurantId);
+
+            if (returnDelivered)
+            {
+                query = query.Where(d => d.DeliveredTime != null);
+            }
+            else
+            {
+                query = query.Where(d => d.DeliveredTime == null);
+            }
+
+            if (userId is not null)
+            {
+                query = query.Where(d => d.UserId == userId);
+            }
+
+            query = orderBy switch
+            {
+                DeliverySorting.OrderTimeAsc => query.OrderBy(d => d.OrderTime),
+                DeliverySorting.OrderTimeDesc => query.OrderByDescending(d => d.OrderTime),
+                DeliverySorting.DeliveredTimeAsc => query.OrderBy(d => d.DeliveredTime),
+                DeliverySorting.DeliveredTimeDesc => query.OrderByDescending(d => d.DeliveredTime),
+                _ => throw new ArgumentOutOfRangeException(nameof(orderBy)),
+            };
+
+            var vmQuery = query.AsDeliverySummary();
+
+            if (userName is not null)
+            {
+                vmQuery = vmQuery.Where(d => d.UserFullName == null || d.UserFullName.Contains(userName));
+            }
+
+            return await vmQuery.PaginateAsync(page, perPage, Enum.GetNames<DeliverySorting>());
         }
     }
 }

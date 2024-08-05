@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Models.Dtos.Event;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Restaurant;
@@ -261,4 +262,35 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
+    /// <summary>
+    /// Get deliveries in a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="returnDelivered">If true, return finished deliveries, unfinished otherwise</param>
+    /// <param name="userId">Search by user ID</param>
+    /// <param name="userName">Search by user name</param>
+    /// <param name="orderBy">Order results by</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    [HttpGet("{restaurantId:int}/deliveries")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetDeliveriesInRestaurantAsync))]
+    public async Task<ActionResult<Pagination<DeliverySummaryVM>>> GetDeliveries(
+        int restaurantId,
+        bool returnDelivered,
+        string? userId,
+        string? userName,
+        DeliverySorting orderBy,
+        int page = 0,
+        int perPage = 10)
+    {
+        var result = await service.GetDeliveriesInRestaurantAsync(
+            restaurantId, returnDelivered, userId, userName, orderBy, page, perPage);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
 }
