@@ -98,7 +98,6 @@ public class ThreadService(
         }
 
         var messageThread = await dbContext.MessageThreads
-            .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
@@ -126,7 +125,11 @@ public class ThreadService(
         {
             ThreadId = messageThread.Id,
             Title = messageThread.Title,
-            Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
+            Participants = await dbContext.Entry(messageThread)
+                            .Collection(m => m.Participants)
+                            .Query()
+                            .Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName })
+                            .ToListAsync()
         };
     }
 
@@ -139,7 +142,6 @@ public class ThreadService(
     public async Task<Result<bool>> DeleteThreadAsync(int threadId, string userId)
     {
         var messageThread = await dbContext.MessageThreads
-            .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
