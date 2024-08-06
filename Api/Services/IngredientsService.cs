@@ -6,6 +6,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Ingredient;
 using Reservant.Api.Validation;
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -29,6 +30,30 @@ public class IngredientService(
         if (!result.IsValid)
         {
             return result;
+        }
+        var MenuItemIDs = new List<int>();
+        foreach (var item in request.MenuItems)
+        {
+            MenuItemIDs.Add(item.MenuItemId);
+        }
+        var restaurants = await dbContext.MenuItems.Where(m => MenuItemIDs.Contains(m.Id)).ToListAsync();
+        if (restaurants.Count == 0)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.MenuItems),
+                ErrorMessage = ErrorCodes.NotFound,
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+        if (restaurants.Count > 1)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.MenuItems),
+                ErrorCode = ErrorCodes.MaximumOneRestaurant,
+                ErrorMessage = ErrorCodes.MaximumOneRestaurant
+            };
         }
 
         var ingredient = new Ingredient

@@ -160,4 +160,9 @@ public static class ErrorCodes
     /// MustJoinUntil must be before Time
     /// </summary>
     public const string MustJoinUntilMustBeBeforeEventTime = "MustJoinUntilMustBeBeforeEventTime";
+
+    /// <summary>
+    /// There can be only one restaurant in specified request
+    /// </summary>
+    public const string MaximumOneRestaurant = "MaximumOneRestaurant";
 }
