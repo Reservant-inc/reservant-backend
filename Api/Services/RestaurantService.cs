@@ -23,7 +23,6 @@ using ErrorCodeDocs.Attributes;
 using Reservant.Api.Models.Dtos.Ingredient;
 
 
-
 namespace Reservant.Api.Services
 {
     /// <summary>
@@ -116,7 +115,7 @@ namespace Reservant.Api.Services
                     {
                         PropertyName = null,
                         ErrorMessage = "To search within a rectangular area, all 4 coordinates " +
-                        $"must be provided: {nameof(lat1)}, {nameof(lon1)}, {nameof(lat2)}, {nameof(lon2)}",
+                                       $"must be provided: {nameof(lat1)}, {nameof(lon1)}, {nameof(lat2)}, {nameof(lon2)}",
                         ErrorCode = ErrorCodes.InvalidSearchParameters
                     };
                 }
@@ -205,7 +204,8 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <returns></returns>
         [ErrorCode(nameof(CreateRestaurantRequest.GroupId), ErrorCodes.NotFound)]
-        [ErrorCode(nameof(CreateRestaurantRequest.GroupId), ErrorCodes.AccessDenied, "Group with ID is not owned by the current user")]
+        [ErrorCode(nameof(CreateRestaurantRequest.GroupId), ErrorCodes.AccessDenied,
+            "Group with ID is not owned by the current user")]
         [ValidatorErrorCodes<CreateRestaurantRequest>]
         [ValidatorErrorCodes<Restaurant>]
         public async Task<Result<MyRestaurantVM>> CreateRestaurantAsync(CreateRestaurantRequest request, User user)
@@ -259,7 +259,8 @@ namespace Reservant.Api.Services
                 Nip = request.Nip,
                 PostalIndex = request.PostalIndex,
                 City = request.City.Trim(),
-                Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude, request.Location.Latitude)),
+                Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
+                    request.Location.Latitude)),
                 Group = group,
                 RentalContractFileName = request.RentalContract,
                 AlcoholLicenseFileName = request.AlcoholLicense,
@@ -306,8 +307,12 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 GroupId = restaurant.GroupId,
                 GroupName = group.Name,
-                RentalContract = restaurant.RentalContractFileName is not null ? uploadService.GetPathForFileName(restaurant.RentalContractFileName) : null,
-                AlcoholLicense = restaurant.AlcoholLicenseFileName is not null ? uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName) : null,
+                RentalContract = restaurant.RentalContractFileName is not null
+                    ? uploadService.GetPathForFileName(restaurant.RentalContractFileName)
+                    : null,
+                AlcoholLicense = restaurant.AlcoholLicenseFileName is not null
+                    ? uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName)
+                    : null,
                 BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
                 IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
                 Tables = [], //restaurantVM ma required pole Tables, ale nie dodajemy Tables powyżej
@@ -435,8 +440,10 @@ namespace Reservant.Api.Services
         [ValidatorErrorCodes<AddEmployeeRequest>]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant not owned by user")]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.NotFound)]
-        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.AccessDenied, "User is not a restaurant employee or is not employee of the restaurant owner")]
-        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed, "Employee is alredy employed in a restaurant")]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.AccessDenied,
+            "User is not a restaurant employee or is not employee of the restaurant owner")]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed,
+            "Employee is alredy employed in a restaurant")]
         public async Task<Result<bool>> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
             string employerId)
         {
@@ -493,14 +500,16 @@ namespace Reservant.Api.Services
                 }
 
                 var currentEmployment = await context.Employments
-                    .Where(e => e.EmployeeId == request.EmployeeId && e.RestaurantId == restaurantId && e.DateUntil == null)
+                    .Where(e => e.EmployeeId == request.EmployeeId && e.RestaurantId == restaurantId &&
+                                e.DateUntil == null)
                     .FirstOrDefaultAsync();
 
                 if (currentEmployment != null)
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(request.EmployeeId), // zwracane jest Id pracownika, jako wskaźnik gdzie jest błąd
+                        PropertyName =
+                            nameof(request.EmployeeId), // zwracane jest Id pracownika, jako wskaźnik gdzie jest błąd
                         ErrorCode = ErrorCodes.EmployeeAlreadyEmployed
                     };
                 }
@@ -663,7 +672,8 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.AccessDenied, "User is not the owner of this restaurant.")]
         [ValidatorErrorCodes<UpdateRestaurantRequest>]
         [ValidatorErrorCodes<Restaurant>]
-        public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request, User user)
+        public async Task<Result<MyRestaurantVM>> UpdateRestaurantAsync(int id, UpdateRestaurantRequest request,
+            User user)
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
@@ -724,7 +734,7 @@ namespace Reservant.Api.Services
                     Order = index + 1
                 }).ToList();
 
-            restaurant.Photos=photos;
+            restaurant.Photos = photos;
 
             result = await validationService.ValidateAsync(restaurant, user.Id);
             if (!result.IsValid)
@@ -808,7 +818,8 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <returns></returns>
         [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.NotFound)]
-        [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.AccessDenied, "Group with ID is not owned by the current user")]
+        [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.AccessDenied,
+            "Group with ID is not owned by the current user")]
         public async Task<Result<bool>> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
         {
             var result = await validationService.ValidateAsync(dto, user.Id);
@@ -1085,7 +1096,8 @@ namespace Reservant.Api.Services
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of future events.</returns>
-        public async Task<Result<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurantAsync(int restaurantId, int page, int perPage)
+        public async Task<Result<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurantAsync(int restaurantId,
+            int page, int perPage)
         {
             var restaurant = await context.Restaurants.FindAsync(restaurantId);
             if (restaurant == null)
@@ -1128,7 +1140,8 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.Duplicate, "If the user has already reviewed the restaurant")]
         [ValidatorErrorCodes<CreateReviewRequest>]
         [ValidatorErrorCodes<Review>]
-        public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId, CreateReviewRequest createReviewRequest)
+        public async Task<Result<ReviewVM>> CreateReviewAsync(User user, int restaurantId,
+            CreateReviewRequest createReviewRequest)
         {
             var restaurant = await context.Restaurants
                 .Where(r => r.Id == restaurantId)
@@ -1139,15 +1152,15 @@ namespace Reservant.Api.Services
                 return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
             }
 
-            var createReviewRequestValidation = await validationService.ValidateAsync(createReviewRequest,user.Id);
-            if(!createReviewRequestValidation.IsValid)
+            var createReviewRequestValidation = await validationService.ValidateAsync(createReviewRequest, user.Id);
+            if (!createReviewRequestValidation.IsValid)
             {
                 return createReviewRequestValidation;
             }
 
             var existingReview = await context.Reviews
                 .Where(r => r.RestaurantId == restaurantId)
-                .Where(r => r.Author==user)
+                .Where(r => r.Author == user)
                 .FirstOrDefaultAsync();
 
             if (existingReview != null)
@@ -1167,8 +1180,8 @@ namespace Reservant.Api.Services
             };
 
 
-            var reviewValidation = await validationService.ValidateAsync(newReview,user.Id);
-            if(!reviewValidation.IsValid)
+            var reviewValidation = await validationService.ValidateAsync(newReview, user.Id);
+            if (!reviewValidation.IsValid)
             {
                 return reviewValidation;
             }
@@ -1179,14 +1192,14 @@ namespace Reservant.Api.Services
             var reviewVM = new ReviewVM
             {
                 ReviewId = newReview.Id,
-                RestaurantId=newReview.RestaurantId,
-                AuthorId=newReview.AuthorId,
-                AuthorFullName=newReview.Author.FullName,
-                Stars=newReview.Stars,
-                CreatedAt=newReview.CreatedAt,
-                Contents=newReview.Contents,
-                AnsweredAt=newReview.AnsweredAt,
-                RestaurantResponse=newReview.RestaurantResponse
+                RestaurantId = newReview.RestaurantId,
+                AuthorId = newReview.AuthorId,
+                AuthorFullName = newReview.Author.FullName,
+                Stars = newReview.Stars,
+                CreatedAt = newReview.CreatedAt,
+                Contents = newReview.Contents,
+                AnsweredAt = newReview.AnsweredAt,
+                RestaurantResponse = newReview.RestaurantResponse
             };
 
             return reviewVM;
@@ -1196,7 +1209,8 @@ namespace Reservant.Api.Services
         /// Get reviews for a restaurant
         /// </summary>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId,
+            ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
             var restaurant = await context.Restaurants.FindAsync(restaurantId);
 
@@ -1209,6 +1223,7 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
+
             var reviewsQuery = context.Reviews
                 .Where(r => r.RestaurantId == restaurantId);
 
@@ -1347,8 +1362,8 @@ namespace Reservant.Api.Services
                 .Include(x => x.Table)
                 .Include(x => x.Participants)
                 .Include(x => x.Orders)
-                    .ThenInclude(o => o.OrderItems)
-                        .ThenInclude(oi => oi.MenuItem)
+                .ThenInclude(o => o.OrderItems)
+                .ThenInclude(oi => oi.MenuItem)
                 .Where(e => e.TableRestaurantId == restaurantId);
 
             if (dateStart is not null)
@@ -1407,5 +1422,55 @@ namespace Reservant.Api.Services
 
             return result;
         }
+
+        public async Task<Result<Pagination<IngredientVM>>> GetIngredientsAsync(
+            int restaurantId,
+            IngredientSorting orderBy,
+            int page,
+            int perPage)
+        {
+            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            IQueryable<Ingredient> query = context.MenuItems
+                .AsSplitQuery()
+                .Include(mi => mi.Ingredients)
+                .ThenInclude(imi => imi.Ingredient)
+                .Where(mi => mi.RestaurantId == restaurantId)
+                .SelectMany(mi => mi.Ingredients.Select(imi => imi.Ingredient))
+                .Distinct();
+
+            // Sortowanie
+            query = orderBy switch
+            {
+                IngredientSorting.NameAsc => query.OrderBy(i => i.PublicName),
+                IngredientSorting.NameDesc => query.OrderByDescending(i => i.PublicName),
+                IngredientSorting.AmountAsc => query.OrderBy(i => i.Amount),
+                IngredientSorting.AmountDesc => query.OrderByDescending(i => i.Amount),
+                _ => query.OrderBy(i => i.PublicName) // Domyślne sortowanie
+            };
+
+            // Paginacja i mapowanie do IngredientVM
+            var paginatedResult = await query.Select(i => new IngredientVM
+            {
+                IngredientId = i.Id,
+                PublicName = i.PublicName,
+                UnitOfMeasurement = i.UnitOfMeasurement,
+                MinimalAmount = i.MinimalAmount,
+                AmountToOrder = i.AmountToOrder,
+                Amount = i.Amount
+            }).PaginateAsync(page, perPage, Enum.GetNames<IngredientSorting>());
+
+            return paginatedResult;
+        }
+
     }
 }
