@@ -17,7 +17,7 @@ namespace Reservant.Api.Controllers;
 public class IngredientsController(
     UserManager<User> userManager,
     IngredientService ingredientService
-    ) : StrictController
+) : StrictController
 {
     /// <summary>
     /// Add a new ingredient to the system

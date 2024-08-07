@@ -37,6 +37,7 @@ public class IngredientService(
             UnitOfMeasurement = request.UnitOfMeasurement,
             MinimalAmount = request.MinimalAmount,
             AmountToOrder = request.AmountToOrder,
+            Amount = request.Amount
         };
 
         var validationResult = await validationService.ValidateAsync(ingredient, userId);
@@ -55,6 +56,7 @@ public class IngredientService(
             UnitOfMeasurement = ingredient.UnitOfMeasurement,
             MinimalAmount = ingredient.MinimalAmount,
             AmountToOrder = ingredient.AmountToOrder,
+            Amount = ingredient.Amount
         };
     }
 }
