@@ -26,4 +26,6 @@ public class CreateIngredientRequest
     /// When added to the shopping list, the amount to order
     /// </summary>
     public double? AmountToOrder { get; set; }
+    
+    public required double Amount { get; set; }
 }
