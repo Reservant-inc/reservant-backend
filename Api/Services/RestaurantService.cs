@@ -828,21 +828,21 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Returns a list of menus of a specific restaurant (owner version)
         /// </summary>
-        /// <param name="id">Id of the restaurant.</param>
+        /// <param name="restaurantId">Id of the restaurant.</param>
         /// <returns>A Result object containing a list of MenuSummaryVM or an error message.</returns>
-        public async Task<Result<List<MenuSummaryVM>>> GetMenusCustomerAsync(int id)
+        public async Task<Result<List<MenuSummaryVM>>> GetMenusCustomerAsync(int restaurantId)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
-                .Where(i => i.Id == id)
+                .Where(i => i.Id == restaurantId)
                 .FirstOrDefaultAsync();
 
             if (restaurant == null)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(id),
-                    ErrorMessage = $"Restaurant with ID {id} not found",
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
@@ -873,11 +873,19 @@ namespace Reservant.Api.Services
         /// <returns>MenuItems</returns>
         public async Task<Result<List<MenuItemVM>>> GetMenuItemsCustomerAsync(User user, int restaurantId)
         {
-            var isRestaurantValid = await menuItemsService.ValidateRestaurant(user, restaurantId);
+            var restaurant = await context.Restaurants
+                .Include(r => r.Menus)
+                .Where(i => i.Id == restaurantId)
+                .FirstOrDefaultAsync();
 
-            if (isRestaurantValid.IsError)
+            if (restaurant == null)
             {
-                return isRestaurantValid.Errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             return await context.MenuItems

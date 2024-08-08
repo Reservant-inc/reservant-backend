@@ -265,7 +265,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/menus")]
     [ProducesResponseType(200)]
     [ProducesResponseType(404)]
-    [Authorize(Roles = Roles.Customer)]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
     public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
     {
         var result = await service.GetMenusCustomerAsync(restaurantId);
@@ -284,7 +284,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId">ID of the restaurant</param>
     /// <returns>The found list of menuItems</returns>
     [HttpGet("{restaurantId:int}/menu-items")]
-    [Authorize(Roles = Roles.Customer)]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
     [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
     {
