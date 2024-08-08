@@ -24,6 +24,7 @@ using Reservant.Api.Models.Dtos.Ingredient;
 
 
 
+
 namespace Reservant.Api.Services
 {
     /// <summary>
@@ -56,7 +57,8 @@ namespace Reservant.Api.Services
         UserManager<User> userManager,
         MenuItemsService menuItemsService,
         ValidationService validationService,
-        GeometryFactory geometryFactory)
+        GeometryFactory geometryFactory,
+        AuthorizationService authorizationService)
     {
         /// <summary>
         /// Find restaurants by different criteria
@@ -846,20 +848,25 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Returns a list of menus of specific restaurant
+        /// Returns a list of menus of a specific restaurant (owner version)
         /// </summary>
-        /// <param name="id"> Id of the restaurant.</param>
-        /// <returns></returns>
-        public async Task<List<MenuSummaryVM>?> GetMenusAsync(int id)
+        /// <param name="restaurantId">Id of the restaurant.</param>
+        /// <returns>A Result object containing a list of MenuSummaryVM or an error message.</returns>
+        public async Task<Result<List<MenuSummaryVM>>> GetMenusCustomerAsync(int restaurantId)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
-                .Where(i => i.Id == id)
+                .Where(i => i.Id == restaurantId)
                 .FirstOrDefaultAsync();
 
             if (restaurant == null)
             {
-                return null;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             var menus = restaurant.Menus
@@ -879,20 +886,28 @@ namespace Reservant.Api.Services
         }
 
 
+
         /// <summary>
         /// Validates and gets menu items from the given restaurant
         /// </summary>
         /// <param name="user"></param>
         /// <param name="restaurantId"></param>
         /// <returns>MenuItems</returns>
-        [ValidatorErrorCodes<User>]
-        public async Task<Result<List<MenuItemVM>>> GetMenuItemsAsync(User user, int restaurantId)
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsCustomerAsync(User user, int restaurantId)
         {
-            var isRestaurantValid = await menuItemsService.ValidateRestaurant(user, restaurantId);
+            var restaurant = await context.Restaurants
+                .Include(r => r.Menus)
+                .Where(i => i.Id == restaurantId)
+                .FirstOrDefaultAsync();
 
-            if (isRestaurantValid.IsError)
+            if (restaurant == null)
             {
-                return isRestaurantValid.Errors;
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
             }
 
             return await context.MenuItems
@@ -1407,5 +1422,95 @@ namespace Reservant.Api.Services
 
             return result;
         }
+
+        /// <summary>
+        /// Returns a list of menus of specific restaurant (owner version)
+        /// </summary>
+        /// <param name="id"> Id of the restaurant.</param>
+        /// <returns></returns>
+        public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, User user)
+        {
+            var restaurant = await context.Restaurants
+                .Include(r => r.Menus)
+                .Where(i => i.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(id),
+                    ErrorMessage = $"Restaurant with ID {id} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var result = await authorizationService.VerifyOwnerRole(id, user);
+            if (!result.Value)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(id),
+                    ErrorMessage = $"Restaurant with ID {id} does not belong to user",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var menus = restaurant.Menus
+                .Select(menu => new MenuSummaryVM
+                {
+                    MenuId = menu.Id,
+                    Name = menu.Name,
+                    AlternateName = menu.AlternateName,
+                    MenuType = menu.MenuType,
+                    DateFrom = menu.DateFrom,
+                    DateUntil = menu.DateUntil,
+                    Photo = uploadService.GetPathForFileName(menu.PhotoFileName)
+                })
+                .ToList();
+
+            return new Result<List<MenuSummaryVM>>(menus);
+        }
+
+
+
+        /// <summary>
+        /// Validates and gets menu items from the given restaurant
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="restaurantId"></param>
+        /// <returns>MenuItems</returns>
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(User user, int restaurantId)
+        {
+
+            var result = await authorizationService.VerifyOwnerRole(restaurantId, user);
+            if (result.IsError)
+            {
+                return result.Errors;
+            }
+             
+            if(!result.Value)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User doesnt own this restaurant",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            return await context.MenuItems
+                .Where(i => i.RestaurantId == restaurantId)
+                .Select(i => new MenuItemVM()
+                {
+                    MenuItemId = i.Id,
+                    Name = i.Name,
+                    AlternateName = i.AlternateName,
+                    Price = i.Price,
+                    AlcoholPercentage = i.AlcoholPercentage,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName)
+                }).ToListAsync();
+        }
+
     }
 }

@@ -10,9 +10,10 @@ using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Dtos.Visit;
+using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-
+using Reservant.Api.Models.Dtos.MenuItem;
 namespace Reservant.Api.Controllers;
 
 
@@ -260,5 +261,53 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return Ok(result.Value);
     }
+
+    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    /// <summary>
+    /// Get list of menus by given restaurant id
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("{restaurantId:int}/menus")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
+    public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
+    {
+        var result = await service.GetMenusCustomerAsync(restaurantId);
+
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Gets menu items from the given restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <returns>The found list of menuItems</returns>
+    [HttpGet("{restaurantId:int}/menu-items")]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
+
+        if (res.IsError)
+        {
+            return res.ToValidationProblem();
+        }
+
+        return Ok(res.Value);
+    }
+
 
 }

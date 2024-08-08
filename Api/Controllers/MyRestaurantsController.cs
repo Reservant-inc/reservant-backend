@@ -230,18 +230,22 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet("{restaurantId:int}/menus")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
         {
-            var result = await restaurantService.GetMenusAsync(restaurantId);
+            var user = await userManager.GetUserAsync(User);
 
-            if (result == null)
+            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user);
+
+            if (result.IsError)
             {
-                return NotFound();
+                return result.ToValidationProblem();
             }
 
-            return Ok(result);
+
+            return Ok(result.Value);
         }
 
         /// <summary>
@@ -250,8 +254,9 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId">ID of the restaurant</param>
         /// <returns>The found list of menuItems</returns>
         [HttpGet("{restaurantId:int}/menu-items")]
-        [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsAsync))]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsCustomerAsync))]
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -260,7 +265,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var res = await restaurantService.GetMenuItemsAsync(user, restaurantId);
+            var res = await restaurantService.GetMenuItemsOwnerAsync(user, restaurantId);
 
             if (res.IsError)
             {
