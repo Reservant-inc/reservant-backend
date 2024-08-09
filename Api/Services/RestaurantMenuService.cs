@@ -331,7 +331,7 @@ public class RestaurantMenuService(
     /// <param name="user">Currently logged-in user</param>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied, "Menu is not owned by user")]
-    public async Task<Result<bool>> DeleteMenuAsync(int id, User user)
+    public async Task<Result> DeleteMenuAsync(int id, User user)
     {
         var menu = await context.Menus.Where(m => m.Id == id)
             .Include(m => m.Restaurant)
@@ -358,7 +358,7 @@ public class RestaurantMenuService(
 
         context.Remove(menu);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>

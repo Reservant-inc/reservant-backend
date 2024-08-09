@@ -136,7 +136,7 @@ public class ThreadService(
     /// <param name="threadId"></param>
     /// <param name="userId">ID of the user making the request</param>
     /// <returns></returns>
-    public async Task<Result<bool>> DeleteThreadAsync(int threadId, string userId)
+    public async Task<Result> DeleteThreadAsync(int threadId, string userId)
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
@@ -155,7 +155,7 @@ public class ThreadService(
         dbContext.MessageThreads.Remove(messageThread);
         await dbContext.SaveChangesAsync();
 
-        return true;
+        return Result.Success;
     }
 
     /// <summary>

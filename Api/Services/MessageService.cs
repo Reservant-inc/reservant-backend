@@ -158,7 +158,7 @@ public class MessageService(
     /// <param name="messageId">id of a message</param>
     /// <param name="userId">ID of the user making the request</param>
     /// <returns></returns>
-    public async Task<Result<bool>> DeleteMessageAsync(int messageId, string userId)
+    public async Task<Result> DeleteMessageAsync(int messageId, string userId)
     {
         var message = await dbContext.Messages
             .FirstOrDefaultAsync(t => t.Id == messageId);
@@ -186,7 +186,7 @@ public class MessageService(
         dbContext.Messages.Remove(message);
         await dbContext.SaveChangesAsync();
 
-        return true;
+        return Result.Success;
     }
 
 }

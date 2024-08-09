@@ -118,7 +118,7 @@ public class OrderService(
     /// <param name="id"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<bool>> CancelOrderAsync(int id, User user)
+    public async Task<Result> CancelOrderAsync(int id, User user)
     {
         var userId = user.Id;
 
@@ -154,7 +154,7 @@ public class OrderService(
 
         await context.SaveChangesAsync();
 
-        return true;
+        return Result.Success;
     }
 
     /// <summary>

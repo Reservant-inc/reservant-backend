@@ -432,14 +432,13 @@ namespace Reservant.Api.Services
         /// <param name="listRequest">Information about the employees to add</param>
         /// <param name="restaurantId">ID of the restaurant to add the employee to</param>
         /// <param name="employerId">ID of the current user (restaurant owner)</param>
-        /// <returns>The bool returned inside the result does not mean anything</returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ValidatorErrorCodes<AddEmployeeRequest>]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant not owned by user")]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.NotFound)]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.AccessDenied, "User is not a restaurant employee or is not employee of the restaurant owner")]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed, "Employee is alredy employed in a restaurant")]
-        public async Task<Result<bool>> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
+        public async Task<Result> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
             string employerId)
         {
             var restaurantOwnerId = await context.Restaurants
@@ -521,7 +520,7 @@ namespace Reservant.Api.Services
                 return x;
             }));
             await context.SaveChangesAsync();
-            return true;
+            return Result.Success;
         }
 
         /// <summary>
@@ -811,7 +810,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.NotFound)]
         [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.AccessDenied, "Group with ID is not owned by the current user")]
-        public async Task<Result<bool>> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
+        public async Task<Result> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
         {
             var result = await validationService.ValidateAsync(dto, user.Id);
             if (!result.IsValid)
@@ -844,7 +843,7 @@ namespace Reservant.Api.Services
                 }
             }
 
-            return true;
+            return Result.Success;
         }
 
         /// <summary>
@@ -938,7 +937,7 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result<bool>> SoftDeleteRestaurantAsync(int id, User user)
+        public async Task<Result> SoftDeleteRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
@@ -974,7 +973,7 @@ namespace Reservant.Api.Services
             }
 
             await context.SaveChangesAsync();
-            return true;
+            return Result.Success;
         }
 
         /// <summary>

@@ -151,8 +151,7 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="user">User supposed to be the owner</param>
         /// <param name="restaurantId">ID of the restaurant to check</param>
-        /// <returns>The bool returned is meaningless, errors are returned using the result</returns>
-        public async Task<Result<bool>> ValidateRestaurant(User user, int restaurantId)
+        public async Task<Result> ValidateRestaurant(User user, int restaurantId)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
@@ -178,7 +177,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            return true;
+            return Result.Success;
         }
 
         /// <summary>
@@ -298,7 +297,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Item does not belong to the user.")]
-        public async Task<Result<bool>> DeleteMenuItemByIdAsync(int id, User user)
+        public async Task<Result> DeleteMenuItemByIdAsync(int id, User user)
         {
             var menuItem = await context.MenuItems.Where(m => m.Id == id)
                 .Include(item => item.Restaurant)
@@ -325,7 +324,7 @@ namespace Reservant.Api.Services
 
             context.Remove(menuItem);
             await context.SaveChangesAsync();
-            return true;
+            return Result.Success;
         }
     }
 }

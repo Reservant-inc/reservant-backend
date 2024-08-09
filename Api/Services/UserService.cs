@@ -417,7 +417,7 @@ public class UserService(
     /// <param name="id">ID of the user</param>
     /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result<bool>> ArchiveUserAsync(string id, string employerId)
+    public async Task<Result> ArchiveUserAsync(string id, string employerId)
     {
         var user = await dbContext.Users
             .Include(user => user.Employments)
@@ -460,6 +460,6 @@ public class UserService(
         }
 
         await dbContext.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 }

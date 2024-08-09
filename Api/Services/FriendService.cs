@@ -23,7 +23,7 @@ public class FriendService(ApiDbContext context)
     /// <returns></returns>
     [ErrorCode("<receiverId>", ErrorCodes.NotFound)]
     [ErrorCode("<receiverId>", ErrorCodes.Duplicate, "Friend request already exists")]
-    public async Task<Result<bool>> SendFriendRequestAsync(string senderId, string receiverId)
+    public async Task<Result> SendFriendRequestAsync(string senderId, string receiverId)
     {
         var receiverExists = await context.Users.AnyAsync(u => u.Id == receiverId);
         if (!receiverExists)
@@ -61,7 +61,7 @@ public class FriendService(ApiDbContext context)
 
         context.FriendRequests.Add(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -69,10 +69,9 @@ public class FriendService(ApiDbContext context)
     /// </summary>
     /// <param name="receiverId">Request's receiver ID</param>
     /// <param name="senderId">Request's sender ID</param>
-    /// <returns>The bool returned is meaningless</returns>
     [ErrorCode("<receiverId>", ErrorCodes.NotFound)]
     [ErrorCode("<receiverId>", ErrorCodes.Duplicate, "Friend request already read")]
-    public async Task<Result<bool>> MarkFriendRequestAsReadAsync(string receiverId, string senderId)
+    public async Task<Result> MarkFriendRequestAsReadAsync(string receiverId, string senderId)
     {
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
@@ -100,7 +99,7 @@ public class FriendService(ApiDbContext context)
         friendRequest.DateRead = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -108,10 +107,9 @@ public class FriendService(ApiDbContext context)
     /// </summary>
     /// <param name="receiverId">Request's receiver ID</param>
     /// <param name="senderId">Request's sender ID</param>
-    /// <returns>The bool returned is meaningless</returns>
     [ErrorCode("<reveiverId>", ErrorCodes.NotFound)]
     [ErrorCode("<reveiverId>", ErrorCodes.Duplicate, "Friend request already accepted")]
-    public async Task<Result<bool>> AcceptFriendRequestAsync(string receiverId, string senderId)
+    public async Task<Result> AcceptFriendRequestAsync(string receiverId, string senderId)
     {
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
@@ -139,7 +137,7 @@ public class FriendService(ApiDbContext context)
         friendRequest.DateAccepted = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -149,7 +147,7 @@ public class FriendService(ApiDbContext context)
     /// <param name="senderId">Request's sender ID</param>
     /// <returns></returns>
     [ErrorCode("<reveiverId>", ErrorCodes.NotFound)]
-    public async Task<Result<bool>> DeleteFriendAsync(string receiverId, string senderId)
+    public async Task<Result> DeleteFriendAsync(string receiverId, string senderId)
     {
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
@@ -167,7 +165,7 @@ public class FriendService(ApiDbContext context)
         friendRequest.DateDeleted = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
