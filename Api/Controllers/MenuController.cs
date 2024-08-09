@@ -24,7 +24,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// Gets a single menu with details for a given menu ID and restaurant ID.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("/menus/{menuId:int}")]
+    [HttpGet("{menuId:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.GetSingleMenuAsync))]
@@ -46,7 +46,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
     /// <returns></returns>
-    [HttpGet("/menus/{menuId:int}/items")]
+    [HttpGet("{menuId:int}/items")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.GetMenuItemsAsync))]
@@ -92,7 +92,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <param name="menuId">Id of menu</param>
     /// <param name="request">Request containing MenuItemIds</param>
     /// <returns>The created list of menuItems</returns>
-    [HttpPost("/menus/{menuId:int}/items")]
+    [HttpPost("{menuId:int}/items")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
