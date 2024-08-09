@@ -1507,7 +1507,13 @@ namespace Reservant.Api.Services
                     AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName)
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
+                    Ingredients = i.Ingredients.Select(i => new MenuItemIngredientVM
+                    {
+                        PublicName = i.Ingredient.PublicName,
+                        IngredientId = i.IngredientId,
+                        AmountUsed = i.AmountUsed,
+                    }).ToList(),
                 }).ToListAsync();
         }
 
