@@ -49,7 +49,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     [HttpGet("/menus/{menuId:int}/items")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsAsync))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.GetMenuItemsAsync))]
     public async Task<ActionResult<Pagination<MenuItemSummaryVM>>> GetMenuItems(
         int menuId, int page = 0, int perPage = 20,
         string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)
