@@ -21,7 +21,8 @@ namespace Reservant.Api.Services;
 public class ThreadService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
-    ValidationService validationService)
+    ValidationService validationService,
+    FileUploadService uploadService)
 {
     /// <summary>
     /// Creates a new message thread.
@@ -78,7 +79,15 @@ public class ThreadService(
         {
             ThreadId = messageThread.Id,
             Title = messageThread.Title,
-            Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
+            Participants = messageThread.Participants
+                .Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                })
+                .ToList()
         };
     }
 
@@ -126,7 +135,15 @@ public class ThreadService(
         {
             ThreadId = messageThread.Id,
             Title = messageThread.Title,
-            Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
+            Participants = messageThread.Participants
+                .Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                })
+                .ToList()
         };
     }
 
@@ -204,7 +221,15 @@ public class ThreadService(
         {
             ThreadId = messageThread.Id,
             Title = messageThread.Title,
-            Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
+            Participants = messageThread.Participants
+                .Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                })
+                .ToList()
         };
     }
 

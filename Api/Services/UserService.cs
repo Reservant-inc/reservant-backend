@@ -22,7 +22,8 @@ namespace Reservant.Api.Services;
 public class UserService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
-    ValidationService validationService)
+    ValidationService validationService,
+    FileUploadService uploadService)
 {
     /// <summary>
     /// Used to generate restaurant employee's logins:
@@ -478,6 +479,7 @@ public class UserService(
                 UserId = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
+                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
             })
             .PaginateAsync(page, perPage, []);
     }

@@ -14,7 +14,10 @@ namespace Reservant.Api.Services
     /// <summary>
     /// Service for event management
     /// </summary>
-    public class EventService(ApiDbContext context, ValidationService validationService)
+    public class EventService(
+        ApiDbContext context,
+        ValidationService validationService,
+        FileUploadService uploadService)
     {
         /// <summary>
         /// Action for
@@ -78,7 +81,8 @@ namespace Reservant.Api.Services
                 {
                     FirstName = i.FirstName,
                     LastName = i.LastName,
-                    UserId = i.Id
+                    UserId = i.Id,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
                 }).ToList()
             };
         }
@@ -119,7 +123,8 @@ namespace Reservant.Api.Services
                 {
                     FirstName = i.FirstName,
                     LastName = i.LastName,
-                    UserId = i.Id
+                    UserId = i.Id,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
                 }).ToList()
             };
         }
@@ -334,7 +339,8 @@ namespace Reservant.Api.Services
                 {
                     FirstName = i.FirstName,
                     LastName = i.LastName,
-                    UserId = i.Id
+                    UserId = i.Id,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
                 }).ToList()
             };
         }

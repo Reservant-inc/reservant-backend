@@ -1405,7 +1405,8 @@ namespace Reservant.Api.Services
                     {
                         UserId = p.Id,
                         FirstName = p.FirstName,
-                        LastName = p.LastName
+                        LastName = p.LastName,
+                        Photo = uploadService.GetPathForFileName(p.PhotoFileName),
                     }).ToList(),
                     Orders = e.Orders.Select(o => new OrderSummaryVM
                     {
