@@ -74,7 +74,7 @@ namespace Reservant.Api.Controllers
                 BirthDate = emp.BirthDate,
                 Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
-                Photo = emp.PhotoFileName == null ? null : uploadService.GetPathForFileName(emp.PhotoFileName)
+                Photo = uploadService.GetPathForFileName(emp.PhotoFileName),
             });
         }
         /// <summary>
@@ -109,7 +109,7 @@ namespace Reservant.Api.Controllers
                 BirthDate = emp.BirthDate,
                 Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
-                Photo = emp.PhotoFileName == null ? null : uploadService.GetPathForFileName(emp.PhotoFileName)
+                Photo = uploadService.GetPathForFileName(emp.PhotoFileName),
             });
         }
     }

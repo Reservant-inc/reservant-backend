@@ -70,7 +70,7 @@ public class UserController(
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
-            Photo = user.PhotoFileName == null ? null : uploadService.GetPathForFileName(user.PhotoFileName)
+            Photo = uploadService.GetPathForFileName(user.PhotoFileName),
         });
     }
     /// <summary>
@@ -109,7 +109,7 @@ public class UserController(
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
-            Photo = user.PhotoFileName == null ? null : uploadService.GetPathForFileName(user.PhotoFileName)
+            Photo = uploadService.GetPathForFileName(user.PhotoFileName),
         });
     }
 

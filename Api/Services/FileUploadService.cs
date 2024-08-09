@@ -8,6 +8,7 @@ using Reservant.Api.Models.Dtos.FileUpload;
 using Reservant.Api.Options;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Reservant.Api.Services;
 
@@ -159,10 +160,11 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
         FileClasses.GetValueOrDefault(extension, FileClass.Unknown);
 
     /// <summary>
-    /// Returns the URL path of the uploaded file
+    /// Returns the URL path of the uploaded file or null if fileName is null
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    public string GetPathForFileName(string fileName) =>
-        options.Value.ServePath + '/' + fileName;
+    [return: NotNullIfNotNull(nameof(fileName))]
+    public string? GetPathForFileName(string? fileName) =>
+        fileName == null ? null : $"{options.Value.ServePath}/{fileName}";
 }

@@ -308,8 +308,8 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 GroupId = restaurant.GroupId,
                 GroupName = group.Name,
-                RentalContract = restaurant.RentalContractFileName is not null ? uploadService.GetPathForFileName(restaurant.RentalContractFileName) : null,
-                AlcoholLicense = restaurant.AlcoholLicenseFileName is not null ? uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName) : null,
+                RentalContract = uploadService.GetPathForFileName(restaurant.RentalContractFileName),
+                AlcoholLicense = uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
                 BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
                 IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
                 Tables = [], //restaurantVM ma required pole Tables, ale nie dodajemy Tables powyżej
