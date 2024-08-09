@@ -462,4 +462,23 @@ public class UserService(
         await dbContext.SaveChangesAsync();
         return Result.Success;
     }
+
+    /// <summary>
+    /// Find users
+    /// </summary>
+    /// <param name="name">Search by user's name</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    public async Task<Result<Pagination<UserSummaryVM>>> FindUsersAsync(string name, int page, int perPage)
+    {
+        return await dbContext.Users
+            .Where(u => (u.FirstName + " " + u.LastName).Contains(name))
+            .Select(u => new UserSummaryVM
+            {
+                UserId = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+            })
+            .PaginateAsync(page, perPage, []);
+    }
 }
