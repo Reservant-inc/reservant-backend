@@ -22,7 +22,7 @@ public class WalletService(
     /// <param name="moneyRequest"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<PaymentTransaction>> CreateTransaction(AddMoneyRequest moneyRequest, User user)
+    public async Task<Result> CreateTransaction(AddMoneyRequest moneyRequest, User user)
     {
         var newTransaction = new PaymentTransaction
         {
@@ -41,7 +41,7 @@ public class WalletService(
         context.PaymentTransactions.Add(newTransaction);
         await context.SaveChangesAsync();
 
-        return newTransaction;
+        return Result.Success;
     }
 
     /// <summary>
