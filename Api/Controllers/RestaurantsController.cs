@@ -55,13 +55,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             name, tags,
             lat1, lon1, lat2, lon2,
             page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
 
@@ -121,12 +115,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.GetOrdersAsync(userId, restaurantId, returnFinished, page, perPage, orderBy);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -147,13 +136,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.GetFutureEventsByRestaurantAsync(restaurantId, page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -175,13 +158,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.CreateReviewAsync(user, restaurantId, createReviewRequest);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -201,12 +178,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
         var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -223,12 +195,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<RestaurantVM>> GetRestaurantDetails(int restaurantId)
     {
         var result = await service.GetRestaurantByIdAsync(restaurantId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -253,13 +220,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         [FromQuery] int perPage = 10)
     {
         var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -274,13 +235,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
     {
         var result = await service.GetMenusCustomerAsync(restaurantId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -300,13 +255,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
-
-        if (res.IsError)
-        {
-            return res.ToValidationProblem();
-        }
-
-        return Ok(res.Value);
+        return OkOrErrors(res);
     }
 
 

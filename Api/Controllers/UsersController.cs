@@ -36,7 +36,6 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
         public async Task<ActionResult<UserDetailsVM>> GetEmployee(string employeeId)
         {
-
             var result = await userService.GetEmployeeAsync(employeeId, User);
 
             if (result.IsError)
@@ -60,7 +59,6 @@ namespace Reservant.Api.Controllers
                 EmployerId = emp.EmployerId,
                 Photo = emp.PhotoFileName == null ? null : uploadService.GetPathForFileName(emp.PhotoFileName)
             });
-
         }
         /// <summary>
         /// Updates employee who works for the current user

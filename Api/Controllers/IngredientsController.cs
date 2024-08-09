@@ -36,11 +36,6 @@ public class IngredientsController(
         }
 
         var result = await ingredientService.CreateIngredientAsync(request, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 }

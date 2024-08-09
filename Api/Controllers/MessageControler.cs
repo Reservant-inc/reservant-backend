@@ -39,12 +39,7 @@ public class MessageController(
         }
 
         var result = await messageService.UpdateMessageAsync(messageId, request, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -64,12 +59,7 @@ public class MessageController(
         }
 
         var result = await messageService.MarkMessageAsReadByIdAsync(messageId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -89,12 +79,7 @@ public class MessageController(
         }
 
         var result = await messageService.DeleteMessageAsync(messageId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
 }

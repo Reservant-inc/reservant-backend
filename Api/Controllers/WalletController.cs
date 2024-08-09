@@ -38,13 +38,7 @@ public class WalletController(
         }
 
         var result = await walletService.CreateTransaction(moneyRequest, user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
 
@@ -62,13 +56,7 @@ public class WalletController(
         }
 
         var result = await walletService.GetWalletStatus(user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
 
@@ -88,13 +76,7 @@ public class WalletController(
         }
 
         var result = await walletService.GetTransactionHistory(page, perPage, user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
 
     }
 

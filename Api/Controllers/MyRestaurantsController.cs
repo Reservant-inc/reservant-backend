@@ -44,12 +44,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.CreateRestaurantAsync(request, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
         /// <summary>
         /// Get restaurants owned by the user.
@@ -112,12 +107,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.AddEmployeeAsync(request, restaurantId, userId);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok();
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -138,12 +128,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.MoveRestaurantToGroupAsync(restaurantId, request, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -162,12 +147,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.GetEmployeesAsync(restaurantId, userId);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -189,13 +169,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.UpdateRestaurantAsync(restaurantId, request, user);
-
-            if (!result.IsError)
-            {
-                return Ok(result.Value);
-            }
-
-            return result.ToValidationProblem();
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -215,13 +189,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.ValidateFirstStepAsync(dto, user);
-
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok();
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -238,14 +206,7 @@ namespace Reservant.Api.Controllers
             var user = await userManager.GetUserAsync(User);
 
             var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user);
-
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -266,13 +227,7 @@ namespace Reservant.Api.Controllers
             }
 
             var res = await restaurantService.GetMenuItemsOwnerAsync(user, restaurantId);
-
-            if (res.IsError)
-            {
-                return res.ToValidationProblem();
-            }
-
-            return Ok(res.Value);
+            return OkOrErrors(res);
         }
 
         /// <summary>
@@ -291,13 +246,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.SoftDeleteRestaurantAsync(restaurantId, user);
-
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return NoContent();
+            return OkOrErrors(result);
         }
     }
 }

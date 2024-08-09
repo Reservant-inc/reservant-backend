@@ -38,12 +38,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.CreateThreadAsync(request, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -64,12 +59,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.UpdateThreadAsync(threadId, request, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -89,12 +79,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.DeleteThreadAsync(threadId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -114,12 +99,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.GetThreadAsync(threadId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -140,12 +120,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.CreateThreadsMessageAsync(threadId, userId,createMessageRequest);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -167,12 +142,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, returnBefore, perPage);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        } 
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 }
 

@@ -35,13 +35,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.SendFriendRequestAsync(user.Id, userId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -61,13 +55,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.MarkFriendRequestAsReadAsync(user.Id, senderId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -87,13 +75,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.AcceptFriendRequestAsync(user.Id, senderId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -113,13 +95,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.DeleteFriendAsync(user.Id, userId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -141,8 +117,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.GetFriendsAsync(user.Id, page, perPage);
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -164,8 +139,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.GetIncomingFriendRequestsAsync(user.Id, page, perPage);
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -187,7 +161,6 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.GetOutgoingFriendRequestsAsync(user.Id, page, perPage);
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 }

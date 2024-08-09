@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers;
 
@@ -51,4 +52,42 @@ public class StrictController : Controller
     /// to ensure the declared return type matches the actual returned value's type
     /// </summary>
     protected new StrictEmptyActionResult NoContent() => new(base.NoContent());
+
+    /// <summary>
+    /// Create an ActionResult from a result
+    /// </summary>
+    /// <remarks>
+    /// 200 OK with the result's value if the result is successful<br/>
+    /// 400 BAD REQUEST if there are validation errors
+    /// </remarks>
+    protected ActionResult<T> OkOrErrors<T>(Result<T> result)
+    {
+        if (result.IsError)
+        {
+            var problemDetails = ((CustomProblemDetailsFactory)ProblemDetailsFactory)
+                .CreateFluentValidationProblemDetails(result.Errors);
+            return new ObjectResult(problemDetails);
+        }
+
+        return base.Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Create an OkResult from a result
+    /// </summary>
+    /// <remarks>
+    /// 204 NO CONTENT if the result is successful<br/>
+    /// 400 BAD REQUEST if there are validation errors
+    /// </remarks>
+    protected StrictEmptyActionResult OkOrErrors(Result result)
+    {
+        if (result.IsError)
+        {
+            var problemDetails = ((CustomProblemDetailsFactory)ProblemDetailsFactory)
+                .CreateFluentValidationProblemDetails(result.Errors);
+            return new StrictEmptyActionResult(new ObjectResult(problemDetails));
+        }
+
+        return new StrictEmptyActionResult(base.NoContent());
+    }
 }

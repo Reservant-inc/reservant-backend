@@ -132,15 +132,7 @@ public class UserController(
         }
 
         var result = await userService.GetVisitsAsync(user, page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-        else
-        {
-            return Ok(result.Value);
-        }
+        return OkOrErrors(result);
     }
 
 
@@ -161,15 +153,7 @@ public class UserController(
         }
 
         var result = await userService.GetVisitHistoryAsync(user, page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-        else
-        {
-            return Ok(result.Value);
-        }
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -188,11 +172,7 @@ public class UserController(
         }
 
         var result = await eventService.GetEventsCreatedAsync(user);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -213,12 +193,7 @@ public class UserController(
         }
 
         var result = await userService.ArchiveUserAsync(employeeId, user.Id);
-
-        if (result.IsError) {
-            return result.ToValidationProblem();
-        }
-
-        return NoContent();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -239,13 +214,7 @@ public class UserController(
         }
 
         var result = await eventService.GetEventsInterestedInAsync(user,page,perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -266,11 +235,6 @@ public class UserController(
         }
 
         var result = await threadService.GetUserThreadsAsync(userId, page, perPage);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 }

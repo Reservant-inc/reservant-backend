@@ -31,10 +31,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     public async Task<ActionResult<MenuVM>> GetSingleMenuById(int menuId)
     {
         var result = await service.GetSingleMenuAsync(menuId);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -55,10 +52,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)
     {
         var result = await service.GetMenuItemsAsync(menuId, page, perPage, name, orderBy);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -80,10 +74,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var result = await service.PostMenuToRestaurant(req, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -107,10 +98,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var result = await service.AddItemsToMenuAsync(menuId, request, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -133,10 +121,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var result = await service.UpdateMenuAsync(request, menuId, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -155,13 +140,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var res = await service.DeleteMenuAsync(menuId, user);
-
-        if (res.IsError)
-        {
-            return res.ToValidationProblem();
-        }
-
-        return NoContent();
+        return OkOrErrors(res);
     }
 
 
