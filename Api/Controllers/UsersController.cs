@@ -17,6 +17,9 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Find users
         /// </summary>
+        /// <remarks>
+        /// Only searches for customers
+        /// </remarks>
         /// <param name="name">Search by user's name</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>

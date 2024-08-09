@@ -472,15 +472,18 @@ public class UserService(
     /// <param name="perPage">Items per page</param>
     public async Task<Result<Pagination<UserSummaryVM>>> FindUsersAsync(string name, int page, int perPage)
     {
-        return await dbContext.Users
-            .Where(u => (u.FirstName + " " + u.LastName).Contains(name))
-            .Select(u => new UserSummaryVM
+        var query =
+            from u in dbContext.Users
+            join ur in dbContext.UserRoles on u.Id equals ur.UserId
+            join r in dbContext.Roles on ur.RoleId equals r.Id
+            where (u.FirstName + " " + u.LastName).Contains(name) && r.Name == Roles.Customer
+            select new UserSummaryVM
             {
                 UserId = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Photo = uploadService.GetPathForFileName(u.PhotoFileName),
-            })
-            .PaginateAsync(page, perPage, []);
+            };
+        return await query.PaginateAsync(page, perPage, []);
     }
 }
