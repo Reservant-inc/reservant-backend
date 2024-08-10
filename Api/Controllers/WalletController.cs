@@ -28,7 +28,7 @@ public class WalletController(
     /// </summary>
     /// <param name="moneyRequest"></param>
     /// <returns></returns>
-    [HttpPost("/add-money")]
+    [HttpPost("add-money")]
     public async Task<ActionResult> CreateTransaction(AddMoneyRequest moneyRequest)
     {
         var user = await userManager.GetUserAsync(User);
@@ -46,7 +46,7 @@ public class WalletController(
     /// Gets the status of user's wallet
     /// </summary>
     /// <returns></returns>
-    [HttpGet("/status")]
+    [HttpGet("status")]
     public async Task<ActionResult<WalletStatusVM>> GetWalletStatus()
     {
         var user = await userManager.GetUserAsync(User);
@@ -66,7 +66,7 @@ public class WalletController(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    [HttpGet("/history")]
+    [HttpGet("history")]
     public async Task<ActionResult<Pagination<TransactionVM>>> GetTransactionHistory([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
