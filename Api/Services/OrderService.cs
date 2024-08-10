@@ -53,7 +53,18 @@ public class OrderService(
         var user = await userManager.GetUserAsync(claim);
         var roles = await userManager.GetRolesAsync(user!);
 
-        if (roles.Contains(Roles.Customer)
+        if (roles.Contains(Roles.RestaurantOwner))
+        {
+            if (visit!.Restaurant.Group.OwnerId != user!.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+        }
+        else if (roles.Contains(Roles.Customer)
             && visit!.ClientId != user!.Id
             && !visit.Participants.Contains(user))
         {
@@ -63,27 +74,13 @@ public class OrderService(
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }
-
-        if (roles.Contains(Roles.RestaurantEmployee))
+        else if (roles.Contains(Roles.RestaurantEmployee))
         {
             var employment = await context.Employments
                 .Where(e => e.EmployeeId == user!.Id)
                 .ToListAsync();
 
             if (!employment.Any(e => e.RestaurantId == visit!.RestaurantId))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-        }
-
-        if (roles.Contains(Roles.RestaurantOwner))
-        {
-            if (visit!.Restaurant.Group.OwnerId != user!.Id)
             {
                 return new ValidationFailure
                 {
