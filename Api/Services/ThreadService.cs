@@ -303,21 +303,10 @@ public class ThreadService(
     /// </summary>
     /// <param name="threadId">id of thread</param>
     /// <param name="userId">id of thread</param>
-    /// <param name="returnBefore">Return messages before (&lt;) the time. Used for pagination</param>
+    /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
-    /// <returns>returns paginated messages starting with provided message id </returns>
-    public async Task<Result<List<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, DateTime? returnBefore, int perPage)
+    public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int page, int perPage)
     {
-        if (perPage > 100)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(perPage),
-                ErrorMessage = "Can load at most 100 messages at once",
-                ErrorCode = ErrorCodes.InvalidPerPageValue,
-            };
-        }
-
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId);
@@ -345,11 +334,6 @@ public class ThreadService(
         var query = dbContext.Messages
             .Include(m => m.Author)
             .Where(m => m.MessageThreadId == threadId);
-        
-        if (returnBefore is not null)
-        {
-            query = query.Where(m => m.DateSent < returnBefore);
-        }
 
         return await query
             .OrderByDescending(m => m.DateSent)
@@ -363,7 +347,6 @@ public class ThreadService(
                 AuthorsLastName = m.Author.LastName,
                 MessageThreadId = m.MessageThreadId
             })
-            .Take(perPage)
-            .ToListAsync();
+            .PaginateAsync(page, perPage, [], maxPerPage: 100);
     }
 }
