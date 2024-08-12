@@ -1,6 +1,6 @@
 ﻿namespace Reservant.Api.Models.Dtos.Ingredient
 {
-    public class MenuItems
+    public class UsedInMenuItemDto
     {
         /// <summary>
         /// id of menu item

@@ -31,28 +31,26 @@ public class IngredientService(
         {
             return result;
         }
-        var MenuItemIDs = new List<int>();
-        foreach (var item in request.MenuItems)
-        {
-            MenuItemIDs.Add(item.MenuItemId);
-        }
-        var restaurants = await dbContext.MenuItems.Where(m => MenuItemIDs.Contains(m.Id)).ToListAsync();
-        if (restaurants.Count == 0)
+        var menuItem = await dbContext.MenuItems.Include(m => m.Ingredients).Where(m => m.Id == request.MenuItem.MenuItemId).FirstOrDefaultAsync();
+        if (menuItem is null)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(request.MenuItems),
+                PropertyName = nameof(request.MenuItem),
                 ErrorMessage = ErrorCodes.NotFound,
                 ErrorCode = ErrorCodes.NotFound
             };
         }
-        if (restaurants.Count > 1)
+
+        var restaurant = await dbContext.Restaurants.Include(r => r.MenuItems).Include(r => r.Group).Where(r => r.Group.OwnerId == userId && r.MenuItems.Contains(menuItem)).FirstOrDefaultAsync();
+
+        if (restaurant is null)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(request.MenuItems),
-                ErrorCode = ErrorCodes.MaximumOneRestaurant,
-                ErrorMessage = ErrorCodes.MaximumOneRestaurant
+                PropertyName = nameof(request.MenuItem),
+                ErrorMessage = ErrorCodes.AccessDenied,
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
@@ -61,8 +59,19 @@ public class IngredientService(
             PublicName = request.PublicName,
             UnitOfMeasurement = request.UnitOfMeasurement,
             MinimalAmount = request.MinimalAmount,
-            AmountToOrder = request.AmountToOrder,
+            AmountToOrder = request.AmountToOrder
         };
+
+        var ingredientMenuItem = new IngredientMenuItem
+        {
+            MenuItemId = menuItem.Id,
+            IngredientId = ingredient.Id,
+            AmountUsed = ingredient.MinimalAmount,
+            MenuItem = menuItem,
+            Ingredient = ingredient
+        };
+
+        menuItem.Ingredients.Add(ingredientMenuItem);
 
         var validationResult = await validationService.ValidateAsync(ingredient, userId);
         if (!validationResult.IsValid)
@@ -71,6 +80,7 @@ public class IngredientService(
         }
 
         dbContext.Ingredients.Add(ingredient);
+        dbContext.IngredientMenuItems.Add(ingredientMenuItem);
         await dbContext.SaveChangesAsync();
 
         return new IngredientVM

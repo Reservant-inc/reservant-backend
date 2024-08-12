@@ -31,5 +31,5 @@ public class CreateIngredientRequest
     /// <summary>
     /// Property that tells what menu items used what amount of ingredients
     /// </summary>
-    public required List<MenuItems> MenuItems {get; set;}
+    public required UsedInMenuItemDto MenuItem {get; set;}
 }
