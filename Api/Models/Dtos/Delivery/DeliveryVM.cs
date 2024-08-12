@@ -9,5 +9,5 @@ public class DeliveryVM
     public DateTime? DeliveredTime { get; set; }
     public int RestaurantId { get; set; }
     public string? UserId { get; set; } = null!;
-    public required List<IngredientVM> Ingredients { get; init; }
+    public required List<IngredientDeliveryVM> Ingredients { get; init; }
 }

@@ -39,10 +39,15 @@ public class DeliveryService(
             DeliveredTime = delivery.DeliveredTime,
             RestaurantId = delivery.RestaurantId,
             UserId = delivery.UserId,
-            Ingredients = delivery.Ingredients.Select(i => new IngredientVM
+            Ingredients = delivery.Ingredients.Select(i => new IngredientDeliveryVM
             {
-                
-            })
+                DeliveryId = i.DeliveryId,
+                IngredientId = i.IngredientId,
+                AmountOrdered = i.AmountOrdered,
+                AmountDelivered = i.AmountDelivered,
+                ExpiryDate = i.ExpiryDate,
+                StoreName = i.StoreName,
+            }).ToList()
         };
     }
 }
