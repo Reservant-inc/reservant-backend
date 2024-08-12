@@ -1,6 +1,8 @@
-﻿namespace Reservant.Api.Models.Dtos.Delivery;
+﻿using Reservant.Api.Models.Dtos.Ingredient;
+
+namespace Reservant.Api.Models.Dtos.Delivery;
 
 public class CreateDeliveryRequest
 {
-    public required List<DeliveryPositionVM> Positions { get; init; }
+    public required List<IngredientVM> Positions { get; init; }
 }
