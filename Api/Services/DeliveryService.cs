@@ -31,7 +31,6 @@ public class DeliveryService(
                 ErrorCode = ErrorCodes.NotFound
             };
         }
-
         return new DeliveryVM
         {
             Id = delivery.Id,
@@ -39,15 +38,19 @@ public class DeliveryService(
             DeliveredTime = delivery.DeliveredTime,
             RestaurantId = delivery.RestaurantId,
             UserId = delivery.UserId,
-            Ingredients = delivery.Ingredients.Select(i => new IngredientDeliveryVM
-            {
-                DeliveryId = i.DeliveryId,
-                IngredientId = i.IngredientId,
-                AmountOrdered = i.AmountOrdered,
-                AmountDelivered = i.AmountDelivered,
-                ExpiryDate = i.ExpiryDate,
-                StoreName = i.StoreName,
-            }).ToList()
+            Ingredients = await context.Entry(delivery)
+                            .Collection(d => d.Ingredients)
+                            .Query()
+                            .Select(i => new IngredientDeliveryVM
+                            {
+                                DeliveryId = i.DeliveryId,
+                                IngredientId = i.IngredientId,
+                                AmountOrdered = i.AmountOrdered,
+                                AmountDelivered = i.AmountDelivered,
+                                ExpiryDate = i.ExpiryDate,
+                                StoreName = i.StoreName,
+                            })
+                            .ToListAsync()
         };
     }
 }
