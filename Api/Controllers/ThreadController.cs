@@ -24,6 +24,9 @@ public class ThreadsController(
     /// <summary>
     /// Create a new thread
     /// </summary>
+    /// <remarks>
+    /// The current user is added to the participant list automatically
+    /// </remarks>
     /// <param name="request">Thread creation request</param>
     /// <returns>Created thread information</returns>
     [HttpPost]
