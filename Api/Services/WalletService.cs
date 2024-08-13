@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ErrorCodeDocs.Attributes;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
@@ -22,6 +23,7 @@ public class WalletService(
     /// <param name="moneyRequest"></param>
     /// <param name="user"></param>
     /// <returns></returns>
+    [ValidatorErrorCodes<PaymentTransaction>]
     public async Task<Result> CreateTransaction(AddMoneyRequest moneyRequest, User user)
     {
         var newTransaction = new PaymentTransaction
@@ -68,6 +70,7 @@ public class WalletService(
     /// <param name="perPage"></param>
     /// <param name="user"></param>
     /// <returns></returns>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<TransactionVM>>> GetTransactionHistory(int page, int perPage, User user)
     {
         var transactions = context.PaymentTransactions

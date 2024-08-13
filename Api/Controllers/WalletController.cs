@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ErrorCodeDocs.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
@@ -29,6 +30,8 @@ public class WalletController(
     /// <param name="moneyRequest"></param>
     /// <returns></returns>
     [HttpPost("add-money")]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes<WalletService>(nameof(WalletService.CreateTransaction))]
     public async Task<ActionResult> CreateTransaction(AddMoneyRequest moneyRequest)
     {
         var user = await userManager.GetUserAsync(User);
@@ -47,6 +50,7 @@ public class WalletController(
     /// </summary>
     /// <returns></returns>
     [HttpGet("status")]
+    [ProducesResponseType(200)]
     public async Task<ActionResult<WalletStatusVM>> GetWalletStatus()
     {
         var user = await userManager.GetUserAsync(User);
@@ -66,6 +70,8 @@ public class WalletController(
     /// <param name="perPage"></param>
     /// <returns></returns>
     [HttpGet("history")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<WalletService>(nameof(WalletService.GetTransactionHistory))]
     public async Task<ActionResult<Pagination<TransactionVM>>> GetTransactionHistory([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
