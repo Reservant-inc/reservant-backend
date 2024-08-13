@@ -55,8 +55,7 @@ public class WalletController(
             return Unauthorized();
         }
 
-        var result = await walletService.GetWalletStatus(user);
-        return OkOrErrors(result);
+        return await walletService.GetWalletStatus(user);
     }
 
 

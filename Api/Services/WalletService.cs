@@ -49,7 +49,7 @@ public class WalletService(
     /// </summary>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<WalletStatusVM>> GetWalletStatus(User user)
+    public async Task<WalletStatusVM> GetWalletStatus(User user)
     {
         var balance = await context.PaymentTransactions
             .Where(p => p.UserId == user.Id)
