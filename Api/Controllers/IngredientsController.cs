@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ErrorCodeDocs.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
@@ -27,6 +28,7 @@ public class IngredientsController(
     [HttpPost]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.RestaurantOwner)]
+    [MethodErrorCodes<IngredientService>(nameof(IngredientService.CreateIngredientAsync))]
     public async Task<ActionResult<IngredientVM>> CreateIngredient([FromBody] CreateIngredientRequest request)
     {
         var userId = userManager.GetUserId(User);
