@@ -26,6 +26,7 @@ public class IngredientService(
     /// <param name="userId">ID of the creator user</param>
     /// <returns></returns>
     [ValidatorErrorCodes<CreateIngredientRequest>]
+    [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(request.MenuItem), ErrorCodes.NotFound)]
     [ErrorCode(nameof(request.MenuItem), ErrorCodes.AccessDenied)]
     public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, string userId)
