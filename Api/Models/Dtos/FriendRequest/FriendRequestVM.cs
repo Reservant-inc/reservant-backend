@@ -16,9 +16,14 @@ public class FriendRequestVM
     public required DateTime? DateRead { get; init; }
 
     /// <summary>
-    /// Date and time when the request was accepted by the receiver
+    /// Date and time when the request was answered by the receiver
     /// </summary>
-    public required DateTime? DateAccepted { get; init; }
+    public required DateTime? DateAnswered { get; init; }
+
+    /// <summary>
+    /// Indicates whether the request was accepted
+    /// </summary>
+    public required bool? IsAccepted { get; init; }
 
     /// <summary>
     /// ID of the sender

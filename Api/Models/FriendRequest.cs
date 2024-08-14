@@ -23,9 +23,14 @@ public class FriendRequest
     public DateTime? DateRead { get; set; }
 
     /// <summary>
-    /// Date and time when the request was accepted by the receiver
+    /// Date and time when the request was answered (accepted or rejected) by the receiver
     /// </summary>
-    public DateTime? DateAccepted { get; set; }
+    public DateTime? DateAnswered { get; set; }
+
+    /// <summary>
+    /// Indicates whether the request was accepted
+    /// </summary>
+    public bool? IsAccepted { get; set; }
 
     /// <summary>
     /// Date the friend request was deleted

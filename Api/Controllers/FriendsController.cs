@@ -163,4 +163,25 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         var result = await service.GetOutgoingFriendRequestsAsync(user.Id, page, perPage);
         return OkOrErrors(result);
     }
+    
+    /// <summary>
+    /// Reject a friend request
+    /// </summary>
+    /// <param name="senderId">ID of the user</param>
+    [HttpPost("{senderId}/reject-request")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.RejectFriendRequestAsync))]
+    public async Task<ActionResult> RejectFriendRequest(string senderId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.RejectFriendRequestAsync(user.Id, senderId);
+        return OkOrErrors(result);
+    }
+
 }
