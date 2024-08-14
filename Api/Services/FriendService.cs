@@ -13,7 +13,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing friends and friend requests
 /// </summary>
-public class FriendService(ApiDbContext context)
+public class FriendService(ApiDbContext context, FileUploadService uploadService)
 {
     /// <summary>
     /// Create a friend request
@@ -186,10 +186,21 @@ public class FriendService(ApiDbContext context)
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                SenderId = fr.SenderId,
-                ReceiverId = fr.ReceiverId,
-                SenderName = fr.Sender.FullName,
-                ReceiverName = fr.Receiver.FullName
+                OtherUser = fr.ReceiverId == userId
+                    ? new Models.Dtos.User.UserSummaryVM
+                    {
+                        UserId = fr.SenderId,
+                        FirstName = fr.Sender.FirstName,
+                        LastName = fr.Sender.LastName,
+                        Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
+                    }
+                    : new Models.Dtos.User.UserSummaryVM
+                    {
+                        UserId = fr.ReceiverId,
+                        FirstName = fr.Receiver.FirstName,
+                        LastName = fr.Receiver.LastName,
+                        Photo = uploadService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                    },
             });
 
         return await query.PaginateAsync(page, perPage, []);
@@ -213,10 +224,13 @@ public class FriendService(ApiDbContext context)
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                SenderId = fr.SenderId,
-                ReceiverId = fr.ReceiverId,
-                SenderName = fr.Sender.FullName,
-                ReceiverName = fr.Receiver.FullName
+                OtherUser = new Models.Dtos.User.UserSummaryVM
+                {
+                    UserId = fr.SenderId,
+                    FirstName = fr.Sender.FirstName,
+                    LastName = fr.Sender.LastName,
+                    Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
+                },
             });
 
         return await query.PaginateAsync(page, perPage, []);
@@ -240,10 +254,13 @@ public class FriendService(ApiDbContext context)
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                SenderId = fr.SenderId,
-                ReceiverId = fr.ReceiverId,
-                SenderName = fr.Sender.FullName,
-                ReceiverName = fr.Receiver.FullName
+                OtherUser  = new Models.Dtos.User.UserSummaryVM
+                {
+                    UserId = fr.ReceiverId,
+                    FirstName = fr.Receiver.FirstName,
+                    LastName = fr.Receiver.LastName,
+                    Photo = uploadService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                },
             });
 
         return await query.PaginateAsync(page, perPage, []);
