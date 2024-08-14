@@ -232,8 +232,8 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of ingredients</returns>
-    [HttpGet("{restaurantId:int}/ingredient")]
-    [Authorize(Roles = "RestaurantOwner,Employee")]
+    [HttpGet("{restaurantId:int}/ingredients")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [ProducesResponseType(401)]
