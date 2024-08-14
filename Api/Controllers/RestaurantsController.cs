@@ -249,6 +249,37 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
 
         return OkOrErrors(result);
     }
+    
+    /// <summary>
+    /// Get list of ingredients for a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="orderBy">Sorting order</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns>Paginated list of ingredients</returns>
+    [HttpGet("{restaurantId:int}/ingredient")]
+    [Authorize(Roles = "RestaurantOwner,Employee")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(403)]
+    [ProducesResponseType(404)]
+    public async Task<ActionResult<Pagination<IngredientVM>>> GetIngredients(
+        int restaurantId,
+        [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 20)
+    {
+        var result = await service.GetIngredientsAsync(restaurantId, orderBy, page, perPage);
+
+        if (!result.IsError)
+        {
+            return Ok(result.Value);
+        }
+
+        return result.ToValidationProblem();
+    }
 
     //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     /// <summary>
