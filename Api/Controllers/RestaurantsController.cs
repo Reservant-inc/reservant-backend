@@ -247,12 +247,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     {
         var result = await service.GetIngredientsAsync(restaurantId, orderBy, page, perPage);
 
-        if (!result.IsError)
-        {
-            return Ok(result.Value);
-        }
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA

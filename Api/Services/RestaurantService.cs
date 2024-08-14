@@ -436,8 +436,10 @@ namespace Reservant.Api.Services
         [ValidatorErrorCodes<AddEmployeeRequest>]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant not owned by user")]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.NotFound)]
-        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.AccessDenied, "User is not a restaurant employee or is not employee of the restaurant owner")]
-        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed, "Employee is alredy employed in a restaurant")]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.AccessDenied,
+            "User is not a restaurant employee or is not employee of the restaurant owner")]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed,
+            "Employee is alredy employed in a restaurant")]
         public async Task<Result> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
             string employerId)
         {
@@ -812,7 +814,8 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <returns></returns>
         [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.NotFound)]
-        [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.AccessDenied, "Group with ID is not owned by the current user")]
+        [ErrorCode(nameof(ValidateRestaurantFirstStepRequest.GroupId), ErrorCodes.AccessDenied,
+            "Group with ID is not owned by the current user")]
         public async Task<Result> ValidateFirstStepAsync(ValidateRestaurantFirstStepRequest dto, User user)
         {
             var result = await validationService.ValidateAsync(dto, user.Id);
@@ -886,7 +889,6 @@ namespace Reservant.Api.Services
 
             return menus;
         }
-
 
 
         /// <summary>
@@ -1431,6 +1433,49 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
+        /// Validates and gets menu items from the given restaurant
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="restaurantId"></param>
+        /// <returns>MenuItems</returns>
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(User user, int restaurantId)
+        {
+            var result = await authorizationService.VerifyOwnerRole(restaurantId, user);
+            if (result.IsError)
+            {
+                return result.Errors;
+            }
+
+            if (!result.Value)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User doesnt own this restaurant",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            return await context.MenuItems
+                .Where(i => i.RestaurantId == restaurantId)
+                .Select(i => new MenuItemVM()
+                {
+                    MenuItemId = i.Id,
+                    Name = i.Name,
+                    AlternateName = i.AlternateName,
+                    Price = i.Price,
+                    AlcoholPercentage = i.AlcoholPercentage,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
+                    Ingredients = i.Ingredients.Select(i => new MenuItemIngredientVM
+                    {
+                        PublicName = i.Ingredient.PublicName,
+                        IngredientId = i.IngredientId,
+                        AmountUsed = i.AmountUsed,
+                    }).ToList(),
+                }).ToListAsync();
+        }
+
+        /// <summary>
         /// Returns a list of menus of specific restaurant (owner version)
         /// </summary>
         /// <param name="id"> Id of the restaurant.</param>
@@ -1441,7 +1486,12 @@ namespace Reservant.Api.Services
                 .Include(r => r.Menus)
                 .Where(i => i.Id == id)
                 .FirstOrDefaultAsync();
-                PropertyName = nameof(id),
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(id),
                     ErrorMessage = $"Restaurant with ID {id} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
@@ -1474,59 +1524,16 @@ namespace Reservant.Api.Services
             return new Result<List<MenuSummaryVM>>(menus);
         }
 
-
-
-        /// <summary>
-        /// Validates and gets menu items from the given restaurant
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="restaurantId"></param>
-        /// <returns>MenuItems</returns>
-        public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(User user, int restaurantId)
-        {
-
-            var result = await authorizationService.VerifyOwnerRole(restaurantId, user);
-            if (result.IsError)
-            {
-                return result.Errors;
-            }
-             
-            if(!result.Value)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorMessage = "User doesnt own this restaurant",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
-            return await context.MenuItems
-                .Where(i => i.RestaurantId == restaurantId)
-                .Select(i => new MenuItemVM()
-                {
-                    MenuItemId = i.Id,
-                    Name = i.Name,
-                    AlternateName = i.AlternateName,
-                    Price = i.Price,
-                    AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
-                    Ingredients = i.Ingredients.Select(i => new MenuItemIngredientVM
-                    {
-                        PublicName = i.Ingredient.PublicName,
-                        IngredientId = i.IngredientId,
-                        AmountUsed = i.AmountUsed,
-                    }).ToList(),
-                }).ToListAsync();
-
+        [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
+        [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
         public async Task<Result<Pagination<IngredientVM>>> GetIngredientsAsync(
             int restaurantId,
             IngredientSorting orderBy,
             int page,
             int perPage)
         {
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
-            if (restaurant == null)
+            bool restaurantExists = await context.Restaurants.AnyAsync(r => r.Id == restaurantId);
+            if (!restaurantExists)
             {
                 return new ValidationFailure
                 {
@@ -1538,8 +1545,6 @@ namespace Reservant.Api.Services
 
             IQueryable<Ingredient> query = context.MenuItems
                 .AsSplitQuery()
-                .Include(mi => mi.Ingredients)
-                .ThenInclude(imi => imi.Ingredient)
                 .Where(mi => mi.RestaurantId == restaurantId)
                 .SelectMany(mi => mi.Ingredients.Select(imi => imi.Ingredient))
                 .Distinct();
@@ -1551,7 +1556,7 @@ namespace Reservant.Api.Services
                 IngredientSorting.NameDesc => query.OrderByDescending(i => i.PublicName),
                 IngredientSorting.AmountAsc => query.OrderBy(i => i.Amount),
                 IngredientSorting.AmountDesc => query.OrderByDescending(i => i.Amount),
-                _ => query.OrderBy(i => i.PublicName) // Domyślne sortowanie
+                _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, $"Unsupported sorting option: {orderBy}")
             };
 
             // Paginacja i mapowanie do IngredientVM
@@ -1567,5 +1572,5 @@ namespace Reservant.Api.Services
 
             return paginatedResult;
         }
-
     }
+}
