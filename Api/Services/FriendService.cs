@@ -175,6 +175,7 @@ public class FriendService(ApiDbContext context)
     /// <param name="page">Page</param>
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<FriendRequestVM>>> GetFriendsAsync(string userId, int page, int perPage)
     {
         var query = context.FriendRequests

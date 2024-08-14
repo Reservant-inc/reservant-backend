@@ -105,8 +105,9 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <param name="perPage">Records per page</param>
     /// <returns>List of friends</returns>
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetFriendsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetFriends([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
