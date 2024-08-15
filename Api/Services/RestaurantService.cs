@@ -1442,15 +1442,18 @@ namespace Reservant.Api.Services
         /// <param name="userId">Search by user ID</param>
         /// <param name="userName">Search by user name</param>
         /// <param name="orderBy">Order results by</param>
+        /// <param name="currentUserId">ID of the current user for permission checks</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         [ErrorCode(null, ErrorCodes.NotFound, "Restaurant with the given ID not found")]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
         public async Task<Result<Pagination<DeliverySummaryVM>>> GetDeliveriesInRestaurantAsync(
             int restaurantId,
             bool returnDelivered,
             string? userId,
             string? userName,
             DeliverySorting orderBy,
+            string currentUserId,
             int page = 0,
             int perPage = 10)
         {
@@ -1463,6 +1466,8 @@ namespace Reservant.Api.Services
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                 };
             }
+
+            var access = authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
 
             var query = context.Deliveries
                 .Where(d => d.RestaurantId == restaurantId);

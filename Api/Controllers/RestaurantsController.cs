@@ -271,7 +271,8 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         int perPage = 10)
     {
         var result = await service.GetDeliveriesInRestaurantAsync(
-            restaurantId, returnDelivered, userId, userName, orderBy, page, perPage);
+            restaurantId, returnDelivered, userId, userName, orderBy,
+            userManager.GetUserId(User)!, page, perPage);
         if (result.IsError)
         {
             return result.ToValidationProblem();
