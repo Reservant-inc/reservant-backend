@@ -105,8 +105,9 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <param name="perPage">Records per page</param>
     /// <returns>List of friends</returns>
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetFriendsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetFriends([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
@@ -129,6 +130,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpGet("incoming")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetIncomingFriendRequestsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetIncomingFriendRequests([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
@@ -151,6 +153,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpGet("outgoing")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetOutgoingFriendRequestsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetOutgoingFriendRequests([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {

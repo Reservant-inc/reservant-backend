@@ -192,6 +192,7 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(result);
         }
 
+
         /// <summary>
         /// Get list of menus by given restaurant id
         /// </summary>

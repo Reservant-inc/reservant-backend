@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
+using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Models.Dtos.Event;
+using Reservant.Api.Models.Dtos.Ingredient;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Review;
@@ -222,6 +224,62 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
         return OkOrErrors(result);
     }
+    
+    /// <summary>
+    /// Get list of ingredients for a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="orderBy">Sorting order</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns>Paginated list of ingredients</returns>
+    [HttpGet("{restaurantId:int}/ingredients")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<IngredientVM>>> GetIngredients(
+        int restaurantId,
+        [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 20)
+    {
+        var result = await service.GetIngredientsAsync(restaurantId, orderBy, page, perPage);
+
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Get deliveries in a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="returnDelivered">If true, return finished deliveries, unfinished otherwise</param>
+    /// <param name="userId">Search by user ID</param>
+    /// <param name="userName">Search by user name</param>
+    /// <param name="orderBy">Order results by</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    [HttpGet("{restaurantId:int}/deliveries")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetDeliveriesInRestaurantAsync))]
+    public async Task<ActionResult<Pagination<DeliverySummaryVM>>> GetDeliveries(
+        int restaurantId,
+        bool returnDelivered,
+        string? userId,
+        string? userName,
+        DeliverySorting orderBy,
+        int page = 0,
+        int perPage = 10)
+    {
+        var result = await service.GetDeliveriesInRestaurantAsync(
+            restaurantId, returnDelivered, userId, userName, orderBy,
+            userManager.GetUserId(User)!, page, perPage);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
 
     //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     /// <summary>
@@ -257,6 +315,4 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
         return OkOrErrors(res);
     }
-
-
 }
