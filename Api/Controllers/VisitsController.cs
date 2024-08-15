@@ -34,13 +34,7 @@ public class VisitsController(
         }
 
         var result = await visitService.GetVisitByIdAsync(visitId, user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -59,9 +53,6 @@ public class VisitsController(
         }
 
         var result = await visitService.CreateVisitAsync(request, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 }

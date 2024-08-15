@@ -22,7 +22,8 @@ namespace Reservant.Api.Services;
 public class UserService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
-    ValidationService validationService)
+    ValidationService validationService,
+    FileUploadService uploadService)
 {
     /// <summary>
     /// Used to generate restaurant employee's logins:
@@ -417,7 +418,7 @@ public class UserService(
     /// <param name="id">ID of the user</param>
     /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result<bool>> ArchiveUserAsync(string id, string employerId)
+    public async Task<Result> ArchiveUserAsync(string id, string employerId)
     {
         var user = await dbContext.Users
             .Include(user => user.Employments)
@@ -460,6 +461,29 @@ public class UserService(
         }
 
         await dbContext.SaveChangesAsync();
-        return true;
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// Find users
+    /// </summary>
+    /// <param name="name">Search by user's name</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    public async Task<Result<Pagination<UserSummaryVM>>> FindUsersAsync(string name, int page, int perPage)
+    {
+        var query =
+            from u in dbContext.Users
+            join ur in dbContext.UserRoles on u.Id equals ur.UserId
+            join r in dbContext.Roles on ur.RoleId equals r.Id
+            where (u.FirstName + " " + u.LastName).Contains(name) && r.Name == Roles.Customer
+            select new UserSummaryVM
+            {
+                UserId = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
+            };
+        return await query.PaginateAsync(page, perPage, []);
     }
 }

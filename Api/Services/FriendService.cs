@@ -13,7 +13,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing friends and friend requests
 /// </summary>
-public class FriendService(ApiDbContext context)
+public class FriendService(ApiDbContext context, FileUploadService uploadService)
 {
     /// <summary>
     /// Create a friend request
@@ -21,9 +21,9 @@ public class FriendService(ApiDbContext context)
     /// <param name="senderId">Sender ID</param>
     /// <param name="receiverId">Receiver ID</param>
     /// <returns></returns>
-    [ErrorCode("<receiverId>", ErrorCodes.NotFound)]
-    [ErrorCode("<receiverId>", ErrorCodes.Duplicate, "Friend request already exists")]
-    public async Task<Result<bool>> SendFriendRequestAsync(string senderId, string receiverId)
+    [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Friend request already exists")]
+    public async Task<Result> SendFriendRequestAsync(string senderId, string receiverId)
     {
         var receiverExists = await context.Users.AnyAsync(u => u.Id == receiverId);
         if (!receiverExists)
@@ -61,7 +61,7 @@ public class FriendService(ApiDbContext context)
 
         context.FriendRequests.Add(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -69,10 +69,9 @@ public class FriendService(ApiDbContext context)
     /// </summary>
     /// <param name="receiverId">Request's receiver ID</param>
     /// <param name="senderId">Request's sender ID</param>
-    /// <returns>The bool returned is meaningless</returns>
-    [ErrorCode("<receiverId>", ErrorCodes.NotFound)]
-    [ErrorCode("<receiverId>", ErrorCodes.Duplicate, "Friend request already read")]
-    public async Task<Result<bool>> MarkFriendRequestAsReadAsync(string receiverId, string senderId)
+    [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Friend request already read")]
+    public async Task<Result> MarkFriendRequestAsReadAsync(string receiverId, string senderId)
     {
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
@@ -100,7 +99,7 @@ public class FriendService(ApiDbContext context)
         friendRequest.DateRead = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -108,10 +107,9 @@ public class FriendService(ApiDbContext context)
     /// </summary>
     /// <param name="receiverId">Request's receiver ID</param>
     /// <param name="senderId">Request's sender ID</param>
-    /// <returns>The bool returned is meaningless</returns>
-    [ErrorCode("<reveiverId>", ErrorCodes.NotFound)]
-    [ErrorCode("<reveiverId>", ErrorCodes.Duplicate, "Friend request already accepted")]
-    public async Task<Result<bool>> AcceptFriendRequestAsync(string receiverId, string senderId)
+    [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Friend request already accepted")]
+    public async Task<Result> AcceptFriendRequestAsync(string receiverId, string senderId)
     {
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
@@ -139,7 +137,7 @@ public class FriendService(ApiDbContext context)
         friendRequest.DateAccepted = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -148,8 +146,8 @@ public class FriendService(ApiDbContext context)
     /// <param name="receiverId">Request's receiver ID</param>
     /// <param name="senderId">Request's sender ID</param>
     /// <returns></returns>
-    [ErrorCode("<reveiverId>", ErrorCodes.NotFound)]
-    public async Task<Result<bool>> DeleteFriendAsync(string receiverId, string senderId)
+    [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
+    public async Task<Result> DeleteFriendAsync(string receiverId, string senderId)
     {
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
@@ -167,7 +165,7 @@ public class FriendService(ApiDbContext context)
         friendRequest.DateDeleted = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -177,6 +175,7 @@ public class FriendService(ApiDbContext context)
     /// <param name="page">Page</param>
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<FriendRequestVM>>> GetFriendsAsync(string userId, int page, int perPage)
     {
         var query = context.FriendRequests
@@ -187,10 +186,21 @@ public class FriendService(ApiDbContext context)
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                SenderId = fr.SenderId,
-                ReceiverId = fr.ReceiverId,
-                SenderName = fr.Sender.FullName,
-                ReceiverName = fr.Receiver.FullName
+                OtherUser = fr.ReceiverId == userId
+                    ? new Models.Dtos.User.UserSummaryVM
+                    {
+                        UserId = fr.SenderId,
+                        FirstName = fr.Sender.FirstName,
+                        LastName = fr.Sender.LastName,
+                        Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
+                    }
+                    : new Models.Dtos.User.UserSummaryVM
+                    {
+                        UserId = fr.ReceiverId,
+                        FirstName = fr.Receiver.FirstName,
+                        LastName = fr.Receiver.LastName,
+                        Photo = uploadService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                    },
             });
 
         return await query.PaginateAsync(page, perPage, []);
@@ -203,6 +213,7 @@ public class FriendService(ApiDbContext context)
     /// <param name="page">Page</param>
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, int page, int perPage)
     {
         var query = context.FriendRequests
@@ -213,10 +224,13 @@ public class FriendService(ApiDbContext context)
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                SenderId = fr.SenderId,
-                ReceiverId = fr.ReceiverId,
-                SenderName = fr.Sender.FullName,
-                ReceiverName = fr.Receiver.FullName
+                OtherUser = new Models.Dtos.User.UserSummaryVM
+                {
+                    UserId = fr.SenderId,
+                    FirstName = fr.Sender.FirstName,
+                    LastName = fr.Sender.LastName,
+                    Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
+                },
             });
 
         return await query.PaginateAsync(page, perPage, []);
@@ -229,6 +243,7 @@ public class FriendService(ApiDbContext context)
     /// <param name="page">Page</param>
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<FriendRequestVM>>> GetOutgoingFriendRequestsAsync(string userId, int page, int perPage)
     {
         var query = context.FriendRequests
@@ -239,10 +254,13 @@ public class FriendService(ApiDbContext context)
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                SenderId = fr.SenderId,
-                ReceiverId = fr.ReceiverId,
-                SenderName = fr.Sender.FullName,
-                ReceiverName = fr.Receiver.FullName
+                OtherUser  = new Models.Dtos.User.UserSummaryVM
+                {
+                    UserId = fr.ReceiverId,
+                    FirstName = fr.Receiver.FirstName,
+                    LastName = fr.Receiver.LastName,
+                    Photo = uploadService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                },
             });
 
         return await query.PaginateAsync(page, perPage, []);

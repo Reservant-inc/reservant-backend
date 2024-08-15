@@ -24,6 +24,9 @@ public class ThreadsController(
     /// <summary>
     /// Create a new thread
     /// </summary>
+    /// <remarks>
+    /// The current user is added to the participant list automatically
+    /// </remarks>
     /// <param name="request">Thread creation request</param>
     /// <returns>Created thread information</returns>
     [HttpPost]
@@ -38,12 +41,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.CreateThreadAsync(request, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -64,12 +62,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.UpdateThreadAsync(threadId, request, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -89,12 +82,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.DeleteThreadAsync(threadId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -114,12 +102,7 @@ public class ThreadsController(
         }
 
         var result = await threadService.GetThreadAsync(threadId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -140,25 +123,23 @@ public class ThreadsController(
         }
 
         var result = await threadService.CreateThreadsMessageAsync(threadId, userId,createMessageRequest);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
     /// Get threads the logged-in user participates in
     /// </summary>
+    /// <remarks>
+    /// Returns messages sorted by date from newest to oldest
+    /// </remarks>
     /// <param name="threadId">id of thread</param>
-    /// <param name="returnBefore">Return messages before (&lt;) the time. Used for pagination</param>
+    /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
-    /// <returns>returns paginated messages starting with provided message id </returns>
     [HttpGet("{threadId:int}/messages")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<List<MessageVM>>> GetThreadMessagesById(int threadId, DateTime? returnBefore = null, [FromQuery] int perPage = 100)
+    public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(
+        int threadId, [FromQuery] int page = 0, [FromQuery] int perPage = 100)
     {
         var userId = userManager.GetUserId(User);
         if (userId == null)
@@ -166,13 +147,8 @@ public class ThreadsController(
             return Unauthorized();
         }
 
-        var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, returnBefore, perPage);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        } 
-
-        return Ok(result.Value);
+        var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, page, perPage);
+        return OkOrErrors(result);
     }
 }
 

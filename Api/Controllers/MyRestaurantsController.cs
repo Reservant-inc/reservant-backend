@@ -20,7 +20,7 @@ namespace Reservant.Api.Controllers
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
-    [Authorize(Roles = Roles.Customer)]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager)
         : StrictController
     {
@@ -44,12 +44,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.CreateRestaurantAsync(request, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
         /// <summary>
         /// Get restaurants owned by the user.
@@ -112,12 +107,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.AddEmployeeAsync(request, restaurantId, userId);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok();
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -138,12 +128,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.MoveRestaurantToGroupAsync(restaurantId, request, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -162,12 +147,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.GetEmployeesAsync(restaurantId, userId);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -189,13 +169,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.UpdateRestaurantAsync(restaurantId, request, user);
-
-            if (!result.IsError)
-            {
-                return Ok(result.Value);
-            }
-
-            return result.ToValidationProblem();
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -215,14 +189,9 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.ValidateFirstStepAsync(dto, user);
-
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok();
+            return OkOrErrors(result);
         }
+
 
         /// <summary>
         /// Get list of menus by given restaurant id
@@ -230,18 +199,15 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet("{restaurantId:int}/menus")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
         {
-            var result = await restaurantService.GetMenusAsync(restaurantId);
+            var user = await userManager.GetUserAsync(User);
 
-            if (result == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(result);
+            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -250,8 +216,9 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId">ID of the restaurant</param>
         /// <returns>The found list of menuItems</returns>
         [HttpGet("{restaurantId:int}/menu-items")]
-        [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
-        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsAsync))]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsCustomerAsync))]
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -260,14 +227,8 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var res = await restaurantService.GetMenuItemsAsync(user, restaurantId);
-
-            if (res.IsError)
-            {
-                return res.ToValidationProblem();
-            }
-
-            return Ok(res.Value);
+            var res = await restaurantService.GetMenuItemsOwnerAsync(user, restaurantId);
+            return OkOrErrors(res);
         }
 
         /// <summary>
@@ -286,13 +247,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await restaurantService.SoftDeleteRestaurantAsync(restaurantId, user);
-
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return NoContent();
+            return OkOrErrors(result);
         }
     }
 }

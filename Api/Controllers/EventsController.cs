@@ -31,12 +31,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await service.CreateEventAsync(request, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-            return Ok(result.Value);
+            return OkOrErrors(await service.CreateEventAsync(request, user));
         }
 
         /// <summary>
@@ -45,12 +40,7 @@ namespace Reservant.Api.Controllers
         [HttpGet("{eventId:int}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<EventVM>> GetEvent(int eventId) {
-            var result = await service.GetEventAsync(eventId);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-            return Ok(result.Value);
+            return OkOrErrors(await service.GetEventAsync(eventId));
         }
 
 
@@ -73,13 +63,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await service.AddUserToEventAsync(eventId, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok();
+            return OkOrErrors(await service.AddUserToEventAsync(eventId, user));
         }
 
         /// <summary>
@@ -99,13 +83,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await service.DeleteUserFromEventAsync(eventId, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-
-            return Ok();
+            return OkOrErrors(await service.DeleteUserFromEventAsync(eventId, user));
         }
 
 
@@ -131,11 +109,7 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await service.UpdateEventAsync(eventId, request, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-            return Ok(result.Value);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -155,16 +129,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await service.DeleteEventAsync(eventId, user);
-            if (result.IsError)
-            {
-                return result.ToValidationProblem();
-            }
-            return Ok();
+            return OkOrErrors(await service.DeleteEventAsync(eventId, user));
         }
-
-        
-
-
     }
 }

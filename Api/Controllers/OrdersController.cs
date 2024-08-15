@@ -25,13 +25,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     public async Task<ActionResult<OrderVM>> GetOrderById(int orderId)
     {
         var order = await orderService.GetOrderById(orderId, User);
-
-        if (order.IsError)
-        {
-            return order.ToValidationProblem();
-        }
-
-        return Ok(order.Value);
+        return OkOrErrors(order);
     }
 
     /// <summary>
@@ -49,12 +43,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
         }
 
         var result = await orderService.CancelOrderAsync(orderId, user);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -74,10 +63,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
         }
 
         var result = await orderService.CreateOrderAsync(request, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -98,9 +84,6 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
         }
 
         var result = await orderService.UpdateOrderStatusAsync(orderId, request, user);
-        if (result.IsError) {
-            return result.ToValidationProblem();
-        }
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 }

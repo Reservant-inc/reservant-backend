@@ -7,13 +7,15 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Models.Dtos.Event;
+using Reservant.Api.Models.Dtos.Ingredient;
 using Reservant.Api.Models.Dtos.Order;
 using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Models.Dtos.Review;
 using Reservant.Api.Models.Dtos.Visit;
+using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-
+using Reservant.Api.Models.Dtos.MenuItem;
 namespace Reservant.Api.Controllers;
 
 
@@ -55,13 +57,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             name, tags,
             lat1, lon1, lat2, lon2,
             page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
 
@@ -121,12 +117,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.GetOrdersAsync(userId, restaurantId, returnFinished, page, perPage, orderBy);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -147,13 +138,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.GetFutureEventsByRestaurantAsync(restaurantId, page, perPage);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -175,13 +160,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.CreateReviewAsync(user, restaurantId, createReviewRequest);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -201,12 +180,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
         var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -223,12 +197,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<RestaurantVM>> GetRestaurantDetails(int restaurantId)
     {
         var result = await service.GetRestaurantByIdAsync(restaurantId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -253,13 +222,30 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         [FromQuery] int perPage = 10)
     {
         var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+        return OkOrErrors(result);
+    }
+    
+    /// <summary>
+    /// Get list of ingredients for a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="orderBy">Sorting order</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns>Paginated list of ingredients</returns>
+    [HttpGet("{restaurantId:int}/ingredients")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<IngredientVM>>> GetIngredients(
+        int restaurantId,
+        [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 20)
+    {
+        var result = await service.GetIngredientsAsync(restaurantId, orderBy, page, perPage);
 
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -292,5 +278,40 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         return Ok(result.Value);
+    }
+
+    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    /// <summary>
+    /// Get list of menus by given restaurant id
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet("{restaurantId:int}/menus")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
+    public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
+    {
+        var result = await service.GetMenusCustomerAsync(restaurantId);
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Gets menu items from the given restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <returns>The found list of menuItems</returns>
+    [HttpGet("{restaurantId:int}/menu-items")]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
+        return OkOrErrors(res);
     }
 }

@@ -21,7 +21,8 @@ namespace Reservant.Api.Services;
 public class ThreadService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
-    ValidationService validationService)
+    ValidationService validationService,
+    FileUploadService uploadService)
 {
     /// <summary>
     /// Creates a new message thread.
@@ -78,7 +79,15 @@ public class ThreadService(
         {
             ThreadId = messageThread.Id,
             Title = messageThread.Title,
-            Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
+            Participants = messageThread.Participants
+                .Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                })
+                .ToList()
         };
     }
 
@@ -126,7 +135,15 @@ public class ThreadService(
         {
             ThreadId = messageThread.Id,
             Title = messageThread.Title,
-            Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
+            Participants = messageThread.Participants
+                .Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                })
+                .ToList()
         };
     }
 
@@ -136,7 +153,7 @@ public class ThreadService(
     /// <param name="threadId"></param>
     /// <param name="userId">ID of the user making the request</param>
     /// <returns></returns>
-    public async Task<Result<bool>> DeleteThreadAsync(int threadId, string userId)
+    public async Task<Result> DeleteThreadAsync(int threadId, string userId)
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
@@ -155,7 +172,7 @@ public class ThreadService(
         dbContext.MessageThreads.Remove(messageThread);
         await dbContext.SaveChangesAsync();
 
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -204,7 +221,15 @@ public class ThreadService(
         {
             ThreadId = messageThread.Id,
             Title = messageThread.Title,
-            Participants = messageThread.Participants.Select(p => new UserSummaryVM { UserId = p.Id, FirstName = p.FirstName, LastName = p.LastName }).ToList()
+            Participants = messageThread.Participants
+                .Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                })
+                .ToList()
         };
     }
 
@@ -278,21 +303,10 @@ public class ThreadService(
     /// </summary>
     /// <param name="threadId">id of thread</param>
     /// <param name="userId">id of thread</param>
-    /// <param name="returnBefore">Return messages before (&lt;) the time. Used for pagination</param>
+    /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
-    /// <returns>returns paginated messages starting with provided message id </returns>
-    public async Task<Result<List<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, DateTime? returnBefore, int perPage)
+    public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int page, int perPage)
     {
-        if (perPage > 100)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(perPage),
-                ErrorMessage = "Can load at most 100 messages at once",
-                ErrorCode = ErrorCodes.InvalidPerPageValue,
-            };
-        }
-
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId);
@@ -320,11 +334,6 @@ public class ThreadService(
         var query = dbContext.Messages
             .Include(m => m.Author)
             .Where(m => m.MessageThreadId == threadId);
-        
-        if (returnBefore is not null)
-        {
-            query = query.Where(m => m.DateSent < returnBefore);
-        }
 
         return await query
             .OrderByDescending(m => m.DateSent)
@@ -338,7 +347,6 @@ public class ThreadService(
                 AuthorsLastName = m.Author.LastName,
                 MessageThreadId = m.MessageThreadId
             })
-            .Take(perPage)
-            .ToListAsync();
+            .PaginateAsync(page, perPage, [], maxPerPage: 100);
     }
 }

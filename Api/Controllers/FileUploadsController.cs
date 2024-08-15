@@ -32,11 +32,6 @@ public class FileUploadsController(FileUploadService fileUploadService, UserMana
         }
 
         var result = await fileUploadService.SaveFileAsync(request, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 }

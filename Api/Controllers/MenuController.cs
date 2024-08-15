@@ -24,17 +24,14 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// Gets a single menu with details for a given menu ID and restaurant ID.
     /// </summary>
     /// <returns></returns>
-    [HttpGet("/menus/{menuId:int}")]
+    [HttpGet("{menuId:int}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.GetSingleMenuAsync))]
     public async Task<ActionResult<MenuVM>> GetSingleMenuById(int menuId)
     {
         var result = await service.GetSingleMenuAsync(menuId);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -46,19 +43,16 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
     /// <returns></returns>
-    [HttpGet("/menus/{menuId:int}/items")]
+    [HttpGet("{menuId:int}/items")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsAsync))]
+    [MethodErrorCodes<RestaurantMenuService>(nameof(RestaurantMenuService.GetMenuItemsAsync))]
     public async Task<ActionResult<Pagination<MenuItemSummaryVM>>> GetMenuItems(
         int menuId, int page = 0, int perPage = 20,
         string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)
     {
         var result = await service.GetMenuItemsAsync(menuId, page, perPage, name, orderBy);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -80,10 +74,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var result = await service.PostMenuToRestaurant(req, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -92,7 +83,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
     /// <param name="menuId">Id of menu</param>
     /// <param name="request">Request containing MenuItemIds</param>
     /// <returns>The created list of menuItems</returns>
-    [HttpPost("/menus/{menuId:int}/items")]
+    [HttpPost("{menuId:int}/items")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
@@ -107,10 +98,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var result = await service.AddItemsToMenuAsync(menuId, request, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -133,10 +121,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var result = await service.UpdateMenuAsync(request, menuId, user);
-
-        if (!result.IsError) return Ok(result.Value);
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -155,13 +140,7 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
         }
 
         var res = await service.DeleteMenuAsync(menuId, user);
-
-        if (res.IsError)
-        {
-            return res.ToValidationProblem();
-        }
-
-        return NoContent();
+        return OkOrErrors(res);
     }
 
 

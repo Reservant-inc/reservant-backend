@@ -14,7 +14,10 @@ namespace Reservant.Api.Services
     /// <summary>
     /// Service for event management
     /// </summary>
-    public class EventService(ApiDbContext context, ValidationService validationService)
+    public class EventService(
+        ApiDbContext context,
+        ValidationService validationService,
+        FileUploadService uploadService)
     {
         /// <summary>
         /// Action for
@@ -78,7 +81,8 @@ namespace Reservant.Api.Services
                 {
                     FirstName = i.FirstName,
                     LastName = i.LastName,
-                    UserId = i.Id
+                    UserId = i.Id,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
                 }).ToList()
             };
         }
@@ -119,7 +123,8 @@ namespace Reservant.Api.Services
                 {
                     FirstName = i.FirstName,
                     LastName = i.LastName,
-                    UserId = i.Id
+                    UserId = i.Id,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
                 }).ToList()
             };
         }
@@ -155,7 +160,7 @@ namespace Reservant.Api.Services
         /// </summary>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.Duplicate, "User is already interested in the event")]
-        public async Task<Result<bool>> AddUserToEventAsync(int id, User user)
+        public async Task<Result> AddUserToEventAsync(int id, User user)
         {
             var eventFound = await context.Events
                 .Include(e => e.Interested)
@@ -184,7 +189,7 @@ namespace Reservant.Api.Services
             eventFound.Interested.Add(user);
             await context.SaveChangesAsync();
 
-            return true;
+            return Result.Success;
         }
 
         /// <summary>
@@ -192,7 +197,7 @@ namespace Reservant.Api.Services
         /// </summary>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.Duplicate, "User is not interested in the event")]
-        public async Task<Result<bool>> DeleteUserFromEventAsync(int id, User user)
+        public async Task<Result> DeleteUserFromEventAsync(int id, User user)
         {
             var eventFound = await context.Events
                 .Include(e => e.Interested)
@@ -219,7 +224,7 @@ namespace Reservant.Api.Services
             }
             await context.SaveChangesAsync();
 
-            return true;
+            return Result.Success;
         }
 
 
@@ -334,7 +339,8 @@ namespace Reservant.Api.Services
                 {
                     FirstName = i.FirstName,
                     LastName = i.LastName,
-                    UserId = i.Id
+                    UserId = i.Id,
+                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
                 }).ToList()
             };
         }
@@ -344,10 +350,10 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="eventId">The id of the event to delete.</param>
         /// <param name="user">User to check permissions</param>
-        /// <returns>A Result object containing a boolean indicating success or a validation failure.</returns>
+        /// <returns>A Result object indicating success or a validation failure.</returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Only the user who created the event can delete it")]
-        public async Task<Result<bool>> DeleteEventAsync(int eventId, User user)
+        public async Task<Result> DeleteEventAsync(int eventId, User user)
         {
             var eventToDelete = await context.Events
                 .FirstOrDefaultAsync(e => e.Id == eventId);
@@ -375,7 +381,7 @@ namespace Reservant.Api.Services
             context.Events.Remove(eventToDelete);
             await context.SaveChangesAsync();
 
-            return true;
+            return Result.Success;
         }
     }
 }

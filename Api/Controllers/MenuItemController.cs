@@ -38,13 +38,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
         }
 
         var res = await service.CreateMenuItemsAsync(user, menuItem);
-
-        if (res.IsError)
-        {
-            return res.ToValidationProblem();
-        }
-
-        return Created(null, res.Value);
+        return OkOrErrors(res);
     }
 
 
@@ -66,13 +60,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
         }
 
         var res = await service.GetMenuItemByIdAsync(user, menuItemId);
-
-        if (res.IsError)
-        {
-            return res.ToValidationProblem();
-        }
-
-        return Ok(res.Value);
+        return OkOrErrors(res);
     }
 
 
@@ -95,13 +83,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
         }
 
         var res = await service.PutMenuItemByIdAsync(user, menuItemId, request);
-
-        if (res.IsError)
-        {
-            return res.ToValidationProblem();
-        }
-
-        return Ok(res.Value);
+        return OkOrErrors(res);
     }
 
 
@@ -123,13 +105,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
         }
 
         var res = await service.DeleteMenuItemByIdAsync(menuItemId, user);
-
-        if (res.IsError)
-        {
-            return res.ToValidationProblem();
-        }
-
-        return NoContent();
+        return OkOrErrors(res);
     }
 
 }

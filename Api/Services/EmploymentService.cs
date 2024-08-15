@@ -22,7 +22,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <returns>The bool returned inside the result does not mean anything</returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied)]
-    public async Task<Result<bool>> DeleteEmploymentAsync(int employmentId, string userId)
+    public async Task<Result> DeleteEmploymentAsync(int employmentId, string userId)
     {
         var employment = await context.Employments
             .Include(e => e.Restaurant)
@@ -50,7 +50,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
         await context.SaveChangesAsync();
 
-        return true;
+        return Result.Success;
     }
     /// <summary>
     /// Terminates all employments specified through ids in the list
@@ -60,7 +60,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <returns></returns>
     [ErrorCode("<employmentId>", ErrorCodes.NotFound)]
     [ErrorCode("<employmentId>", ErrorCodes.AccessDenied)]
-    public async Task<Result<bool>> DeleteBulkEmploymentAsync(List<int> employmentIds, User user)
+    public async Task<Result> DeleteBulkEmploymentAsync(List<int> employmentIds, User user)
     {
 
         var employments = new List<Employment>();
@@ -97,7 +97,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         }
         await context.SaveChangesAsync();
 
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <param name="user"></param>
     /// <returns></returns>
     [ErrorCode(nameof(UpdateEmploymentRequest.EmploymentId), ErrorCodes.NotFound)]
-    public async Task<Result<bool>> UpdateBulkEmploymentAsync(List<UpdateEmploymentRequest> listRequest, User user)
+    public async Task<Result> UpdateBulkEmploymentAsync(List<UpdateEmploymentRequest> listRequest, User user)
     {
         foreach (var request in listRequest)
         {
@@ -134,6 +134,6 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         }
 
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
     }
 }

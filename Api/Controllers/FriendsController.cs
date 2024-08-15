@@ -35,13 +35,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.SendFriendRequestAsync(user.Id, userId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -61,13 +55,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.MarkFriendRequestAsReadAsync(user.Id, senderId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -87,13 +75,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.AcceptFriendRequestAsync(user.Id, senderId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -113,13 +95,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.DeleteFriendAsync(user.Id, userId);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -129,8 +105,9 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <param name="perPage">Records per page</param>
     /// <returns>List of friends</returns>
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetFriendsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetFriends([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
@@ -141,8 +118,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.GetFriendsAsync(user.Id, page, perPage);
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -154,6 +130,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpGet("incoming")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetIncomingFriendRequestsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetIncomingFriendRequests([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
@@ -164,8 +141,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.GetIncomingFriendRequestsAsync(user.Id, page, perPage);
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -177,6 +153,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpGet("outgoing")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetOutgoingFriendRequestsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetOutgoingFriendRequests([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
@@ -187,7 +164,6 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
         }
 
         var result = await service.GetOutgoingFriendRequestsAsync(user.Id, page, perPage);
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
     }
 }

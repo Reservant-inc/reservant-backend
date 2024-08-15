@@ -39,13 +39,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         }
 
         var result = await service.CreateRestaurantGroup(req, user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Created($"/my-restaurant-groups/{result.Value.RestaurantGroupId}", result.Value);
+        return OkOrErrors(result);
 
     }
 
@@ -118,13 +112,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         }
 
         var result = await service.UpdateRestaurantGroupAsync(groupId, request, user.Id);
-
-        if (!result.IsError)
-        {
-            return Ok(result.Value);
-        }
-
-        return result.ToValidationProblem();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -143,13 +131,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         }
 
         var result = await service.SoftDeleteRestaurantGroupAsync(groupId, user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return NoContent();
+        return OkOrErrors(result);
     }
 
 }

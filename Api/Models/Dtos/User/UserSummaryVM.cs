@@ -19,4 +19,9 @@ public class UserSummaryVM
     /// Last name
     /// </summary>
     public required string LastName { get; init; }
+
+    /// <summary>
+    /// Profile picture path
+    /// </summary>
+    public required string? Photo { get; init; }
 }

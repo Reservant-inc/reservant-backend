@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
+using Reservant.Api.Models.Dtos;
 using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -13,6 +14,25 @@ namespace Reservant.Api.Controllers
     [ApiController, Route("/users")]
     public class UsersController(UserService userService, FileUploadService uploadService) : StrictController
     {
+        /// <summary>
+        /// Find users
+        /// </summary>
+        /// <remarks>
+        /// Only searches for customers
+        /// </remarks>
+        /// <param name="name">Search by user's name</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<ActionResult<Pagination<UserSummaryVM>>> FindUsers(
+            string name,
+            int page = 0, int perPage = 10)
+        {
+            var result = await userService.FindUsersAsync(name, page, perPage);
+            return OkOrErrors(result);
+        }
+
         /// <summary>
         /// Sets Restaurant Owner role for specified user
         /// </summary>
@@ -36,7 +56,6 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
         public async Task<ActionResult<UserDetailsVM>> GetEmployee(string employeeId)
         {
-
             var result = await userService.GetEmployeeAsync(employeeId, User);
 
             if (result.IsError)
@@ -58,9 +77,8 @@ namespace Reservant.Api.Controllers
                 BirthDate = emp.BirthDate,
                 Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
-                Photo = emp.PhotoFileName == null ? null : uploadService.GetPathForFileName(emp.PhotoFileName)
+                Photo = uploadService.GetPathForFileName(emp.PhotoFileName),
             });
-
         }
         /// <summary>
         /// Updates employee who works for the current user
@@ -94,7 +112,7 @@ namespace Reservant.Api.Controllers
                 BirthDate = emp.BirthDate,
                 Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
-                Photo = emp.PhotoFileName == null ? null : uploadService.GetPathForFileName(emp.PhotoFileName)
+                Photo = uploadService.GetPathForFileName(emp.PhotoFileName),
             });
         }
     }

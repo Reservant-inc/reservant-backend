@@ -27,7 +27,7 @@ public partial class MethodErrorCodesAttribute : Attribute
     /// <param name="method">Method reference, must be in the form: nameof(ClassName.MethodName)</param>
     /// <param name="methodAsString">Do not use. Used to get the string representation of <paramref name="method"/></param>
     /// <exception cref="ArgumentException">If <paramref name="method"/> is in wrong format</exception>
-    protected MethodErrorCodesAttribute(
+    public MethodErrorCodesAttribute(
         Type containingType, string method,
         [CallerArgumentExpression(nameof(method))] string? methodAsString = null)
     {

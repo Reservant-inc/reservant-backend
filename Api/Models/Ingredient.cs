@@ -43,4 +43,9 @@ public class Ingredient
     /// Deliveries that resupplied the ingredient
     /// </summary>
     public ICollection<IngredientDelivery> Deliveries { get; set; } = null!;
+
+    /// <summary>
+    /// MenueItems ingrendiant is used in
+    /// </summary>
+    public ICollection<IngredientMenuItem> MenuItems { get; set; } = null!; 
 }

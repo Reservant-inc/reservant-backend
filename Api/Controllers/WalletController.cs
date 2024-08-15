@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ErrorCodeDocs.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
@@ -28,7 +29,9 @@ public class WalletController(
     /// </summary>
     /// <param name="moneyRequest"></param>
     /// <returns></returns>
-    [HttpPost("/add-money")]
+    [HttpPost("add-money")]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes<WalletService>(nameof(WalletService.CreateTransaction))]
     public async Task<ActionResult> CreateTransaction(AddMoneyRequest moneyRequest)
     {
         var user = await userManager.GetUserAsync(User);
@@ -38,13 +41,7 @@ public class WalletController(
         }
 
         var result = await walletService.CreateTransaction(moneyRequest, user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
 
@@ -52,7 +49,8 @@ public class WalletController(
     /// Gets the status of user's wallet
     /// </summary>
     /// <returns></returns>
-    [HttpGet("/status")]
+    [HttpGet("status")]
+    [ProducesResponseType(200)]
     public async Task<ActionResult<WalletStatusVM>> GetWalletStatus()
     {
         var user = await userManager.GetUserAsync(User);
@@ -61,14 +59,7 @@ public class WalletController(
             return Unauthorized();
         }
 
-        var result = await walletService.GetWalletStatus(user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return await walletService.GetWalletStatus(user);
     }
 
 
@@ -78,7 +69,9 @@ public class WalletController(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    [HttpGet("/history")]
+    [HttpGet("history")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<WalletService>(nameof(WalletService.GetTransactionHistory))]
     public async Task<ActionResult<Pagination<TransactionVM>>> GetTransactionHistory([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
@@ -88,13 +81,7 @@ public class WalletController(
         }
 
         var result = await walletService.GetTransactionHistory(page, perPage, user);
-
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok(result.Value);
+        return OkOrErrors(result);
 
     }
 

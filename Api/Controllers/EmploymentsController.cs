@@ -35,12 +35,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         }
 
         var result = await employmentService.DeleteEmploymentAsync(employmentId, userId);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -60,12 +55,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         }
 
         var result = await employmentService.UpdateBulkEmploymentAsync(requests, user);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-
-        return Ok();
+        return OkOrErrors(result);
     }
 
     /// <summary>
@@ -75,7 +65,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     /// <returns></returns>
     [HttpDelete]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(204), ProducesResponseType(400)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.DeleteBulkEmploymentAsync))]
     public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) {
         var user = await userManager.GetUserAsync(User);
@@ -85,10 +75,6 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         }
 
         var result = await employmentService.DeleteBulkEmploymentAsync(employmentIds, user);
-        if (result.IsError)
-        {
-            return result.ToValidationProblem();
-        }
-        return NoContent();
+        return OkOrErrors(result);
     }
 }

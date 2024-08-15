@@ -301,7 +301,7 @@ public class RestaurantGroupService(
     /// <param name="id">id of the restaurant group</param>
     /// <param name="user">owner of the restaurant group</param>
     /// <returns></returns>
-    public async Task<Result<bool>> SoftDeleteRestaurantGroupAsync(int id, User user)
+    public async Task<Result> SoftDeleteRestaurantGroupAsync(int id, User user)
     {
         var group = await context.RestaurantGroups
             .Where(g => g.Id == id)
@@ -331,7 +331,7 @@ public class RestaurantGroupService(
             var res = await restaurantService.SoftDeleteRestaurantAsync(restaurant.Id, user);
             if (res.IsError)
             {
-                return res;
+                return res.Errors;
             }
         }
         var emptyGroup = await context.RestaurantGroups.FindAsync(group.Id);
@@ -340,7 +340,7 @@ public class RestaurantGroupService(
             group.IsDeleted = true;
         }
         await context.SaveChangesAsync();
-        return true;
+        return Result.Success;
 
     }
 }
