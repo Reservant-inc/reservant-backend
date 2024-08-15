@@ -236,9 +236,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    [ProducesResponseType(404)]
     public async Task<ActionResult<Pagination<IngredientVM>>> GetIngredients(
         int restaurantId,
         [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc,
