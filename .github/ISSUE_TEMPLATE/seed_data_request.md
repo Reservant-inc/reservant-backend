@@ -11,7 +11,7 @@ assignees: linewelder
 - [ ] **__Testujesz na świeżo odtworzonej bazie danych__**
 
 ## Opisz jakie dane i dla jakiej końcówki potrzebujesz danych
-Na przykład: Końcówka `/test/{testId}` nie zwraca elementów...
+Na przykład: Potrzebuje żeby końcówka `/test/{testId}` zwracała ...
 
 ## Jak to wygląda obecnie
-Jasny i zwięzły opis tego, co teraz się znajduje w bazie danych
+Na przykład: Końcówka `/test/{testId}` nie zwraca elementów...
