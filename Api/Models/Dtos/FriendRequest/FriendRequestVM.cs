@@ -1,3 +1,5 @@
+using Reservant.Api.Models.Dtos.User;
+
 namespace Reservant.Api.Models.Dtos.FriendRequest;
 
 /// <summary>
@@ -21,22 +23,7 @@ public class FriendRequestVM
     public required DateTime? DateAccepted { get; init; }
 
     /// <summary>
-    /// ID of the sender
+    /// Info about the other user, be it the sender or the receiver of the request
     /// </summary>
-    public required string SenderId { get; init; }
-
-    /// <summary>
-    /// ID of the target user
-    /// </summary>
-    public required string ReceiverId { get; init; }
-
-    /// <summary>
-    /// Full name of the sender
-    /// </summary>
-    public required string SenderName { get; init; }
-
-    /// <summary>
-    /// Full name of the receiver
-    /// </summary>
-    public required string ReceiverName { get; init; }
+    public required UserSummaryVM OtherUser { get; init; }
 }
