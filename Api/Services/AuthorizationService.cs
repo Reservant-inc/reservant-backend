@@ -8,7 +8,7 @@ using Reservant.Api.Validators;
 namespace Reservant.Api.Services;
 
 /// <summary>
-/// Service responsible for managing user authentication
+/// Service responsible for managing user authorization
 /// </summary>
 public class AuthorizationService(
     ApiDbContext context
