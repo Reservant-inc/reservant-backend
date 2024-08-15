@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using ErrorCodeDocs.Attributes;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
@@ -16,6 +17,11 @@ public class DeliveryService(
     ApiDbContext context,
     ValidationService validationService)
 {
+    /// <summary>
+    /// Get information about a delivery
+    /// </summary>
+    /// <param name="deliveryId">ID of the delivery</param>
+    [ErrorCode(null, ErrorCodes.NotFound)]
     public async Task<Result<DeliveryVM>> GetDeliveryById(int deliveryId)
     {
         var delivery = await context.Deliveries
@@ -52,6 +58,13 @@ public class DeliveryService(
         };
     }
 
+    /// <summary>
+    /// Create a new delivery
+    /// </summary>
+    /// <param name="request">Information about the new delivery</param>
+    /// <param name="userId">ID of the current user for permission checking</param>
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    [ValidatorErrorCodes<Delivery>]
     public async Task<Result<DeliveryVM>> PostDelivery(CreateDeliveryRequest request, string userId)
     {
         var delivery = new Delivery

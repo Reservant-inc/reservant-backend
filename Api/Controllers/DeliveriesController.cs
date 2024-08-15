@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ErrorCodeDocs.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
@@ -20,8 +21,10 @@ public class DeliveriesController(DeliveryService deliveryService, UserManager<U
     /// </summary>
     /// <param name="deliveryId"></param>
     /// <returns>OrderVM or NotFound if order wasn't found</returns>
-    [HttpGet("/deliveries/{deliveryId::int}")]
+    [HttpGet("{deliveryId:int}")]
     [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
+    [MethodErrorCodes<DeliveryService>(nameof(DeliveryService.GetDeliveryById))]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> GetDeliveryById(int deliveryId)
     {
         return OkOrErrors(await deliveryService.GetDeliveryById(deliveryId));
@@ -34,6 +37,8 @@ public class DeliveriesController(DeliveryService deliveryService, UserManager<U
     /// <returns></returns>
     [HttpPost]
     [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
+    [MethodErrorCodes<DeliveryService>(nameof(DeliveryService.PostDelivery))]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> PostDelivery(CreateDeliveryRequest request)
     {
         var user = await userManager.GetUserAsync(User);
