@@ -28,6 +28,9 @@ public class CreateIngredientRequest
     /// </summary>
     public double? AmountToOrder { get; set; }
     
+    /// <summary>
+    /// Starting amount of the ingredient
+    /// </summary>
     public required double Amount { get; set; }
 
     /// <summary>
