@@ -1,0 +1,17 @@
+services:
+  mssql:
+    environment:
+      - 'ACCEPT_EULA=Y'
+      - 'MSSQL_SA_PASSWORD=Pa1210245w0rd'
+    ports:
+      - '1433:1433'
+    container_name: sql1
+    hostname: sql1
+    image: 'mcr.microsoft.com/mssql/server:2022-latest'
+  reservant-backend:
+    build:
+      context: .
+      dockerfile: ./Api/Dockerfile
+    ports:
+      - '12038:8080'
+
