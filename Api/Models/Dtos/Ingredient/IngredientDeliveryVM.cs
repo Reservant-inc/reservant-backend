@@ -2,12 +2,12 @@
 
 public class IngredientDeliveryVM
 {
-    public int DeliveryId { get; set; }
+    public required int DeliveryId { get; set; }
 
-    public int IngredientId { get; set; }
+    public required int IngredientId { get; set; }
 
-    public double AmountOrdered { get; set; }
-    public double? AmountDelivered { get; set; }
-    public DateTime? ExpiryDate { get; set; }
+    public required double AmountOrdered { get; set; }
+    public required double? AmountDelivered { get; set; }
+    public required DateTime? ExpiryDate { get; set; }
     public required string StoreName { get; set; }
 }
