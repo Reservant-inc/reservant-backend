@@ -4,13 +4,13 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Auth;
+using Reservant.Api.Dtos.Employment;
+using Reservant.Api.Dtos.User;
+using Reservant.Api.Dtos.Visit;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Auth;
-using Reservant.Api.Models.Dtos.Employment;
-using Reservant.Api.Models.Dtos.User;
-using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 

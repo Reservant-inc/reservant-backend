@@ -1,9 +1,9 @@
 ﻿using ErrorCodeDocs.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Wallet;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Wallet;
 using Reservant.Api.Validation;
 
 namespace Reservant.Api.Services;

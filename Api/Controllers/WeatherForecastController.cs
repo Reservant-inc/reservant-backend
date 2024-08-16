@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Dtos;
 
 namespace Reservant.Api.Controllers;
 

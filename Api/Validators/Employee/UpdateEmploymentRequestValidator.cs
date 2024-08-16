@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models.Dtos.Employment;
+using Reservant.Api.Dtos.Employment;
 
 namespace Reservant.Api.Validators.Employee
 {

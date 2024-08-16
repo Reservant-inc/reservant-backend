@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Dtos.Ingredient;
 
 namespace Reservant.Api.Validators.Ingredient;
 

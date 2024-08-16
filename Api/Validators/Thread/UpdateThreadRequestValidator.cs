@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models.Dtos.Thread;
+using Reservant.Api.Dtos.Thread;
 
 namespace Reservant.Api.Validators.Thread;
 

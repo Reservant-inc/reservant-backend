@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Delivery;
-using Reservant.Api.Models.Dtos.Event;
-using Reservant.Api.Models.Dtos.Ingredient;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.Restaurant;
-using Reservant.Api.Models.Dtos.Review;
-using Reservant.Api.Models.Dtos.Visit;
-using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.MenuItem;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Delivery;
+using Reservant.Api.Dtos.Event;
+using Reservant.Api.Dtos.Ingredient;
+using Reservant.Api.Dtos.Menu;
+using Reservant.Api.Dtos.MenuItem;
+using Reservant.Api.Dtos.Order;
+using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.Review;
+using Reservant.Api.Dtos.Visit;
 namespace Reservant.Api.Controllers;
 
 

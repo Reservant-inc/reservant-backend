@@ -4,12 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos.Message;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Message;
-using Reservant.Api.Models.Dtos.Thread;
-using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 

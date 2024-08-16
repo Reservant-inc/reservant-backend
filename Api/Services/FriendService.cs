@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.FriendRequest;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
-using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validators;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.FriendRequest;
 
 namespace Reservant.Api.Services;
 
@@ -187,14 +187,14 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
                 OtherUser = fr.ReceiverId == userId
-                    ? new Models.Dtos.User.UserSummaryVM
+                    ? new Dtos.User.UserSummaryVM
                     {
                         UserId = fr.SenderId,
                         FirstName = fr.Sender.FirstName,
                         LastName = fr.Sender.LastName,
                         Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
                     }
-                    : new Models.Dtos.User.UserSummaryVM
+                    : new Dtos.User.UserSummaryVM
                     {
                         UserId = fr.ReceiverId,
                         FirstName = fr.Receiver.FirstName,
@@ -224,7 +224,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                OtherUser = new Models.Dtos.User.UserSummaryVM
+                OtherUser = new Dtos.User.UserSummaryVM
                 {
                     UserId = fr.SenderId,
                     FirstName = fr.Sender.FirstName,
@@ -254,7 +254,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                OtherUser  = new Models.Dtos.User.UserSummaryVM
+                OtherUser  = new Dtos.User.UserSummaryVM
                 {
                     UserId = fr.ReceiverId,
                     FirstName = fr.Receiver.FirstName,
