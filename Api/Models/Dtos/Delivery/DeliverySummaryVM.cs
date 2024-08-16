@@ -8,7 +8,7 @@ public class DeliverySummaryVM
     /// <summary>
     /// Delivery's unique ID
     /// </summary>
-    public required int DelieryId { get; set; }
+    public required int DeliveryId { get; set; }
 
     /// <summary>
     /// When was ordered
