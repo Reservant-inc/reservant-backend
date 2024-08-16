@@ -243,6 +243,7 @@ public class ThreadService(
     public async Task<Result<MessageVM>> CreateThreadsMessageAsync(int threadId, string userId, CreateMessageRequest request)
     {
         var messageThread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId);
 
         if (messageThread == null)
