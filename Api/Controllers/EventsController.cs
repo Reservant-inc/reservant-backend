@@ -94,7 +94,8 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Update an existing event
         /// </summary>
-        /// /// <param name="eventId"> Id of Event</param>
+        /// <param name="eventId"> Id of Event</param>
+        /// <param name="request">New event info</param>
         /// <returns></returns>
         [HttpPut("{eventId:int}")]
         [ProducesResponseType(200), ProducesResponseType(400)]

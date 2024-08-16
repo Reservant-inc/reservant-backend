@@ -1556,6 +1556,7 @@ namespace Reservant.Api.Services
         /// Returns a list of menus of specific restaurant (owner version)
         /// </summary>
         /// <param name="id"> Id of the restaurant.</param>
+        /// <param name="user">Current user for permission checking</param>
         /// <returns></returns>
         public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, User user)
         {
@@ -1601,6 +1602,13 @@ namespace Reservant.Api.Services
             return new Result<List<MenuSummaryVM>>(menus);
         }
 
+        /// <summary>
+        /// Get status of the ingredients in a restaurant
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurant</param>
+        /// <param name="orderBy">Order the list by</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
         [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
         public async Task<Result<Pagination<IngredientVM>>> GetIngredientsAsync(

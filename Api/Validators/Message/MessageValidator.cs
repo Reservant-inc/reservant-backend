@@ -1,8 +1,12 @@
 using FluentValidation;
 namespace Reservant.Api.Validators.Message;
 
+/// <summary>
+/// Validator for Message
+/// </summary>
 public class MessageValidator : AbstractValidator<Models.Message>
 {
+    /// <inheritdoc/>
     public MessageValidator()
     {
         RuleFor(m => m.Contents)

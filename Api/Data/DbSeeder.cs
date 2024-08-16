@@ -707,8 +707,6 @@ public class DbSeeder(
 
         await context.SaveChangesAsync();
 
-        ///HERE1
-
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
         var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
@@ -1057,8 +1055,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE2
-
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1469,7 +1465,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE3
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1741,7 +1736,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE4
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
