@@ -54,7 +54,6 @@ namespace Reservant.Api.Services
         ApiDbContext context,
         FileUploadService uploadService,
         UserManager<User> userManager,
-        MenuItemsService menuItemsService,
         ValidationService validationService,
         GeometryFactory geometryFactory,
         AuthorizationService authorizationService)

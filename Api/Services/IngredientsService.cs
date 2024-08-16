@@ -14,7 +14,6 @@ namespace Reservant.Api.Services;
 /// Service for managing ingredients.
 /// </summary>
 public class IngredientService(
-    UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService)
 {

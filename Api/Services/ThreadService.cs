@@ -18,7 +18,6 @@ namespace Reservant.Api.Services;
 /// Service for managing message threads.
 /// </summary>
 public class ThreadService(
-    UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService,
     FileUploadService uploadService)

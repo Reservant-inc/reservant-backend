@@ -16,7 +16,6 @@ namespace Reservant.Api.Services;
 /// Service for managing messages.
 /// </summary>
 public class MessageService(
-    UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService)
 {
