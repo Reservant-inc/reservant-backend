@@ -53,7 +53,7 @@ public class AuthorizationService(
                 || r.Employments.Any(e =>
                     e.DateUntil == null && e.EmployeeId == userId && e.IsBackdoorEmployee))
             .SingleOrDefaultAsync();
-        if (userHasBackdoorsAccess)
+        if (!userHasBackdoorsAccess)
         {
             return new ValidationFailure
             {

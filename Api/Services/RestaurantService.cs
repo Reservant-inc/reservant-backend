@@ -1467,7 +1467,12 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var access = authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
+            var access = await authorizationService
+                .VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
+            if (access.IsError)
+            {
+                return access.Errors;
+            }
 
             var query = context.Deliveries
                 .Where(d => d.RestaurantId == restaurantId);
