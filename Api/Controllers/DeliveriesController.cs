@@ -27,7 +27,8 @@ public class DeliveriesController(DeliveryService deliveryService, UserManager<U
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> GetDeliveryById(int deliveryId)
     {
-        return OkOrErrors(await deliveryService.GetDeliveryById(deliveryId));
+        var user = await userManager.GetUserAsync(User);
+        return OkOrErrors(await deliveryService.GetDeliveryById(deliveryId, user!.Id));
     }
 
     /// <summary>

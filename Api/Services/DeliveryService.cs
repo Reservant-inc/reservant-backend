@@ -1,8 +1,10 @@
-﻿using ErrorCodeDocs.Attributes;
+﻿using Azure.Core;
+using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Models.Dtos.Ingredient;
 using Reservant.Api.Validation;
@@ -22,8 +24,10 @@ public class DeliveryService(
     /// </summary>
     /// <param name="deliveryId">ID of the delivery</param>
     [ErrorCode(null, ErrorCodes.NotFound)]
-    public async Task<Result<DeliveryVM>> GetDeliveryById(int deliveryId)
+    public async Task<Result<DeliveryVM>> GetDeliveryById(int deliveryId, string userId)
     {
+        
+
         var delivery = await context.Deliveries
             .FirstOrDefaultAsync(d => d.Id == deliveryId);
 
@@ -35,6 +39,22 @@ public class DeliveryService(
                 ErrorCode = ErrorCodes.NotFound
             };
         }
+
+
+        //checksif delivery is to a restaurant which user currently works for
+        var employmentQuery = await context.Employments
+            .AnyAsync(e => e.EmployeeId == userId && e.DateUntil == null && e.RestaurantId == delivery.RestaurantId);
+
+        if (!employmentQuery)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+
         return new DeliveryVM
         {
             Id = delivery.Id,
