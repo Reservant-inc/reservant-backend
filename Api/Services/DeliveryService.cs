@@ -79,11 +79,19 @@ public class DeliveryService(
 
         if (!employmentQuery)
         {
-            return new ValidationFailure
+
+            var ownerQuery = await context.Restaurants
+                .AnyAsync(r => r.Id == request.RestaurantId && r.Group.OwnerId == userId);
+
+            if (!ownerQuery)
             {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.AccessDenied
-            };
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
         }
 
         var res = await validationService.ValidateAsync(delivery, userId);

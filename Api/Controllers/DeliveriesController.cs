@@ -36,7 +36,7 @@ public class DeliveriesController(DeliveryService deliveryService, UserManager<U
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
+    [Authorize(Roles = $"{Roles.RestaurantBackdoorsEmployee},{Roles.RestaurantOwner}")]
     [MethodErrorCodes<DeliveryService>(nameof(DeliveryService.PostDelivery))]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> PostDelivery(CreateDeliveryRequest request)
