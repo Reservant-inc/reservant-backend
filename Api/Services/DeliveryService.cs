@@ -73,6 +73,20 @@ public class DeliveryService(
             RestaurantId = request.RestaurantId,
         };
 
+        var ingredients = request.Ingredients
+            .Select(i => new IngredientDelivery
+            {
+                DeliveryId = i.DeliveryId,
+                IngredientId = i.IngredientId,
+                AmountOrdered = i.AmountOrdered,
+                AmountDelivered = i.AmountDelivered,
+                ExpiryDate = i.ExpiryDate,
+                StoreName = i.StoreName,
+            })
+            .ToList();
+
+        delivery.Ingredients = ingredients;
+
         //check if user currently works in restaurant from request
         var employmentQuery = await context.Employments
             .AnyAsync(e => e.EmployeeId == userId && e.DateUntil == null && e.RestaurantId == request.RestaurantId);
