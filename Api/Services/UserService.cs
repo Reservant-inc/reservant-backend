@@ -472,6 +472,7 @@ public class UserService(
     /// <param name="currentUserId">ID of the current user</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<FoundUserVM>>> FindUsersAsync(
         string name, UserSearchFilter filter, string? currentUserId, int page, int perPage)
     {

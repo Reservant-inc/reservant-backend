@@ -27,6 +27,7 @@ namespace Reservant.Api.Controllers
         /// <param name="perPage">Items per page</param>
         /// <returns></returns>
         [HttpGet]
+        [MethodErrorCodes<UserService>(nameof(UserService.FindUsersAsync))]
         public async Task<ActionResult<Pagination<FoundUserVM>>> FindUsers(
             string name, UserSearchFilter filter = UserSearchFilter.NoFilter,
             int page = 0, int perPage = 10)
