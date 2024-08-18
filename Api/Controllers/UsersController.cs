@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ErrorCodeDocs.Attributes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Dtos;
@@ -27,13 +28,14 @@ namespace Reservant.Api.Controllers
         /// <param name="perPage">Items per page</param>
         /// <returns></returns>
         [HttpGet]
+        [Authorize]
         [MethodErrorCodes<UserService>(nameof(UserService.FindUsersAsync))]
         public async Task<ActionResult<Pagination<FoundUserVM>>> FindUsers(
             string name, UserSearchFilter filter = UserSearchFilter.NoFilter,
             int page = 0, int perPage = 10)
         {
             var result = await userService.FindUsersAsync(
-                name, filter, User.GetUserId(), page, perPage);
+                name, filter, User.GetUserId()!, page, perPage);
             return OkOrErrors(result);
         }
 

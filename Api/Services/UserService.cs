@@ -474,7 +474,7 @@ public class UserService(
     /// <param name="perPage">Items per page</param>
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<FoundUserVM>>> FindUsersAsync(
-        string name, UserSearchFilter filter, string? currentUserId, int page, int perPage)
+        string name, UserSearchFilter filter, string currentUserId, int page, int perPage)
     {
         var query =
             from u in dbContext.Users
