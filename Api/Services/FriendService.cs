@@ -143,27 +143,28 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     /// <summary>
     /// Delete a friend request
     /// </summary>
-    /// <param name="receiverId">Request's receiver ID</param>
-    /// <param name="senderId">Request's sender ID</param>
+    /// <param name="otherUserId">ID of the other user</param>
+    /// <param name="currentUserId">ID of the current user</param>
     /// <returns></returns>
-    [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
-    public async Task<Result> DeleteFriendAsync(string receiverId, string senderId)
+    [ErrorCode(nameof(otherUserId), ErrorCodes.NotFound)]
+    public async Task<Result> DeleteFriendAsync(string otherUserId, string currentUserId)
     {
         var friendRequest = await context.FriendRequests
-            .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
+            .FirstOrDefaultAsync(fr =>
+                fr.SenderId == currentUserId && fr.ReceiverId == otherUserId ||
+                fr.ReceiverId == currentUserId && fr.SenderId == otherUserId);
 
         if (friendRequest == null)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(receiverId),
+                PropertyName = nameof(otherUserId),
                 ErrorMessage = "Friend request not found",
                 ErrorCode = ErrorCodes.NotFound
             };
         }
 
         friendRequest.DateDeleted = DateTime.UtcNow;
-        context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
         return Result.Success;
     }
