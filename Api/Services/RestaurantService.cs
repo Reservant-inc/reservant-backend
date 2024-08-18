@@ -69,6 +69,7 @@ namespace Reservant.Api.Services
         /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
         /// <param name="name">Search by name</param>
         /// <param name="tags">Search restaurants that have certain tags (up to 4)</param>
+        /// <param name="minRating">Search restaurants with at least this many stars</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
@@ -78,7 +79,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
             double? origLat, double? origLon,
-            string? name, HashSet<string> tags,
+            string? name, HashSet<string> tags, int? minRating,
             double? lat1, double? lon1, double? lat2, double? lon2,
             int page, int perPage)
         {
@@ -106,6 +107,21 @@ namespace Reservant.Api.Services
                 {
                     query = query.Where(r => r.Tags.Any(t => t.Name == tag));
                 }
+            }
+
+            if (minRating is not null)
+            {
+                if (minRating < 2 || minRating > 5)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(minRating),
+                        ErrorMessage = "Minimum rating must be from 2 to 5",
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                    };
+                }
+
+                query = query.Where(r => r.Reviews.Average(review => (double?)review.Stars) >= minRating);
             }
 
             if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
