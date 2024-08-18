@@ -137,6 +137,9 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
         builder.Entity<IngredientMenuItem>()
                 .HasKey(im => new { im.MenuItemId, im.IngredientId });
 
+        builder.Entity<FriendRequest>()
+            .HasQueryFilter(fr => fr.DateDeleted == null);
+
         var softDeletableEntities =
             from prop in GetType().GetProperties()
             where prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
