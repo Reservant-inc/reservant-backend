@@ -480,7 +480,8 @@ public class UserService(
             from u in dbContext.Users
             join ur in dbContext.UserRoles on u.Id equals ur.UserId
             join r in dbContext.Roles on ur.RoleId equals r.Id
-            where (u.FirstName + " " + u.LastName).Contains(name) && r.Name == Roles.Customer
+            where r.Name == Roles.Customer
+            where u.Id != currentUserId && (u.FirstName + " " + u.LastName).Contains(name)
             select new FoundUserVM
             {
                 UserId = u.Id,
