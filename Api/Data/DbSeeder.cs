@@ -201,6 +201,48 @@ public class DbSeeder(
             BirthDate = new DateOnly(2000, 1, 1)
         }, "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb")).OrThrow();
 
+        johnDoe.IncomingRequests = [
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 7, 18, 52, 2),
+                DateRead = new DateTime(2024, 8, 7, 20, 30, 0),
+                DateAccepted = new DateTime(2024, 8, 7, 20, 30, 19),
+                Sender = kowalski,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 10, 13, 2, 50),
+                DateRead = new DateTime(2024, 8, 11, 10, 14, 8),
+                Sender = customer1,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 11, 15, 8, 29),
+                Sender = customer3,
+            },
+        ];
+
+        johnDoe.OutgoingRequests = [
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 43, 8),
+                DateRead = new DateTime(2024, 8, 13, 16, 20, 9),
+                DateAccepted = new DateTime(2024, 8, 13, 16, 20, 53),
+                Receiver = walter,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 43, 50),
+                DateRead = new DateTime(2024, 8, 14, 12, 3, 2),
+                Receiver = muadib,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 44, 16),
+                Receiver = geralt,
+            },
+        ];
+
         await AddExampleUploads();
 
         var johnDoesGroup = new RestaurantGroup
