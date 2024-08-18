@@ -18,18 +18,21 @@ namespace Reservant.Api.Controllers
         /// Find users
         /// </summary>
         /// <remarks>
-        /// Only searches for customers
+        /// Only searches for customers. Returns friends first,
+        /// then friend requests, then strangers.
         /// </remarks>
         /// <param name="name">Search by user's name</param>
+        /// <param name="filter">Filter results</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<Pagination<UserSummaryVM>>> FindUsers(
-            string name,
+        public async Task<ActionResult<Pagination<FoundUserVM>>> FindUsers(
+            string name, UserSearchFilter filter = UserSearchFilter.NoFilter,
             int page = 0, int perPage = 10)
         {
-            var result = await userService.FindUsersAsync(name, page, perPage);
+            var result = await userService.FindUsersAsync(
+                name, filter, User.GetUserId(), page, perPage);
             return OkOrErrors(result);
         }
 

@@ -468,22 +468,50 @@ public class UserService(
     /// Find users
     /// </summary>
     /// <param name="name">Search by user's name</param>
+    /// <param name="filter">Filter results</param>
+    /// <param name="currentUserId">ID of the current user</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
-    public async Task<Result<Pagination<UserSummaryVM>>> FindUsersAsync(string name, int page, int perPage)
+    public async Task<Result<Pagination<FoundUserVM>>> FindUsersAsync(
+        string name, UserSearchFilter filter, string? currentUserId, int page, int perPage)
     {
         var query =
             from u in dbContext.Users
             join ur in dbContext.UserRoles on u.Id equals ur.UserId
             join r in dbContext.Roles on ur.RoleId equals r.Id
             where (u.FirstName + " " + u.LastName).Contains(name) && r.Name == Roles.Customer
-            select new UserSummaryVM
+            select new FoundUserVM
             {
                 UserId = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
                 Photo = uploadService.GetPathForFileName(u.PhotoFileName),
+                FriendStatus =
+                    (from fr in dbContext.FriendRequests
+                     let isOutgoing = fr.SenderId == currentUserId && fr.ReceiverId == u.Id
+                     let isIncoming = fr.SenderId == u.Id && fr.ReceiverId == currentUserId
+                     let isAccepted = fr.DateAccepted != null
+                     where isOutgoing || isIncoming
+                     select isAccepted
+                        ? FriendStatus.Friend
+                        : isIncoming
+                        ? FriendStatus.IncomingRequest
+                        : isOutgoing
+                        ? FriendStatus.OutgoingRequest
+                        : FriendStatus.Stranger)
+                    .FirstOrDefault(),
             };
+
+        query = filter switch
+        {
+            UserSearchFilter.NoFilter => query.OrderByDescending(u => u.FriendStatus),
+            UserSearchFilter.FriendsOnly => query.Where(u => u.FriendStatus == FriendStatus.Friend),
+            UserSearchFilter.StrangersOnly => query
+                .Where(u => u.FriendStatus != FriendStatus.Friend)
+                .OrderByDescending(u => u.FriendStatus),
+            _ => throw new ArgumentOutOfRangeException(nameof(filter)),
+        };
+
         return await query.PaginateAsync(page, perPage, []);
     }
 }
