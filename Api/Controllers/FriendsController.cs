@@ -81,20 +81,14 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <summary>
     /// Delete a friend or a peding friend request (as the sender or the receiver)
     /// </summary>
-    /// <param name="userId">ID of the user</param>
-    [HttpDelete("{userId}")]
+    /// <param name="otherUserId">ID of the other user</param>
+    [HttpDelete("{otherUserId}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.DeleteFriendAsync))]
-    public async Task<ActionResult> DeleteFriend(string userId)
+    public async Task<ActionResult> DeleteFriend(string otherUserId)
     {
-        var user = await userManager.GetUserAsync(User);
-        if (user == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await service.DeleteFriendAsync(user.Id, userId);
+        var result = await service.DeleteFriendAsync(otherUserId, User.GetUserId()!);
         return OkOrErrors(result);
     }
 
