@@ -76,15 +76,37 @@ public class DeliveryService(
     /// <param name="request">Information about the new delivery</param>
     /// <param name="userId">ID of the current user for permission checking</param>
     [ErrorCode(null, ErrorCodes.AccessDenied)]
+    [ErrorCode(nameof(request.Ingredients), ErrorCodes.NotFound,
+        "Some of the ingredients were not found")]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
     [ValidatorErrorCodes<Delivery>]
     public async Task<Result<DeliveryVM>> PostDelivery(CreateDeliveryRequest request, string userId)
     {
+        var access = await authorizationService.VerifyRestaurantBackdoorAccess(request.RestaurantId, userId);
+        if (access.IsError)
+        {
+            return access.Errors;
+        }
+
         var delivery = new Delivery
         {
             OrderTime = DateTime.UtcNow,
             RestaurantId = request.RestaurantId,
         };
+
+        var countRealIngredients = await context.Ingredients
+            .CountAsync(i => request.Ingredients
+                .Select(ri => ri.IngredientId)
+                .Contains(i.Id));
+        if (countRealIngredients != request.Ingredients.Count)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Ingredients),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Some of the ingredients were not found",
+            };
+        }
 
         var ingredients = request.Ingredients
             .Select(i => new IngredientDelivery
@@ -99,12 +121,6 @@ public class DeliveryService(
             .ToList();
 
         delivery.Ingredients = ingredients;
-
-        var access = await authorizationService.VerifyRestaurantBackdoorAccess(delivery.RestaurantId, userId);
-        if (access.IsError)
-        {
-            return access.Errors;
-        }
 
         var res = await validationService.ValidateAsync(delivery, userId);
         if (!res.IsValid)
