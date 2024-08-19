@@ -17,13 +17,15 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class DeliveryService(
     ApiDbContext context,
-    ValidationService validationService)
+    ValidationService validationService,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Get information about a delivery
     /// </summary>
     /// <param name="deliveryId">ID of the delivery</param>
     [ErrorCode(null, ErrorCodes.NotFound)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
     public async Task<Result<DeliveryVM>> GetDeliveryById(int deliveryId, string userId)
     {
         
@@ -40,20 +42,11 @@ public class DeliveryService(
             };
         }
 
-
-        //checksif delivery is to a restaurant which user currently works for
-        var employmentQuery = await context.Employments
-            .AnyAsync(e => e.EmployeeId == userId && e.DateUntil == null && e.RestaurantId == delivery.RestaurantId);
-
-        if (!employmentQuery)
+        var access = await authorizationService.VerifyRestaurantBackdoorAccess(delivery.RestaurantId, userId);
+        if (access.IsError)
         {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.AccessDenied
-            };
+            return access.Errors;
         }
-
 
         return new DeliveryVM
         {
@@ -84,6 +77,7 @@ public class DeliveryService(
     /// <param name="request">Information about the new delivery</param>
     /// <param name="userId">ID of the current user for permission checking</param>
     [ErrorCode(null, ErrorCodes.AccessDenied)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
     [ValidatorErrorCodes<Delivery>]
     public async Task<Result<DeliveryVM>> PostDelivery(CreateDeliveryRequest request, string userId)
     {
@@ -107,25 +101,10 @@ public class DeliveryService(
 
         delivery.Ingredients = ingredients;
 
-        //check if user currently works in restaurant from request
-        var employmentQuery = await context.Employments
-            .AnyAsync(e => e.EmployeeId == userId && e.DateUntil == null && e.RestaurantId == request.RestaurantId);
-
-        if (!employmentQuery)
+        var access = await authorizationService.VerifyRestaurantBackdoorAccess(delivery.RestaurantId, userId);
+        if (access.IsError)
         {
-
-            var ownerQuery = await context.Restaurants
-                .AnyAsync(r => r.Id == request.RestaurantId && r.Group.OwnerId == userId);
-
-            if (!ownerQuery)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
+            return access.Errors;
         }
 
         var res = await validationService.ValidateAsync(delivery, userId);

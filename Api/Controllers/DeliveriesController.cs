@@ -20,7 +20,7 @@ public class DeliveriesController(DeliveryService deliveryService) : StrictContr
     /// <param name="deliveryId"></param>
     /// <returns>OrderVM or NotFound if order wasn't found</returns>
     [HttpGet("{deliveryId:int}")]
-    [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
+    [Authorize(Roles = $"{Roles.RestaurantBackdoorsEmployee},{Roles.RestaurantOwner}")]
     [MethodErrorCodes<DeliveryService>(nameof(DeliveryService.GetDeliveryById))]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> GetDeliveryById(int deliveryId)
