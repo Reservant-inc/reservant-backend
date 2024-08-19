@@ -1,9 +1,7 @@
 ﻿using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
-using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Services;
 
@@ -13,7 +11,7 @@ namespace Reservant.Api.Controllers;
 /// Controller for deliveries
 /// </summary>
 [ApiController, Route("/deliveries")]
-public class DeliveriesController(DeliveryService deliveryService, UserManager<User> userManager) : StrictController
+public class DeliveriesController(DeliveryService deliveryService) : StrictController
 {
 
     /// <summary>
@@ -27,8 +25,8 @@ public class DeliveriesController(DeliveryService deliveryService, UserManager<U
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> GetDeliveryById(int deliveryId)
     {
-        var user = await userManager.GetUserAsync(User);
-        return OkOrErrors(await deliveryService.GetDeliveryById(deliveryId, user!.Id));
+        return OkOrErrors(await deliveryService.GetDeliveryById(
+            deliveryId, User.GetUserId()!));
     }
 
     /// <summary>
@@ -42,7 +40,7 @@ public class DeliveriesController(DeliveryService deliveryService, UserManager<U
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> PostDelivery(CreateDeliveryRequest request)
     {
-        var user = await userManager.GetUserAsync(User);
-        return OkOrErrors(await deliveryService.PostDelivery(request, user!.Id));
+        return OkOrErrors(await deliveryService.PostDelivery(
+            request, User.GetUserId()!));
     }
 }
