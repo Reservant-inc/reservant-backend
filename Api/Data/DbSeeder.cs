@@ -321,7 +321,7 @@ public class DbSeeder(
                 Takeaway = true,
                 TableRestaurantId = 1,
                 TableId = 1,
-                ClientId = customer1.Id,
+                ClientId = johnDoe.Id,
                 Client = customer1,
                 IsDeleted = false,
                 Participants = [customer2, customer3],
@@ -338,7 +338,7 @@ public class DbSeeder(
                 Takeaway = false,
                 TableRestaurantId = 1,
                 TableId = 2,
-                ClientId = customer2.Id,
+                ClientId = johnDoe.Id,
                 Client = customer2,
                 IsDeleted = false,
                 Participants = [customer3],
@@ -370,7 +370,7 @@ public class DbSeeder(
                 Description = "Event 1 Description",
                 Time = visits[0].Date,
                 MustJoinUntil = visits[0].Date.AddHours(-3),
-                Creator = customer1,
+                Creator = johnDoe,
                 RestaurantId = 1,
                 Visit = visits[0],
                 Interested = [customer2, customer3]
@@ -381,7 +381,7 @@ public class DbSeeder(
                 Description = "Event 2 Description",
                 Time = visits[1].Date,
                 MustJoinUntil = visits[1].Date.AddDays(-1),
-                Creator = customer2,
+                Creator = johnDoe,
                 RestaurantId = 1,
                 VisitId = null,
                 Interested = [customer1]
@@ -395,7 +395,7 @@ public class DbSeeder(
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer2]
+                Interested = [customer2, johnDoe]
             },
             new Event
             {
@@ -417,7 +417,7 @@ public class DbSeeder(
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer1, customer2]
+                Interested = [customer1, customer2, johnDoe]
             }
         );
 
@@ -481,6 +481,149 @@ public class DbSeeder(
 
         context.Orders.AddRange(orders);
 
+        var exampleJDThread = new MessageThread
+        {
+            Title = "Example Thread 1",
+            CreationDate = DateTime.Now,
+            CreatorId = johnDoe.Id,
+            Creator = johnDoe,
+            Participants = [johnDoe, customer3],
+            Messages = [
+                new Message
+                {
+                    Contents = "hi!",
+                    DateSent = DateTime.Now,
+                    DateRead = DateTime.Now.AddMinutes(1),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "sup!",
+                    DateSent = DateTime.Now.AddMinutes(1),
+                    DateRead = DateTime.Now.AddMinutes(2),
+                    AuthorId = customer3.Id,
+                    Author = customer3
+                },
+                new Message
+                {
+                    Contents = "Thanks for visiting my restaurant! Did you enjoy the visit?",
+                    DateSent = DateTime.Now.AddMinutes(3),
+                    DateRead = DateTime.Now.AddMinutes(4),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "You're welcome. Yes I had a blast.",
+                    DateSent = DateTime.Now.AddMinutes(5),
+                    DateRead = DateTime.Now.AddMinutes(6),
+                    AuthorId = customer3.Id,
+                    Author = customer3
+                },
+                new Message
+                {
+                    Contents = "Would you like to leave a review then?",
+                    DateSent = DateTime.Now.AddMinutes(7),
+                    DateRead = DateTime.Now.AddMinutes(8),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "Sure, thanks for a reminder!",
+                    DateSent = DateTime.Now.AddMinutes(9),
+                    DateRead = DateTime.Now.AddMinutes(10),
+                    AuthorId = customer3.Id,
+                    Author = customer3
+                }
+            ]
+        };
+
+        foreach (Message m in exampleJDThread.Messages)
+        {
+            m.MessageThread = exampleJDThread;
+            m.MessageThreadId = exampleJDThread.Id;
+        }
+
+        await context.MessageThreads.AddAsync(exampleJDThread);
+
+        var exampleJDGroupThread = new MessageThread
+        {
+            Title = "Example Thread 2",
+            CreationDate = DateTime.Now,
+            CreatorId = johnDoe.Id,
+            Creator = johnDoe,
+            Participants = [johnDoe, customer1, customer2],
+            Messages = [
+                new Message
+                {
+                    Contents = "hi!",
+                    DateSent = DateTime.Now,
+                    DateRead = DateTime.Now.AddMinutes(1),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "sup!",
+                    DateSent = DateTime.Now.AddMinutes(1),
+                    DateRead = DateTime.Now.AddMinutes(2),
+                    AuthorId = customer1.Id,
+                    Author = customer1
+                },
+                new Message
+                {
+                    Contents = "yo!",
+                    DateSent = DateTime.Now.AddMinutes(2),
+                    DateRead = DateTime.Now.AddMinutes(3),
+                    AuthorId = customer2.Id,
+                    Author = customer2
+                },
+                new Message
+                {
+                    Contents = "Thanks for visiting my restaurant",
+                    DateSent = DateTime.Now.AddMinutes(4),
+                    DateRead = DateTime.Now.AddMinutes(5),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                }
+            ]
+        };
+
+        foreach (Message m in exampleJDGroupThread.Messages)
+        {
+            m.MessageThread = exampleJDGroupThread;
+            m.MessageThreadId = exampleJDGroupThread.Id;
+        }
+
+        await context.MessageThreads.AddAsync(exampleJDGroupThread);
+
+        var ingredient = await context.Ingredients.FirstAsync();
+        var delivery = new Delivery
+        {
+            OrderTime = DateTime.Now,
+            DeliveredTime = DateTime.Now.AddDays(2),
+            RestaurantId = johnDoesGroup.Restaurants.First().Id,
+            Restaurant = johnDoesGroup.Restaurants.First(),
+            UserId = johnDoe.Id,
+            User = johnDoe,
+            Ingredients = [
+                new IngredientDelivery
+                {
+                    IngredientId = ingredient.Id,
+                    AmountOrdered = ingredient.AmountToOrder ?? 1,
+                    AmountDelivered = ingredient.AmountToOrder ?? 1,
+                    ExpiryDate = DateTime.Now.AddDays(7),
+                    StoreName = "Gusteau's",
+                    Ingredient = ingredient
+                }
+            ]
+        };
+
+        delivery.Ingredients.First().Delivery = delivery;
+
+        await context.AddAsync(delivery);
 
         await context.SaveChangesAsync();
     }
@@ -557,7 +700,7 @@ public class DbSeeder(
             Address = "ul. Marszałkowska 2",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = geometryFactory.CreatePoint(new Coordinate(20.91364863552046,52.39625635)),
+            Location = geometryFactory.CreatePoint(new Coordinate(20.91364863552046, 52.39625635)),
             Group = johnDoesGroup,
             RentalContractFileName = null,
             AlcoholLicenseFileName = null!,
@@ -578,7 +721,7 @@ public class DbSeeder(
         };
 
         var visits = await context.Visits.ToListAsync();
-        for (int i = 0; i< visits.Count; i++)
+        for (int i = 0; i < visits.Count; i++)
         {
             visits[i].Restaurant = johnDoes;
         }
@@ -979,7 +1122,7 @@ public class DbSeeder(
             Address = "ul. Konstruktorska 5",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = geometryFactory.CreatePoint(new Coordinate(20.99866252013997,  52.1853141)),
+            Location = geometryFactory.CreatePoint(new Coordinate(20.99866252013997, 52.1853141)),
             Group = kowalskisGroup,
             RentalContractFileName = null,
             RentalContract = exampleDocument,
@@ -2304,6 +2447,22 @@ public class DbSeeder(
             RestaurantId = visitResult.RestaurantId,
             Takeaway = visitResult.Takeaway,
             VisitId = visitResult.VisitId
+        };
+    }
+
+    public async Task<MessageThread> CreateExampleMessageThread(
+        User creator,
+        List<User> participants,
+        List<Message> messages)
+    {
+        return new MessageThread
+        {
+            Title = "Example thread",
+            CreationDate = DateTime.Now,
+            CreatorId = creator.Id,
+            Creator = creator,
+            Participants = participants,
+            Messages = messages
         };
     }
 }
