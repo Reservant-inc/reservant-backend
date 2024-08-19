@@ -1,10 +1,8 @@
-﻿using Azure.Core;
-using ErrorCodeDocs.Attributes;
+﻿using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Auth;
 using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Models.Dtos.Ingredient;
 using Reservant.Api.Validation;
@@ -24,6 +22,7 @@ public class DeliveryService(
     /// Get information about a delivery
     /// </summary>
     /// <param name="deliveryId">ID of the delivery</param>
+    /// <param name="userId">ID of the current user for permission checking</param>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
     public async Task<Result<DeliveryVM>> GetDeliveryById(int deliveryId, string userId)
