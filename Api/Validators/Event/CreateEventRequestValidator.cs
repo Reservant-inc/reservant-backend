@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Reservant.Api.Data;
-using Reservant.Api.Models.Dtos.Event;
+using Reservant.Api.Dtos.Event;
 
 namespace Reservant.Api.Validators.Event;
 

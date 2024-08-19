@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Menu;
-using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validators;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos.Menu;
+using Reservant.Api.Dtos.MenuItem;
+using Reservant.Api.Dtos.Restaurant;
 
 
 namespace Reservant.Api.Controllers
@@ -191,6 +191,7 @@ namespace Reservant.Api.Controllers
             var result = await restaurantService.ValidateFirstStepAsync(dto, user);
             return OkOrErrors(result);
         }
+
 
         /// <summary>
         /// Get list of menus by given restaurant id

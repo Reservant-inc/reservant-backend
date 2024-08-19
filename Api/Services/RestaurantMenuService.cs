@@ -2,10 +2,10 @@
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Menu;
+using Reservant.Api.Dtos.MenuItem;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Menu;
-using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 

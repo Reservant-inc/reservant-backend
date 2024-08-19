@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Reservant.Api.Data;
-using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Dtos.Restaurant;
 
 namespace Reservant.Api.Validators.Employee
 {

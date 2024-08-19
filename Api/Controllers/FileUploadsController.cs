@@ -2,8 +2,8 @@ using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos.FileUpload;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.FileUpload;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 

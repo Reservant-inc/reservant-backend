@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Reservant.Api.Models.Dtos.Thread;
+using Reservant.Api.Dtos.Thread;
 
 namespace Reservant.Api.Validators.Thread;
 

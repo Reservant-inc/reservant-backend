@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
+using Reservant.Api.Dtos.Auth;
+using Reservant.Api.Dtos.Order;
+using Reservant.Api.Dtos.OrderItem;
+using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.Visit;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Auth;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.OrderItem;
-using Reservant.Api.Models.Dtos.Restaurant;
-using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
@@ -200,6 +200,48 @@ public class DbSeeder(
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
         }, "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb")).OrThrow();
+
+        johnDoe.IncomingRequests = [
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 7, 18, 52, 2),
+                DateRead = new DateTime(2024, 8, 7, 20, 30, 0),
+                DateAccepted = new DateTime(2024, 8, 7, 20, 30, 19),
+                Sender = kowalski,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 10, 13, 2, 50),
+                DateRead = new DateTime(2024, 8, 11, 10, 14, 8),
+                Sender = customer1,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 11, 15, 8, 29),
+                Sender = customer3,
+            },
+        ];
+
+        johnDoe.OutgoingRequests = [
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 43, 8),
+                DateRead = new DateTime(2024, 8, 13, 16, 20, 9),
+                DateAccepted = new DateTime(2024, 8, 13, 16, 20, 53),
+                Receiver = walter,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 43, 50),
+                DateRead = new DateTime(2024, 8, 14, 12, 3, 2),
+                Receiver = muadib,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 44, 16),
+                Receiver = geralt,
+            },
+        ];
 
         await AddExampleUploads();
 
@@ -707,8 +749,6 @@ public class DbSeeder(
 
         await context.SaveChangesAsync();
 
-        ///HERE1
-
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
         var customer3 = await context.Users.FirstAsync(u => u.UserName == "customer3");
@@ -1057,8 +1097,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE2
-
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1469,7 +1507,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE3
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1741,7 +1778,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE4
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");

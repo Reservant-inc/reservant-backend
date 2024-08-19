@@ -4,16 +4,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Event;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.Restaurant;
-using Reservant.Api.Models.Dtos.Review;
-using Reservant.Api.Models.Dtos.Visit;
-using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.MenuItem;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Delivery;
+using Reservant.Api.Dtos.Event;
+using Reservant.Api.Dtos.Ingredient;
+using Reservant.Api.Dtos.Menu;
+using Reservant.Api.Dtos.MenuItem;
+using Reservant.Api.Dtos.Order;
+using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.Review;
+using Reservant.Api.Dtos.Visit;
 namespace Reservant.Api.Controllers;
 
 
@@ -35,6 +37,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
     /// <param name="name">Search by name</param>
     /// <param name="tags">Search restaurants that have certain tags (specify up to 4 times to search by multiple tags)</param>
+    /// <param name="minRating">Search restaurants with at least this many stars</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
     /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
@@ -47,12 +50,13 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindRestaurants(
         double? origLat, double? origLon,
         string? name, [FromQuery] HashSet<string> tags,
+        int? minRating,
         double? lat1, double? lon1, double? lat2, double? lon2,
         int page = 0, int perPage = 10)
     {
         var result = await service.FindRestaurantsAsync(
             origLat, origLon,
-            name, tags,
+            name, tags, minRating,
             lat1, lon1, lat2, lon2,
             page, perPage);
         return OkOrErrors(result);
@@ -222,6 +226,62 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
         return OkOrErrors(result);
     }
+    
+    /// <summary>
+    /// Get list of ingredients for a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="orderBy">Sorting order</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    /// <returns>Paginated list of ingredients</returns>
+    [HttpGet("{restaurantId:int}/ingredients")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<IngredientVM>>> GetIngredients(
+        int restaurantId,
+        [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 20)
+    {
+        var result = await service.GetIngredientsAsync(restaurantId, orderBy, page, perPage);
+
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Get deliveries in a restaurant
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="returnDelivered">If true, return finished deliveries, unfinished otherwise</param>
+    /// <param name="userId">Search by user ID</param>
+    /// <param name="userName">Search by user name</param>
+    /// <param name="orderBy">Order results by</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    [HttpGet("{restaurantId:int}/deliveries")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetDeliveriesInRestaurantAsync))]
+    public async Task<ActionResult<Pagination<DeliverySummaryVM>>> GetDeliveries(
+        int restaurantId,
+        bool returnDelivered,
+        string? userId,
+        string? userName,
+        DeliverySorting orderBy,
+        int page = 0,
+        int perPage = 10)
+    {
+        var result = await service.GetDeliveriesInRestaurantAsync(
+            restaurantId, returnDelivered, userId, userName, orderBy,
+            userManager.GetUserId(User)!, page, perPage);
+        if (result.IsError)
+        {
+            return result.ToValidationProblem();
+        }
+
+        return Ok(result.Value);
+    }
 
     //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     /// <summary>
@@ -257,6 +317,4 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
         return OkOrErrors(res);
     }
-
-
 }

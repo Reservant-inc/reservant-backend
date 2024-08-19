@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.FriendRequest;
-using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.FriendRequest;
 
 namespace Reservant.Api.Controllers;
 
@@ -81,20 +81,14 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <summary>
     /// Delete a friend or a peding friend request (as the sender or the receiver)
     /// </summary>
-    /// <param name="userId">ID of the user</param>
-    [HttpDelete("{userId}")]
+    /// <param name="otherUserId">ID of the other user</param>
+    [HttpDelete("{otherUserId}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.DeleteFriendAsync))]
-    public async Task<ActionResult> DeleteFriend(string userId)
+    public async Task<ActionResult> DeleteFriend(string otherUserId)
     {
-        var user = await userManager.GetUserAsync(User);
-        if (user == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await service.DeleteFriendAsync(user.Id, userId);
+        var result = await service.DeleteFriendAsync(otherUserId, User.GetUserId()!);
         return OkOrErrors(result);
     }
 
@@ -105,8 +99,9 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <param name="perPage">Records per page</param>
     /// <returns>List of friends</returns>
     [HttpGet]
-    [ProducesResponseType(200)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetFriendsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetFriends([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
@@ -129,6 +124,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpGet("incoming")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetIncomingFriendRequestsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetIncomingFriendRequests([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
@@ -151,6 +147,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [HttpGet("outgoing")]
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<FriendService>(nameof(FriendService.GetOutgoingFriendRequestsAsync))]
     public async Task<ActionResult<Pagination<FriendRequestVM>>> GetOutgoingFriendRequests([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {

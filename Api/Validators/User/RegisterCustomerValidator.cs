@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models.Dtos.Auth;
+using Reservant.Api.Dtos.Auth;
 
 namespace Reservant.Api.Validators.User;
 

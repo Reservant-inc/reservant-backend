@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Message;
-using Reservant.Api.Models.Dtos.Thread;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Message;
+using Reservant.Api.Dtos.Thread;
 
 
 namespace Reservant.Api.Controllers;
@@ -24,6 +24,9 @@ public class ThreadsController(
     /// <summary>
     /// Create a new thread
     /// </summary>
+    /// <remarks>
+    /// The current user is added to the participant list automatically
+    /// </remarks>
     /// <param name="request">Thread creation request</param>
     /// <returns>Created thread information</returns>
     [HttpPost]

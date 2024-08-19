@@ -137,15 +137,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
         builder.Entity<IngredientMenuItem>()
                 .HasKey(im => new { im.MenuItemId, im.IngredientId });
 
-        builder.Entity<IngredientMenuItem>()
-            .HasOne(im => im.MenuItem)
-            .WithMany(mi => mi.Ingredients)
-            .HasForeignKey(im => im.MenuItemId);
-
-        builder.Entity<IngredientMenuItem>()
-            .HasOne(im => im.Ingredient)
-            .WithMany()
-            .HasForeignKey(im => im.IngredientId);
+        builder.Entity<FriendRequest>()
+            .HasQueryFilter(fr => fr.DateDeleted == null);
 
         var softDeletableEntities =
             from prop in GetType().GetProperties()

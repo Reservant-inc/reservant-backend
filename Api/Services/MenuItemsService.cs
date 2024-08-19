@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
-using Reservant.Api.Models.Dtos.Ingredient;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos.MenuItem;
+using Reservant.Api.Dtos.Ingredient;
 
 namespace Reservant.Api.Services
 {

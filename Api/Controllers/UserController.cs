@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.Visit;
-using Reservant.Api.Models.Dtos.Event;
-using Reservant.Api.Models.Dtos.Thread;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Event;
+using Reservant.Api.Dtos.Thread;
+using Reservant.Api.Dtos.User;
+using Reservant.Api.Dtos.Visit;
 
 namespace Reservant.Api.Controllers;
 

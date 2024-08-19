@@ -4,12 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reservant.Api.Data;
-using Reservant.Api.Identity;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Message;
+using Reservant.Api.Dtos.Thread;
+using Reservant.Api.Dtos.User;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Message;
-using Reservant.Api.Models.Dtos.Thread;
-using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -19,7 +18,6 @@ namespace Reservant.Api.Services;
 /// Service for managing message threads.
 /// </summary>
 public class ThreadService(
-    UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService,
     FileUploadService uploadService)
@@ -243,6 +241,7 @@ public class ThreadService(
     public async Task<Result<MessageVM>> CreateThreadsMessageAsync(int threadId, string userId, CreateMessageRequest request)
     {
         var messageThread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId);
 
         if (messageThread == null)
