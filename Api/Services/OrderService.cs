@@ -96,7 +96,8 @@ public class OrderService(
         {
             MenuItemId = i.MenuItemId,
             Amount = i.Amount,
-            Cost = i.Amount * i.MenuItem.Price,
+            Price = i.Price,
+            Cost = i.Amount * i.Price,
             Status = i.Status,
         }).ToList();
 
@@ -177,7 +178,7 @@ public class OrderService(
         var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
         var menuItems = await context.MenuItems
             .Where(mi => menuItemIds.Contains(mi.Id))
-            .ToListAsync();
+            .ToDictionaryAsync(mi => mi.Id);
 
         if (menuItems.Count != request.Items.Count)
         {
@@ -201,7 +202,7 @@ public class OrderService(
             .Include(visit => visit.Participants)
             .FirstAsync();
 
-        if (menuItems.Any(mi => mi.RestaurantId != visit.RestaurantId))
+        if (menuItems.Values.Any(mi => mi.RestaurantId != visit.RestaurantId))
         {
             return new ValidationFailure
             {
@@ -215,8 +216,8 @@ public class OrderService(
         {
             MenuItemId = c.MenuItemId,
             Amount = c.Amount,
+            Price = menuItems[c.MenuItemId].Price,
             Status = OrderStatus.InProgress,
-            MenuItem = menuItems.First(mi => mi.Id == c.MenuItemId)
         }).ToList();
 
         var order = new Order
@@ -348,9 +349,10 @@ public class OrderService(
             Items = order.OrderItems.Select(orderItem => new OrderItemVM
             {
                 Amount = orderItem.Amount,
+                Price = orderItem.Price,
                 Status = orderItem.Status,
                 MenuItemId = orderItem.MenuItemId,
-                Cost = orderItem.MenuItem.Price * orderItem.Amount
+                Cost = orderItem.Price * orderItem.Amount
             }).ToList(),
             Cost = order.Cost,
             EmployeeId = order.EmployeeId

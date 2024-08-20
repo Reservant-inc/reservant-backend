@@ -44,14 +44,7 @@ public class Order : ISoftDeletable
             var items = OrderItems ??
                         throw new InvalidOperationException(
                             $"{nameof(OrderItems)} must be loaded to compute {nameof(Cost)}");
-            return items
-                .Select(oi =>
-                {
-                    var item = oi.MenuItem ?? throw new InvalidOperationException(
-                        $"{nameof(OrderItems)}.{nameof(OrderItem.MenuItem)} must be loaded to compute {nameof(Cost)}");
-                    return item.Price * oi.Amount;
-                })
-                .Sum();
+            return items.Sum(oi => oi.Price * oi.Amount);
         }
     }
 

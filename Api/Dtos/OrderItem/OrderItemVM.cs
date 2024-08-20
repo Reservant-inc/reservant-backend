@@ -18,6 +18,11 @@ public class OrderItemVM
     public required int Amount { get; init; }
 
     /// <summary>
+    /// Price for which the item was ordered
+    /// </summary>
+    public required decimal Price { get; init; }
+
+    /// <summary>
     /// Cost of all the items
     /// </summary>
     public required decimal Cost { get; init; }
