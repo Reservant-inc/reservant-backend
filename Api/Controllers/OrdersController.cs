@@ -1,3 +1,4 @@
+using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +55,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     [HttpPost()]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<OrderService>(nameof(OrderService.CreateOrderAsync))]
     public async Task<ActionResult<OrderSummaryVM>> CreateOrder(CreateOrderRequest request)
     {
         var user = await userManager.GetUserAsync(User);

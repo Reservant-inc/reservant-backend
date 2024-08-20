@@ -65,4 +65,31 @@ public class AuthorizationService(
 
         return Result.Success;
     }
+
+    /// <summary>
+    /// Verify that the user is the visit's participant
+    /// </summary>
+    /// <param name="visitId">ID of the visit</param>
+    /// <param name="userId">ID of the user</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User does not participate in the visit")]
+    public async Task<Result> VerifyVisitParticipant(int visitId, string userId)
+    {
+        var userIsVisitParticipant = await context.Visits
+            .Where(v => v.Id == visitId)
+            .Select(v => v.ClientId == userId
+                || v.Participants.Any(p => p.Id == userId))
+            .SingleOrDefaultAsync();
+        if (!userIsVisitParticipant)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User does not participate in the visit",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        return Result.Success;
+    }
 }

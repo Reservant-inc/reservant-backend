@@ -1,3 +1,4 @@
+using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,8 @@ namespace Reservant.Api.Services;
 public class OrderService(
     UserManager<User> userManager,
     ApiDbContext context,
-    ValidationService validationService)
+    ValidationService validationService,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Gets the order with the given id
@@ -157,6 +159,13 @@ public class OrderService(
     /// <summary>
     /// Creating new order
     /// </summary>
+    [ErrorCode(nameof(request.Items), ErrorCodes.NotFound,
+        "Some of the menu items were not found")]
+    [ErrorCode(nameof(request.Items), ErrorCodes.BelongsToAnotherRestaurant,
+        "Order must only include items from the visit's restaurant")]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
+    [ValidatorErrorCodes<CreateOrderRequest>]
+    [ValidatorErrorCodes<Order>]
     public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
     {
         var result = await validationService.ValidateAsync(request, user.Id);
@@ -170,27 +179,35 @@ public class OrderService(
             .Where(mi => menuItemIds.Contains(mi.Id))
             .ToListAsync();
 
+        if (menuItems.Count != request.Items.Count)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Items),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Some of the menu items were not found",
+            };
+        }
+
+        var access = await authorizationService
+            .VerifyVisitParticipant(request.VisitId, user.Id);
+        if (access.IsError)
+        {
+            return access.Errors;
+        }
+
         var visit = await context.Visits
             .Where(v => v.Id == request.VisitId)
             .Include(visit => visit.Participants)
             .FirstAsync();
-
-        if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                AttemptedValue = user.Id,
-                ErrorCode = ErrorCodes.UserDoesNotParticipateInVisit
-            };
-        }
 
         if (menuItems.Any(mi => mi.RestaurantId != visit.RestaurantId))
         {
             return new ValidationFailure
             {
                 PropertyName = nameof(request.Items),
-                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant
+                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant,
+                ErrorMessage = "Order must only include items from the visit's restaurant",
             };
         }
 
