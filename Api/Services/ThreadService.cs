@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Message;
 using Reservant.Api.Dtos.Thread;
 using Reservant.Api.Dtos.User;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -20,7 +22,8 @@ namespace Reservant.Api.Services;
 public class ThreadService(
     ApiDbContext dbContext,
     ValidationService validationService,
-    FileUploadService uploadService)
+    FileUploadService uploadService,
+    UserManager<User> userManager)
 {
     /// <summary>
     /// Creates a new message thread.
@@ -347,5 +350,136 @@ public class ThreadService(
                 MessageThreadId = m.MessageThreadId
             })
             .PaginateAsync(page, perPage, [], maxPerPage: 100);
+    }
+
+    /// <summary>
+    /// Add participant to a thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    /// <param name="currentUserId">ID of the current user for permission checks</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Thread not found")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User is not a participant of the thread")]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.CannotBeCurrentUser, "User cannot add themselves to a thread")]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.MustBeCustomerId)]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.Duplicate, "User already participates in the thread")]
+    public async Task<Result> AddParticipant(int threadId, AddRemoveParticipantDto dto, string currentUserId)
+    {
+        if (dto.UserId == currentUserId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.CannotBeCurrentUser,
+            };
+        }
+
+        var thread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
+            .SingleOrDefaultAsync();
+        if (thread is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Thread not found",
+            };
+        }
+
+        if (!thread.Participants.Any(u => u.Id == currentUserId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = "User is not a particpant of the thread",
+            };
+        }
+
+        var targetUser = await userManager.FindByIdAsync(dto.UserId);
+        if (targetUser is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+
+        if (!await userManager.IsInRoleAsync(targetUser, Roles.Customer))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.MustBeCustomerId,
+            };
+        }
+
+        if (thread.Participants.Contains(targetUser))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.Duplicate,
+            };
+        }
+
+        thread.Participants.Add(targetUser);
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// Remove participant from a thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    /// <param name="currentUserId">ID of the current user for permission checks</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Thread not found")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User is not a participant of the thread")]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.NotFound)]
+    public async Task<Result> RemoveParticipant(int threadId, AddRemoveParticipantDto dto, string currentUserId)
+    {
+        var thread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
+            .SingleOrDefaultAsync();
+        if (thread is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Thread not found",
+            };
+        }
+
+        if (!thread.Participants.Any(u => u.Id == currentUserId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = "User is not a particpant of the thread",
+            };
+        }
+
+        var targetUser = thread.Participants.SingleOrDefault(p => p.Id == dto.UserId);
+        if (targetUser is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Participant not found",
+            };
+        }
+
+        thread.Participants.Remove(targetUser);
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success;
     }
 }

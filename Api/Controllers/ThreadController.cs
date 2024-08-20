@@ -8,6 +8,7 @@ using Reservant.Api.Validation;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Message;
 using Reservant.Api.Dtos.Thread;
+using ErrorCodeDocs.Attributes;
 
 
 namespace Reservant.Api.Controllers;
@@ -16,6 +17,7 @@ namespace Reservant.Api.Controllers;
 /// Manage threads
 /// </summary>
 [ApiController, Route("/threads")]
+[Authorize(Roles = Roles.Customer)]
 public class ThreadsController(
     UserManager<User> userManager,
     ThreadService threadService
@@ -150,7 +152,35 @@ public class ThreadsController(
         var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, page, perPage);
         return OkOrErrors(result);
     }
+
+    /// <summary>
+    /// Add participant to a thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    [HttpPost("{threadId:int}/add-participant")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<ThreadService>(nameof(ThreadService.AddParticipant))]
+    public async Task<ActionResult> AddParticipant(int threadId, AddRemoveParticipantDto dto)
+    {
+        return OkOrErrors(await threadService.AddParticipant(
+            threadId, dto, User.GetUserId()!));
+    }
+
+    /// <summary>
+    /// Remove participant from a thread
+    /// </summary>
+    /// <remarks>
+    /// Can also be used to leave the thread
+    /// </remarks>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    [HttpPost("{threadId:int}/remove-participant")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<ThreadService>(nameof(ThreadService.RemoveParticipant))]
+    public async Task<ActionResult> RemoveParticipant(int threadId, AddRemoveParticipantDto dto)
+    {
+        return OkOrErrors(await threadService.RemoveParticipant(
+            threadId, dto, User.GetUserId()!));
+    }
 }
-
-
-
