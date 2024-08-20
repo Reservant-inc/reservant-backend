@@ -21,10 +21,20 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     /// <param name="senderId">Sender ID</param>
     /// <param name="receiverId">Receiver ID</param>
     /// <returns></returns>
+    [ErrorCode(nameof(receiverId), ErrorCodes.CannotBeCurrentUser)]
     [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Friend request already exists")]
     public async Task<Result> SendFriendRequestAsync(string senderId, string receiverId)
     {
+        if (receiverId == senderId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(receiverId),
+                ErrorCode = ErrorCodes.CannotBeCurrentUser,
+            };
+        }
+
         var receiverExists = await context.Users.AnyAsync(u => u.Id == receiverId);
         if (!receiverExists)
         {
@@ -107,10 +117,20 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     /// </summary>
     /// <param name="receiverId">Request's receiver ID</param>
     /// <param name="senderId">Request's sender ID</param>
+    [ErrorCode(nameof(receiverId), ErrorCodes.CannotBeCurrentUser)]
     [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Friend request already accepted")]
     public async Task<Result> AcceptFriendRequestAsync(string receiverId, string senderId)
     {
+        if (receiverId == senderId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(receiverId),
+                ErrorCode = ErrorCodes.CannotBeCurrentUser,
+            };
+        }
+
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
 
@@ -146,9 +166,19 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     /// <param name="otherUserId">ID of the other user</param>
     /// <param name="currentUserId">ID of the current user</param>
     /// <returns></returns>
+    [ErrorCode(nameof(otherUserId), ErrorCodes.CannotBeCurrentUser)]
     [ErrorCode(nameof(otherUserId), ErrorCodes.NotFound)]
     public async Task<Result> DeleteFriendAsync(string otherUserId, string currentUserId)
     {
+        if (otherUserId == currentUserId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(otherUserId),
+                ErrorCode = ErrorCodes.CannotBeCurrentUser,
+            };
+        }
+
         var friendRequest = await context.FriendRequests
             .FirstOrDefaultAsync(fr =>
                 fr.SenderId == currentUserId && fr.ReceiverId == otherUserId ||

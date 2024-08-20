@@ -160,4 +160,9 @@ public static class ErrorCodes
     /// MustJoinUntil must be before Time
     /// </summary>
     public const string MustJoinUntilMustBeBeforeEventTime = "MustJoinUntilMustBeBeforeEventTime";
+
+    /// <summary>
+    /// The current user cannot be used in the request (for example sending a friend request
+    /// </summary>
+    public const string CannotBeCurrentUser = "CannotBeCurrentUser";
 }
