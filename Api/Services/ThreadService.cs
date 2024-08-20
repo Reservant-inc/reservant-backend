@@ -478,6 +478,11 @@ public class ThreadService(
         }
 
         thread.Participants.Remove(targetUser);
+        if (thread.Participants.Count == 0)
+        {
+            thread.IsDeleted = true;
+        }
+
         await dbContext.SaveChangesAsync();
 
         return Result.Success;
