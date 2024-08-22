@@ -484,7 +484,7 @@ public class DbSeeder(
         var exampleJDThread = new MessageThread
         {
             Title = "Example Thread 1",
-            CreationDate = DateTime.Now,
+            CreationDate = DateTime.UtcNow,
             CreatorId = johnDoe.Id,
             Creator = johnDoe,
             Participants = [johnDoe, customer3],
@@ -492,48 +492,48 @@ public class DbSeeder(
                 new Message
                 {
                     Contents = "hi!",
-                    DateSent = DateTime.Now,
-                    DateRead = DateTime.Now.AddMinutes(1),
+                    DateSent = DateTime.UtcNow,
+                    DateRead = DateTime.UtcNow.AddMinutes(1),
                     AuthorId = johnDoe.Id,
                     Author = johnDoe
                 },
                 new Message
                 {
                     Contents = "sup!",
-                    DateSent = DateTime.Now.AddMinutes(1),
-                    DateRead = DateTime.Now.AddMinutes(2),
+                    DateSent = DateTime.UtcNow.AddMinutes(1),
+                    DateRead = DateTime.UtcNow.AddMinutes(2),
                     AuthorId = customer3.Id,
                     Author = customer3
                 },
                 new Message
                 {
                     Contents = "Thanks for visiting my restaurant! Did you enjoy the visit?",
-                    DateSent = DateTime.Now.AddMinutes(3),
-                    DateRead = DateTime.Now.AddMinutes(4),
+                    DateSent = DateTime.UtcNow.AddMinutes(3),
+                    DateRead = DateTime.UtcNow.AddMinutes(4),
                     AuthorId = johnDoe.Id,
                     Author = johnDoe
                 },
                 new Message
                 {
                     Contents = "You're welcome. Yes I had a blast.",
-                    DateSent = DateTime.Now.AddMinutes(5),
-                    DateRead = DateTime.Now.AddMinutes(6),
+                    DateSent = DateTime.UtcNow.AddMinutes(5),
+                    DateRead = DateTime.UtcNow.AddMinutes(6),
                     AuthorId = customer3.Id,
                     Author = customer3
                 },
                 new Message
                 {
                     Contents = "Would you like to leave a review then?",
-                    DateSent = DateTime.Now.AddMinutes(7),
-                    DateRead = DateTime.Now.AddMinutes(8),
+                    DateSent = DateTime.UtcNow.AddMinutes(7),
+                    DateRead = DateTime.UtcNow.AddMinutes(8),
                     AuthorId = johnDoe.Id,
                     Author = johnDoe
                 },
                 new Message
                 {
                     Contents = "Sure, thanks for a reminder!",
-                    DateSent = DateTime.Now.AddMinutes(9),
-                    DateRead = DateTime.Now.AddMinutes(10),
+                    DateSent = DateTime.UtcNow.AddMinutes(9),
+                    DateRead = DateTime.UtcNow.AddMinutes(10),
                     AuthorId = customer3.Id,
                     Author = customer3
                 }
@@ -551,7 +551,7 @@ public class DbSeeder(
         var exampleJDGroupThread = new MessageThread
         {
             Title = "Example Thread 2",
-            CreationDate = DateTime.Now,
+            CreationDate = DateTime.UtcNow,
             CreatorId = johnDoe.Id,
             Creator = johnDoe,
             Participants = [johnDoe, customer1, customer2],
@@ -559,32 +559,32 @@ public class DbSeeder(
                 new Message
                 {
                     Contents = "hi!",
-                    DateSent = DateTime.Now,
-                    DateRead = DateTime.Now.AddMinutes(1),
+                    DateSent = DateTime.UtcNow,
+                    DateRead = DateTime.UtcNow.AddMinutes(1),
                     AuthorId = johnDoe.Id,
                     Author = johnDoe
                 },
                 new Message
                 {
                     Contents = "sup!",
-                    DateSent = DateTime.Now.AddMinutes(1),
-                    DateRead = DateTime.Now.AddMinutes(2),
+                    DateSent = DateTime.UtcNow.AddMinutes(1),
+                    DateRead = DateTime.UtcNow.AddMinutes(2),
                     AuthorId = customer1.Id,
                     Author = customer1
                 },
                 new Message
                 {
                     Contents = "yo!",
-                    DateSent = DateTime.Now.AddMinutes(2),
-                    DateRead = DateTime.Now.AddMinutes(3),
+                    DateSent = DateTime.UtcNow.AddMinutes(2),
+                    DateRead = DateTime.UtcNow.AddMinutes(3),
                     AuthorId = customer2.Id,
                     Author = customer2
                 },
                 new Message
                 {
                     Contents = "Thanks for visiting my restaurant",
-                    DateSent = DateTime.Now.AddMinutes(4),
-                    DateRead = DateTime.Now.AddMinutes(5),
+                    DateSent = DateTime.UtcNow.AddMinutes(4),
+                    DateRead = DateTime.UtcNow.AddMinutes(5),
                     AuthorId = johnDoe.Id,
                     Author = johnDoe
                 }
@@ -602,8 +602,8 @@ public class DbSeeder(
         var ingredient = await context.Ingredients.FirstAsync();
         var delivery = new Delivery
         {
-            OrderTime = DateTime.Now,
-            DeliveredTime = DateTime.Now.AddDays(2),
+            OrderTime = DateTime.UtcNow,
+            DeliveredTime = DateTime.UtcNow.AddDays(2),
             RestaurantId = johnDoesGroup.Restaurants.First().Id,
             Restaurant = johnDoesGroup.Restaurants.First(),
             UserId = johnDoe.Id,
@@ -614,7 +614,7 @@ public class DbSeeder(
                     IngredientId = ingredient.Id,
                     AmountOrdered = ingredient.AmountToOrder ?? 1,
                     AmountDelivered = ingredient.AmountToOrder ?? 1,
-                    ExpiryDate = DateTime.Now.AddDays(7),
+                    ExpiryDate = DateTime.UtcNow.AddDays(7),
                     StoreName = "Gusteau's",
                     Ingredient = ingredient
                 }
@@ -2458,7 +2458,7 @@ public class DbSeeder(
         return new MessageThread
         {
             Title = "Example thread",
-            CreationDate = DateTime.Now,
+            CreationDate = DateTime.UtcNow,
             CreatorId = creator.Id,
             Creator = creator,
             Participants = participants,
