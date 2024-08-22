@@ -540,12 +540,6 @@ public class DbSeeder(
             ]
         };
 
-        foreach (Message m in exampleJDThread.Messages)
-        {
-            m.MessageThread = exampleJDThread;
-            m.MessageThreadId = exampleJDThread.Id;
-        }
-
         await context.MessageThreads.AddAsync(exampleJDThread);
 
         var exampleJDGroupThread = new MessageThread
@@ -590,12 +584,6 @@ public class DbSeeder(
                 }
             ]
         };
-
-        foreach (Message m in exampleJDGroupThread.Messages)
-        {
-            m.MessageThread = exampleJDGroupThread;
-            m.MessageThreadId = exampleJDGroupThread.Id;
-        }
 
         await context.MessageThreads.AddAsync(exampleJDGroupThread);
 
