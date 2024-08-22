@@ -132,6 +132,14 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
             eb.HasMany<FriendRequest>(u => u.IncomingRequests)
                 .WithOne(fr => fr.Receiver);
+
+            eb.HasMany(u => u.Threads)
+                .WithMany(mt => mt.Participants);
+        });
+
+        builder.Entity<MessageThread>(eb =>
+        {
+            eb.HasOne(mt => mt.Creator).WithMany();
         });
 
         builder.Entity<IngredientMenuItem>()
