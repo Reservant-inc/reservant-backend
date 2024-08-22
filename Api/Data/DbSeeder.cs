@@ -2437,20 +2437,4 @@ public class DbSeeder(
             VisitId = visitResult.VisitId
         };
     }
-
-    public async Task<MessageThread> CreateExampleMessageThread(
-        User creator,
-        List<User> participants,
-        List<Message> messages)
-    {
-        return new MessageThread
-        {
-            Title = "Example thread",
-            CreationDate = DateTime.UtcNow,
-            CreatorId = creator.Id,
-            Creator = creator,
-            Participants = participants,
-            Messages = messages
-        };
-    }
 }
