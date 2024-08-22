@@ -2,8 +2,8 @@
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos.Delivery;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Delivery;
 using Reservant.Api.Models.Dtos.Ingredient;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;

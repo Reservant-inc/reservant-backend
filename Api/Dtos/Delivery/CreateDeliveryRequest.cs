@@ -1,6 +1,6 @@
 ﻿using Reservant.Api.Models.Dtos.Ingredient;
 
-namespace Reservant.Api.Models.Dtos.Delivery;
+namespace Reservant.Api.Dtos.Delivery;
 
 public class CreateDeliveryRequest
 {
