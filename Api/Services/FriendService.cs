@@ -245,10 +245,10 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-    public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, int page, int perPage)
+    public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, bool unreadOnly, int page, int perPage)
     {
         var query = context.FriendRequests
-            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null)
+            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null && (!unreadOnly || fr.DateRead==null))
             .OrderByDescending(fr => fr.DateSent)
             .Select(fr => new FriendRequestVM
             {
