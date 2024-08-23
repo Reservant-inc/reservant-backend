@@ -39,4 +39,27 @@ public class IngredientsController(
         var result = await ingredientService.CreateIngredientAsync(request, userId);
         return OkOrErrors(result);
     }
-}
+
+
+    /// <summary>
+    /// Update an existing ingredient
+    /// </summary>
+    /// <param name="ingredientId">ID of the ingredient to update</param>
+    /// <param name="request">Ingredient update request</param>
+    /// <returns>Updated ingredient information</returns>
+    [HttpPut("{ingredientId:int}")]
+    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(403)]
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    [MethodErrorCodes<IngredientService>(nameof(IngredientService.UpdateIngredientAsync))]
+    public async Task<ActionResult<IngredientVM>> UpdateIngredient(int ingredientId, [FromBody] UpdateIngredientRequest request)
+    {
+        var userId = userManager.GetUserId(User);
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await ingredientService.UpdateIngredientAsync(ingredientId,request, userId);
+        return OkOrErrors(result);
+    }
+ }
