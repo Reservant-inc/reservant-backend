@@ -50,6 +50,8 @@ builder.Services.AddBusinessServices();
 
 var app = builder.Build();
 
+await app.EnsureDatabaseCreatedAndSeeded();
+
 app.UseCors();
 
 app.UseSwagger();
@@ -70,5 +72,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await app.EnsureDatabaseCreatedAndSeeded();
 app.Run();
