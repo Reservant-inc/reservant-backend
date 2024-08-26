@@ -49,6 +49,7 @@ namespace Reservant.Api.Services
                 CreatedAt = DateTime.UtcNow,
                 Description = request.Description,
                 Time = request.Time,
+                MaxPeople = request.MaxPeople,
                 MustJoinUntil = request.MustJoinUntil,
                 CreatorId = user.Id,
                 RestaurantId = request.RestaurantId,
@@ -70,6 +71,7 @@ namespace Reservant.Api.Services
                 CreatedAt = newEvent.CreatedAt,
                 Description = newEvent.Description,
                 Time = newEvent.Time,
+                MaxPeople = newEvent.MaxPeople,
                 EventId = newEvent.Id,
                 MustJoinUntil = newEvent.MustJoinUntil,
                 CreatorId = newEvent.CreatorId,
@@ -112,6 +114,7 @@ namespace Reservant.Api.Services
                 CreatedAt = checkedEvent.CreatedAt,
                 Description = checkedEvent.Description,
                 Time = checkedEvent.Time,
+                MaxPeople = checkedEvent.MaxPeople,
                 EventId = checkedEvent.Id,
                 MustJoinUntil = checkedEvent.MustJoinUntil,
                 CreatorId = checkedEvent.CreatorId,
@@ -145,6 +148,7 @@ namespace Reservant.Api.Services
             {
                 CreatorFullName = e.Creator.FullName,
                 Time = e.Time,
+                MaxPeople = e.MaxPeople,
                 RestaurantName = e.Restaurant.Name,
                 RestaurantId = e.Restaurant.Id,
                 NumberInterested = e.Interested.Count,
@@ -173,6 +177,16 @@ namespace Reservant.Api.Services
                     PropertyName = null,
                     ErrorMessage = "Event not found",
                     ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (eventFound.Interested.Count == eventFound.MaxPeople)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Number of people allowed in this event already reached",
+                    ErrorCode = ErrorCodes.EventIsFull
                 };
             }
 
@@ -247,6 +261,7 @@ namespace Reservant.Api.Services
                     EventId = e.Id,
                     Description = e.Description,
                     Time = e.Time,
+                    MaxPeople = e.MaxPeople,
                     MustJoinUntil = e.MustJoinUntil,
                     CreatorId = e.CreatorId,
                     CreatorFullName = e.Creator.FullName,
@@ -311,6 +326,7 @@ namespace Reservant.Api.Services
 
             eventToUpdate.Description = request.Description;
             eventToUpdate.Time = request.Time;
+            eventToUpdate.MaxPeople = request.MaxPeople;
             eventToUpdate.MustJoinUntil = request.MustJoinUntil;
             eventToUpdate.RestaurantId = request.RestaurantId;
             eventToUpdate.Restaurant = restaurant;
@@ -329,6 +345,7 @@ namespace Reservant.Api.Services
                 CreatedAt = eventToUpdate.CreatedAt,
                 Description = eventToUpdate.Description,
                 Time = eventToUpdate.Time,
+                MaxPeople = eventToUpdate.MaxPeople,
                 MustJoinUntil = eventToUpdate.MustJoinUntil,
                 CreatorId = eventToUpdate.CreatorId,
                 CreatorFullName = eventToUpdate.Creator.FullName,

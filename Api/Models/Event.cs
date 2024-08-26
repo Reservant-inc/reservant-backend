@@ -45,6 +45,11 @@ public class Event : ISoftDeletable
     /// ID of the restaurant where the event takes place
     /// </summary>
     public int RestaurantId { get; set; }
+    
+    /// <summary>
+    /// Max number of people that can attend at the event
+    /// </summary>
+    public int MaxPeople { get; set; }
 
     /// <summary>
     /// ID of the actual visit

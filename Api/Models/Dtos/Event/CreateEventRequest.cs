@@ -14,6 +14,11 @@ public class CreateEventRequest
     /// When the event is going to happen
     /// </summary>
     public DateTime Time { get; set; }
+    
+    /// <summary>
+    /// Max number of people that can attend event
+    /// </summary>
+    public int MaxPeople { get; set; }
 
     /// <summary>
     /// People must join until this time
