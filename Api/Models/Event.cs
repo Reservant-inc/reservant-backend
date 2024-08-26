@@ -64,7 +64,7 @@ public class Event : ISoftDeletable
     /// <summary>
     /// Navigational property for the restaurant where the event takes place
     /// </summary>
-    public Restaurant Restaurant { get; set; } = null!;
+    public Restaurant? Restaurant { get; set; }
 
     /// <summary>
     /// Navigational property for the users interested
