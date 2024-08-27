@@ -226,7 +226,7 @@ public class UserController(
     [HttpGet("threads")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(401)]
-    public async Task<ActionResult<Pagination<ThreadSummaryVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    public async Task<ActionResult<Pagination<ThreadVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var userId = userManager.GetUserId(User);
         if (userId == null)

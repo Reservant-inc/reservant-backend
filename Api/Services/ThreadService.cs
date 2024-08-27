@@ -183,14 +183,21 @@ public class ThreadService(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<ThreadSummaryVM>>> GetUserThreadsAsync(string userId, int page, int perPage)
+    public async Task<Result<Pagination<ThreadVM>>> GetUserThreadsAsync(string userId, int page, int perPage)
     {
         var query = dbContext.MessageThreads
             .Where(t => t.Participants.Any(p => p.Id == userId))
-            .Select(t => new ThreadSummaryVM
+            .Select(t => new ThreadVM
             {
+                ThreadId = t.Id,
                 Title = t.Title,
-                NumberOfParticipants = t.Participants.Count
+                Participants = t.Participants.Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName)
+                }).ToList()
             });
 
         return await query.PaginateAsync(page, perPage, []);
