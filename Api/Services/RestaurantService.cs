@@ -111,12 +111,12 @@ namespace Reservant.Api.Services
 
             if (minRating is not null)
             {
-                if (minRating < 2 || minRating > 5)
+                if (minRating < 0 || minRating > 5)
                 {
                     return new ValidationFailure
                     {
                         PropertyName = nameof(minRating),
-                        ErrorMessage = "Minimum rating must be from 2 to 5",
+                        ErrorMessage = "Minimum rating must be from 0 to 5",
                         ErrorCode = ErrorCodes.InvalidSearchParameters,
                     };
                 }
