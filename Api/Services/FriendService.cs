@@ -241,6 +241,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     /// Get given user's not accepted incoming friend requests
     /// </summary>
     /// <param name="userId">User ID</param>
+    /// <param name="unreadOnly">Return only unread requests</param>
     /// <param name="page">Page</param>
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>

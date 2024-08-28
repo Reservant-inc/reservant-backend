@@ -118,6 +118,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <summary>
     /// Get list of incoming friend requests
     /// </summary>
+    /// <param name="unreadOnly">Return only unread requests</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>List of incoming friend requests</returns>
