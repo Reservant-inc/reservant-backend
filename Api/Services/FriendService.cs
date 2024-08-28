@@ -241,14 +241,15 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     /// Get given user's not accepted incoming friend requests
     /// </summary>
     /// <param name="userId">User ID</param>
+    /// <param name="unreadOnly">Return only unread requests</param>
     /// <param name="page">Page</param>
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-    public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, int page, int perPage)
+    public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, bool unreadOnly, int page, int perPage)
     {
         var query = context.FriendRequests
-            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null)
+            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null && (!unreadOnly || fr.DateRead==null))
             .OrderByDescending(fr => fr.DateSent)
             .Select(fr => new FriendRequestVM
             {

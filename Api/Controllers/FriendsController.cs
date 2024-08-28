@@ -118,6 +118,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <summary>
     /// Get list of incoming friend requests
     /// </summary>
+    /// <param name="unreadOnly">Return only unread requests</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>List of incoming friend requests</returns>
@@ -125,7 +126,8 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.GetIncomingFriendRequestsAsync))]
-    public async Task<ActionResult<Pagination<FriendRequestVM>>> GetIncomingFriendRequests([FromQuery] int page = 0,
+    public async Task<ActionResult<Pagination<FriendRequestVM>>> GetIncomingFriendRequests(bool unreadOnly,
+        [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
@@ -134,7 +136,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
             return Unauthorized();
         }
 
-        var result = await service.GetIncomingFriendRequestsAsync(user.Id, page, perPage);
+        var result = await service.GetIncomingFriendRequestsAsync(user.Id, unreadOnly, page, perPage);
         return OkOrErrors(result);
     }
 
