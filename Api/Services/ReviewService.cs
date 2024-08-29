@@ -14,7 +14,6 @@ namespace Reservant.Api.Services
     /// Service for managing reviews
     /// </summary>
     public class ReviewService(
-        UserManager<User> userManager,
         ApiDbContext context,
         ValidationService validationService)
     {

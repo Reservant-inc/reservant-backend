@@ -1,12 +1,9 @@
 ﻿using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos.Review;
 using Reservant.Api.Identity;
-using Reservant.Api.Models;
 using Reservant.Api.Services;
-using Reservant.Api.Validators;
 
 namespace Reservant.Api.Controllers
 {
@@ -15,7 +12,7 @@ namespace Reservant.Api.Controllers
     /// </summary>
     [ApiController, Route("/reviews")]
     [Authorize]
-    public class ReviewController(ReviewService reviewService, UserManager<User> userManager) : StrictController
+    public class ReviewController(ReviewService reviewService) : StrictController
     {
         /// <summary>
         /// Deletes a review with a given id, great for censorship
