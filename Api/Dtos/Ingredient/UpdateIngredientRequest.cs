@@ -26,14 +26,4 @@ public class UpdateIngredientRequest
     /// When added to the shopping list, the amount to order
     /// </summary>
     public double? AmountToOrder { get; set; }
-
-    /// <summary>
-    /// Starting amount of the ingredient
-    /// </summary>
-    public required double Amount { get; set; }
-
-    /// <summary>
-    /// Property that tells what menu items used what amount of ingredients
-    /// </summary>
-    public required UsedInMenuItemDto MenuItem { get; set; }
 }
