@@ -313,6 +313,9 @@ public class ThreadService(
     /// <param name="userId">id of thread</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int page, int perPage)
     {
         var messageThread = await dbContext.MessageThreads

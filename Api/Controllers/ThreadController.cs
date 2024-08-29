@@ -143,6 +143,7 @@ public class ThreadsController(
     [HttpGet("{threadId:int}/messages")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<ThreadService>(nameof(ThreadService.GetThreadMessagesByIdAsync))]
     public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(
         int threadId, [FromQuery] int page = 0, [FromQuery] int perPage = 100)
     {
