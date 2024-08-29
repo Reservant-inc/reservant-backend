@@ -20,6 +20,7 @@ namespace Reservant.Api.Controllers
         /// <param name="id">id of the review</param>
         /// <returns>confirmation of the action's status</returns>
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.DeleteReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult> DeleteReview(int id) {
@@ -37,7 +38,7 @@ namespace Reservant.Api.Controllers
         /// <param name="request">new contents of the review</param>
         /// <returns>a visual model of the updated review</returns>
         [HttpPut("{id:int}")]
-        [Authorize]
+        [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.UpdateReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<ReviewVM>> UpdateReview(int id, CreateReviewRequest request)
