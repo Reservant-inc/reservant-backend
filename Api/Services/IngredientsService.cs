@@ -99,7 +99,7 @@ public class IngredientService(
     }
 
 
-    public async Task<Result<IngredientVM>> UpdateIngredientAsync(int ingredientId, UpdateIngredientRequest request, User user)
+    public async Task<Result<IngredientVM>> UpdateIngredientAsync(int ingredientId, UpdateIngredientRequest request, String userId)
 {
     var ingredient = await dbContext.Ingredients
         .Include(i => i.MenuItems)
@@ -129,7 +129,7 @@ public class IngredientService(
     }
 
     var access = await authorizationService
-            .VerifyOwnerRole(menuItem.RestaurantId, user);
+            .VerifyRestaurantBackdoorAccess(menuItem.RestaurantId,userId );
     if (access.IsError)
     {
         return access.Errors;
@@ -140,7 +140,7 @@ public class IngredientService(
     ingredient.MinimalAmount = request.MinimalAmount;
     ingredient.AmountToOrder = request.AmountToOrder;
 
-    var validationResult = await validationService.ValidateAsync(ingredient, user.Id);
+    var validationResult = await validationService.ValidateAsync(ingredient, userId);
     if (!validationResult.IsValid)
     {
         return validationResult;
