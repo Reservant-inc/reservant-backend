@@ -23,13 +23,10 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.DeleteReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult> DeleteReview(int id) {
-            var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
 
-            var result = await reviewService.DeleteReviewAsync(id, user);
+            var userid = User.GetUserId();
+
+            var result = await reviewService.DeleteReviewAsync(id, userid);
             return OkOrErrors(result);
         }
 
@@ -45,13 +42,10 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<ReviewVM>> UpdateReview(int id, CreateReviewRequest request)
         {
-            var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
+            var userid = User.GetUserId();
 
-            var result = await reviewService.UpdateReviewAsync(id, user, request);
+
+            var result = await reviewService.UpdateReviewAsync(id, userid, request);
             return OkOrErrors(result);
         }
     }
