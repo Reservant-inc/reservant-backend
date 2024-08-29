@@ -10,11 +10,20 @@ using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services
 {
+    /// <summary>
+    /// Service for managing reviews
+    /// </summary>
     public class ReviewService(
         UserManager<User> userManager,
         ApiDbContext context,
         ValidationService validationService)
     {
+        /// <summary>
+        /// Delete review by ID
+        /// </summary>
+        /// <param name="id">ID of the review</param>
+        /// <param name="userid">ID of the current user for permission checking</param>
+        /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied)]
         public async Task<Result> DeleteReviewAsync(int id, string userid)
@@ -41,6 +50,13 @@ namespace Reservant.Api.Services
             return Result.Success;
         }
 
+        /// <summary>
+        /// Update review by ID
+        /// </summary>
+        /// <param name="id">ID of the review</param>
+        /// <param name="userid">ID of the current user for permission checking</param>
+        /// <param name="request">New review information</param>
+        /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied)]
         [ValidatorErrorCodes<CreateReviewRequest>]

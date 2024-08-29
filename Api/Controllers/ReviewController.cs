@@ -10,6 +10,9 @@ using Reservant.Api.Validators;
 
 namespace Reservant.Api.Controllers
 {
+    /// <summary>
+    /// Managing reviews
+    /// </summary>
     [ApiController, Route("/reviews")]
     [Authorize]
     public class ReviewController(ReviewService reviewService, UserManager<User> userManager) : StrictController
