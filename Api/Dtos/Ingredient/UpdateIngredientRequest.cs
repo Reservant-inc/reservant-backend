@@ -3,7 +3,7 @@ using Reservant.Api.Models.Enums;
 namespace Reservant.Api.Dtos.Ingredient;
 
 /// <summary>
-/// Request to create a new ingredient
+/// Request to update an ingredient
 /// </summary>
 public class UpdateIngredientRequest
 {

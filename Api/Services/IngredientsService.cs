@@ -100,13 +100,13 @@ public class IngredientService(
 
 
     /// <summary>
-    /// Creates a new ingredient.
+    /// Update an ingredient.
     /// </summary>
     /// <param name="ingredientId"></param> 
     /// <param name="request"></param>
     /// <param name="userId">ID of the creator user</param>
     /// <returns></returns>
-    [ValidatorErrorCodes<CreateIngredientRequest>]
+    [ValidatorErrorCodes<UpdateIngredientRequest>]
     [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(ingredientId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(ingredientId), ErrorCodes.AccessDenied)]

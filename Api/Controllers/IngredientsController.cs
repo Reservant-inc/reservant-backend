@@ -48,8 +48,8 @@ public class IngredientsController(
     /// <param name="request">Ingredient update request</param>
     /// <returns>Updated ingredient information</returns>
     [HttpPut("{ingredientId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(404), ProducesResponseType(403)]
     [Authorize(Roles = Roles.RestaurantOwner)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<IngredientService>(nameof(IngredientService.UpdateIngredientAsync))]
     public async Task<ActionResult<IngredientVM>> UpdateIngredient(int ingredientId, [FromBody] UpdateIngredientRequest request)
     {
