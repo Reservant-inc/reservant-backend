@@ -157,7 +157,6 @@ public class ThreadService(
     public async Task<Result> DeleteThreadAsync(int threadId, string userId)
     {
         var messageThread = await dbContext.MessageThreads
-            .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
