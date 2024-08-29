@@ -15,7 +15,8 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class IngredientService(
     ApiDbContext dbContext,
-    ValidationService validationService)
+    ValidationService validationService,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Creates a new ingredient.
@@ -96,4 +97,83 @@ public class IngredientService(
             Amount = ingredient.Amount
         };
     }
+
+
+    /// <summary>
+    /// Update an ingredient.
+    /// </summary>
+    /// <param name="ingredientId"></param> 
+    /// <param name="request"></param>
+    /// <param name="userId">ID of the creator user</param>
+    /// <returns></returns>
+    [ValidatorErrorCodes<UpdateIngredientRequest>]
+    [ValidatorErrorCodes<Ingredient>]
+    [ErrorCode(nameof(ingredientId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(ingredientId), ErrorCodes.AccessDenied)]
+    public async Task<Result<IngredientVM>> UpdateIngredientAsync(int ingredientId, UpdateIngredientRequest request, String userId)
+    {
+        var dtoValidationResult = await validationService.ValidateAsync(request, userId);
+        if (!dtoValidationResult.IsValid)
+        {
+            return dtoValidationResult;
+        }
+
+        var ingredient = await dbContext.Ingredients
+            .Include(i => i.MenuItems)
+                .ThenInclude(mi => mi.MenuItem)
+            .FirstOrDefaultAsync(i => i.Id == ingredientId);
+
+        if (ingredient == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(ingredientId),
+                ErrorMessage = ErrorCodes.NotFound,
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        var menuItem = ingredient.MenuItems.FirstOrDefault()?.MenuItem;
+
+        if (menuItem == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(ingredientId),
+                ErrorMessage = ErrorCodes.AccessDenied,
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        var access = await authorizationService
+                .VerifyRestaurantBackdoorAccess(menuItem.RestaurantId,userId );
+        if (access.IsError)
+        {
+            return access.Errors;
+        }
+
+        ingredient.PublicName = request.PublicName;
+        ingredient.UnitOfMeasurement = request.UnitOfMeasurement;
+        ingredient.MinimalAmount = request.MinimalAmount;
+        ingredient.AmountToOrder = request.AmountToOrder;
+
+        var validationResult = await validationService.ValidateAsync(ingredient, userId);
+        if (!validationResult.IsValid)
+        {
+            return validationResult;
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        return new IngredientVM
+        {
+            IngredientId = ingredient.Id,
+            PublicName = ingredient.PublicName,
+            UnitOfMeasurement = ingredient.UnitOfMeasurement,
+            MinimalAmount = ingredient.MinimalAmount,
+            AmountToOrder = ingredient.AmountToOrder,
+            Amount = ingredient.Amount
+        };
+    }
+
 }
