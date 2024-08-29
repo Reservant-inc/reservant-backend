@@ -1270,8 +1270,6 @@ namespace Reservant.Api.Services
                 };
             }
 
-            //var (rating, numberReviews) = await GetReviewSummary(restaurant);
-
             return restaurant;
         }
 
