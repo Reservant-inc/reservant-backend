@@ -129,9 +129,12 @@ public class ThreadsController(
     }
 
     /// <summary>
-    /// Get threads the logged-in user participates in
+    /// Get messages in a thread
     /// </summary>
     /// <remarks>
+    /// Use `GET /threads/{threadId}` first to fetch and cache the participants info.
+    /// Then you can use `authorId` to get information about the message author locally.
+    /// 
     /// Returns messages sorted by date from newest to oldest
     /// </remarks>
     /// <param name="threadId">id of thread</param>

@@ -307,7 +307,7 @@ public class ThreadService(
     }
 
     /// <summary>
-    /// Get threads the logged-in user participates in
+    /// Get messages in a thread
     /// </summary>
     /// <param name="threadId">id of thread</param>
     /// <param name="userId">id of thread</param>
