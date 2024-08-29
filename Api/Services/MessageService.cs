@@ -1,12 +1,7 @@
-using System.Security.Claims;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Message;
-using Reservant.Api.Identity;
-using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -29,7 +24,6 @@ public class MessageService(
     public async Task<Result<MessageVM>> UpdateMessageAsync(int messageId, UpdateMessageRequest request, string userId)
     {
         var message = await dbContext.Messages
-        .Include(m => m.Author)
             .FirstOrDefaultAsync(m => m.Id == messageId);
 
         if (message == null)
@@ -69,8 +63,7 @@ public class MessageService(
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
-            AuthorsFirstName = message.Author.FirstName,
-            AuthorsLastName = message.Author.LastName,
+            AuthorId = message.AuthorId,
             MessageThreadId = message.MessageThreadId
         };
     }
@@ -85,7 +78,6 @@ public class MessageService(
     public async Task<Result<MessageVM>> MarkMessageAsReadByIdAsync(int messageId, string userId)
     {
         var message = await dbContext.Messages
-        .Include(m => m.Author)
         .Include(m => m.MessageThread)
             .ThenInclude(m => m.Participants)
         .FirstOrDefaultAsync(m => m.Id == messageId);
@@ -141,8 +133,7 @@ public class MessageService(
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
-            AuthorsFirstName = message.Author.FirstName,
-            AuthorsLastName = message.Author.LastName,
+            AuthorId = message.AuthorId,
             MessageThreadId = message.MessageThreadId
         };   
     }

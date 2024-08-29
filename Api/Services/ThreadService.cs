@@ -301,8 +301,7 @@ public class ThreadService(
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
-            AuthorsFirstName = user.FirstName,
-            AuthorsLastName = user.LastName,
+            AuthorId = message.AuthorId,
             MessageThreadId = message.MessageThreadId
         };
     }
@@ -341,7 +340,6 @@ public class ThreadService(
         }
 
         var query = dbContext.Messages
-            .Include(m => m.Author)
             .Where(m => m.MessageThreadId == threadId);
 
         return await query
@@ -352,8 +350,7 @@ public class ThreadService(
                 Contents = m.Contents,
                 DateSent = m.DateSent,
                 DateRead = m.DateRead,
-                AuthorsFirstName = m.Author.FirstName,
-                AuthorsLastName = m.Author.LastName,
+                AuthorId = m.AuthorId,
                 MessageThreadId = m.MessageThreadId
             })
             .PaginateAsync(page, perPage, [], maxPerPage: 100);

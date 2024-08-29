@@ -23,13 +23,9 @@ public class MessageVM
     /// </summary>
     public required DateTime? DateRead { get; set; }
     /// <summary>
-    /// AuthorId of the message
+    /// ID of the message's author
     /// </summary>
-    public required string AuthorsFirstName { get; set; }
-    /// <summary>
-    /// AuthorId of the message
-    /// </summary>
-    public required string AuthorsLastName { get; set; }
+    public required string AuthorId { get; set; }
     /// <summary>
     /// MessageThreadId of the message
     /// </summary>
