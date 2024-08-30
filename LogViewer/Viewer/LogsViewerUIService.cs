@@ -34,7 +34,7 @@ internal class LogsViewerUIService(LogDbContext db)
                         <h1>Logs</h1>
             """);
 
-        var totalPages = await CountRequests() / RequestsPerPage;
+        var totalPages = await CountTotalPages();
         page = Math.Clamp(page, 0, totalPages);
 
         AddPaging(htmlBuilder, page, totalPages);
@@ -193,12 +193,13 @@ internal class LogsViewerUIService(LogDbContext db)
     /// <summary>
     /// Count total number of requests
     /// </summary>
-    private async Task<int> CountRequests()
+    private async Task<int> CountTotalPages()
     {
-        return await db.Log
+        var totalRequests = await db.Log
             .Select(l => l.TraceId)
             .Distinct()
             .CountAsync();
+        return (totalRequests + RequestsPerPage - 1) / RequestsPerPage;
     }
 
     /// <summary>
