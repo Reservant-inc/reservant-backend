@@ -26,7 +26,17 @@ internal class SqliteLogger(SqliteLoggerProvider provider, IHttpContextAccessor 
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         var paramsDictionary = (state as IEnumerable<KeyValuePair<string, object>>)?.ToDictionary(i => i.Key, i => i.Value);
-        var paramsJson = paramsDictionary != null ? Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes(paramsDictionary)) : null;
+
+        string? paramsJson = null;
+        if (paramsDictionary is not null)
+        {
+            try
+            {
+                paramsJson = Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes(paramsDictionary));
+            }
+            catch (NotSupportedException) { }
+        }
+        
         provider.LogMessage(
             httpAccessor.HttpContext?.TraceIdentifier,
             logLevel,
