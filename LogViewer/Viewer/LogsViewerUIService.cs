@@ -33,7 +33,7 @@ internal class LogsViewerUIService(LogDbContext db)
             .GroupBy(l => l.TraceId ?? "")
             .Select(g => new { g.Key, Messages = g.ToList(), Timestamp = g.Min(l => l.Timestamp) })
             .OrderByDescending(g => g.Timestamp)
-            .Take(10)
+            .Take(100)
             .ToListAsync();
 
         foreach (var grouping in logs)
