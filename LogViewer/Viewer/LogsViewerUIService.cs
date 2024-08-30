@@ -12,10 +12,13 @@ namespace LogsViewer.Viewer;
 /// </summary>
 internal class LogsViewerUIService(LogDbContext db)
 {
+    private const int RequestsPerPage = 10;
+
     /// <summary>
     /// Return the HTML of the logs viewer UI
     /// </summary>
-    public async Task<string> RenderLogsPage()
+    /// <param name="page">Logs page, starting from 1</param>
+    public async Task<string> RenderLogsPage(int page)
     {
         var htmlBuilder = new StringBuilder();
 
@@ -31,11 +34,18 @@ internal class LogsViewerUIService(LogDbContext db)
                         <h1>Logs</h1>
             """);
 
-        var logs = await ReadLogs();
+        var totalPages = await CountRequests() / RequestsPerPage;
+        page = Math.Clamp(page, 0, totalPages);
+
+        AddPaging(htmlBuilder, page, totalPages);
+
+        var logs = await ReadLogs(page);
         foreach (var log in logs)
         {
             AddHttpRequestLog(htmlBuilder, log);
         }
+
+        AddPaging(htmlBuilder, page, totalPages);
 
         htmlBuilder.AppendLine("""
                     </div>
@@ -44,6 +54,36 @@ internal class LogsViewerUIService(LogDbContext db)
             """);
 
         return htmlBuilder.ToString();
+    }
+
+    private void AddPaging(StringBuilder htmlBuilder, int page, int totalPages)
+    {
+        htmlBuilder.AppendLine("<div class=\"paging\">");
+        if (page > 1)
+        {
+            htmlBuilder.AppendLine(
+                $"<div><a href=\"?page={page - 1}\">Previus</a></div>");
+        }
+        else
+        {
+            htmlBuilder.AppendLine(
+                $"<div class=\"disabled-link\">Previus</div>");
+        }
+
+        htmlBuilder.AppendLine($"<div>Page: {page} of {totalPages}</div>");
+
+        if (page < totalPages)
+        {
+            htmlBuilder.AppendLine(
+                $"<div><a href=\"?page={page + 1}\">Next</a></div>");
+        }
+        else
+        {
+            htmlBuilder.AppendLine(
+                $"<div class=\"disabled-link\">Next</div>");
+        }
+
+        htmlBuilder.AppendLine("</div>");
     }
 
     private void AddHttpRequestLog(StringBuilder htmlBuilder, HttpLog log)
@@ -150,7 +190,22 @@ internal class LogsViewerUIService(LogDbContext db)
         }
     }
 
-    private async Task<List<HttpLog>> ReadLogs()
+    /// <summary>
+    /// Count total number of requests
+    /// </summary>
+    private async Task<int> CountRequests()
+    {
+        return await db.Log
+            .Select(l => l.TraceId)
+            .Distinct()
+            .CountAsync();
+    }
+
+    /// <summary>
+    /// Fetch logs from the database
+    /// </summary>
+    /// <param name="page">Page, starting from 1</param>
+    private async Task<List<HttpLog>> ReadLogs(int page)
     {
         var logs = await db.Log
             .GroupBy(l => l.TraceId ?? "")
@@ -161,7 +216,8 @@ internal class LogsViewerUIService(LogDbContext db)
                 StartTime = g.Min(l => l.Timestamp)
             })
             .OrderByDescending(g => g.StartTime)
-            .Take(100)
+            .Skip((page - 1) * RequestsPerPage)
+            .Take(RequestsPerPage)
             .ToListAsync();
 
         foreach (var log in logs)

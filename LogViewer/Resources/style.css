@@ -19,6 +19,21 @@ h1 {
     max-width: 900px;
 }
 
+.paging {
+    display: flex;
+    justify-content: space-between;
+    margin: 16px;
+}
+
+a, a:visited {
+    color: royalblue;
+}
+
+.disabled-link {
+    text-decoration: underline;
+    color: gray;
+}
+
 .request-accordion {
     border: 1px solid gray;
     margin-bottom: 4px;

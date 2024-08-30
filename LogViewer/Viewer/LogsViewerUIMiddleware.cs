@@ -48,9 +48,14 @@ internal class LogsViewerUIMiddleware
 
         if (isGet && context.Request.Path == PathBase + "/index.html")
         {
+            if (!int.TryParse(context.Request.Query["page"], out var page))
+            {
+                page = 1;
+            }
+
             context.Response.StatusCode = 200;
             context.Response.ContentType = "text/html";
-            await context.Response.WriteAsync(await ui.RenderLogsPage());
+            await context.Response.WriteAsync(await ui.RenderLogsPage(page));
             return;
         }
 
