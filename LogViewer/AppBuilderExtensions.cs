@@ -31,7 +31,6 @@ public static class AppBuilderExtensions
             configureDbContext(o);
         });
         services.AddScoped<LogsViewerUIService>();
-        services.AddScoped<LogsViewerUIMiddleware>();
         return services;
     }
 
