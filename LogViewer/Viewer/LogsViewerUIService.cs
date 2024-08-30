@@ -30,16 +30,10 @@ internal class LogsViewerUIService(LogDbContext db)
                     <h1>Logs</h1>
             """);
 
-        var logs = await db.Log
-            .GroupBy(l => l.TraceId ?? "")
-            .Select(g => new { g.Key, Messages = g.ToList(), Timestamp = g.Min(l => l.Timestamp) })
-            .OrderByDescending(g => g.Timestamp)
-            .Take(100)
-            .ToListAsync();
-
-        foreach (var grouping in logs)
+        var logs = await ReadLogs();
+        foreach (var log in logs)
         {
-            AddHttpRequestLog(htmlBuilder, grouping.Key, grouping.Messages);
+            AddHttpRequestLog(htmlBuilder, log);
         }
 
         htmlBuilder.AppendLine("""
@@ -50,40 +44,21 @@ internal class LogsViewerUIService(LogDbContext db)
         return htmlBuilder.ToString();
     }
 
-    private void AddHttpRequestLog(StringBuilder htmlBuilder, string traceId, List<LogMessage> messages)
+    private void AddHttpRequestLog(StringBuilder htmlBuilder, HttpLog log)
     {
-        string? method = null;
-        string? path = null;
-        int? responseCode = null;
-
-        var requestLog = messages.FirstOrDefault(m => m.EventIdName == "RequestLog");
-        if (requestLog?.ParamsJson != null)
-        {
-            var requestData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(requestLog.ParamsJson)!;
-            method = requestData.GetValueOrDefault("Method").GetString();
-            path = requestData.GetValueOrDefault("Path").GetProperty("Value").GetString();
-        }
-
-        var responseLog = messages.FirstOrDefault(m => m.EventIdName == "ResponseLog");
-        if (responseLog?.ParamsJson != null)
-        {
-            var requestData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseLog.ParamsJson)!;
-            responseCode = requestData.GetValueOrDefault("StatusCode").GetInt32();
-        }
-
         var requestLogHeader =
-            traceId.StartsWith(SqliteLoggerProvider.NonHttpTraceIdPrefix)
+            log.TraceId.StartsWith(SqliteLoggerProvider.NonHttpTraceIdPrefix)
                 ? "Non HTTP logs"
-                : $"{method} {path ?? "[Unkown Path]"} => {responseCode?.ToString() ?? "[No Response]"}";
+                : $"{log.Method} {log.Path ?? "[Unkown Path]"} => {log.StatusCode?.ToString() ?? "[No Response]"}";
 
         htmlBuilder.AppendLine(
             $"""
             <details>
-                <summary style="font-size: 1.5rem; font-weight: bold;">{requestLogHeader}</summary>
-                <p>Trace ID: {HttpUtility.HtmlEncode(traceId)}</p>
+                <summary style="font-size: 1.5rem; font-weight: bold;">[{log.StartTime:g}] {requestLogHeader}</summary>
+                <p>Trace ID: {HttpUtility.HtmlEncode(log.TraceId)}</p>
             """);
 
-        foreach (var message in messages)
+        foreach (var message in log.Messages)
         {
             AddLogMessage(htmlBuilder, message);
         }
@@ -119,5 +94,40 @@ internal class LogsViewerUIService(LogDbContext db)
             LogLevel.Critical => "#ff0000",
             _ => "none",
         };
+    }
+
+    private async Task<List<HttpLog>> ReadLogs()
+    {
+        var logs = await db.Log
+            .GroupBy(l => l.TraceId ?? "")
+            .Select(g => new HttpLog
+            {
+                TraceId = g.Key,
+                Messages = g.ToList(),
+                StartTime = g.Min(l => l.Timestamp)
+            })
+            .OrderByDescending(g => g.StartTime)
+            .Take(100)
+            .ToListAsync();
+
+        foreach (var log in logs)
+        {
+            var requestLog = log.Messages.FirstOrDefault(m => m.EventIdName == "RequestLog");
+            if (requestLog?.ParamsJson != null)
+            {
+                var requestData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(requestLog.ParamsJson)!;
+                log.Method = requestData.GetValueOrDefault("Method").GetString();
+                log.Path = requestData.GetValueOrDefault("Path").GetProperty("Value").GetString();
+            }
+
+            var responseLog = log.Messages.FirstOrDefault(m => m.EventIdName == "ResponseLog");
+            if (responseLog?.ParamsJson != null)
+            {
+                var requestData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseLog.ParamsJson)!;
+                log.StatusCode = requestData.GetValueOrDefault("StatusCode").GetInt32();
+            }
+        }
+
+        return logs;
     }
 }
