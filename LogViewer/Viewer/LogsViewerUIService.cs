@@ -1,7 +1,6 @@
 ﻿using LogsViewer.Data;
 using LogsViewer.Logger;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 using System.Web;
@@ -111,19 +110,33 @@ internal class LogsViewerUIService(LogDbContext db)
             var requestLog = log.Messages.FirstOrDefault(m => m.EventIdName == "RequestLog");
             if (requestLog?.ParamsJson != null)
             {
-                var requestData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(requestLog.ParamsJson)!;
-                log.Method = requestData.GetValueOrDefault("Method").GetString();
-                log.Path = requestData.GetValueOrDefault("Path").GetProperty("Value").GetString();
+                var requestData = ParseJsonParams(requestLog);
+                log.Method = requestData.Prop("Method").AsString();
+                log.Path = requestData.Prop("Path").Prop("Value").AsString();
             }
 
             var responseLog = log.Messages.FirstOrDefault(m => m.EventIdName == "ResponseLog");
             if (responseLog?.ParamsJson != null)
             {
-                var requestData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseLog.ParamsJson)!;
-                log.StatusCode = requestData.GetValueOrDefault("StatusCode").GetInt32();
+                var requestData = ParseJsonParams(responseLog);
+                log.StatusCode = requestData.Prop("StatusCode").AsInt32();
             }
         }
 
         return logs;
+    }
+
+    /// <summary>
+    /// Parse format parameters of a log message
+    /// Return default(JsonElement) if null
+    /// </summary>
+    private static JsonElement ParseJsonParams(LogMessage message)
+    {
+        if (message.ParamsJson is null)
+        {
+            return default;
+        }
+
+        return JsonSerializer.Deserialize<JsonElement>(message.ParamsJson);
     }
 }
