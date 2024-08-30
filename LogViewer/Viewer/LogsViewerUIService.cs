@@ -1,4 +1,5 @@
 ﻿using LogsViewer.Data;
+using LogsViewer.Logger;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Text;
@@ -71,7 +72,7 @@ internal class LogsViewerUIService(LogDbContext db)
         }
 
         var requestLogHeader =
-            traceId == ""
+            traceId.StartsWith(SqliteLoggerProvider.NonHttpTraceIdPrefix)
                 ? "Non HTTP logs"
                 : $"{method} {path ?? "[Unkown Path]"} => {responseCode?.ToString() ?? "[No Response]"}";
 

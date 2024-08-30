@@ -10,6 +10,16 @@ namespace LogsViewer.Logger;
 /// </summary>
 internal class SqliteLoggerProvider : ILoggerProvider
 {
+    /// <summary>
+    /// Prefix used in the database for log messages that do not come from an HTTP request
+    /// </summary>
+    internal const string NonHttpTraceIdPrefix = "non-http:";
+
+    /// <summary>
+    /// Used to uniquely identify current application instance in the logs
+    /// </summary>
+    private readonly static Guid AppInstanceId = Guid.NewGuid();
+
     private readonly IDbContextFactory<LogDbContext> _dbContextFactory;
     private readonly IHttpContextAccessor _httpAccessor;
 
@@ -27,7 +37,7 @@ internal class SqliteLoggerProvider : ILoggerProvider
         using var db = _dbContextFactory.CreateDbContext();
         db.Add(new LogMessage
         {
-            TraceId = traceId,
+            TraceId = traceId ?? $"{NonHttpTraceIdPrefix}{AppInstanceId}",
             Timestamp = DateTime.UtcNow,
             Level = logLevel,
             EventId = eventId.Id,
