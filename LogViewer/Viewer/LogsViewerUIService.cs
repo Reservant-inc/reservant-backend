@@ -12,7 +12,7 @@ namespace LogsViewer.Viewer;
 /// </summary>
 internal class LogsViewerUIService(LogDbContext db)
 {
-    private const int RequestsPerPage = 10;
+    private const int RequestsPerPage = 100;
 
     /// <summary>
     /// Return the HTML of the logs viewer UI
