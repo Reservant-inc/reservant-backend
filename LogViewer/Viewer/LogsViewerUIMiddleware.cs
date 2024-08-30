@@ -10,7 +10,7 @@ internal class LogsViewerUIMiddleware(LogsViewerUIService ui) : IMiddleware
     /// <inheritdoc/>
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (context.Request.Method == "GET" && context.Request.Path == "/logs.html")
+        if (HttpMethods.IsGet(context.Request.Method) && context.Request.Path == "/logs.html")
         {
             context.Response.StatusCode = 200;
             context.Response.ContentType = "text/html";
