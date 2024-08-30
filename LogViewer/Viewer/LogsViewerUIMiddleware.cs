@@ -39,7 +39,7 @@ internal class LogsViewerUIMiddleware
     {
         var isGet = HttpMethods.IsGet(context.Request.Method);
 
-        if (isGet && context.Request.Path == PathBase)
+        if (isGet && (context.Request.Path == PathBase || context.Request.Path == PathBase + '/'))
         {
             context.Response.StatusCode = 301;
             context.Response.Headers["Location"] = PathBase + "/index.html";
