@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using LogsViewer;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
@@ -29,8 +30,11 @@ builder.Services.AddCors(o =>
     });
 });
 
+var logDbConnectionString = builder.Configuration.GetConnectionString("LogDb")
+    ?? throw new InvalidOperationException("Connection string 'LogDb' not found");
+builder.Services.AddLogsViewer(o => o.UseSqlite(logDbConnectionString));
+
 builder.Services.AddSwaggerServices();
-builder.Services.AddLogsViewer();
 builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
 builder.Services.AddControllers()
     .AddJsonOptions(o =>

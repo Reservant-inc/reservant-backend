@@ -17,7 +17,8 @@ public static class AppBuilderExtensions
     /// <summary>
     /// Register necessary services for the logs viewer to work
     /// </summary>
-    public static IServiceCollection AddLogsViewer(this IServiceCollection services)
+    public static IServiceCollection AddLogsViewer(
+        this IServiceCollection services, Action<DbContextOptionsBuilder> configureDbContext)
     {
         services.AddHttpContextAccessor();
         services.AddHttpLogging(o =>
@@ -26,8 +27,8 @@ public static class AppBuilderExtensions
         });
         services.AddDbContextFactory<LogDbContext>(o =>
         {
-            o.UseSqlite("Data Source=log.db");
             o.UseLoggerFactory(new LoggerFactory());
+            configureDbContext(o);
         });
         services.AddScoped<LogsViewerUIService>();
         services.AddScoped<LogsViewerUIMiddleware>();
