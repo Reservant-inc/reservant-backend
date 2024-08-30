@@ -1,0 +1,120 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    font-family: sans-serif;
+}
+
+pre {
+    font-family: monospace;
+}
+
+h1 {
+    font-weight: normal;
+    margin-bottom: 16px;
+}
+
+.container {
+    margin: 0 auto;
+    padding: 30px 8px;
+    max-width: 900px;
+}
+
+.request-accordion {
+    border: 1px solid gray;
+    margin-bottom: 4px;
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+.request-summary {
+    font-size: 1.3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.request-accordion[open] > .request-summary {
+    margin-bottom: 4px;
+}
+
+.request-summary-title {
+    flex: 1;
+}
+
+.status-code {
+    border-radius: 4px;
+    border: 4px;
+    padding: 4px;
+    font-size: 1rem;
+}
+
+.status-400 {
+    background-color: #ffbbbb;
+}
+
+.status-300 {
+    background-color: #eedd66;
+}
+
+.status-200 {
+    background-color: #bbffbb;
+}
+
+.status-0 {
+    background-color: #bbb;
+}
+
+.request-summary-time {
+    font-size: 0.9rem;
+}
+
+.message-accordion {
+    border-radius: 2px;
+    padding: 4px;
+    margin: 4px 0px;
+}
+
+.message-accordion > summary {
+    cursor: pointer;
+}
+
+.message-accordion[open] > summary {
+    margin-bottom: 4px;
+}
+
+.message-content {
+    overflow: scroll;
+}
+
+.message-accordion.level-Trace {
+    background-color: #bbffbb;
+}
+
+.message-accordion.level-Debug {
+    background-color: #bbbbbb;
+}
+
+.message-accordion.level-Information {
+    background-color: #bbbbff;
+}
+
+.message-accordion.level-Warning {
+    background-color: #ffffbb;
+}
+
+.message-accordion.level-Error {
+    background-color: #ffbbbb;
+}
+
+.message-accordion.level-Critical {
+    background-color: #dd8888;
+}
+
+.message-level {
+    background-color: rgba(0,0,30,0.2);
+    border-radius: 4px;
+    padding: 4px;
+    display: inline-block;
+}

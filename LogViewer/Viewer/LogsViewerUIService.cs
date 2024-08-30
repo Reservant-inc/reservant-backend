@@ -25,9 +25,11 @@ internal class LogsViewerUIService(LogDbContext db)
             <html>
                 <head>
                     <title>API Logs</title>
+                    <link rel="stylesheet" href="./style.css">
                 </head>
                 <body>
-                    <h1>Logs</h1>
+                    <div class="container">
+                        <h1>Logs</h1>
             """);
 
         var logs = await ReadLogs();
@@ -37,6 +39,7 @@ internal class LogsViewerUIService(LogDbContext db)
         }
 
         htmlBuilder.AppendLine("""
+                    </div>
                 </body>
             </html>
             """);
@@ -49,12 +52,18 @@ internal class LogsViewerUIService(LogDbContext db)
         var requestLogHeader =
             log.TraceId.StartsWith(SqliteLoggerProvider.NonHttpTraceIdPrefix)
                 ? "Non HTTP logs"
-                : $"{log.Method} {log.Path ?? "[Unkown Path]"} => {log.StatusCode?.ToString() ?? "[No Response]"}";
+                : $"{log.Method} {log.Path ?? "[Unkown Path]"}";
 
+        var statusClass = log.StatusCode == null ? 0 : log.StatusCode / 100 * 100;
+        var statusCode = log.StatusCode?.ToString() ?? "???";
         htmlBuilder.AppendLine(
             $"""
-            <details>
-                <summary style="font-size: 1.5rem; font-weight: bold;">[{log.StartTime:g}] {requestLogHeader}</summary>
+            <details class="request-accordion">
+                <summary class="request-summary">
+                    <div class="status-code status-{statusClass}">{statusCode}</div>
+                    <div class="request-summary-title">{requestLogHeader}</div>
+                    <div class="request-summary-time">{log.StartTime:g}</div>
+                </summary>
                 <p>Trace ID: {HttpUtility.HtmlEncode(log.TraceId)}</p>
             """);
 
@@ -68,32 +77,19 @@ internal class LogsViewerUIService(LogDbContext db)
 
     private void AddLogMessage(StringBuilder htmlBuilder, LogMessage message)
     {
-        var color = GetColorForLogLevel(message.Level);
-
         htmlBuilder.AppendLine(
             $"""
-            <details>
-                <summary style="background-color:{color};">
-                    <span style="background-color:rgba(0,0,30,0.2)">{message.Level}</span> {message.EventIdName}[{message.EventId}]
+            <details class="message-accordion level-{message.Level}">
+                <summary>
+                    <span class="message-level">{message.Level}</span>
+                    {message.EventIdName}[{message.EventId}]
                 </summary>
-                <p><pre>{HttpUtility.HtmlEncode(message.Message)}</pre></p>
-                <p><pre>{HttpUtility.HtmlEncode(message.Exception)}</pre></p>
+                <div class="message-content">
+                    <pre>{HttpUtility.HtmlEncode(message.Message)}</pre>
+                    <pre>{HttpUtility.HtmlEncode(message.Exception)}</pre>
+                </div>
             </details>
             """);
-    }
-
-    private static string GetColorForLogLevel(LogLevel logLevel)
-    {
-        return logLevel switch
-        {
-            LogLevel.Trace => "#bbffbb",
-            LogLevel.Debug => "#bbbbbb",
-            LogLevel.Information => "#bbbbff",
-            LogLevel.Warning => "#ffffbb",
-            LogLevel.Error => "#ffbbbb",
-            LogLevel.Critical => "#ff0000",
-            _ => "none",
-        };
     }
 
     private async Task<List<HttpLog>> ReadLogs()
