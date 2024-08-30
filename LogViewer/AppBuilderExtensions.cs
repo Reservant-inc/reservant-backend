@@ -3,6 +3,7 @@ using LogsViewer.Logger;
 using LogsViewer.Viewer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ public static class AppBuilderExtensions
         services.AddHttpContextAccessor();
         services.AddHttpLogging(o =>
         {
-            o.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+            o.LoggingFields = HttpLoggingFields.All | HttpLoggingFields.RequestQuery;
         });
         services.AddDbContextFactory<LogDbContext>(o =>
         {
