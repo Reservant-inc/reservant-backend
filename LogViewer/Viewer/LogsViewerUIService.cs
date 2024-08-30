@@ -76,6 +76,7 @@ internal class LogsViewerUIService(LogDbContext db)
 
     private void AddLogMessage(StringBuilder htmlBuilder, LogMessage message)
     {
+        var content = FormatLogMessageContent(message);
         htmlBuilder.AppendLine(
             $"""
             <details class="message-accordion level-{message.Level}">
@@ -84,11 +85,69 @@ internal class LogsViewerUIService(LogDbContext db)
                     {message.EventIdName}[{message.EventId}]
                 </summary>
                 <div class="message-content">
-                    <pre>{HttpUtility.HtmlEncode(message.Message)}</pre>
+                    <pre>{HttpUtility.HtmlEncode(content)}</pre>
                     <pre>{HttpUtility.HtmlEncode(message.Exception)}</pre>
                 </div>
             </details>
             """);
+    }
+
+    /// <summary>
+    /// Some log messages can be formatted in a prettier way than the default formatter
+    /// formats them
+    /// </summary>
+    private static string FormatLogMessageContent(LogMessage message)
+    {
+        if (message.ParamsJson is null)
+        {
+            return message.Message;
+        }
+
+        switch (message.EventIdName)
+        {
+            case "RequestBody" or "ResponseBody":
+                {
+                    var jsonParams = ParseJsonParams(message);
+
+                    var bodyWasntRead = jsonParams.Prop("Status").AsString() == "[Not consumed by app]";
+                    if (bodyWasntRead)
+                    {
+                        return "[Is not available because the app discarded it]";
+                    }
+
+                    var body = jsonParams.Prop("Body").AsString();
+                    return TryPrettifyJson(body) ?? message.Message;
+                }
+
+            default:
+                return message.Message;
+        }
+    }
+
+    private static readonly JsonSerializerOptions PrettyJsonOptions = new()
+    {
+        WriteIndented = true
+    };
+
+    /// <summary>
+    /// If the string contains JSON, print it idented. If not, return as is.
+    /// </summary>
+    private static string? TryPrettifyJson(string? json)
+    {
+        if (json is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            var parsedResponse = JsonSerializer.Deserialize<JsonElement>(json);
+            return JsonSerializer.Serialize(parsedResponse, PrettyJsonOptions);
+        }
+        catch (JsonException)
+        {
+            return json;
+        }
     }
 
     private async Task<List<HttpLog>> ReadLogs()
