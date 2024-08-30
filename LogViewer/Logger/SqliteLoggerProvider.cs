@@ -42,7 +42,7 @@ internal class SqliteLoggerProvider : ILoggerProvider
     /// <inheritdoc/>
     public ILogger CreateLogger(string categoryName)
     {
-        return new LogsViewerLogger(this, _httpAccessor);
+        return new SqliteLogger(this, _httpAccessor);
     }
 
     /// <inheritdoc/>

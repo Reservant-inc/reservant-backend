@@ -8,7 +8,7 @@ namespace LogsViewer.Logger;
 /// <summary>
 /// Logs messages to an SQLite database
 /// </summary>
-internal class LogsViewerLogger(SqliteLoggerProvider provider, IHttpContextAccessor httpAccessor) : ILogger
+internal class SqliteLogger(SqliteLoggerProvider provider, IHttpContextAccessor httpAccessor) : ILogger
 {
     /// <inheritdoc/>
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull
