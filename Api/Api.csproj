@@ -116,6 +116,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\ErrorCodeDocs\ErrorCodeDocs.csproj" />
+      <ProjectReference Include="..\LogViewer\LogsViewer.csproj" />
     </ItemGroup>
 
 </Project>

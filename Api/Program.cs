@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using FluentValidation;
+using LogsViewer;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -29,6 +30,7 @@ builder.Services.AddCors(o =>
 });
 
 builder.Services.AddSwaggerServices();
+builder.Services.AddLogsViewer();
 builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
@@ -52,10 +54,16 @@ var app = builder.Build();
 
 await app.EnsureDatabaseCreatedAndSeeded();
 
+app.Services.RegisterLogsViewerProvider();
+
 app.UseCors();
+
+app.UseLogsViewerUI();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseHttpLogging();
 
 using (var scope = app.Services.CreateScope())
 {
