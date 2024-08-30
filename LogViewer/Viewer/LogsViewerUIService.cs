@@ -62,7 +62,7 @@ internal class LogsViewerUIService(LogDbContext db)
         if (page > 1)
         {
             htmlBuilder.AppendLine(
-                $"<div><a href=\"?page={page - 1}\">Previus</a></div>");
+                $"<div><a href=\"?page={page - 1}\">Previous</a></div>");
         }
         else
         {
