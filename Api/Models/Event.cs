@@ -70,6 +70,11 @@ public class Event : ISoftDeletable
     /// Navigational property for the users interested
     /// </summary>
     public ICollection<User> Interested { get; set; } = null!;
+    
+    /// <summary>
+    /// Navigational property for the users interested
+    /// </summary>
+    public ICollection<User> Participants { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for the actual visit
