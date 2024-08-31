@@ -8,6 +8,7 @@ using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Models.Dtos.EventInvite;
 
 namespace Reservant.Api.Services
 {
@@ -209,7 +210,7 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.UserAlreadyAccepted, "User is already accepted to the event")]
         [ErrorCode(null, ErrorCodes.EventIsFull, "The event has reached its maximum number of participants")]
         [ErrorCode(null, ErrorCodes.JoinDeadlinePassed, "The deadline to join this event has passed")]
-        public async Task<Result> AcceptUserToEventAsync(int eventId, string userToAcceptId, User currentUser)
+        public async Task<Result<EventInviteRequestVM>> AcceptUserToEventAsync(int eventId, string userToAcceptId, User currentUser)
         {
             var eventFound = await context.Events
                 .Include(e => e.Interested)
@@ -297,95 +298,107 @@ namespace Reservant.Api.Services
                 };
                 context.EventInviteRequests.Add(newInvite);
             }
+            
+            var otherUser = await context.Users.FindAsync(userToAcceptId);
 
             eventFound.Participants.Add(userToAccept);
             await context.SaveChangesAsync();
-
-            return Result.Success;
-        }
-        
-            /// <summary>
-    /// Reject a user from an event
-    /// </summary>
-    /// <param name="eventId">Event ID</param>
-    /// <param name="userToRejectId">ID of the user to be rejected</param>
-    /// <param name="currentUser">Current user (event creator)</param>
-    /// <returns></returns>
-    [ErrorCode(null, ErrorCodes.NotFound, "Event not found")]
-    [ErrorCode(null, ErrorCodes.AccessDenied, "Only the event creator can reject users")]
-    [ErrorCode(null, ErrorCodes.UserNotInterestedInEvent, "User is not interested in the event")]
-    [ErrorCode(null, ErrorCodes.UserAlreadyRejected, "User is already rejected from the event")]
-    public async Task<Result> RejectUserFromEventAsync(int eventId, string userToRejectId, User currentUser)
-    {
-        var eventFound = await context.Events
-            .Include(e => e.Interested)
-            .Include(e => e.Creator)
-            .Include(e => e.Participants)
-            .FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted);
-
-        if (eventFound == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "Event not found",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
-        if (eventFound.CreatorId != currentUser.Id)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "Only the event creator can reject users",
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
-        var userToReject = await context.Users.FindAsync(userToRejectId);
-        if (userToReject == null || eventFound.Interested.All(u => u.Id != userToRejectId))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "User is not interested in the event",
-                ErrorCode = ErrorCodes.UserNotInterestedInEvent
-            };
-        }
-
-        var existingInvite = await context.EventInviteRequests
-            .FirstOrDefaultAsync(ei => ei.Event.Id == eventId && ei.ReceiverId == userToRejectId && !ei.IsDeleted);
-
-        if (existingInvite == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "No active invite found for this user",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
-        if (existingInvite.DateDeleted.HasValue)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "User is already rejected from the event",
-                ErrorCode = ErrorCodes.UserAlreadyRejected
-            };
-        }
-
-        existingInvite.DateDeleted = DateTime.UtcNow;
-        eventFound.Interested.Remove(userToReject);
-        eventFound.Participants.Remove(userToReject);
-
-        await context.SaveChangesAsync();
-
-        return Result.Success;
-    }
             
+            return new EventInviteRequestVM
+            {
+                DateSent = existingInvite.DateSent,
+                DateRead = existingInvite.DateRead,
+                DateAccepted = existingInvite.DateAccepted,
+                OtherUser = new UserSummaryVM
+                {
+                    FirstName = otherUser.FirstName,
+                    LastName = otherUser.LastName,
+                    UserId = otherUser.Id,
+                    Photo = uploadService.GetPathForFileName(otherUser.PhotoFileName),
+                }
+            };
+        }
+
+        /// <summary>
+        /// Reject an event invite
+        /// </summary>
+        /// <param name="eventId">Event ID</param>
+        /// <param name="userToRejectId">ID of the user whose invite is to be rejected</param>
+        /// <param name="currentUser">Current user (event creator)</param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound, "Event invite not found")]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "Only the event creator can reject invites")]
+        [ErrorCode(null, ErrorCodes.UserAlreadyRejected, "Invite is already rejected")]
+        public async Task<Result<EventInviteRequestVM>> RejectEventInviteAsync(int eventId, string userToRejectId, User currentUser)
+        {
+            var eventFound = await context.Events
+                .FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted);
+
+            if (eventFound == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (eventFound.CreatorId != currentUser.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Only the event creator can reject invites",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            var existingInvite = await context.EventInviteRequests
+                .FirstOrDefaultAsync(ei => ei.Event.Id == eventId && ei.ReceiverId == userToRejectId && !ei.IsDeleted);
+
+            if (existingInvite == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event invite not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (existingInvite.DateDeleted.HasValue)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Invite is already rejected",
+                    ErrorCode = ErrorCodes.UserAlreadyRejected
+                };
+            }
+
+            existingInvite.DateDeleted = DateTime.UtcNow;
+
+            await context.SaveChangesAsync();
+
+            var rejectedUser = await context.Users.FindAsync(userToRejectId);
+
+            return new EventInviteRequestVM
+            {
+                DateSent = existingInvite.DateSent,
+                DateRead = existingInvite.DateRead,
+                DateAccepted = existingInvite.DateAccepted,
+                OtherUser = new UserSummaryVM
+                {
+                    FirstName = rejectedUser.FirstName,
+                    LastName = rejectedUser.LastName,
+                    UserId = rejectedUser.Id,
+                    Photo = uploadService.GetPathForFileName(rejectedUser.PhotoFileName),
+                }
+            };
+        }
+
+
         /// <summary>
         /// Create an event invite
         /// </summary>
@@ -396,10 +409,10 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound)]
         [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Event invite already exists")]
-        public async Task<Result> SendEventInviteAsync(string senderId, string receiverId, int eventId)
+        public async Task<Result<EventInviteRequestVM>> SendEventInviteAsync(string senderId, string receiverId, int eventId)
         {
-            var receiverExists = await context.Users.AnyAsync(u => u.Id == receiverId);
-            if (!receiverExists)
+            var receiver = await context.Users.FindAsync(receiverId);
+            if (receiver == null)
             {
                 return new ValidationFailure
                 {
@@ -445,7 +458,22 @@ namespace Reservant.Api.Services
 
             context.EventInviteRequests.Add(eventInvite);
             await context.SaveChangesAsync();
-            return Result.Success;
+
+            var sender = await context.Users.FindAsync(senderId);
+
+            return new EventInviteRequestVM
+            {
+                DateSent = eventInvite.DateSent,
+                DateRead = eventInvite.DateRead,
+                DateAccepted = eventInvite.DateAccepted,
+                OtherUser = new UserSummaryVM
+                {
+                    FirstName = sender.FirstName,
+                    LastName = sender.LastName,
+                    UserId = sender.Id,
+                    Photo = uploadService.GetPathForFileName(sender.PhotoFileName),
+                }
+            };
         }
         
         /// <summary>

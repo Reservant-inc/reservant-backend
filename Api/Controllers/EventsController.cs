@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
+using Reservant.Api.Models.Dtos.EventInvite;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -76,7 +77,7 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.AcceptUserToEventAsync))]
-        public async Task<ActionResult> AcceptUserToEvent(int eventId, string userId)
+        public async Task<ActionResult<EventInviteRequestVM>> AcceptUserToEvent(int eventId, string userId)
         {
             var currentUser = await userManager.GetUserAsync(User);
             if (currentUser is null)
@@ -96,8 +97,8 @@ namespace Reservant.Api.Controllers
         [HttpPost("{eventId:int}/reject-user/{userId}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
-        [MethodErrorCodes<EventService>(nameof(EventService.RejectUserFromEventAsync))]
-        public async Task<ActionResult> RejectUserFromEvent(int eventId, string userId)
+        [MethodErrorCodes<EventService>(nameof(EventService.RejectEventInviteAsync))]
+        public async Task<ActionResult<EventInviteRequestVM>> RejectUserFromEvent(int eventId, string userId)
         {
             var currentUser = await userManager.GetUserAsync(User);
             if (currentUser is null)
@@ -105,7 +106,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            return OkOrErrors(await service.RejectUserFromEventAsync(eventId, userId, currentUser));
+            return OkOrErrors(await service.RejectEventInviteAsync(eventId, userId, currentUser));
         }
 
         /// <summary>
@@ -118,7 +119,7 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.SendEventInviteAsync))]
-        public async Task<ActionResult> SendEventInvite(int eventId, string receiverId)
+        public async Task<ActionResult<EventInviteRequestVM>> SendEventInvite(int eventId, string receiverId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
