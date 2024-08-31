@@ -88,6 +88,43 @@ namespace Reservant.Api.Services
                 }).ToList()
             };
         }
+        
+        /// <summary>
+        /// Add user from event's interested list
+        /// </summary>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.Duplicate, "User is already interested in the event")]
+        public async Task<Result> AddUserToEventAsync(int id, User user)
+        {
+            var eventFound = await context.Events
+                .Include(e => e.Interested)
+                .Where(e=>e.Id==id)
+                .FirstOrDefaultAsync();
+            if(eventFound==null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (eventFound.Interested.Contains(user))
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is already interested in the event",
+                    ErrorCode = ErrorCodes.Duplicate
+                };
+            }
+
+            eventFound.Interested.Add(user);
+            await context.SaveChangesAsync();
+
+            return Result.Success;
+        }
 
         /// <summary>
         /// Get information about an Event
@@ -160,17 +197,27 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Add user from event's interested list
+        /// Accept a user to an event
         /// </summary>
-        [ErrorCode(null, ErrorCodes.NotFound)]
-        [ErrorCode(null, ErrorCodes.Duplicate, "User is already interested in the event")]
-        public async Task<Result> AddUserToEventAsync(int id, User user)
+        /// <param name="eventId">Event ID</param>
+        /// <param name="userToAcceptId">ID of the user to be accepted</param>
+        /// <param name="currentUser">Current user (event creator)</param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(null, ErrorCodes.AccessDenied, "Only the event creator can accept users")]
+        [ErrorCode(null, ErrorCodes.UserNotInterestedInEvent, "User is not interested in the event")]
+        [ErrorCode(null, ErrorCodes.UserAlreadyAccepted, "User is already accepted to the event")]
+        [ErrorCode(null, ErrorCodes.EventIsFull, "The event has reached its maximum number of participants")]
+        [ErrorCode(null, ErrorCodes.JoinDeadlinePassed, "The deadline to join this event has passed")]
+        public async Task<Result> AcceptUserToEventAsync(int eventId, string userToAcceptId, User currentUser)
         {
             var eventFound = await context.Events
                 .Include(e => e.Interested)
-                .Where(e=>e.Id==id)
-                .FirstOrDefaultAsync();
-            if(eventFound==null)
+                .Include(e => e.Creator)
+                .Include(e => e.Participants)
+                .FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted);
+
+            if (eventFound == null)
             {
                 return new ValidationFailure
                 {
@@ -180,32 +227,227 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (eventFound.Interested.Count == eventFound.MaxPeople)
+            if (eventFound.CreatorId != currentUser.Id)
             {
                 return new ValidationFailure
                 {
                     PropertyName = null,
-                    ErrorMessage = "Number of people allowed in this event already reached",
+                    ErrorMessage = "Only the event creator can accept users",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            var userToAccept = await context.Users.FindAsync(userToAcceptId);
+            if (userToAccept == null || eventFound.Interested.All(u => u.Id != userToAcceptId))
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is not interested in the event",
+                    ErrorCode = ErrorCodes.UserNotInterestedInEvent
+                };
+            }
+
+            if (eventFound.Participants.Any(u => u.Id == userToAcceptId))
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User is already accepted to the event",
+                    ErrorCode = ErrorCodes.UserAlreadyAccepted
+                };
+            }
+
+            if (eventFound.Participants.Count >= eventFound.MaxPeople)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "The event has reached its maximum number of participants",
                     ErrorCode = ErrorCodes.EventIsFull
                 };
             }
 
-            if (eventFound.Interested.Contains(user))
+            if (DateTime.UtcNow > eventFound.MustJoinUntil)
             {
                 return new ValidationFailure
                 {
                     PropertyName = null,
-                    ErrorMessage = "User is already interested in the event",
-                    ErrorCode = ErrorCodes.Duplicate
+                    ErrorMessage = "The deadline to join this event has passed",
+                    ErrorCode = ErrorCodes.JoinDeadlinePassed
                 };
             }
 
-            eventFound.Interested.Add(user);
+            var existingInvite = await context.EventInviteRequests
+                .FirstOrDefaultAsync(ei => ei.Event.Id == eventId && ei.ReceiverId == userToAcceptId && !ei.IsDeleted);
+
+            if (existingInvite != null)
+            {
+                existingInvite.DateAccepted = DateTime.UtcNow;
+            }
+            else
+            {
+                var newInvite = new EventInviteRequest
+                {
+                    SenderId = currentUser.Id,
+                    ReceiverId = userToAcceptId,
+                    Event = eventFound,
+                    DateSent = DateTime.UtcNow,
+                    DateAccepted = DateTime.UtcNow
+                };
+                context.EventInviteRequests.Add(newInvite);
+            }
+
+            eventFound.Participants.Add(userToAccept);
             await context.SaveChangesAsync();
 
             return Result.Success;
         }
+        
+            /// <summary>
+    /// Reject a user from an event
+    /// </summary>
+    /// <param name="eventId">Event ID</param>
+    /// <param name="userToRejectId">ID of the user to be rejected</param>
+    /// <param name="currentUser">Current user (event creator)</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound, "Event not found")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "Only the event creator can reject users")]
+    [ErrorCode(null, ErrorCodes.UserNotInterestedInEvent, "User is not interested in the event")]
+    [ErrorCode(null, ErrorCodes.UserAlreadyRejected, "User is already rejected from the event")]
+    public async Task<Result> RejectUserFromEventAsync(int eventId, string userToRejectId, User currentUser)
+    {
+        var eventFound = await context.Events
+            .Include(e => e.Interested)
+            .Include(e => e.Creator)
+            .Include(e => e.Participants)
+            .FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted);
 
+        if (eventFound == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Event not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (eventFound.CreatorId != currentUser.Id)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Only the event creator can reject users",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        var userToReject = await context.Users.FindAsync(userToRejectId);
+        if (userToReject == null || eventFound.Interested.All(u => u.Id != userToRejectId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User is not interested in the event",
+                ErrorCode = ErrorCodes.UserNotInterestedInEvent
+            };
+        }
+
+        var existingInvite = await context.EventInviteRequests
+            .FirstOrDefaultAsync(ei => ei.Event.Id == eventId && ei.ReceiverId == userToRejectId && !ei.IsDeleted);
+
+        if (existingInvite == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "No active invite found for this user",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (existingInvite.DateDeleted.HasValue)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User is already rejected from the event",
+                ErrorCode = ErrorCodes.UserAlreadyRejected
+            };
+        }
+
+        existingInvite.DateDeleted = DateTime.UtcNow;
+        eventFound.Interested.Remove(userToReject);
+        eventFound.Participants.Remove(userToReject);
+
+        await context.SaveChangesAsync();
+
+        return Result.Success;
+    }
+            
+        /// <summary>
+        /// Create an event invite
+        /// </summary>
+        /// <param name="senderId">Sender ID</param>
+        /// <param name="receiverId">Receiver ID</param>
+        /// <param name="eventId">Event ID</param>
+        /// <returns></returns>
+        [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound)]
+        [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Event invite already exists")]
+        public async Task<Result> SendEventInviteAsync(string senderId, string receiverId, int eventId)
+        {
+            var receiverExists = await context.Users.AnyAsync(u => u.Id == receiverId);
+            if (!receiverExists)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(receiverId),
+                    ErrorMessage = "Receiver user does not exist",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var eventExists = await context.Events.AnyAsync(e => e.Id == eventId);
+            if (!eventExists)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(eventId),
+                    ErrorMessage = "Event does not exist",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var existingInvite = await context.EventInviteRequests
+                .FirstOrDefaultAsync(ei =>
+                    ei.SenderId == senderId && ei.ReceiverId == receiverId && ei.Event.Id == eventId && !ei.IsDeleted
+                );
+
+            if (existingInvite != null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(receiverId),
+                    ErrorMessage = "Event invite already exists",
+                    ErrorCode = ErrorCodes.Duplicate
+                };
+            }
+
+            var eventInvite = new EventInviteRequest
+            {
+                SenderId = senderId,
+                ReceiverId = receiverId,
+                DateSent = DateTime.UtcNow,
+                Event = (await context.Events.FindAsync(eventId))!
+            };
+
+            context.EventInviteRequests.Add(eventInvite);
+            await context.SaveChangesAsync();
+            return Result.Success;
+        }
+        
         /// <summary>
         /// Remove user from event's interested list
         /// </summary>
