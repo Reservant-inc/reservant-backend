@@ -167,11 +167,6 @@ public static class ErrorCodes
     public const string EventIsFull = "EventIsFull";
     
     /// <summary>
-    /// User not creator of the event
-    /// </summary>
-    public const string NotCreatorOfEvent = "NotCreatorOfEvent";
-    
-    /// <summary>
     /// User is already accepted
     /// </summary>
     public const string UserAlreadyAccepted = "UserAlreadyAccepted";
