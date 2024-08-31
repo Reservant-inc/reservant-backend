@@ -125,6 +125,9 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
             eb.HasMany<Event>(u => u.InterestedIn)
                 .WithMany(e => e.Interested);
+            
+            eb.HasMany<Event>(u => u.ParticipatingIn)
+                .WithMany(e => e.Participants);
 
             eb.HasMany<FileUpload>(u => u.Uploads)
                 .WithOne(fu => fu.User);

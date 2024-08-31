@@ -118,6 +118,11 @@ public class User : IdentityUser, ISoftDeletable
     /// Events the user is interested in
     /// </summary>
     public ICollection<Event> InterestedIn { get; set; } = null!;
+    
+    /// <summary>
+    /// Events the user is participating in
+    /// </summary>
+    public ICollection<Event> ParticipatingIn { get; set; } = null!;
 
     /// <summary>
     /// Events the user has created
