@@ -13,15 +13,19 @@ public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustom
     {
         RuleFor(r => r.FirstName)
             .NotEmpty()
-            .MaximumLength(30);
+            .MaximumLength(30)
+            .OnlyLettersInName();
+            
 
         RuleFor(r => r.LastName)
             .NotEmpty()
-            .MaximumLength(30);
+            .MaximumLength(30)
+            .OnlyLettersInName();
 
         RuleFor(r => r.Login)
             .NotEmpty()
-            .MaximumLength(50);
+            .MaximumLength(50)
+            .NoInvalidLettersForLogin();
 
         RuleFor(r => r.Email)
             .NotEmpty()

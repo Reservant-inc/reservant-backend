@@ -14,11 +14,13 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
     {
         RuleFor(u => u.FirstName)
             .NotEmpty()
-            .MaximumLength(30);
+            .MaximumLength(30)
+            .OnlyLettersInName();
 
         RuleFor(u => u.LastName)
             .NotEmpty()
-            .MaximumLength(30);
+            .MaximumLength(30)
+            .OnlyLettersInName();;
 
         RuleFor(r => r.PhoneNumber)
             .NotEmpty()

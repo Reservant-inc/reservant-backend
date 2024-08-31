@@ -165,4 +165,14 @@ public static class ErrorCodes
     /// The current user cannot be used in the request (for example sending a friend request
     /// </summary>
     public const string CannotBeCurrentUser = "CannotBeCurrentUser";
+
+    /// <summary>
+    /// The string provided contains non letter
+    /// </summary>
+    public const string ContainsNonLetters = "ContainsNonLetters";
+
+    // <summary>
+    /// The string provided contains prohibited characters 
+    /// </summary>
+    public const string ContainsProhibitedCharacters = "ContainsProhibitedCharacters";
 }

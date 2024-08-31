@@ -5,6 +5,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Dtos.Message;
+using Reservant.Api.Validators;
 
 
 namespace Reservant.Api.Controllers;

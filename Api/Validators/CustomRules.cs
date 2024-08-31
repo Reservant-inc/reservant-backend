@@ -275,4 +275,34 @@ public static class CustomRules
             .WithErrorCode(ErrorCodes.EmptyList)
             .WithMessage("List cannot be empty.");
     }
+
+    /// <summary>
+    /// Validates that String is comprised from nothing but letters
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> OnlyLettersInName<T>(
+    this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(name => name != null && name.All(char.IsLetter))
+            .WithErrorCode(ErrorCodes.ContainsNonLetters)
+            .WithMessage("The name must contain only letters.");
+    }
+
+    /// <summary>
+    /// Validates if login doesnt contain nay prohibited letters
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> NoInvalidLettersForLogin<T>(
+    this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(login => login != null && login.All(c => char.IsLetterOrDigit(c) || c == '-' || c == '_'))
+            .WithErrorCode(ErrorCodes.ContainsProhibitedCharacters)
+            .WithMessage("The login must contain only letters, numbers, '-', and '_'.");
+    }
+
+
+    
+
+
+    
 }
