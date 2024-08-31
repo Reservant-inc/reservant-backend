@@ -165,4 +165,25 @@ public static class ErrorCodes
     /// MustJoinUntil must be before Time
     /// </summary>
     public const string EventIsFull = "EventIsFull";
+    
+    /// <summary>
+    /// User not creator of the event
+    /// </summary>
+    public const string NotCreatorOfEvent = "NotCreatorOfEvent";
+    
+    /// <summary>
+    /// User is already accepted
+    /// </summary>
+    public const string UserAlreadyAccepted = "UserAlreadyAccepted";
+ 
+    /// <summary>
+    /// Event already passed
+    /// </summary>
+    public const string JoinDeadlinePassed = "JoinDeadlinePassed";
+    
+    /// <summary>
+    /// User already rejected
+    /// </summary>
+    public const string UserAlreadyRejected = "UserAlreadyRejected";
+    
 }
