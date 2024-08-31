@@ -52,6 +52,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     public DbSet<Delivery> Deliveries { get; init; } = null!;
 
     public DbSet<IngredientMenuItem> IngredientMenuItems { get; set; } = null!;
+    
+    public DbSet<EventInviteRequest> EventInviteRequests { get; init; } = null!;
 
     /// <summary>
     /// Drop all tables in the database

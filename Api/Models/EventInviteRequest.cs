@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// Event invite
 /// </summary>
-public class EventInviteRequest
+public class EventInviteRequest : ISoftDeletable
 {
     /// <summary>
     /// Unique ID
@@ -53,4 +54,12 @@ public class EventInviteRequest
     /// Navigational property for the target user
     /// </summary>
     public User Receiver { get; set; } = null!;
+
+    /// <summary>
+    /// Navigational property for the event
+    /// </summary>
+    public Event Event { get; set; } = null!;
+    
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }
