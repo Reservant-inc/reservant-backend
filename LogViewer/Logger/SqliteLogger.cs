@@ -25,24 +25,47 @@ internal class SqliteLogger(SqliteLoggerProvider provider, IHttpContextAccessor 
     /// <inheritdoc/>
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        var paramsDictionary = (state as IEnumerable<KeyValuePair<string, object>>)?.ToDictionary(i => i.Key, i => i.Value);
-
-        string? paramsJson = null;
-        if (paramsDictionary is not null)
-        {
-            try
-            {
-                paramsJson = Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes(paramsDictionary));
-            }
-            catch (NotSupportedException) { }
-        }
-        
         provider.LogMessage(
             httpAccessor.HttpContext?.TraceIdentifier,
             logLevel,
             eventId,
             formatter(state, exception),
-            paramsJson,
+            SerializeState(state),
             exception);
+    }
+
+    /// <summary>
+    /// Convert log state into a JSON string to be stored in the database
+    /// </summary>
+    /// <remarks>
+    /// Return null if cannot serialize.
+    /// 
+    /// Unnamed format parameters get named after their index in the format string.
+    /// </remarks>
+    private static string? SerializeState(object? state)
+    {
+        if (state is not IEnumerable<KeyValuePair<string, object>> statePairs)
+        {
+            return null;
+        }
+
+        var paramsDictionary = new Dictionary<string, object>();
+        var index = 0;
+        foreach (var pair in statePairs)
+        {
+            var key = string.IsNullOrEmpty(pair.Key) ? index.ToString() : pair.Key;
+            paramsDictionary.Add(key, pair.Value);
+
+            index++;
+        }
+
+        try
+        {
+            return Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes(paramsDictionary));
+        }
+        catch (NotSupportedException)
+        {
+            return null;
+        }
     }
 }
