@@ -516,4 +516,113 @@ public class UserService(
 
         return await query.PaginateAsync(page, perPage, []);
     }
+
+    /// <summary>
+    /// Retrieves detailed information about a user. If the user is an employee of the current user,
+    /// returns full details. Otherwise, returns limited information.
+    /// </summary>
+    /// <param name="userId">The ID of the user to retrieve.</param>
+    /// <returns>A <see cref="UserEmployeeVM"/> with user details or a <see cref="ValidationFailure"/> if user is not found or other validation fails.</returns>
+    public async Task<Result<UserEmployeeVM>> GetUserDetailsAsync(string userId, ClaimsPrincipal user)
+    {
+        // Pobierz aktualnie zalogowanego u¿ytkownika
+        var currentUser = await userManager.GetUserAsync(user);
+
+        // Pobierz ¿¹danego u¿ytkownika z bazy danych
+        var requestedUser = await dbContext.Users
+            .Include(u => u.Employments)
+            .ThenInclude(e => e.Restaurant)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (requestedUser == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"User: {userId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        // SprawdŸ, czy ¿¹dany u¿ytkownik jest pracownikiem aktualnie zalogowanego u¿ytkownika
+        if (requestedUser.EmployerId == currentUser.Id)
+        {
+            // Zwrot pe³nych danych dla pracownika
+            return new UserEmployeeVM
+            {
+                UserId = requestedUser.Id,
+                Login = requestedUser.UserName,
+                FirstName = requestedUser.FirstName,
+                LastName = requestedUser.LastName,
+                BirthDate = requestedUser.BirthDate!.Value,
+                PhoneNumber = requestedUser.PhoneNumber,
+                Employments = requestedUser.Employments
+                    .Where(e => e.DateUntil == null)
+                    .Select(e => new EmploymentVM
+                    {
+                        EmploymentId = e.Id,
+                        RestaurantId = e.RestaurantId,
+                        IsBackdoorEmployee = e.IsBackdoorEmployee,
+                        IsHallEmployee = e.IsHallEmployee,
+                        RestaurantName = e.Restaurant.Name,
+                        DateFrom = e.DateFrom
+                    })
+                    .ToList(),
+                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
+                FriendStatus = await GetFriendStatusAsync(currentUser.Id, requestedUser.Id)
+            };
+        }
+
+        // Je¿eli u¿ytkownik nie jest pracownikiem, zwróæ ograniczone dane
+        if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer)) {
+            return new UserEmployeeVM
+            {
+                UserId = requestedUser.Id,
+                FirstName = requestedUser.FirstName,
+                LastName = requestedUser.LastName,
+                BirthDate = requestedUser.BirthDate!.Value,
+                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
+                FriendStatus = await GetFriendStatusAsync(currentUser.Id, requestedUser.Id)
+            };
+        }
+
+        return new ValidationFailure
+        {
+            PropertyName = null,
+            ErrorMessage = $"User: {userId} is not your emplyee or customer.",
+            ErrorCode = ErrorCodes.AccessDenied
+        };
+    }
+
+    /// <summary>
+    /// Determines the friendship status between the current user and the target user.
+    /// </summary>
+    /// <param name="currentUserId">The ID of the current logged-in user.</param>
+    /// <param name="targetUserId">The ID of the user whose friendship status is being checked.</param>
+    /// <returns>A <see cref="FriendStatus"/> representing the friendship status between the users.</returns>
+    private async Task<FriendStatus> GetFriendStatusAsync(string currentUserId, string targetUserId)
+    {
+        var status = await dbContext.FriendRequests
+            .Where(fr => (fr.SenderId == currentUserId && fr.ReceiverId == targetUserId) ||
+                         (fr.SenderId == targetUserId && fr.ReceiverId == currentUserId))
+            .Select(fr => new
+            {
+                IsAccepted = fr.DateAccepted != null,
+                IsOutgoing = fr.SenderId == currentUserId,
+                IsIncoming = fr.ReceiverId == currentUserId
+            })
+            .FirstOrDefaultAsync();
+
+        if (status == null)
+        {
+            return FriendStatus.Stranger;
+        }
+
+        if (status.IsAccepted)
+        {
+            return FriendStatus.Friend;
+        }
+
+        return status.IsOutgoing ? FriendStatus.OutgoingRequest : FriendStatus.IncomingRequest;
+    }
 }

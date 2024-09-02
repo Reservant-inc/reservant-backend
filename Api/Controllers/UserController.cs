@@ -237,4 +237,24 @@ public class UserController(
         var result = await threadService.GetUserThreadsAsync(userId, page, perPage);
         return OkOrErrors(result);
     }
+
+    /// <summary>
+    /// Gets information about a specific user.
+    /// </summary>
+    /// <param name="userId">ID of the user to retrieve</param>
+    /// <returns></returns>
+    [HttpGet("{userId}")]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(401), ProducesResponseType(403)]
+    public async Task<ActionResult<UserEmployeeVM>> GetUserById(string userId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.GetUserDetailsAsync(userId, User);
+        return OkOrErrors(result);
+    }
 }
