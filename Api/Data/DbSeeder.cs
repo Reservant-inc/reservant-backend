@@ -885,20 +885,20 @@ public class DbSeeder(
         context.Deliveries.AddRange(new List<Delivery>()
         {
             new() { OrderTime = new DateTime(2023, 8, 1, 12, 0, 0), DeliveredTime = new DateTime(2023, 8, 1, 14, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
-            new() { OrderTime = new DateTime(2023, 7, 15, 10, 30, 0), DeliveredTime = new DateTime(2023, 7, 15, 12, 30, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
+            new() { OrderTime = new DateTime(2023, 7, 15, 10, 30, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
             new() { OrderTime = new DateTime(2023, 6, 20, 18, 45, 0), DeliveredTime = new DateTime(2023, 6, 20, 19, 45, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
-            new() { OrderTime = new DateTime(2023, 5, 10, 11, 0, 0), DeliveredTime = new DateTime(2023, 5, 10, 13, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
-            new() { OrderTime = new DateTime(2023, 4, 25, 9, 15, 0), DeliveredTime = new DateTime(2023, 4, 25, 10, 45, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
-            new() { OrderTime = new DateTime(2023, 3, 15, 14, 0, 0), DeliveredTime = new DateTime(2023, 3, 15, 16, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
-            new() { OrderTime = new DateTime(2023, 2, 10, 17, 30, 0), DeliveredTime = new DateTime(2023, 2, 10, 19, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
+            new() { OrderTime = new DateTime(2023, 5, 10, 11, 0, 0),  Restaurant = johnDoes, UserId = johnDoe.Id },
+            new() { OrderTime = new DateTime(2023, 4, 25, 9, 15, 0),  Restaurant = johnDoes, UserId = johnDoe.Id },
+            new() { OrderTime = new DateTime(2023, 3, 15, 14, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
+            new() { OrderTime = new DateTime(2023, 2, 10, 17, 30, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
             new() { OrderTime = new DateTime(2023, 1, 20, 13, 0, 0), DeliveredTime = new DateTime(2023, 1, 20, 14, 30, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
             new() { OrderTime = new DateTime(2022, 12, 5, 8, 0, 0), DeliveredTime = new DateTime(2022, 12, 5, 10, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
             new() { OrderTime = new DateTime(2022, 11, 15, 20, 45, 0), DeliveredTime = new DateTime(2022, 11, 15, 22, 15, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
             new() { OrderTime = new DateTime(2022, 10, 10, 7, 15, 0), DeliveredTime = new DateTime(2022, 10, 10, 8, 45, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
             new() { OrderTime = new DateTime(2022, 9, 5, 18, 0, 0), DeliveredTime = new DateTime(2022, 9, 5, 20, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
             new() { OrderTime = new DateTime(2022, 8, 25, 11, 30, 0), DeliveredTime = new DateTime(2022, 8, 25, 13, 0, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
-            new() { OrderTime = new DateTime(2022, 7, 10, 9, 45, 0), DeliveredTime = new DateTime(2022, 7, 10, 11, 15, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
-            new() { OrderTime = new DateTime(2022, 6, 1, 16, 15, 0), DeliveredTime = new DateTime(2022, 6, 1, 17, 45, 0), Restaurant = johnDoes, UserId = johnDoe.Id }
+            new() { OrderTime = new DateTime(2022, 7, 10, 9, 45, 0), Restaurant = johnDoes, UserId = johnDoe.Id },
+            new() { OrderTime = new DateTime(2022, 6, 1, 16, 15, 0), Restaurant = johnDoes, UserId = johnDoe.Id }
         });
 
         await context.SaveChangesAsync();
