@@ -188,11 +188,10 @@ public class UserService(
     /// <returns></returns>
     public async Task<List<UserEmployeeVM>> GetEmployeesAsync(string userId)
     {
-        // Step 1: Fetch data from the database with related entities
         var users = await dbContext.Users
             .Where(u => u.EmployerId == userId)
-            .Include(u => u.Employments) // Include Employments collection
-            .ThenInclude(e => e.Restaurant) // Include Restaurant in Employments
+            .Include(u => u.Employments)
+            .ThenInclude(e => e.Restaurant)
             .Select(u => new
             {
                 u.Id,
@@ -206,7 +205,6 @@ public class UserService(
             })
             .ToListAsync();
 
-        // Step 2: Process each user and fetch friend status
         var employeeVMs = new List<UserEmployeeVM>();
 
         foreach (var user in users)
