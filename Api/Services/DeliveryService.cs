@@ -49,7 +49,7 @@ public class DeliveryService(
 
         return new DeliveryVM
         {
-            Id = delivery.Id,
+            DeliveryId = delivery.Id,
             OrderTime = delivery.OrderTime,
             DeliveredTime = delivery.DeliveredTime,
             RestaurantId = delivery.RestaurantId,
@@ -133,7 +133,7 @@ public class DeliveryService(
 
         return new DeliveryVM
         {
-            Id = delivery.Id,
+            DeliveryId = delivery.Id,
             OrderTime = delivery.OrderTime,
             DeliveredTime = delivery.DeliveredTime,
             RestaurantId = delivery.RestaurantId,

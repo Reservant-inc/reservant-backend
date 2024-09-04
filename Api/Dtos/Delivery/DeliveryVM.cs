@@ -4,7 +4,7 @@ namespace Reservant.Api.Dtos.Delivery;
 
 public class DeliveryVM
 {
-    public required int Id { get; init; }
+    public required int DeliveryId { get; init; }
     public required DateTime OrderTime { get; set; }
     public required DateTime? DeliveredTime { get; set; }
     public required int RestaurantId { get; set; }
