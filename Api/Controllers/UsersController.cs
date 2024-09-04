@@ -102,7 +102,7 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<UserEmployeeVM>> GetUserById(string userId)
         {
             var currentUserId = userManager.GetUserId(User);
-            if (userId == null)
+            if (currentUserId == null)
             {
                 return Unauthorized();
             }

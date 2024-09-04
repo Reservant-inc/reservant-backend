@@ -188,36 +188,19 @@ public class UserService(
     /// <returns></returns>
     public async Task<List<UserEmployeeVM>> GetEmployeesAsync(string userId)
     {
-        var users = await dbContext.Users
+        var employeeVMs = await dbContext.Users
             .Where(u => u.EmployerId == userId)
             .Include(u => u.Employments)
             .ThenInclude(e => e.Restaurant)
-            .Select(u => new
+            .Select(u => new UserEmployeeVM
             {
-                u.Id,
-                u.UserName,
-                u.FirstName,
-                u.LastName,
-                u.BirthDate,
-                u.PhoneNumber,
-                u.Employments,
-                u.PhotoFileName
-            })
-            .ToListAsync();
-
-        var employeeVMs = new List<UserEmployeeVM>();
-
-        foreach (var user in users)
-        {
-            var employeeVM = new UserEmployeeVM
-            {
-                UserId = user.Id,
-                Login = user.UserName!,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                BirthDate = user.BirthDate!.Value,
-                PhoneNumber = user.PhoneNumber!,
-                Employments = user.Employments
+                UserId = u.Id,
+                Login = u.UserName!,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                BirthDate = u.BirthDate!.Value,
+                PhoneNumber = u.PhoneNumber!,
+                Employments = u.Employments
                     .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
                     {
@@ -225,21 +208,30 @@ public class UserService(
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
                         IsHallEmployee = e.IsHallEmployee,
-                        // Check for null Restaurant to avoid NullReferenceException
-                        RestaurantName = e.Restaurant != null ? e.Restaurant.Name : "Unknown",
+                        RestaurantName = e.Restaurant.Name,
                         DateFrom = e.DateFrom
                     })
                     .ToList(),
-                Photo = uploadService.GetPathForFileName(user.PhotoFileName),
-                // Call GetFriendStatusAsync outside of the LINQ query
-                FriendStatus = await GetFriendStatusAsync(userId, user.Id)
-            };
-
-            employeeVMs.Add(employeeVM);
-        }
+                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
+                FriendStatus =
+                    (from fr in dbContext.FriendRequests
+                     let isOutgoing = fr.SenderId == userId && fr.ReceiverId == u.Id
+                     let isIncoming = fr.SenderId == u.Id && fr.ReceiverId == userId
+                     let isAccepted = fr.DateAccepted != null
+                     where isOutgoing || isIncoming
+                     select isAccepted
+                        ? FriendStatus.Friend
+                        : isIncoming
+                        ? FriendStatus.IncomingRequest
+                        : isOutgoing
+                        ? FriendStatus.OutgoingRequest
+                        : FriendStatus.Stranger).FirstOrDefault()
+            })
+            .ToListAsync();
 
         return employeeVMs;
     }
+
 
 
 
