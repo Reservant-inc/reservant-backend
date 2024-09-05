@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Auth;
+using Reservant.Api.Dtos.Ingredient;
 using Reservant.Api.Dtos.Order;
 using Reservant.Api.Dtos.OrderItem;
 using Reservant.Api.Dtos.Restaurant;
@@ -883,6 +884,430 @@ public class DbSeeder(
             MenuItems = new List<MenuItem>
             {
                 beer
+            }
+        });
+
+        var bun = new Ingredient
+        {
+            PublicName = "Bun",
+            UnitOfMeasurement = UnitOfMeasurement.Unit,
+            MinimalAmount = 2,
+            AmountToOrder = 10
+        };
+
+        var beefPatty = new Ingredient
+        {
+            PublicName = "Beef Patty",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 100,
+            AmountToOrder = 500
+        };
+
+        var cheese = new Ingredient
+        {
+            PublicName = "Cheese",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 50,
+            AmountToOrder = 250
+        };
+
+        var beerDelivery = new Ingredient
+        {
+            PublicName = "Beer",
+            UnitOfMeasurement = UnitOfMeasurement.Liter,
+            MinimalAmount = 1,
+            AmountToOrder = 5
+        };
+
+        context.Deliveries.AddRange(new List<Delivery>()
+        {
+            new()
+            {
+                OrderTime = new DateTime(2023, 8, 1, 12, 0, 0),
+                DeliveredTime = new DateTime(2023, 8, 1, 14, 0, 0),
+                Restaurant = johnDoes, UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = new DateTime(2025, 1, 3, 9, 0, 0),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 7, 15, 10, 30, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 6, 20, 18, 45, 0),
+                DeliveredTime = new DateTime(2023, 6, 20, 19, 45, 0),
+                Restaurant = johnDoes, UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 5, 10, 11, 0, 0),
+                Restaurant = johnDoes, UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 4, 25, 9, 15, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = []
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 3, 15, 14, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 2, 10, 17, 30, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 1, 20, 13, 0, 0),
+                DeliveredTime = new DateTime(2023, 1, 20, 14, 30, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 12, 5, 8, 0, 0),
+                DeliveredTime = new DateTime(2022, 12, 5, 10, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = DateTime.UtcNow.AddDays(7),
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 11, 15, 20, 45, 0),
+                DeliveredTime = new DateTime(2022, 11, 15, 22, 15, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 1.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 10, 10, 7, 15, 0),
+                DeliveredTime = new DateTime(2022, 10, 10, 8, 45, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 9, 5, 18, 0, 0),
+                DeliveredTime = new DateTime(2022, 9, 5, 20, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 1.0,
+                        AmountDelivered = 1.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 8, 25, 11, 30, 0),
+                DeliveredTime = new DateTime(2022, 8, 25, 13, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 7, 10, 9, 45, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 6, 1, 16, 15, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
             }
         });
 
