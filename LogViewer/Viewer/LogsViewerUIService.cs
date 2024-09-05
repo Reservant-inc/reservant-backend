@@ -209,7 +209,7 @@ internal class LogsViewerUIService(LogDbContext db)
     private async Task<List<HttpLog>> ReadLogs(int page)
     {
         var logs = await db.Log
-            .GroupBy(l => l.TraceId ?? "")
+            .GroupBy(l => l.TraceId)
             .Select(g => new HttpLog
             {
                 TraceId = g.Key,
