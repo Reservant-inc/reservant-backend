@@ -167,12 +167,12 @@ public static class ErrorCodes
     public const string CannotBeCurrentUser = "CannotBeCurrentUser";
 
     /// <summary>
-    /// The string provided contains non letter
+    /// The string can contain only letters, spaces, hyphens, apostrophes
     /// </summary>
-    public const string ContainsNonLetters = "ContainsNonLetters";
+    public const string MustBeValidName = "MustBeValidName";
 
-    // <summary>
-    /// The string provided contains prohibited characters 
+    /// <summary>
+    /// The string can contain only ascii letters or digits, underscores, hyphens
     /// </summary>
-    public const string ContainsProhibitedCharacters = "ContainsProhibitedCharacters";
+    public const string MustBeValidLogin = "MustBeValidLogin";
 }
