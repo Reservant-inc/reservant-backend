@@ -280,24 +280,24 @@ public static class CustomRules
     /// Validates that String is comprised from nothing but letters
     /// </summary>
     public static IRuleBuilderOptions<T, string> OnlyLettersInName<T>(
-    this IRuleBuilder<T, string> builder)
+        this IRuleBuilder<T, string> builder)
     {
         return builder
-            .Must(name => name != null && name.All(char.IsLetter))
+            .Must(name => name != null && name.All(c => char.IsLetter(c) || char.IsWhiteSpace(c) || c == '-' || c == '\''))
             .WithErrorCode(ErrorCodes.ContainsNonLetters)
-            .WithMessage("The name must contain only letters.");
+            .WithMessage("The name must contain only letters, spaces, hyphens, and apostrophes.");
     }
 
     /// <summary>
-    /// Validates if login doesnt contain nay prohibited letters
+    /// Validates if login doesn't contain any prohibited letters
     /// </summary>
     public static IRuleBuilderOptions<T, string> NoInvalidLettersForLogin<T>(
-    this IRuleBuilder<T, string> builder)
+        this IRuleBuilder<T, string> builder)
     {
         return builder
-            .Must(login => login != null && login.All(c => char.IsLetterOrDigit(c) || c == '-' || c == '_'))
+            .Must(login => login != null && login.All(c => char.IsAsciiLetterOrDigit(c) || c == '-' || c == '_'))
             .WithErrorCode(ErrorCodes.ContainsProhibitedCharacters)
-            .WithMessage("The login must contain only letters, numbers, '-', and '_'.");
+            .WithMessage("The login must contain only ASCII letters, numbers, '-', and '_'.");
     }
 
 
