@@ -1514,7 +1514,7 @@ public class DbSeeder(
         {
             Login = "employee",
             Password = "Pa$$w0rd",
-            FirstName = "Pracownik 2",
+            FirstName = "Pracownik Dwa",
             LastName = "Przykładowski",
             BirthDate = new DateOnly(2002, 1, 1),
             PhoneNumber = "+48123456789"
