@@ -1,4 +1,4 @@
-using System.Security.Claims;
+Ôªøusing System.Security.Claims;
 using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
@@ -515,7 +515,7 @@ public class UserService(
     [ErrorCode(null, ErrorCodes.AccessDenied, ErrorCodes.NotFound)]
     public async Task<Result<UserEmployeeVM>> GetUserDetailsAsync(string userId, string currentUserId)
     {
-        // Pobierz øπdanego uøytkownika z bazy danych
+        // Pobierz ≈ºƒÖdanego u≈ºytkownika z bazy danych
         var requestedUser = await dbContext.Users
             .Include(u => u.Employments)
             .ThenInclude(e => e.Restaurant)
@@ -531,10 +531,10 @@ public class UserService(
             };
         }
 
-        // Sprawdü, czy øπdany uøytkownik jest pracownikiem aktualnie zalogowanego uøytkownika
+        // Sprawd≈∫, czy ≈ºƒÖdany u≈ºytkownik jest pracownikiem aktualnie zalogowanego u≈ºytkownika
         if (requestedUser.EmployerId == currentUserId)
         {
-            // Zwrot pe≥nych danych dla pracownika
+            // Zwr√≥t pe≈Çnych danych dla pracownika
             return new UserEmployeeVM
             {
                 UserId = requestedUser.Id,
@@ -560,7 +560,7 @@ public class UserService(
             };
         }
 
-        // Jeøeli uøytkownik nie jest pracownikiem, zwrÛÊ ograniczone dane
+        // Je≈ºeli u≈ºytkownik nie jest pracownikiem, zwr√≥ƒá ograniczone dane
         if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer)) {
             return new UserEmployeeVM
             {
