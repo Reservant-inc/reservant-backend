@@ -210,7 +210,6 @@ internal class LogsViewerUIService(LogDbContext db)
     private async Task<List<HttpLog>> ReadLogs(int page)
     {
         var requestIdsToDisplay = db.Log
-            .Where(l => l.EventIdName == "RequestLog")
             .OrderByDescending(l => l.LogMessageId)
             .Select(l => l.TraceId)
             .Distinct()
