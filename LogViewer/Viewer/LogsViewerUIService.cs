@@ -213,26 +213,28 @@ internal class LogsViewerUIService(LogDbContext db)
     /// <param name="page">Page, starting from 1</param>
     private async Task<List<HttpLog>> ReadLogs(int page)
     {
-        var requestIdsToDisplay = db.Log
-            .OrderByDescending(l => l.LogMessageId)
-            .Select(l => l.TraceId)
-            .Distinct()
-            .Skip((page - 1) * RequestsPerPage)
-            .Take(RequestsPerPage);
-
+        // Entity Framework does not allow selecting distinct values
+        // from an ordered query, but it is possible in raw SQL
+        // https://stackoverflow.com/questions/12428985/distinct-and-orderby-issue
         var logs = await db.Log
-            .Join(requestIdsToDisplay,
-                log => log.TraceId,
-                requestId => requestId,
-                (log, requestId) => log)
-            .OrderByDescending(l => l.LogMessageId)
+            .FromSql($"""
+                SELECT *
+                FROM (
+                    SELECT DISTINCT TraceId AS CurrentTraceId
+                    FROM Log
+                    ORDER BY LogMessageId DESC
+                    LIMIT {RequestsPerPage} OFFSET {(page - 1) * RequestsPerPage}
+                )
+                JOIN Log ON CurrentTraceId = Log.TraceId
+                """)
             .GroupBy(l => l.TraceId)
             .Select(g => new HttpLog
             {
                 TraceId = g.Key,
-                Messages = g.ToList(),
+                Messages = g.OrderBy(l => l.Timestamp).ToList(),
                 StartTime = g.Min(l => l.Timestamp)
             })
+            .OrderByDescending(g => g.StartTime)
             .ToListAsync();
 
         foreach (var log in logs)
