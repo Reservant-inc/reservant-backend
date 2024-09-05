@@ -10,6 +10,7 @@ using Reservant.Api.Dtos.Event;
 using Reservant.Api.Dtos.Thread;
 using Reservant.Api.Dtos.User;
 using Reservant.Api.Dtos.Visit;
+using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;
 
