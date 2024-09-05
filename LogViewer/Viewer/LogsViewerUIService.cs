@@ -1,6 +1,7 @@
 ﻿using LogsViewer.Data;
 using LogsViewer.Logger;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Web;
@@ -208,7 +209,20 @@ internal class LogsViewerUIService(LogDbContext db)
     /// <param name="page">Page, starting from 1</param>
     private async Task<List<HttpLog>> ReadLogs(int page)
     {
+        var requestIdsToDisplay = db.Log
+            .Where(l => l.EventIdName == "RequestLog")
+            .OrderByDescending(l => l.LogMessageId)
+            .Select(l => l.TraceId)
+            .Distinct()
+            .Skip((page - 1) * RequestsPerPage)
+            .Take(RequestsPerPage);
+
         var logs = await db.Log
+            .Join(requestIdsToDisplay,
+                log => log.TraceId,
+                requestId => requestId,
+                (log, requestId) => log)
+            .OrderByDescending(l => l.LogMessageId)
             .GroupBy(l => l.TraceId)
             .Select(g => new HttpLog
             {
@@ -216,9 +230,6 @@ internal class LogsViewerUIService(LogDbContext db)
                 Messages = g.ToList(),
                 StartTime = g.Min(l => l.Timestamp)
             })
-            .OrderByDescending(g => g.StartTime)
-            .Skip((page - 1) * RequestsPerPage)
-            .Take(RequestsPerPage)
             .ToListAsync();
 
         foreach (var log in logs)

@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LogsViewer.Data;
 
 /// <summary>
 /// Represents a log message
 /// </summary>
+[Index(nameof(TraceId))]
 internal class LogMessage
 {
     public int LogMessageId { get; set; }
