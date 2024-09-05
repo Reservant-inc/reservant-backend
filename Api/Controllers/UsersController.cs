@@ -101,13 +101,7 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<UserService>(nameof(UserService.GetUserDetailsAsync))]
         public async Task<ActionResult<UserEmployeeVM>> GetUserById(string userId)
         {
-            var currentUserId = userManager.GetUserId(User);
-            if (currentUserId == null)
-            {
-                return Unauthorized();
-            }
-
-            var result = await userService.GetUserDetailsAsync(userId, currentUserId);
+            var result = await userService.GetUserDetailsAsync(userId, userManager.GetUserId(User)!);
             return OkOrErrors(result);
         }
     }
