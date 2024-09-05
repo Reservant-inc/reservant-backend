@@ -283,9 +283,10 @@ public static class CustomRules
         this IRuleBuilder<T, string> builder)
     {
         return builder
-            .Must(name => name != null && name.All(c => char.IsLetter(c) || c == ' ' || c == '-' || c == '\''))
+            .Must(name => name != null && name.All(
+                c => char.IsLetter(c)|| c == ' ' || c == '-' || c == '\'' || c == '.'))
             .WithErrorCode(ErrorCodes.MustBeValidName)
-            .WithMessage("The name must contain only letters, spaces, hyphens, and apostrophes.");
+            .WithMessage("The name must contain only letters, spaces, hyphens, apostrophes, or periods.");
     }
 
     /// <summary>

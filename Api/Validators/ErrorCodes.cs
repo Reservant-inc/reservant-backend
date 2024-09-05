@@ -167,7 +167,7 @@ public static class ErrorCodes
     public const string CannotBeCurrentUser = "CannotBeCurrentUser";
 
     /// <summary>
-    /// The string can contain only letters, spaces, hyphens, apostrophes
+    /// The string can contain only letters, spaces, hyphens, apostrophes, or periods
     /// </summary>
     public const string MustBeValidName = "MustBeValidName";
 
