@@ -165,4 +165,14 @@ public static class ErrorCodes
     /// The current user cannot be used in the request (for example sending a friend request
     /// </summary>
     public const string CannotBeCurrentUser = "CannotBeCurrentUser";
+
+    /// <summary>
+    /// The string can contain only letters, spaces, hyphens, apostrophes, or periods
+    /// </summary>
+    public const string MustBeValidName = "MustBeValidName";
+
+    /// <summary>
+    /// The string can contain only ascii letters or digits, underscores, hyphens
+    /// </summary>
+    public const string MustBeValidLogin = "MustBeValidLogin";
 }

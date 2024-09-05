@@ -40,6 +40,7 @@ public class UserService(
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(
         RegisterCustomerSupportAgentRequest request, string? id = null)
     {
+
         var user = new User
         {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -170,13 +171,14 @@ public class UserService(
     }
 
     /// <summary>
-    /// returns whether login provided is unique among registered users
+    /// returns whether login provided is unique among registered users withought veryfying validity of a login
     /// </summary>
     public async Task<bool> IsUniqueLoginAsync(string login)
     {
         var result = await dbContext
             .Users
             .Where(r => r.UserName == login)
+            
             .AnyAsync();
 
         return (!result);

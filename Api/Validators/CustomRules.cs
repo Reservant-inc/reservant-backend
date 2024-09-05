@@ -275,4 +275,29 @@ public static class CustomRules
             .WithErrorCode(ErrorCodes.EmptyList)
             .WithMessage("List cannot be empty.");
     }
+
+    /// <summary>
+    /// Validates that the string is a valid name
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidName<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(name => name != null && name.All(
+                c => char.IsLetter(c)|| c == ' ' || c == '-' || c == '\'' || c == '.'))
+            .WithErrorCode(ErrorCodes.MustBeValidName)
+            .WithMessage("The name must contain only letters, spaces, hyphens, apostrophes, or periods.");
+    }
+
+    /// <summary>
+    /// Validates that the string is a valid login
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidLogin<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(login => login != null && login.All(c => char.IsAsciiLetterOrDigit(c) || c == '-' || c == '_'))
+            .WithErrorCode(ErrorCodes.MustBeValidLogin)
+            .WithMessage("The login must contain only ASCII letters, numbers, '-', and '_'.");
+    }
 }
