@@ -50,6 +50,8 @@ internal class LogsViewerUIService(LogDbContext db)
 
         htmlBuilder.AppendLine("""
                     </div>
+
+                    <script src="./site.js"></script>
                 </body>
             </html>
             """);
@@ -102,7 +104,9 @@ internal class LogsViewerUIService(LogDbContext db)
                 <summary class="request-summary">
                     <div class="status-code status-{statusClass}">{statusCode}</div>
                     <div class="request-summary-title">{requestLogHeader}</div>
-                    <div class="request-summary-time">{log.StartTime:g}</div>
+                    <div class="request-summary-time">
+                        <time datetime="{log.StartTime:s}Z">{log.StartTime:g} UTC</time>
+                    </div>
                 </summary>
                 <p>Trace ID: {HttpUtility.HtmlEncode(log.TraceId)}</p>
             """);
