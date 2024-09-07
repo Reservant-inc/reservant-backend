@@ -23,14 +23,15 @@ public class UserValidator : AbstractValidator<Models.User>
         RuleFor(u => u.LastName)
             .NotEmpty()
             .MaximumLength(30)
-            .IsValidName();;
+            .IsValidName();
 
         RuleFor(u => u.RegisteredAt)
             .NotEmpty();
 
         RuleFor(u => u.BirthDate)
             .NotEmpty()
-            .When(u => u.BirthDate.HasValue);
+            .When(u => u.BirthDate.HasValue)
+            .Must(bd => bd < DateOnly.FromDateTime(DateTime.Now) || bd==null);
 
         RuleFor(u => u.Reputation)
             .GreaterThanOrEqualTo(0)

@@ -13,6 +13,7 @@ public class UpdateEventRequestValidator : AbstractValidator<UpdateEventRequest>
     {
         RuleFor(x => x.MustJoinUntil)
             .LessThan(x => x.Time)
+            .DateTimeInFuture()
             .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime);
 
         RuleFor(x => x.Time)

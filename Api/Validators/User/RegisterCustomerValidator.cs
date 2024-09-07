@@ -34,10 +34,12 @@ public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustom
 
         RuleFor(r => r.PhoneNumber)
             .NotEmpty()
-            .MaximumLength(15);
+            .MaximumLength(15)
+            .Matches(@"^\+\d+$");
 
         RuleFor(r => r.BirthDate)
-            .NotEmpty();
+            .NotEmpty()
+            .Must(bd => bd < DateOnly.FromDateTime(DateTime.Now));
 
         RuleFor(r => r.Password)
             .NotEmpty()
