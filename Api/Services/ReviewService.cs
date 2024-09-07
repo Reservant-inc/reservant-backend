@@ -107,5 +107,37 @@ namespace Reservant.Api.Services
                 RestaurantResponse = review.RestaurantResponse
             };
         }
+
+        /// <summary>
+        /// Get review by ID
+        /// </summary>
+        /// <param name="id">ID of the review</param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        public async Task<Result<ReviewVM>> GetReviewAsync(int id)
+        {
+            var review = await context.Reviews.Include(r => r.Author).FirstOrDefaultAsync(r => r.Id == id);
+            if (review == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            return new ReviewVM
+            {
+                ReviewId = review.Id,
+                RestaurantId = review.Id,
+                Stars = review.Stars,
+                AuthorId = review.AuthorId,
+                AuthorFullName = review.Author.FullName,
+                CreatedAt = review.CreatedAt,
+                Contents = review.Contents,
+                AnsweredAt = review.AnsweredAt,
+                RestaurantResponse = review.RestaurantResponse
+            };
+        }
+
     }
 }
