@@ -175,4 +175,9 @@ public static class ErrorCodes
     /// The string can contain only ascii letters or digits, underscores, hyphens
     /// </summary>
     public const string MustBeValidLogin = "MustBeValidLogin";
+
+    /// <summary>
+    /// The latitude may range from -90.0 to 90.0 and longitude may range from -180.0 to 180.0.
+    /// </summary>
+    public const string MustBeValidCoordinates = "MustBeValidCoordinates";
 }
