@@ -17,9 +17,7 @@ public class MenuValidator : AbstractValidator<Models.Menu>
             .MaximumLength(20);
 
         RuleFor(x => x.AlternateName)
-            .NotEmpty()
-            .MaximumLength(20)
-            .When(x => x.AlternateName is not null);
+            .MaximumLength(20);
 
         RuleFor(x => x.MenuType)
             .IsInEnum();

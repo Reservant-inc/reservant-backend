@@ -23,7 +23,6 @@ public class CreateMenuRequest
     /// <summary>
     /// Name of the menu in another language
     /// </summary>
-    [Required]
     public string? AlternateName { get; set; }
 
     /// <summary>
