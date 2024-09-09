@@ -29,7 +29,9 @@ namespace Reservant.Api.Services
         [ValidatorErrorCodes<MenuItem>]
         public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
-            var restaurant = await context.Restaurants.FindAsync(req.RestaurantId);
+            var restaurant = await context.Restaurants
+                .Include(r => r.Group)
+                .FirstOrDefaultAsync(r => r.Id == req.RestaurantId);
 
             if (restaurant is null)
             {
@@ -38,6 +40,16 @@ namespace Reservant.Api.Services
                     PropertyName = nameof(req.RestaurantId),
                     ErrorMessage = $"Restaurant with ID {req.RestaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (restaurant.Group.OwnerId != user.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(req.RestaurantId),
+                    ErrorMessage = ErrorCodes.AccessDenied,
+                    ErrorCode = ErrorCodes.AccessDenied
                 };
             }
 
