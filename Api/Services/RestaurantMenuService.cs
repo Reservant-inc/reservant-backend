@@ -391,31 +391,28 @@ public class RestaurantMenuService(
     {
         var menuItemIds = req.ItemIds;
 
-        var menuItems = await context
-            .MenuItems
-            .Include(m => m.Menus)
-            .ThenInclude(m => m.Restaurant)
-            .ThenInclude(r => r.Group)
-            .Include(menuItem => menuItem.Restaurant)
-            .Where(r => menuItemIds.Contains(r.Id))
-            .ToListAsync();
-
-        var menu = await context.Menus.FirstOrDefaultAsync(m => m.Id == menuId);
+        var menu = await context.Menus
+            .FirstOrDefaultAsync(m => m.Id == menuId && user.Id == m.Restaurant.Group.OwnerId);
 
         if (menu == null)
-            return RemoveMenuItemResult.MenuNotFound;
-
-        var validMenuItems = menuItems
-            .Where(m => m.Restaurant.Group.OwnerId == user.Id)
-            .ToList();
-
-        if (!validMenuItems.Any())
-            return RemoveMenuItemResult.NoValidMenuItems;
-
-        foreach (var menuItem in validMenuItems)
         {
-            menuItem.Menus.Remove(menu);
+            return RemoveMenuItemResult.MenuNotFound;
         }
+
+
+        var menuItems = await context.Entry(menu)
+                .Collection(m => m.MenuItems)
+                .Query()
+                .Where(m => menuItemIds.Contains(m.Id))
+                .ToListAsync();
+
+
+        if (menuItems.Count == 0)
+        {
+            return RemoveMenuItemResult.NoValidMenuItems;
+        }
+
+        menuItems.ForEach(m => m.Menus.Remove(menu));
 
         await context.SaveChangesAsync();
 
