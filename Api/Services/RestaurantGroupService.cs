@@ -257,7 +257,7 @@ public class RestaurantGroupService(
 
         restaurantGroup.Name = request.Name.Trim();
 
-        var result = await validationService.ValidateAsync(restaurantService, userId);
+        var result = await validationService.ValidateAsync(restaurantGroup, userId);
         if (!result.IsValid)
         {
             return result;
