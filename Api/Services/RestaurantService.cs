@@ -1549,16 +1549,6 @@ namespace Reservant.Api.Services
                 return result.Errors;
             }
 
-            if (!result.Value)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorMessage = "User doesnt own this restaurant",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-
             return await context.MenuItems
                 .Where(i => i.RestaurantId == restaurantId)
                 .Select(i => new MenuItemVM()
