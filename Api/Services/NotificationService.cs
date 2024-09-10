@@ -46,6 +46,19 @@ public class NotificationService(ApiDbContext context)
     }
 
     /// <summary>
+    /// Get data to show as notification bubbles
+    /// </summary>
+    public async Task<NotificationBubblesVM> GetBubbles()
+    {
+        return new NotificationBubblesVM
+        {
+            UnreadNotificationCount = await context.Notifications
+                .Where(n => n.DateRead == null)
+                .CountAsync(),
+        };
+    }
+
+    /// <summary>
     /// Mark notifications as read.
     /// </summary>
     /// <remarks>
