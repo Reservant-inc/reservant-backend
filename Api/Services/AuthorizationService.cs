@@ -20,7 +20,7 @@ public class AuthorizationService(
     /// </summary>
     /// <param name="restaurantId">The id of restaurant</param>
     /// <param name="user">The user to be tested as owner</param>
-    public async Task<Result<bool>> VerifyOwnerRole(int restaurantId, User user)
+    public async Task<Result> VerifyOwnerRole(int restaurantId, User user)
     {
         var restaurant = await context
             .Restaurants
@@ -34,7 +34,7 @@ public class AuthorizationService(
                 ErrorMessage = "User is not the owner of the restaurant.",
                 ErrorCode = ErrorCodes.AccessDenied
             };
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
