@@ -24,7 +24,7 @@ public class MenuVM
     /// <summary>
     /// Name of the menu in another language
     /// </summary>
-    public string? AlternateName { get; set; }
+    public required string? AlternateName { get; set; }
 
     /// <summary>
     /// Typ menu
