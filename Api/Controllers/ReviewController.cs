@@ -16,36 +16,36 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Deletes a review with a given id, great for censorship
         /// </summary>
-        /// <param name="id">id of the review</param>
+        /// <param name="reviewId">id of the review</param>
         /// <returns>confirmation of the action's status</returns>
         [HttpDelete("{id:int}")]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.DeleteReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult> DeleteReview(int id) {
+        public async Task<ActionResult> DeleteReview(int reviewId) {
 
             var userid = User.GetUserId();
 
-            var result = await reviewService.DeleteReviewAsync(id, userid!);
+            var result = await reviewService.DeleteReviewAsync(reviewId, userid!);
             return OkOrErrors(result);
         }
 
         /// <summary>
         /// Updates a review with given id
         /// </summary>
-        /// <param name="id">id of the review to change</param>
+        /// <param name="reviewId">id of the review to change</param>
         /// <param name="request">new contents of the review</param>
         /// <returns>a visual model of the updated review</returns>
         [HttpPut("{id:int}")]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.UpdateReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<ReviewVM>> UpdateReview(int id, CreateReviewRequest request)
+        public async Task<ActionResult<ReviewVM>> UpdateReview(int reviewId, CreateReviewRequest request)
         {
             var userid = User.GetUserId();
 
 
-            var result = await reviewService.UpdateReviewAsync(id, userid!, request);
+            var result = await reviewService.UpdateReviewAsync(reviewId, userid!, request);
             return OkOrErrors(result);
         }
 

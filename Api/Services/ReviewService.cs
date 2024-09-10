@@ -20,14 +20,14 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Delete review by ID
         /// </summary>
-        /// <param name="id">ID of the review</param>
+        /// <param name="reivewId">ID of the review</param>
         /// <param name="userid">ID of the current user for permission checking</param>
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied)]
-        public async Task<Result> DeleteReviewAsync(int id, string userid)
+        public async Task<Result> DeleteReviewAsync(int reivewId, string userid)
         {
-            var review = await context.Reviews.FirstOrDefaultAsync(r => r.Id == id);
+            var review = await context.Reviews.FirstOrDefaultAsync(r => r.Id == reivewId);
             if (review == null)
             {
                 return new ValidationFailure
@@ -52,7 +52,7 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Update review by ID
         /// </summary>
-        /// <param name="id">ID of the review</param>
+        /// <param name="reviewId">ID of the review</param>
         /// <param name="userid">ID of the current user for permission checking</param>
         /// <param name="request">New review information</param>
         /// <returns></returns>
@@ -60,14 +60,14 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.AccessDenied)]
         [ValidatorErrorCodes<CreateReviewRequest>]
         [ValidatorErrorCodes<Review>]
-        public async Task<Result<ReviewVM>> UpdateReviewAsync(int id, string userid, CreateReviewRequest request)
+        public async Task<Result<ReviewVM>> UpdateReviewAsync(int reviewId, string userid, CreateReviewRequest request)
         {
             var res = await validationService.ValidateAsync(request, userid);
             if (!res.IsValid)
             {
                 return res.Errors;
             }
-            var review = await context.Reviews.Include(r => r.Author).FirstOrDefaultAsync(r => r.Id == id);
+            var review = await context.Reviews.Include(r => r.Author).FirstOrDefaultAsync(r => r.Id == reviewId);
             if (review == null)
             {
                 return new ValidationFailure
@@ -111,10 +111,10 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Get review by ID
         /// </summary>
-        /// <param name="id">ID of the review</param>
+        /// <param name="reviewId">ID of the review</param>
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result<ReviewVM>> GetReviewAsync(int id)
+        public async Task<Result<ReviewVM>> GetReviewAsync(int reviewId)
         {
             var review = await context.Reviews
                 .Select(review => new ReviewVM
@@ -129,7 +129,7 @@ namespace Reservant.Api.Services
                     AnsweredAt = review.AnsweredAt,
                     RestaurantResponse = review.RestaurantResponse
                 })
-                .FirstOrDefaultAsync(r => r.ReviewId == id);
+                .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
             if (review == null)
             {
                 return new ValidationFailure
