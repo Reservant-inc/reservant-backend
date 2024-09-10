@@ -27,27 +27,6 @@ using Reservant.Api.Dtos.User;
 namespace Reservant.Api.Services
 {
     /// <summary>
-    /// Indicates the status code returned by <see cref="RestaurantService.SetVerifiedIdAsync"/>
-    /// </summary>
-    public enum VerificationResult
-    {
-        /// <summary>
-        /// Restaurant not found
-        /// </summary>
-        RestaurantNotFound,
-
-        /// <summary>
-        /// Restaurant is already verified
-        /// </summary>
-        VerifierAlreadyExists,
-
-        /// <summary>
-        /// Success
-        /// </summary>
-        VerifierSetSuccessfully,
-    }
-
-    /// <summary>
     /// Service responsible for managing restaurants
     /// </summary>
     public class RestaurantService(
@@ -800,10 +779,12 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Returns a specific restaurant owned by the user.
         /// </summary>
-        /// <param name="user">Currently logged-in user</param>
+        /// <param name="userId">ID of the currently logged-in user</param>
         /// <param name="idRestaurant"> Id of the restaurant.</param>
         /// <returns></returns>
-        public async Task<VerificationResult> SetVerifiedIdAsync(User user, int idRestaurant)
+        [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
+        [ErrorCode(null, ErrorCodes.Duplicate, "Restaurant already verified")]
+        public async Task<Result> SetVerifiedIdAsync(string userId, int idRestaurant)
         {
             var result = await context
                 .Restaurants
@@ -811,15 +792,29 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
 
             if (result is null)
-                return VerificationResult.RestaurantNotFound;
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {idRestaurant} not found",
+                    ErrorCode = ErrorCodes.NotFound,
+                };
+            }
 
             if (result.VerifierId is not null)
-                return VerificationResult.VerifierAlreadyExists;
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = $"Restaurant with ID {idRestaurant} is already verified",
+                    ErrorCode = ErrorCodes.Duplicate,
+                };
+            }
 
-            result.VerifierId = user.Id;
+            result.VerifierId = userId;
             await context.SaveChangesAsync();
 
-            return VerificationResult.VerifierSetSuccessfully;
+            return Result.Success;
         }
 
         /// <summary>

@@ -72,30 +72,13 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId">ID of the restaurant</param>
     /// <response code="400">Restaurant already verified</response>
     [HttpPost("{restaurantId:int}/verify")]
-    [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.CustomerSupportAgent)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.SetVerifiedIdAsync))]
     public async Task<ActionResult> SetVerifiedId(int restaurantId)
     {
-        var user = await userManager.GetUserAsync(User);
-
-        if (user == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await service.SetVerifiedIdAsync(user, restaurantId);
-
-        switch (result)
-        {
-            case VerificationResult.VerifierSetSuccessfully:
-                return Ok();
-            case VerificationResult.VerifierAlreadyExists:
-                return BadRequest();
-            case VerificationResult.RestaurantNotFound:
-                return NotFound();
-            default:
-                throw new InvalidOperationException();
-        }
+        var result = await service.SetVerifiedIdAsync(User.GetUserId()!, restaurantId);
+        return OkOrErrors(result);
     }
 
     /// <summary>
