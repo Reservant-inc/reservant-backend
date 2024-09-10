@@ -24,7 +24,7 @@ public class EventSummaryVM
     public required DateTime Time { get; set; }
     
     /// <summary>
-    /// Max number of people that can attend event
+    /// Max number of people that can attend event - only accepted, excluding creator
     /// </summary>
     public required int MaxPeople { get; set; }
 

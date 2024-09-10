@@ -12,6 +12,11 @@ public class EventInviteRequest : ISoftDeletable
     /// Unique ID
     /// </summary>
     public int Id { get; set; }
+    
+    /// <summary>
+    /// Unique Event ID
+    /// </summary>
+    public int EventId { get; set; }
 
     /// <summary>
     /// Date and time created
@@ -49,11 +54,7 @@ public class EventInviteRequest : ISoftDeletable
     /// Navigational property for the user that sent the invite
     /// </summary>
     public User Sender { get; set; } = null!;
-
-    /// <summary>
-    /// Navigational property for the target user
-    /// </summary>
-    public User Receiver { get; set; } = null!;
+    
 
     /// <summary>
     /// Navigational property for the event
