@@ -6,6 +6,7 @@ using Reservant.Api.Models.Enums;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace Reservant.Api.Services;
 
@@ -42,6 +43,20 @@ public class NotificationService(ApiDbContext context)
                 Details = n.Details,
             })
             .PaginateAsync(page, perPage, [], 100);
+    }
+
+    /// <summary>
+    /// Mark notifications as read.
+    /// </summary>
+    /// <remarks>
+    /// Does not check the IDs, does not update already read notifications.
+    /// </remarks>
+    public async Task MarkRead(MarkNotificationsReadDto dto)
+    {
+        await context.Notifications
+            .Where(n => dto.NotificationIds.Contains(n.Id) && n.DateRead == null)
+            .ExecuteUpdateAsync(s =>
+                s.SetProperty(n => n.DateRead, _ => DateTime.UtcNow));
     }
 
     /// <summary>

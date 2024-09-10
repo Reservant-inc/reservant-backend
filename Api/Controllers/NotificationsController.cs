@@ -30,4 +30,17 @@ public class NotificationsController(NotificationService service) : StrictContro
         var result = await service.GetNotificaions(unreadOnly, page, perPage);
         return OkOrErrors(result);
     }
+
+    /// <summary>
+    /// Mark notifications as read.
+    /// </summary>
+    /// <remarks>
+    /// Does not check the IDs, does not update already read notifications.
+    /// </remarks>
+    [HttpPost("mark-read")]
+    public async Task<ActionResult> MarkRead(MarkNotificationsReadDto dto)
+    {
+        await service.MarkRead(dto);
+        return Ok();
+    }
 }
