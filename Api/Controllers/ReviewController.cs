@@ -11,7 +11,6 @@ namespace Reservant.Api.Controllers
     /// Managing reviews
     /// </summary>
     [ApiController, Route("/reviews")]
-    [Authorize]
     public class ReviewController(ReviewService reviewService) : StrictController
     {
         /// <summary>
@@ -56,7 +55,6 @@ namespace Reservant.Api.Controllers
         /// <param name="id">id of the review</param>
         /// <returns>a visual model of the review</returns>
         [HttpGet("{id:int}")]
-        [AllowAnonymous]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.GetReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
         public async Task<ActionResult<ReviewVM>> GetReview(int id)
