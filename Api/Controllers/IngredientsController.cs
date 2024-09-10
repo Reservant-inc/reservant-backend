@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Dtos.Ingredient;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
@@ -49,7 +50,7 @@ public class IngredientsController(
     /// <returns>Updated ingredient information</returns>
     [HttpPut("{ingredientId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantBackdoorsEmployee}")]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
     [MethodErrorCodes<IngredientService>(nameof(IngredientService.UpdateIngredientAsync))]
     public async Task<ActionResult<IngredientVM>> UpdateIngredient(int ingredientId, [FromBody] UpdateIngredientRequest request)
     {
@@ -59,7 +60,7 @@ public class IngredientsController(
             return Unauthorized();
         }
 
-        var result = await ingredientService.UpdateIngredientAsync(ingredientId,request, userId);
+        var result = await ingredientService.UpdateIngredientAsync(ingredientId, request, userId);
         return OkOrErrors(result);
     }
- }
+}

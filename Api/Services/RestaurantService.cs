@@ -1590,7 +1590,7 @@ namespace Reservant.Api.Services
             }
 
             var result = await authorizationService.VerifyOwnerRole(id, user);
-            if (!result.Value)
+            if (result.IsError)
             {
                 return new ValidationFailure
                 {

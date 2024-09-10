@@ -36,7 +36,7 @@ public class TestController(UserManager<User> userManager) : StrictController
     /// Available only to RestaurantBackdoorsEmployee
     /// </summary>
     [HttpGet("restaurant-backdoors-employee-only")]
-    [Authorize(Roles = Roles.RestaurantBackdoorsEmployee)]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
     public async Task<ActionResult<User?>> GetRestaurantBackdoorsEmployee()
     {
         return Ok(await userManager.GetUserAsync(User));
@@ -46,7 +46,7 @@ public class TestController(UserManager<User> userManager) : StrictController
     /// Available only to RestaurantHallEmployee
     /// </summary>
     [HttpGet("restaurant-hall-employee-only")]
-    [Authorize(Roles = Roles.RestaurantHallEmployee)]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
     public async Task<ActionResult<User?>> GetRestaurantHallEmployee()
     {
         return Ok(await userManager.GetUserAsync(User));
