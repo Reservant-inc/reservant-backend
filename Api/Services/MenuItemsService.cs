@@ -16,7 +16,8 @@ namespace Reservant.Api.Services
     public class MenuItemsService(
         ApiDbContext context,
         FileUploadService uploadService,
-        ValidationService validationService)
+        ValidationService validationService,
+        AuthorizationService authorizationService)
     {
         /// <summary>
         /// Validates and creates given menuItems
@@ -25,12 +26,12 @@ namespace Reservant.Api.Services
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
         [ErrorCode(nameof(CreateMenuItemRequest.RestaurantId), ErrorCodes.NotFound)]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
         [ValidatorErrorCodes<CreateMenuItemRequest>]
         [ValidatorErrorCodes<MenuItem>]
         public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
             var restaurant = await context.Restaurants
-                .Include(r => r.Group)
                 .FirstOrDefaultAsync(r => r.Id == req.RestaurantId);
 
             if (restaurant is null)
@@ -43,14 +44,10 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (restaurant.Group.OwnerId != user.Id)
+            var authResult = await authorizationService.VerifyOwnerRole(req.RestaurantId, user);
+            if (authResult.IsError)
             {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(req.RestaurantId),
-                    ErrorMessage = ErrorCodes.AccessDenied,
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
+                return authResult.Errors;
             }
 
             var result = await validationService.ValidateAsync(req, user.Id);
