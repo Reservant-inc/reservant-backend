@@ -23,7 +23,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <param name="userId">ID of the target user</param>
     /// <response code="400">Friend request already exists</response>
     [HttpPost("{userId}/send-request")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.SendFriendRequestAsync))]
     public async Task<ActionResult> SendFriendRequest(string userId)
@@ -43,7 +43,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// </summary>
     /// <param name="senderId">ID of the user</param>
     [HttpPost("{senderId}/mark-read")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.MarkFriendRequestAsReadAsync))]
     public async Task<ActionResult> MarkFriendRequestAsRead(string senderId)
@@ -63,7 +63,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// </summary>
     /// <param name="senderId">ID of the user</param>
     [HttpPost("{senderId}/accept-request")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.AcceptFriendRequestAsync))]
     public async Task<ActionResult> AcceptFriendRequest(string senderId)
@@ -83,7 +83,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// </summary>
     /// <param name="otherUserId">ID of the other user</param>
     [HttpDelete("{otherUserId}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.DeleteFriendAsync))]
     public async Task<ActionResult> DeleteFriend(string otherUserId)

@@ -21,7 +21,7 @@ namespace Reservant.Api.Controllers
         [HttpDelete("{id:int}")]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.DeleteReviewAsync))]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(204), ProducesResponseType(400)]
         public async Task<ActionResult> DeleteReview(int reviewId) {
 
             var userid = User.GetUserId();

@@ -66,7 +66,7 @@ public class MessageController(
     /// <param name="messageId">ID of the message</param>
     /// <returns>Result of the deletion</returns>
     [HttpDelete("{messageId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteMessage(int messageId)
     {

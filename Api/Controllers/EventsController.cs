@@ -52,7 +52,7 @@ namespace Reservant.Api.Controllers
         /// <param name="eventId"> Id of Event</param>
         /// <returns></returns>
         [HttpPost("{eventId:int}/interested")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(204), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.AddUserToEventAsync))]
         public async Task<ActionResult> AddUserToEvent(int eventId)
@@ -72,7 +72,7 @@ namespace Reservant.Api.Controllers
         /// <param name="eventId"> Id of Event</param>
         /// <returns></returns>
         [HttpDelete("{eventId:int}/interested")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(204), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.DeleteUserFromEventAsync))]
         public async Task<ActionResult> DeleteUserFromEvent(int eventId)
@@ -119,7 +119,7 @@ namespace Reservant.Api.Controllers
         /// <param name="eventId"> Id of Event</param>
         /// <returns></returns>
         [HttpDelete("{eventId:int}")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(204), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.DeleteEventAsync))]
         public async Task<ActionResult> DeleteEvent(int eventId)

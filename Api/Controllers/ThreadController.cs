@@ -73,7 +73,7 @@ public class ThreadsController(
     /// <param name="threadId">ID of the thread</param>
     /// <returns>Result of the deletion</returns>
     [HttpDelete("{threadId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteThread(int threadId)
     {
@@ -163,7 +163,7 @@ public class ThreadsController(
     /// <param name="threadId">ID of the thread</param>
     /// <param name="dto">DTO containing the user ID</param>
     [HttpPost("{threadId:int}/add-participant")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<ThreadService>(nameof(ThreadService.AddParticipant))]
     public async Task<ActionResult> AddParticipant(int threadId, AddRemoveParticipantDto dto)
     {
@@ -180,7 +180,7 @@ public class ThreadsController(
     /// <param name="threadId">ID of the thread</param>
     /// <param name="dto">DTO containing the user ID</param>
     [HttpPost("{threadId:int}/remove-participant")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<ThreadService>(nameof(ThreadService.RemoveParticipant))]
     public async Task<ActionResult> RemoveParticipant(int threadId, AddRemoveParticipantDto dto)
     {

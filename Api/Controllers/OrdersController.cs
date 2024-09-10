@@ -34,7 +34,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// </summary>
     [HttpPost("{orderId:int}/cancel")]
     [Authorize(Roles = Roles.Customer)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     public async Task<ActionResult> CancelOrder(int orderId)
     {
         var user = await userManager.GetUserAsync(User);
