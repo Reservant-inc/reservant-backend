@@ -21,16 +21,6 @@ internal static class Roles
     public const string RestaurantEmployee = "RestaurantEmployee";
 
     /// <summary>
-    /// Pracownik zaplecza.
-    /// </summary>
-    public const string RestaurantBackdoorsEmployee = "RestaurantBackdoorsEmployee";
-
-    /// <summary>
-    /// Pracownik sali.
-    /// </summary>
-    public const string RestaurantHallEmployee = "RestaurantHallEmployee";
-
-    /// <summary>
     /// Pracownik BOK.
     /// </summary>
     public const string CustomerSupportAgent = "CustomerSupportAgent";
