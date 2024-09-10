@@ -22,6 +22,7 @@ using Reservant.Api.Dtos.Visit;
 using Reservant.Api.Dtos.Location;
 using Reservant.Api.Dtos.Table;
 using Reservant.Api.Dtos.User;
+using System.Text.Json;
 
 
 namespace Reservant.Api.Services
@@ -35,7 +36,8 @@ namespace Reservant.Api.Services
         UserManager<User> userManager,
         ValidationService validationService,
         GeometryFactory geometryFactory,
-        AuthorizationService authorizationService)
+        AuthorizationService authorizationService,
+        NotificationService notificationService)
     {
         /// <summary>
         /// Find restaurants by different criteria
@@ -788,6 +790,7 @@ namespace Reservant.Api.Services
         {
             var result = await context
                 .Restaurants
+                .Include(r => r.Group)
                 .Where(r => r.Id == idRestaurant)
                 .FirstOrDefaultAsync();
 
@@ -813,6 +816,9 @@ namespace Reservant.Api.Services
 
             result.VerifierId = userId;
             await context.SaveChangesAsync();
+
+            await notificationService.NotifyRestaurantVerified(
+                result.Group.OwnerId, idRestaurant);
 
             return Result.Success;
         }

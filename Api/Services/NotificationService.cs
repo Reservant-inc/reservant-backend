@@ -2,7 +2,10 @@
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Notification;
+using Reservant.Api.Models.Enums;
+using Reservant.Api.Models;
 using Reservant.Api.Validation;
+using System.Text.Json;
 
 namespace Reservant.Api.Services;
 
@@ -39,5 +42,33 @@ public class NotificationService(ApiDbContext context)
                 Details = n.Details,
             })
             .PaginateAsync(page, perPage, [], 100);
+    }
+
+    /// <summary>
+    /// Notify a user that a restaurant has been verified
+    /// </summary>
+    public async Task NotifyRestaurantVerified(
+        string targetUserId, int restaurantId)
+    {
+        await NotifyUser(
+            targetUserId, NotificationType.RestaurantVerified,
+            new { restaurantId });
+    }
+
+    /// <summary>
+    /// Notify a user that something has happened
+    /// </summary>
+    private async Task NotifyUser(
+        string targetUserId, NotificationType notificationType, object details)
+    {
+        context.Add(new Notification
+        {
+            TargetUserId = targetUserId,
+            DateCreated = DateTime.UtcNow,
+            NotificationType = notificationType,
+            Details = JsonSerializer.SerializeToElement(details),
+        });
+
+        await context.SaveChangesAsync();
     }
 }
