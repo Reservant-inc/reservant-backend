@@ -733,6 +733,8 @@ namespace Reservant.Api.Services
             restaurant.BusinessPermissionFileName = request.BusinessPermission;
             restaurant.IdCardFileName = request.IdCard;
             restaurant.LogoFileName = request.Logo;
+            restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
+             request.Location.Latitude));
 
             restaurant.Tags = await context.RestaurantTags
                 .Where(t => request.Tags.Contains(t.Name))
