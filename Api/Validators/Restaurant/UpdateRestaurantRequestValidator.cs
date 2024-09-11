@@ -15,7 +15,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
     {
         RuleFor(r => r.Name)
             .NotEmpty()
-            .MaximumLength(50);
+            .MaximumLength(50)
+            .IsValidName();
 
         RuleFor(r => r.Nip)
             .NotNull()

@@ -290,6 +290,19 @@ public static class CustomRules
     }
 
     /// <summary>
+    /// Validates that the string is a valid city
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidCity<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(name => name != null && name.All(
+                c => char.IsLetter(c) || c == ' ' || c == '-'))
+            .WithErrorCode(ErrorCodes.MustBeValidName)
+            .WithMessage("The city must contain only letters, spaces, hyphens.");
+    }
+
+    /// <summary>
     /// Validates that the string is a valid login
     /// </summary>
     public static IRuleBuilderOptions<T, string> IsValidLogin<T>(

@@ -13,7 +13,8 @@ public class ValidateRestaurantFirstStepRequestValidator : AbstractValidator<Val
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MaximumLength(50);
+            .MaximumLength(50)
+            .IsValidName();
 
         RuleFor(x => x.Nip)
             .NotEmpty()
@@ -32,6 +33,7 @@ public class ValidateRestaurantFirstStepRequestValidator : AbstractValidator<Val
 
         RuleFor(x => x.City)
             .NotEmpty()
-            .MaximumLength(15);
+            .MaximumLength(15)
+            .IsValidCity();
     }
 }
