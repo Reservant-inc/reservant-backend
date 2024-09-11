@@ -25,7 +25,8 @@ public class ValidateRestaurantFirstStepRequestValidator : AbstractValidator<Val
 
         RuleFor(x => x.Address)
             .NotEmpty()
-            .MaximumLength(70);
+            .MaximumLength(70)
+            .IsValidAddress();
 
         RuleFor(x => x.PostalIndex)
             .NotEmpty()

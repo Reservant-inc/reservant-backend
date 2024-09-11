@@ -313,4 +313,18 @@ public static class CustomRules
             .WithErrorCode(ErrorCodes.MustBeValidLogin)
             .WithMessage("The login must contain only ASCII letters, numbers, '-', and '_'.");
     }
+
+    /// <summary>
+    /// Validates that the string is a valid address.
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidAddress<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(address => address != null && address.All(
+                c => char.IsLetterOrDigit(c) || c == ' ' || c == '-' || c == ',' || c == '.' || c == '/'))
+            .WithErrorCode(ErrorCodes.MustBeValidAddress)
+            .WithMessage("The address must contain only letters, numbers, spaces, hyphens, commas, periods, or slashes.");
+    }
+
 }

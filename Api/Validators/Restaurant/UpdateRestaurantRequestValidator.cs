@@ -24,7 +24,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
 
         RuleFor(r => r.Address)
             .NotEmpty()
-            .MaximumLength(70);
+            .MaximumLength(70)
+            .IsValidAddress();
 
         RuleFor(r => r.PostalIndex)
             .NotNull()

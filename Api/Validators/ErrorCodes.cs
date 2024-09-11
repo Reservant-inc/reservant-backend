@@ -175,4 +175,9 @@ public static class ErrorCodes
     /// The string can contain only ascii letters or digits, underscores, hyphens
     /// </summary>
     public const string MustBeValidLogin = "MustBeValidLogin";
+
+    /// <summary>
+    /// The string can contain only letters, numbers, spaces, hyphens, commas, periods, or slashes.
+    /// </summary>
+    public const string MustBeValidAddress = "MustBeValidAddress";
 }
