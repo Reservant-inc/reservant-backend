@@ -23,21 +23,19 @@ public sealed class NipAttribute : ValidationAttribute
             return false;
         }
 
-        return true; // TODO Enable back checksum checking later
+        int sum = 0;
+        for (int i = 0; i < Weights.Length; i++)
+        {
+            sum += Weights[i] * (value[i] - '0');
+        }
 
-        // int sum = 0;
-        // for (int i = 0; i < Weights.Length; i++)
-        // {
-        //     sum += Weights[i] * (strValue[i] - '0');
-        // }
-        //
-        // int checksum = sum % 11;
-        // if (checksum == 10)
-        // {
-        //     checksum = 0;
-        // }
-        //
-        // return checksum == (strValue[9] - '0');
+        int checksum = sum % 11;
+        if (checksum == 10)
+        {
+            checksum = 0;
+        }
+
+        return checksum == (value[9] - '0');
     }
 
     /// <inheritdoc />
