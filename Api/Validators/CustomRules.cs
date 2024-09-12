@@ -310,9 +310,9 @@ public static class CustomRules
         this IRuleBuilder<T, Point> builder)
     {
         return builder
-            .Must(loc => loc.X > -180 && loc.X < 180 && loc.Y > -90 && loc.Y < 90)
+            .Must(loc => loc is { X: >= -180 and <= 180, Y: >= -90 and <= 90 })
             .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
-            .WithMessage("The latitude and longitude must be between -180, 180 and -90, 90 respectively");
+            .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
     }
 
     /// <summary>
@@ -322,8 +322,8 @@ public static class CustomRules
         this IRuleBuilder<T, Geolocation> builder)
     {
         return builder
-            .Must(loc => loc.Latitude > -180 && loc.Latitude < 180 && loc.Longitude > -90 && loc.Longitude < 90)
+            .Must(loc => loc is { Longitude: >= -180 and <= 180, Latitude: >= -90 and <= 90 })
             .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
-            .WithMessage("The latitude and longitude must be between -180, 180 and -90, 90 respectively");
+            .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
     }
 }
