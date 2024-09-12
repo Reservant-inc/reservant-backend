@@ -24,6 +24,7 @@ public class ParticipationRequest
     /// <summary>
     /// User ID
     /// </summary>
+    [StringLength(36)]
     public string UserId { get; set; }
     
     /// <summary>
