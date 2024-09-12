@@ -66,7 +66,29 @@ public static class CustomRules
     public static IRuleBuilderOptions<T, string> Nip<T>(this IRuleBuilder<T, string> builder)
     {
         return builder
-            .Must(NipAttribute.IsValidNip)
+            .Must(value =>
+            {
+                if (string.IsNullOrEmpty(value) || value.Length != 10 || !value.All(char.IsDigit))
+                {
+                    return false;
+                }
+
+                int[] weights = { 6, 5, 7, 2, 3, 4, 5, 6, 7 };
+                int sum = 0;
+
+                for (int i = 0; i < weights.Length; i++)
+                {
+                    sum += weights[i] * (value[i] - '0');
+                }
+
+                int checksum = sum % 11;
+                if (checksum == 10)
+                {
+                    checksum = 0;
+                }
+
+                return checksum == (value[9] - '0');
+            })
             .WithErrorCode(ErrorCodes.Nip)
             .WithMessage("Must be a valid NIP");
     }
@@ -298,7 +320,7 @@ public static class CustomRules
         return builder
             .Must(name => name != null && name.All(
                 c => char.IsLetter(c) || c == ' ' || c == '-'))
-            .WithErrorCode(ErrorCodes.MustBeValidName)
+            .WithErrorCode(ErrorCodes.MustBeValidCity)
             .WithMessage("The city must contain only letters, spaces, hyphens.");
     }
 

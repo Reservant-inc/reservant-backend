@@ -180,4 +180,10 @@ public static class ErrorCodes
     /// The string can contain only letters, numbers, spaces, hyphens, commas, periods, or slashes.
     /// </summary>
     public const string MustBeValidAddress = "MustBeValidAddress";
+
+
+    /// <summary>
+    /// The string can contain only ASCII letters, numbers, '-', and '_'.
+    /// </summary>
+    public const string MustBeValidCity = "MustBeValidCity";
 }
