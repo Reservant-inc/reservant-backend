@@ -129,6 +129,11 @@ public class User : IdentityUser, ISoftDeletable
     /// </summary>
     public ICollection<MessageThread> Threads { get; set; } = null!;
 
+    /// <summary>
+    /// Notifications that the user has received
+    /// </summary>
+    public ICollection<Notification> Notifications { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 

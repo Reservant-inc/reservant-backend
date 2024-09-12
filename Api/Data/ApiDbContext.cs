@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Models;
@@ -7,8 +8,14 @@ using Reservant.Api.Models;
 
 namespace Reservant.Api.Data;
 
-public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration configuration) : IdentityDbContext<User>(options)
+public class ApiDbContext(
+    DbContextOptions<ApiDbContext> options,
+    IConfiguration configuration,
+    UserIdService userIdService
+    ) : IdentityDbContext<User>(options)
 {
+    private readonly string? _userId = userIdService.GetUserId();
+
     public required DbSet<WeatherForecast> WeatherForecasts { get; init; }
 
     public DbSet<FileUpload> FileUploads { get; init; } = null!;
@@ -52,6 +59,8 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     public DbSet<Delivery> Deliveries { get; init; } = null!;
 
     public DbSet<IngredientMenuItem> IngredientMenuItems { get; set; } = null!;
+
+    public DbSet<Notification> Notifications { get; set; } = null!;
 
     /// <summary>
     /// Drop all tables in the database
@@ -147,6 +156,15 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
         builder.Entity<FriendRequest>()
             .HasQueryFilter(fr => fr.DateDeleted == null);
+
+        builder.Entity<Notification>(eb =>
+        {
+            eb.HasQueryFilter(n => n.TargetUserId == _userId);
+
+            eb.Property(n => n.Details).HasConversion(
+                value => JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
+                column => JsonSerializer.Deserialize<JsonElement>(column, (JsonSerializerOptions?)null));
+        });
 
         var softDeletableEntities =
             from prop in GetType().GetProperties()
