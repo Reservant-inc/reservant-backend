@@ -162,19 +162,8 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
             return Unauthorized();
         }
 
-        var res = await service.RemoveMenuItemFromMenuAsync(user, menuId, req);
-
-        switch (res)
-        {
-            case RestaurantMenuService.RemoveMenuItemResult.Success:
-                return Ok();
-            case RestaurantMenuService.RemoveMenuItemResult.MenuNotFound:
-                return NotFound();
-            case RestaurantMenuService.RemoveMenuItemResult.NoValidMenuItems:
-                return BadRequest();
-            default:
-                return StatusCode(500, "Internal server error");
-        }
+        var res = await service.RemoveMenuItemFromMenuAsync(user, menuId, req);            
+        return OkOrErrors(res);
     }
 
     /// <summary>
