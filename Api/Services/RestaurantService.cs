@@ -268,18 +268,6 @@ namespace Reservant.Api.Services
                 return result;
             }
 
-            var coordinate = new Coordinate(request.Location.Longitude, request.Location.Latitude);
-
-            if (!coordinate.IsValid)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(request.Location),
-                    ErrorMessage = $"Location is invalid",
-                    ErrorCode = ErrorCodes.MustBeValidCoordinates
-                };
-            }
-
             var restaurant = new Restaurant
             {
                 Name = request.Name.Trim(),
@@ -1547,6 +1535,16 @@ namespace Reservant.Api.Services
             if (result.IsError)
             {
                 return result.Errors;
+            }
+
+            if (!result.Value)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "User doesnt own this restaurant",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
             }
 
             return await context.MenuItems

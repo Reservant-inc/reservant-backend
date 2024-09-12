@@ -7,6 +7,8 @@ using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos.OrderItem;
+using NetTopologySuite.Geometries;
+using Reservant.Api.Dtos.Location;
 
 namespace Reservant.Api.Validators;
 
@@ -299,5 +301,29 @@ public static class CustomRules
             .Must(login => login != null && login.All(c => char.IsAsciiLetterOrDigit(c) || c == '-' || c == '_'))
             .WithErrorCode(ErrorCodes.MustBeValidLogin)
             .WithMessage("The login must contain only ASCII letters, numbers, '-', and '_'.");
+    }
+
+    /// <summary>
+    /// Validates that the location has valid coordinates
+    /// </summary>
+    public static IRuleBuilderOptions<T, Point> IsValidLocation<T>(
+        this IRuleBuilder<T, Point> builder)
+    {
+        return builder
+            .Must(loc => loc.X > -180 && loc.X < 180 && loc.Y > -90 && loc.Y < 90)
+            .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
+            .WithMessage("The latitude and longitude must be between -180, 180 and -90, 90 respectively");
+    }
+
+    /// <summary>
+    /// Validates that the location has valid coordinates
+    /// </summary>
+    public static IRuleBuilderOptions<T, Geolocation> IsValidGeolocation<T>(
+        this IRuleBuilder<T, Geolocation> builder)
+    {
+        return builder
+            .Must(loc => loc.Latitude > -180 && loc.Latitude < 180 && loc.Longitude > -90 && loc.Longitude < 90)
+            .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
+            .WithMessage("The latitude and longitude must be between -180, 180 and -90, 90 respectively");
     }
 }

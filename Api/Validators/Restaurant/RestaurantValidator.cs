@@ -32,5 +32,8 @@ public class RestaurantValidator : AbstractValidator<Models.Restaurant>
 
         RuleFor(r => r.Description)
             .Length(1, 200);
+
+        RuleFor(r => r.Location)
+            .IsValidLocation();
     }
 }

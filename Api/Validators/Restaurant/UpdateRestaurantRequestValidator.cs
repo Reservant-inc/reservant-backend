@@ -60,5 +60,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
         RuleForEach(r => r.Photos)
             .FileUploadName(FileClass.Image, uploadService)
             .NotNull();
+
+        RuleFor(r => r.Location)
+            .IsValidGeolocation();
     }
 }
