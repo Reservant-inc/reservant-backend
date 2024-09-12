@@ -183,7 +183,7 @@ public static class ErrorCodes
 
 
     /// <summary>
-    /// The string can contain only ASCII letters, numbers, '-', and '_'.
+    /// The string can contain only letters, numbers, or '-'.
     /// </summary>
     public const string MustBeValidCity = "MustBeValidCity";
 }
