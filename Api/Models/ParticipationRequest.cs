@@ -38,14 +38,14 @@ public class ParticipationRequest
     /// Request date
     /// </summary>
     public DateTime RequestDate { get; set; }
-    
+
     /// <summary>
     /// Boolean for accept
     /// </summary>
-    public bool IsAccepted { get; set; }
-    
+    public DateTime? Accepted { get; set; } = null;
+
     /// <summary>
     /// Boolean for reject
     /// </summary>
-    public bool IsRejected { get; set; }
+    public DateTime? Rejected { get; set; } = null;
 }

@@ -226,9 +226,7 @@ namespace Reservant.Api.Services
             {
                 EventId = eventId,
                 UserId = user.Id,
-                RequestDate = DateTime.UtcNow,
-                IsAccepted = false,
-                IsRejected = false
+                RequestDate = DateTime.UtcNow
             };
 
             context.EventParticipationRequests.Add(participationRequest);
@@ -254,19 +252,40 @@ namespace Reservant.Api.Services
             }
 
             var request = await context.EventParticipationRequests
+                .Include(participationRequest => participationRequest.User)
                 .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
 
-            if (request == null || request.IsAccepted)
+            if (request is not { Accepted: null })
             {
                 return new ValidationFailure
                 {
                     PropertyName = null,
-                    ErrorMessage = "Request not found or already accepted",
-                    ErrorCode = ErrorCodes.NotFound
+                    ErrorMessage = "User already accepted",
+                    ErrorCode = ErrorCodes.UserAlreadyAccepted
+                };
+            }
+            
+            if (eventFound.Participants.Count >= eventFound.MaxPeople)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event is full",
+                    ErrorCode = ErrorCodes.EventIsFull
+                };
+            }
+            
+            if (DateTime.Compare(eventFound.MustJoinUntil, DateTime.Now) < 0)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Join deadline passed",
+                    ErrorCode = ErrorCodes.JoinDeadlinePassed
                 };
             }
 
-            request.IsAccepted = true;
+            request.Accepted = DateTime.Now;
             eventFound.Participants.Add(request.User);
             await context.SaveChangesAsync();
 
@@ -283,7 +302,7 @@ namespace Reservant.Api.Services
                 return new ValidationFailure
                 {
                     PropertyName = null,
-                    ErrorMessage = "Event not found or access denied",
+                    ErrorMessage = "Event not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
@@ -291,17 +310,17 @@ namespace Reservant.Api.Services
             var request = await context.EventParticipationRequests
                 .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
 
-            if (request == null || request.IsRejected)
+            if (request is not { Rejected: null })
             {
                 return new ValidationFailure
                 {
                     PropertyName = null,
-                    ErrorMessage = "Request not found or already rejected",
-                    ErrorCode = ErrorCodes.NotFound
+                    ErrorMessage = "User already rejected",
+                    ErrorCode = ErrorCodes.UserAlreadyRejected
                 };
             }
 
-            request.IsRejected = true;
+            request.Rejected = DateTime.Now;
             await context.SaveChangesAsync();
 
             return Result.Success;
