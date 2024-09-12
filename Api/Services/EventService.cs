@@ -198,395 +198,117 @@ namespace Reservant.Api.Services
         }
         
         public async Task<Result> RequestParticipationAsync(int eventId, User user)
-{
-    var eventFound = await context.Events.FindAsync(eventId);
-    if (eventFound == null)
-    {
-        return new ValidationFailure
         {
-            PropertyName = null,
-            ErrorMessage = "Event not found",
-            ErrorCode = ErrorCodes.NotFound
-        };
-    }
+            var eventFound = await context.Events.FindAsync(eventId);
+            if (eventFound == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
-    var existingRequest = await context.EventParticipationRequests
-        .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == user.Id);
+            var existingRequest = await context.EventParticipationRequests
+                .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == user.Id);
 
-    if (existingRequest != null)
-    {
-        return new ValidationFailure
+            if (existingRequest != null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Request already exists",
+                    ErrorCode = ErrorCodes.Duplicate
+                };
+            }
+
+            var participationRequest = new ParticipationRequest
+            {
+                EventId = eventId,
+                UserId = user.Id,
+                RequestDate = DateTime.UtcNow,
+                IsAccepted = false,
+                IsRejected = false
+            };
+
+            context.EventParticipationRequests.Add(participationRequest);
+            await context.SaveChangesAsync();
+
+            return Result.Success;
+        }
+
+        public async Task<Result> AcceptParticipationRequestAsync(int eventId, string userId, User currentUser)
         {
-            PropertyName = null,
-            ErrorMessage = "Request already exists",
-            ErrorCode = ErrorCodes.Duplicate
-        };
-    }
+            var eventFound = await context.Events
+                .Include(e => e.Participants)
+                .FirstOrDefaultAsync(e => e.Id == eventId);
 
-    var participationRequest = new ParticipationRequest
-    {
-        EventId = eventId,
-        UserId = user.Id,
-        RequestDate = DateTime.UtcNow,
-        IsAccepted = false,
-        IsRejected = false
-    };
+            if (eventFound == null || eventFound.CreatorId != currentUser.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found or access denied",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
-    context.EventParticipationRequests.Add(participationRequest);
-    await context.SaveChangesAsync();
+            var request = await context.EventParticipationRequests
+                .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
 
-    return Result.Success;
-}
+            if (request == null || request.IsAccepted)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Request not found or already accepted",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
-public async Task<Result> AcceptParticipationRequestAsync(int eventId, string userId, User currentUser)
-{
-    var eventFound = await context.Events
-        .Include(e => e.Participants)
-        .FirstOrDefaultAsync(e => e.Id == eventId);
+            request.IsAccepted = true;
+            eventFound.Participants.Add(request.User);
+            await context.SaveChangesAsync();
 
-    if (eventFound == null || eventFound.CreatorId != currentUser.Id)
-    {
-        return new ValidationFailure
+            return Result.Success;
+        }
+
+        public async Task<Result> RejectParticipationRequestAsync(int eventId, string userId, User currentUser)
         {
-            PropertyName = null,
-            ErrorMessage = "Event not found or access denied",
-            ErrorCode = ErrorCodes.NotFound
-        };
-    }
+            var eventFound = await context.Events
+                .FirstOrDefaultAsync(e => e.Id == eventId);
 
-    var request = await context.EventParticipationRequests
-        .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
+            if (eventFound == null || eventFound.CreatorId != currentUser.Id)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Event not found or access denied",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
-    if (request == null || request.IsAccepted)
-    {
-        return new ValidationFailure
-        {
-            PropertyName = null,
-            ErrorMessage = "Request not found or already accepted",
-            ErrorCode = ErrorCodes.NotFound
-        };
-    }
+            var request = await context.EventParticipationRequests
+                .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
 
-    request.IsAccepted = true;
-    eventFound.Participants.Add(request.User);
-    await context.SaveChangesAsync();
+            if (request == null || request.IsRejected)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Request not found or already rejected",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
-    return Result.Success;
-}
+            request.IsRejected = true;
+            await context.SaveChangesAsync();
 
-public async Task<Result> RejectParticipationRequestAsync(int eventId, string userId, User currentUser)
-{
-    var eventFound = await context.Events
-        .FirstOrDefaultAsync(e => e.Id == eventId);
-
-    if (eventFound == null || eventFound.CreatorId != currentUser.Id)
-    {
-        return new ValidationFailure
-        {
-            PropertyName = null,
-            ErrorMessage = "Event not found or access denied",
-            ErrorCode = ErrorCodes.NotFound
-        };
-    }
-
-    var request = await context.EventParticipationRequests
-        .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
-
-    if (request == null || request.IsRejected)
-    {
-        return new ValidationFailure
-        {
-            PropertyName = null,
-            ErrorMessage = "Request not found or already rejected",
-            ErrorCode = ErrorCodes.NotFound
-        };
-    }
-
-    request.IsRejected = true;
-    await context.SaveChangesAsync();
-
-    return Result.Success;
-}
-
-        // /// <summary>
-        // /// Accept a user to an event
-        // /// </summary>
-        // /// <param name="eventId">Event ID</param>
-        // /// <param name="userToAcceptId">ID of the user to be accepted</param>
-        // /// <param name="currentUser">Current user (event creator)</param>
-        // /// <returns></returns>
-        // [ErrorCode(null, ErrorCodes.NotFound, "Event not found")]
-        // [ErrorCode(null, ErrorCodes.AccessDenied, "Only the event creator can accept users")]
-        // [ErrorCode(null, ErrorCodes.UserNotInterestedInEvent, "User is not interested in the event")]
-        // [ErrorCode(null, ErrorCodes.UserAlreadyAccepted, "User is already accepted to the event")]
-        // [ErrorCode(null, ErrorCodes.EventIsFull, "The event has reached its maximum number of participants")]
-        // [ErrorCode(null, ErrorCodes.JoinDeadlinePassed, "The deadline to join this event has passed")]
-        // public async Task<Result<EventInviteRequestVM>> AcceptUserToEventAsync(int eventId, string userToAcceptId, User currentUser)
-        // {
-        //     var eventFound = await context.Events
-        //         .Include(e => e.Interested)
-        //         .Include(e => e.Creator)
-        //         .Include(e => e.Participants)
-        //         .FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted);
-        //
-        //     if (eventFound == null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "Event not found",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-        //
-        //     if (eventFound.CreatorId != currentUser.Id)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "Only the event creator can accept users",
-        //             ErrorCode = ErrorCodes.AccessDenied
-        //         };
-        //     }
-        //
-        //     var userToAccept = await context.Users.FindAsync(userToAcceptId);
-        //     if (userToAccept == null || eventFound.Interested.All(u => u.Id != userToAcceptId))
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "User is not interested in the event",
-        //             ErrorCode = ErrorCodes.UserNotInterestedInEvent
-        //         };
-        //     }
-        //
-        //     if (eventFound.Participants.Any(u => u.Id == userToAcceptId))
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "User is already accepted to the event",
-        //             ErrorCode = ErrorCodes.UserAlreadyAccepted
-        //         };
-        //     }
-        //
-        //     if (eventFound.Participants.Count >= eventFound.MaxPeople)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "The event has reached its maximum number of participants",
-        //             ErrorCode = ErrorCodes.EventIsFull
-        //         };
-        //     }
-        //
-        //     if (DateTime.UtcNow > eventFound.MustJoinUntil)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "The deadline to join this event has passed",
-        //             ErrorCode = ErrorCodes.JoinDeadlinePassed
-        //         };
-        //     }
-        //
-        //     var existingInvite = await context.EventInviteRequests
-        //         .FirstOrDefaultAsync(ei => ei.Event.Id == eventId && ei.ReceiverId == userToAcceptId && !ei.IsDeleted);
-        //
-        //     if (existingInvite != null)
-        //     {
-        //         existingInvite.DateAccepted = DateTime.UtcNow;
-        //     }
-        //     else
-        //     {
-        //         var newInvite = new EventInviteRequest
-        //         {
-        //             SenderId = currentUser.Id,
-        //             ReceiverId = userToAcceptId,
-        //             Event = eventFound,
-        //             DateSent = DateTime.UtcNow,
-        //             DateAccepted = DateTime.UtcNow
-        //         };
-        //         context.EventInviteRequests.Add(newInvite);
-        //     }
-        //     
-        //     var otherUser = await context.Users.FindAsync(userToAcceptId);
-        //
-        //     eventFound.Participants.Add(userToAccept);
-        //     await context.SaveChangesAsync();
-        //     
-        //     return new EventInviteRequestVM
-        //     {
-        //         DateSent = existingInvite.DateSent,
-        //         DateRead = existingInvite.DateRead,
-        //         DateAccepted = existingInvite.DateAccepted,
-        //         OtherUser = new UserSummaryVM
-        //         {
-        //             FirstName = otherUser.FirstName,
-        //             LastName = otherUser.LastName,
-        //             UserId = otherUser.Id,
-        //             Photo = uploadService.GetPathForFileName(otherUser.PhotoFileName),
-        //         }
-        //     };
-        // }
-
-        // /// <summary>
-        // /// Reject an event invite
-        // /// </summary>
-        // /// <param name="eventId">Event ID</param>
-        // /// <param name="userToRejectId">ID of the user whose invite is to be rejected</param>
-        // /// <param name="currentUser">Current user (event creator)</param>
-        // /// <returns></returns>
-        // [ErrorCode(null, ErrorCodes.NotFound, "Event invite not found")]
-        // [ErrorCode(null, ErrorCodes.AccessDenied, "Only the event creator can reject invites")]
-        // [ErrorCode(null, ErrorCodes.UserAlreadyRejected, "Invite is already rejected")]
-        // public async Task<Result<EventInviteRequestVM>> RejectEventInviteAsync(int eventId, string userToRejectId, User currentUser)
-        // {
-        //     var eventFound = await context.Events
-        //         .FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted);
-        //
-        //     if (eventFound == null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "Event not found",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-        //
-        //     if (eventFound.CreatorId != currentUser.Id)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "Only the event creator can reject invites",
-        //             ErrorCode = ErrorCodes.AccessDenied
-        //         };
-        //     }
-        //
-        //     var existingInvite = await context.EventInviteRequests
-        //         .FirstOrDefaultAsync(ei => ei.Event.Id == eventId && ei.ReceiverId == userToRejectId && !ei.IsDeleted);
-        //
-        //     if (existingInvite == null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "Event invite not found",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-        //
-        //     if (existingInvite.DateDeleted.HasValue)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = null,
-        //             ErrorMessage = "Invite is already rejected",
-        //             ErrorCode = ErrorCodes.UserAlreadyRejected
-        //         };
-        //     }
-        //
-        //     existingInvite.DateDeleted = DateTime.UtcNow;
-        //
-        //     await context.SaveChangesAsync();
-        //
-        //     var rejectedUser = await context.Users.FindAsync(userToRejectId);
-        //
-        //     return new EventInviteRequestVM
-        //     {
-        //         DateSent = existingInvite.DateSent,
-        //         DateRead = existingInvite.DateRead,
-        //         DateAccepted = existingInvite.DateAccepted,
-        //         OtherUser = new UserSummaryVM
-        //         {
-        //             FirstName = rejectedUser.FirstName,
-        //             LastName = rejectedUser.LastName,
-        //             UserId = rejectedUser.Id,
-        //             Photo = uploadService.GetPathForFileName(rejectedUser.PhotoFileName),
-        //         }
-        //     };
-        // }
+            return Result.Success;
+        }
 
 
-        // /// <summary>
-        // /// Create an event invite
-        // /// </summary>
-        // /// <param name="senderId">Sender ID</param>
-        // /// <param name="receiverId">Receiver ID</param>
-        // /// <param name="eventId">Event ID</param>
-        // /// <returns></returns>
-        // [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
-        // [ErrorCode(nameof(eventId), ErrorCodes.NotFound)]
-        // [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Event invite already exists")]
-        // public async Task<Result<EventInviteRequestVM>> SendEventInviteAsync(string senderId, string receiverId, int eventId)
-        // {
-        //     var receiver = await context.Users.FindAsync(receiverId);
-        //     if (receiver == null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = nameof(receiverId),
-        //             ErrorMessage = "Receiver user does not exist",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-        //
-        //     var eventExists = await context.Events.AnyAsync(e => e.Id == eventId);
-        //     if (!eventExists)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = nameof(eventId),
-        //             ErrorMessage = "Event does not exist",
-        //             ErrorCode = ErrorCodes.NotFound
-        //         };
-        //     }
-        //
-        //     var existingInvite = await context.EventInviteRequests
-        //         .FirstOrDefaultAsync(ei =>
-        //             ei.SenderId == senderId && ei.ReceiverId == receiverId && ei.Event.Id == eventId && !ei.IsDeleted
-        //         );
-        //
-        //     if (existingInvite != null)
-        //     {
-        //         return new ValidationFailure
-        //         {
-        //             PropertyName = nameof(receiverId),
-        //             ErrorMessage = "Event invite already exists",
-        //             ErrorCode = ErrorCodes.Duplicate
-        //         };
-        //     }
-        //
-        //     var eventInvite = new EventInviteRequest
-        //     {
-        //         SenderId = senderId,
-        //         ReceiverId = receiverId,
-        //         DateSent = DateTime.UtcNow,
-        //         Event = (await context.Events.FindAsync(eventId))!
-        //     };
-        //
-        //     context.EventInviteRequests.Add(eventInvite);
-        //     await context.SaveChangesAsync();
-        //
-        //     var sender = await context.Users.FindAsync(senderId);
-        //
-        //     return new EventInviteRequestVM
-        //     {
-        //         DateSent = eventInvite.DateSent,
-        //         DateRead = eventInvite.DateRead,
-        //         DateAccepted = eventInvite.DateAccepted,
-        //         OtherUser = new UserSummaryVM
-        //         {
-        //             FirstName = sender.FirstName,
-        //             LastName = sender.LastName,
-        //             UserId = sender.Id,
-        //             Photo = uploadService.GetPathForFileName(sender.PhotoFileName),
-        //         }
-        //     };
-        // }
-        
         /// <summary>
         /// Remove user from event's interested list
         /// </summary>
