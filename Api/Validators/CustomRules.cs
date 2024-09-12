@@ -7,6 +7,8 @@ using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos.OrderItem;
+using NetTopologySuite.Geometries;
+using Reservant.Api.Dtos.Location;
 
 namespace Reservant.Api.Validators;
 
@@ -349,4 +351,28 @@ public static class CustomRules
             .WithMessage("The address must contain only letters, numbers, spaces, hyphens, commas, periods, or slashes.");
     }
 
+
+    /// <summary>
+    /// Validates that the location has valid coordinates
+    /// </summary>
+    public static IRuleBuilderOptions<T, Point> IsValidLocation<T>(
+        this IRuleBuilder<T, Point> builder)
+    {
+        return builder
+            .Must(loc => loc is { X: >= -180 and <= 180, Y: >= -90 and <= 90 })
+            .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
+            .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
+    }
+
+    /// <summary>
+    /// Validates that the location has valid coordinates
+    /// </summary>
+    public static IRuleBuilderOptions<T, Geolocation> IsValidGeolocation<T>(
+        this IRuleBuilder<T, Geolocation> builder)
+    {
+        return builder
+            .Must(loc => loc is { Longitude: >= -180 and <= 180, Latitude: >= -90 and <= 90 })
+            .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
+            .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
+    }
 }

@@ -186,4 +186,9 @@ public static class ErrorCodes
     /// The string can contain only letters, numbers, or '-'.
     /// </summary>
     public const string MustBeValidCity = "MustBeValidCity";
+
+    /// <summary>
+    /// The latitude may range from -90.0 to 90.0 and longitude may range from -180.0 to 180.0.
+    /// </summary>
+    public const string MustBeValidCoordinates = "MustBeValidCoordinates";
 }
