@@ -1,6 +1,7 @@
 ﻿using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Index.HPRtree;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Menu;
@@ -361,62 +362,44 @@ public class RestaurantMenuService(
         return Result.Success;
     }
 
-    /// <summary>
-    /// Indicates an error returned from RemoveMenuItemFromMenuAsync
-    /// </summary>
-    public enum RemoveMenuItemResult
-    {
-        /// <summary>
-        /// Success
-        /// </summary>
-        Success,
-
-        /// <summary>
-        /// Menu not found
-        /// </summary>
-        MenuNotFound,
-
-        /// <summary>
-        /// Bad request
-        /// </summary>
-        NoValidMenuItems
-    }
 
     /// <summary>
-    /// Remove a MenuItem from a Menu
+    /// Remove MenuItems from a Menu
     /// </summary>
     /// <returns>MenuItem</returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
-    public async Task<RemoveMenuItemResult> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
+    public async Task<Result> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
     {
         var menuItemIds = req.ItemIds;
 
         var menu = await context.Menus
-            .FirstOrDefaultAsync(m => m.Id == menuId && user.Id == m.Restaurant.Group.OwnerId);
+            .Include(m => m.MenuItems
+                .Where(item => menuItemIds.Contains(item.Id))
+            ).FirstOrDefaultAsync(m => m.Id == menuId && user.Id == m.Restaurant.Group.OwnerId);
 
         if (menu == null)
         {
-            return RemoveMenuItemResult.MenuNotFound;
+            return new ValidationFailure
+            {
+                ErrorMessage = "Menu not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
-
-        var menuItems = await context.Entry(menu)
-                .Collection(m => m.MenuItems)
-                .Query()
-                .Where(m => menuItemIds.Contains(m.Id))
-                .ToListAsync();
-
-
-        if (menuItems.Count == 0)
+        if (menu.MenuItems.Count == 0)
         {
-            return RemoveMenuItemResult.NoValidMenuItems;
+            return new ValidationFailure
+            {
+                ErrorMessage = "Menu items not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
         }
 
-        menuItems.ForEach(m => m.Menus.Remove(menu));
+        context.MenuItems.RemoveRange(menu.MenuItems);
 
         await context.SaveChangesAsync();
 
-        return RemoveMenuItemResult.Success;
+        return Result.Success;
     }
 
     /// <summary>
