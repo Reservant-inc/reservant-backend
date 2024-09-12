@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Dtos.Event;
-using Reservant.Api.Models.Dtos.EventInvite;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 

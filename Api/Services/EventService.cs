@@ -8,7 +8,6 @@ using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using ErrorCodeDocs.Attributes;
-using Reservant.Api.Models.Dtos.EventInvite;
 
 namespace Reservant.Api.Services
 {

@@ -53,9 +53,6 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
 
     public DbSet<IngredientMenuItem> IngredientMenuItems { get; set; } = null!;
     
-    // TODO: to be deleted?
-    public DbSet<EventInviteRequest> EventInviteRequests { get; init; } = null!;
-    
     public DbSet<ParticipationRequest> EventParticipationRequests { get; init; } = null!;
 
     /// <summary>
