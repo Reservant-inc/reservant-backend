@@ -12,40 +12,40 @@ public class ParticipationRequest
     /// Unique ID
     /// </summary>
     public int Id { get; set; }
-    
+
     /// <summary>
     /// Event ID
     /// </summary>
     public int EventId { get; set; }
-    
+
     /// <summary>
     /// Event navigation property
     /// </summary>
     public Event Event { get; set; }
-    
+
     /// <summary>
     /// User ID
     /// </summary>
     [StringLength(36)]
     public string UserId { get; set; }
-    
+
     /// <summary>
     /// User navigation property
     /// </summary>
     public User User { get; set; }
-    
+
     /// <summary>
     /// Request date
     /// </summary>
     public DateTime RequestDate { get; set; }
 
     /// <summary>
-    /// Boolean for accept
+    /// Time when user got accepted
     /// </summary>
-    public DateTime? Accepted { get; set; } = null;
+    public DateTime? Accepted { get; set; }
 
     /// <summary>
-    /// Boolean for reject
+    /// Time when user got rejected
     /// </summary>
-    public DateTime? Rejected { get; set; } = null;
+    public DateTime? Rejected { get; set; }
 }
