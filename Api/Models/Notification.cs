@@ -36,7 +36,7 @@ public class Notification
     public NotificationType NotificationType {  get; set; }
 
     /// <summary>
-    /// Extra data
+    /// Extra data in the form of a JSON object, for example IDs of related objects
     /// </summary>
     public JsonElement Details { get; set; }
 
