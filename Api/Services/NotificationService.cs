@@ -22,7 +22,7 @@ public class NotificationService(ApiDbContext context)
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page (max 100)</param>
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-    public async Task<Result<Pagination<NotificationVM>>> GetNotificaions(
+    public async Task<Result<Pagination<NotificationVM>>> GetNotifications(
         bool unreadOnly, int page, int perPage)
     {
         var query = context.Notifications.AsQueryable();

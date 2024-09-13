@@ -23,11 +23,11 @@ public class NotificationsController(NotificationService service) : StrictContro
     /// <param name="perPage">Items per page (max 100)</param>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<NotificationService>(nameof(NotificationService.GetNotificaions))]
+    [MethodErrorCodes<NotificationService>(nameof(NotificationService.GetNotifications))]
     public async Task<ActionResult<Pagination<NotificationVM>>> GetNotifications(
         bool unreadOnly = false, int page = 0, int perPage = 100)
     {
-        var result = await service.GetNotificaions(unreadOnly, page, perPage);
+        var result = await service.GetNotifications(unreadOnly, page, perPage);
         return OkOrErrors(result);
     }
 
