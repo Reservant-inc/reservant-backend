@@ -34,7 +34,7 @@ public class NotificationsController(NotificationService service) : StrictContro
     /// <summary>
     /// Get data to show as notification bubbles
     /// </summary>
-    [HttpPost("bubbles")]
+    [HttpGet("bubbles")]
     public async Task<NotificationBubblesVM> GetBubbles()
     {
         return await service.GetBubbles();
