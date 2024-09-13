@@ -1,4 +1,5 @@
-﻿using Reservant.Api.Models.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models.Enums;
 using System.Text.Json;
 
 namespace Reservant.Api.Models;
@@ -26,6 +27,7 @@ public class Notification
     /// <summary>
     /// User that has received the notification
     /// </summary>
+    [StringLength(36)]
     public string TargetUserId { get; set; } = null!;
 
     /// <summary>
