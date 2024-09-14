@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Reservant.Api.Models.Enums;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Reservant.Api.Models;
@@ -31,17 +31,41 @@ public class Notification
     public string TargetUserId { get; set; } = null!;
 
     /// <summary>
-    /// Type of the notification
+    /// Type of the details, used for persistence
     /// </summary>
-    public NotificationType NotificationType {  get; set; }
+    private Type DetailsKind => Details.GetType();
 
     /// <summary>
-    /// Extra data in the form of a JSON object, for example IDs of related objects
+    /// Serialized details, used for persistence
     /// </summary>
-    public JsonElement Details { get; set; }
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength")]
+    private string DetailsJson => JsonSerializer.Serialize(Details, DetailsKind);
+
+    /// <summary>
+    /// Extra details
+    /// </summary>
+    public NotificationDetails Details { get; set; }
 
     /// <summary>
     /// Navigation property for the user that has received the notification
     /// </summary>
     public User TargetUser { get; set; } = null!;
+
+    /// <summary>
+    /// Constructor for Entity Framework
+    /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    private Notification(Type detailsKind, string detailsJson)
+    {
+        Details = (NotificationDetails)JsonSerializer.Deserialize(detailsJson, detailsKind)!;
+    }
+
+    /// <summary>
+    /// Constructor for the rest of the app
+    /// </summary>
+    public Notification(DateTime dateCreated, string targetUserId, NotificationDetails details)
+    {
+        (DateCreated, TargetUserId, Details) = (dateCreated, targetUserId, details);
+    }
 }

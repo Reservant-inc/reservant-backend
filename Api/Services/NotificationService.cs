@@ -2,10 +2,8 @@
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Notification;
-using Reservant.Api.Models.Enums;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
 namespace Reservant.Api.Services;
@@ -39,7 +37,7 @@ public class NotificationService(ApiDbContext context)
                 NotificationId = n.Id,
                 DateCreated = n.DateCreated,
                 DateRead = n.DateRead,
-                NotificationType = n.NotificationType,
+                NotificationType = n.Details.GetType().Name,
                 Details = n.Details,
             })
             .PaginateAsync(page, perPage, [], 100);
@@ -79,24 +77,17 @@ public class NotificationService(ApiDbContext context)
         string targetUserId, int restaurantId)
     {
         await NotifyUser(
-            targetUserId, NotificationType.RestaurantVerified,
-            new { restaurantId });
+            targetUserId,
+            new NotificationRestaurantVerified(restaurantId));
     }
 
     /// <summary>
     /// Notify a user that something has happened
     /// </summary>
     private async Task NotifyUser(
-        string targetUserId, NotificationType notificationType, object details)
+        string targetUserId, NotificationDetails details)
     {
-        context.Add(new Notification
-        {
-            TargetUserId = targetUserId,
-            DateCreated = DateTime.UtcNow,
-            NotificationType = notificationType,
-            Details = JsonSerializer.SerializeToElement(details),
-        });
-
+        context.Add(new Notification(DateTime.UtcNow, targetUserId, details));
         await context.SaveChangesAsync();
     }
 }
