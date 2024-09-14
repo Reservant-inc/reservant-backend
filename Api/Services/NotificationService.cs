@@ -76,11 +76,16 @@ public class NotificationService(ApiDbContext context)
     public async Task NotifyRestaurantVerified(
         string targetUserId, int restaurantId)
     {
+        var restaurant = await context.Restaurants
+            .AsNoTracking()
+            .SingleAsync(r => r.Id == restaurantId);
         await NotifyUser(
             targetUserId,
             new NotificationRestaurantVerified
             {
                 RestaurantId = restaurant.Id,
+                RestaurantName = restaurant.Name,
+                RestaurantLogo = uploadService.GetPathForFileName(restaurant.LogoFileName),
             });
     }
 
