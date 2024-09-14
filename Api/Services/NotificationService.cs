@@ -78,7 +78,10 @@ public class NotificationService(ApiDbContext context)
     {
         await NotifyUser(
             targetUserId,
-            new NotificationRestaurantVerified(restaurantId));
+            new NotificationRestaurantVerified
+            {
+                RestaurantId = restaurant.Id,
+            });
     }
 
     /// <summary>
