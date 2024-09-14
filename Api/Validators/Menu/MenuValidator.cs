@@ -31,6 +31,6 @@ public class MenuValidator : AbstractValidator<Models.Menu>
             .FileUploadName(FileClass.Image, uploadService);
     
         RuleFor(x => x.DateUntil)
-            .Must((x, du) => du == null || du >= x.DateFrom);
+            .DateInFuture();
     }
 }

@@ -62,6 +62,11 @@ public static class ErrorCodes
     public const string DateMustBeInFuture = "DateMustBeInFuture";
 
     /// <summary>
+    /// The date must be in the past
+    /// </summary>
+    public const string DateMustBeInPast = "DateMustBeInPast";
+
+    /// <summary>
     /// Table does not exist
     /// </summary>
     public const string TableDoesNotExist = "TableDoesNotExist";
@@ -175,4 +180,9 @@ public static class ErrorCodes
     /// The string can contain only ascii letters or digits, underscores, hyphens
     /// </summary>
     public const string MustBeValidLogin = "MustBeValidLogin";
+
+    /// <summary>
+    /// The string can contain singular plux followed by numbers
+    /// </summary>
+    public const string MustBeValidPhoneNumber = "MustBeValidPhoneNumber";
 }

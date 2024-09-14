@@ -35,11 +35,11 @@ public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustom
         RuleFor(r => r.PhoneNumber)
             .NotEmpty()
             .MaximumLength(15)
-            .Matches(@"^\+\d+$");
+            .IsValidPhoneNumber();
 
         RuleFor(r => r.BirthDate)
             .NotEmpty()
-            .Must(bd => bd < DateOnly.FromDateTime(DateTime.Now));
+            .DateInPast();
 
         RuleFor(r => r.Password)
             .NotEmpty()

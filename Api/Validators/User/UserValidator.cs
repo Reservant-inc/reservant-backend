@@ -31,7 +31,7 @@ public class UserValidator : AbstractValidator<Models.User>
         RuleFor(u => u.BirthDate)
             .NotEmpty()
             .When(u => u.BirthDate.HasValue)
-            .Must(bd => bd < DateOnly.FromDateTime(DateTime.Now) || bd==null);
+            .DateInPast();
 
         RuleFor(u => u.Reputation)
             .GreaterThanOrEqualTo(0)
