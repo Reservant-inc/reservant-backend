@@ -11,7 +11,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing notifications
 /// </summary>
-public class NotificationService(ApiDbContext context)
+public class NotificationService(ApiDbContext context, FileUploadService uploadService)
 {
     /// <summary>
     /// Get all notifications
@@ -86,6 +86,33 @@ public class NotificationService(ApiDbContext context)
                 RestaurantId = restaurant.Id,
                 RestaurantName = restaurant.Name,
                 RestaurantLogo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+            });
+    }
+
+    /// <summary>
+    /// Notify a user that somebody left a review under one of their restaurants
+    /// </summary>
+    public async Task NotifyNewRestaurantReview(
+        string targetUserId, int reviewId)
+    {
+        var review = await context.Reviews
+            .AsNoTracking()
+            .Include(r => r.Restaurant)
+            .Include(r => r.Author)
+            .SingleAsync(r => r.Id == reviewId);
+        await NotifyUser(
+            targetUserId,
+            new NotificationNewRestaurantReview
+            {
+                RestaurantId = review.Restaurant.Id,
+                RestaurantName = review.Restaurant.Name,
+                RestaurantLogo = uploadService.GetPathForFileName(review.Restaurant.LogoFileName),
+                ReviewId = review.Id,
+                Stars = review.Stars,
+                Contents = review.Contents,
+                AuthorId = review.AuthorId,
+                AuthorName = review.Author.FullName,
+                AuthorPhoto = uploadService.GetPathForFileName(review.Author.PhotoFileName),
             });
     }
 

@@ -1170,6 +1170,7 @@ namespace Reservant.Api.Services
             CreateReviewRequest createReviewRequest)
         {
             var restaurant = await context.Restaurants
+                .Include(r => r.Group)
                 .Where(r => r.Id == restaurantId)
                 .FirstOrDefaultAsync();
 
@@ -1214,6 +1215,8 @@ namespace Reservant.Api.Services
 
             await context.Reviews.AddAsync(newReview);
             await context.SaveChangesAsync();
+
+            await notificationService.NotifyNewRestaurantReview(restaurant.Group.OwnerId, newReview.Id);
 
             var reviewVM = new ReviewVM
             {
