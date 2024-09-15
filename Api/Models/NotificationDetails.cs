@@ -1,4 +1,5 @@
 namespace Reservant.Api.Models;
+using System.ComponentModel.DataAnnotations;
 
 /// <summary>
 /// Extra details about a notification
@@ -75,4 +76,38 @@ public class NotificationNewRestaurantReview : NotificationDetails
     /// Profile picture of the review author
     /// </summary>
     public required string? AuthorPhoto { get; init; }
+}
+
+
+/// <summary>
+/// Details for a new friend request notification
+/// </summary>
+public class NotificationNewFriendRequest : NotificationDetails
+{
+    /// <summary>
+    /// Date and time created
+    /// </summary>
+    public required DateTime DateSent { get; set; }
+
+    /// <summary>
+    /// ID of the sender
+    /// </summary>
+    [StringLength(36)]
+    public required string SenderId { get; set; } = null!;
+
+    /// <summary>
+    /// Name of the sender
+    /// </summary>
+    public required String SenderName { get; set; }
+
+    /// <summary>
+    /// Photo of the sender
+    /// </summary>
+    public required FileUpload? SenderPhoto { get; set; }
+
+    /// <summary>
+    /// ID of the target user
+    /// </summary>
+    [StringLength(36)]
+    public required string ReceiverId { get; set; } = null!;
 }
