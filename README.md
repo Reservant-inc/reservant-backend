@@ -23,7 +23,14 @@ dotnet run
 
 ## Deploying
 
-Example `appsettings.Production.json`:
+Building the Docker image:
+
+```shell
+docker build -t reservant-api -f Api/Dockerfile .
+```
+
+You will have to provide production configuration by mounting a configuration
+file to `/api/appsettings.Production.json`. Example contents:
 
 ```json
 {
