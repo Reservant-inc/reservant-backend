@@ -13,7 +13,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing friends and friend requests
 /// </summary>
-public class FriendService(ApiDbContext context, FileUploadService uploadService)
+public class FriendService(ApiDbContext context, FileUploadService uploadService, NotificationService notificationService)
 {
     /// <summary>
     /// Create a friend request
@@ -71,6 +71,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
 
         context.FriendRequests.Add(friendRequest);
         await context.SaveChangesAsync();
+        await notificationService.NotifyNewFriendRequest(receiverId, friendRequest.Id);
         return Result.Success;
     }
 

@@ -11,7 +11,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing notifications
 /// </summary>
-public class NotificationService(ApiDbContext context, FileUploadService uploadService)
+public class NotificationService(ApiDbContext context, FileUploadService uploadService, UserService userService)
 {
     /// <summary>
     /// Get all notifications
@@ -124,5 +124,48 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     {
         context.Add(new Notification(DateTime.UtcNow, targetUserId, details));
         await context.SaveChangesAsync();
+    }
+
+    public async Task NotifyNewFriendRequest(string targetUserId, int friendRequestId)
+    {
+        var request = await context.FriendRequests
+            .Include(r => r.Sender)
+            .Include(r => r.Receiver)
+            .Where(r => r.Id == friendRequestId)
+            .FirstOrDefaultAsync();
+
+        await NotifyUser(
+            targetUserId,
+            new NotificationNewFriendRequest
+            {
+                FriendRequestId = request.Id,
+                DateRequestSend = request.DateSent,
+                SenderId = request.SenderId,
+                ReveiverId = request.ReceiverId,
+                SenderDetails = new Dtos.User.UserDetailsVM { 
+                    UserId = request.SenderId,
+                    Login = request.Sender.UserName,
+                    Email = request.Sender.Email,
+                    PhoneNumber = request.Sender.PhoneNumber,
+                    FirstName = request.Sender.FirstName,
+                    LastName = request.Sender.LastName,
+                    RegisteredAt = request.Sender.RegisteredAt,
+                    Photo = uploadService.GetPathForFileName(request.Sender.PhotoFileName),
+                    Roles = await userService.GetRolesAsync(request.Sender)
+                },
+                ReceiverDetails = new Dtos.User.UserDetailsVM
+                {
+                    UserId = request.ReceiverId,
+                    Login = request.Receiver.UserName,
+                    Email = request.Receiver.Email,
+                    PhoneNumber = request.Receiver.PhoneNumber,
+                    FirstName = request.Receiver.FirstName,
+                    LastName = request.Receiver.LastName,
+                    RegisteredAt = request.Receiver.RegisteredAt,
+                    Photo = uploadService.GetPathForFileName(request.Receiver.PhotoFileName),
+                    Roles = await userService.GetRolesAsync(request.Receiver)
+                }
+            }
+            );
     }
 }
