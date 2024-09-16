@@ -68,9 +68,9 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
         }
 
         var existingRequest = await context.FriendRequests
-            .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
+            .AnyAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
 
-        if (existingRequest != null)
+        if (existingRequest)
         {
             return new ValidationFailure
             {
@@ -89,6 +89,12 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
             ReceiverId = receiverId,
             DateSent = DateTime.UtcNow
         };
+
+        if (requestFromReceiver != null)
+        {
+            requestFromReceiver.DateAccepted = DateTime.UtcNow;
+            friendRequest.DateAccepted = DateTime.UtcNow;
+        }
 
         context.FriendRequests.Add(friendRequest);
         await context.SaveChangesAsync();
