@@ -24,6 +24,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     [ErrorCode(nameof(receiverId), ErrorCodes.CannotBeCurrentUser)]
     [ErrorCode(nameof(receiverId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(receiverId), ErrorCodes.Duplicate, "Friend request already exists")]
+    [ErrorCode(nameof(receiverId), ErrorCodes.AlreadyFriends)]
     public async Task<Result> SendFriendRequestAsync(string senderId, string receiverId)
     {
         if (receiverId == senderId)
@@ -46,11 +47,28 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
             };
         }
 
-        var existingRequest = await context.FriendRequests
-            .FirstOrDefaultAsync(fr =>
-                (fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null) ||
-                (fr.SenderId == receiverId && fr.ReceiverId == senderId && fr.DateDeleted == null)
+        var userIds = new List<string>() { senderId, receiverId };
+
+        var areFriends = await context.FriendRequests
+            .AnyAsync(fr => 
+                fr.DateDeleted == null &&
+                fr.DateAccepted != null &&
+                userIds.Contains(fr.SenderId) &&
+                userIds.Contains(fr.ReceiverId)
             );
+
+        if (areFriends)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(receiverId),
+                ErrorMessage = "Users are already friends",
+                ErrorCode = ErrorCodes.AlreadyFriends
+            };
+        }
+
+        var existingRequest = await context.FriendRequests
+            .FirstOrDefaultAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
 
         if (existingRequest != null)
         {
@@ -61,6 +79,9 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 ErrorCode = ErrorCodes.Duplicate
             };
         }
+
+        var requestFromReceiver = await context.FriendRequests
+            .FirstOrDefaultAsync(fr => fr.SenderId == receiverId && fr.ReceiverId == senderId && fr.DateDeleted == null);
 
         var friendRequest = new FriendRequest
         {

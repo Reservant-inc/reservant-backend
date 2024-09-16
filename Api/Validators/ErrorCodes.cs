@@ -191,4 +191,9 @@ public static class ErrorCodes
     /// The latitude may range from -90.0 to 90.0 and longitude may range from -180.0 to 180.0.
     /// </summary>
     public const string MustBeValidCoordinates = "MustBeValidCoordinates";
+
+    /// <summary>
+    /// The users are already friends
+    /// </summary>
+    public const string AlreadyFriends = "AlreadyFriends";
 }
