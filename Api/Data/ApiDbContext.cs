@@ -67,7 +67,23 @@ public class ApiDbContext(
     /// </summary>
     public async Task DropAllTablesAsync()
     {
-        await Database.ExecuteSqlRawAsync("EXEC DropAllTables");
+        await Database.ExecuteSqlRawAsync(
+            """
+            -- Drop all foreign key constraints
+        
+            DECLARE @sql NVARCHAR(MAX) = N'';
+        
+            SELECT @sql += N'
+            ALTER TABLE ' + QUOTENAME(TABLE_NAME) + ' DROP CONSTRAINT ' + QUOTENAME(CONSTRAINT_NAME) + ';'
+            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+            WHERE CONSTRAINT_TYPE = 'FOREIGN KEY';
+        
+            EXEC sp_sqlexec @sql;
+        
+            -- Drop every table
+        
+            EXEC sp_msforeachtable 'DROP TABLE ?';
+            """);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
