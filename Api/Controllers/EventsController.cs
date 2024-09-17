@@ -63,7 +63,7 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Accept a user's participation request
         /// </summary>
-        [HttpPost("{eventId:int}/accept-participation/{userId}")]
+        [HttpPost("{eventId:int}/accept-user/{userId}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         public async Task<ActionResult> AcceptParticipation(int eventId, string userId)
@@ -80,7 +80,7 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Reject a user's participation request
         /// </summary>
-        [HttpPost("{eventId:int}/reject-participation/{userId}")]
+        [HttpPost("{eventId:int}/reject-user/{userId}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         public async Task<ActionResult> RejectParticipation(int eventId, string userId)
