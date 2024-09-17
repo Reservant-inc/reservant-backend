@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Message;
-using Reservant.Api.Models.Dtos.Thread;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Message;
+using Reservant.Api.Dtos.Thread;
+using ErrorCodeDocs.Attributes;
 
 
 namespace Reservant.Api.Controllers;
@@ -16,6 +17,7 @@ namespace Reservant.Api.Controllers;
 /// Manage threads
 /// </summary>
 [ApiController, Route("/threads")]
+[Authorize(Roles = Roles.Customer)]
 public class ThreadsController(
     UserManager<User> userManager,
     ThreadService threadService
@@ -71,7 +73,7 @@ public class ThreadsController(
     /// <param name="threadId">ID of the thread</param>
     /// <returns>Result of the deletion</returns>
     [HttpDelete("{threadId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteThread(int threadId)
     {
@@ -127,9 +129,12 @@ public class ThreadsController(
     }
 
     /// <summary>
-    /// Get threads the logged-in user participates in
+    /// Get messages in a thread
     /// </summary>
     /// <remarks>
+    /// Use `GET /threads/{threadId}` first to fetch and cache the participants info.
+    /// Then you can use `authorId` to get information about the message author locally.
+    /// 
     /// Returns messages sorted by date from newest to oldest
     /// </remarks>
     /// <param name="threadId">id of thread</param>
@@ -138,6 +143,7 @@ public class ThreadsController(
     [HttpGet("{threadId:int}/messages")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<ThreadService>(nameof(ThreadService.GetThreadMessagesByIdAsync))]
     public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(
         int threadId, [FromQuery] int page = 0, [FromQuery] int perPage = 100)
     {
@@ -150,7 +156,35 @@ public class ThreadsController(
         var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, page, perPage);
         return OkOrErrors(result);
     }
+
+    /// <summary>
+    /// Add participant to a thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    [HttpPost("{threadId:int}/add-participant")]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes<ThreadService>(nameof(ThreadService.AddParticipant))]
+    public async Task<ActionResult> AddParticipant(int threadId, AddRemoveParticipantDto dto)
+    {
+        return OkOrErrors(await threadService.AddParticipant(
+            threadId, dto, User.GetUserId()!));
+    }
+
+    /// <summary>
+    /// Remove participant from a thread
+    /// </summary>
+    /// <remarks>
+    /// Can also be used to leave the thread
+    /// </remarks>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    [HttpPost("{threadId:int}/remove-participant")]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes<ThreadService>(nameof(ThreadService.RemoveParticipant))]
+    public async Task<ActionResult> RemoveParticipant(int threadId, AddRemoveParticipantDto dto)
+    {
+        return OkOrErrors(await threadService.RemoveParticipant(
+            threadId, dto, User.GetUserId()!));
+    }
 }
-
-
-

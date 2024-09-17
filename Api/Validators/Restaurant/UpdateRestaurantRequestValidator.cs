@@ -1,6 +1,6 @@
 using FluentValidation;
 using Reservant.Api.Data;
-using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Dtos.Restaurant;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.Restaurant;
@@ -15,7 +15,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
     {
         RuleFor(r => r.Name)
             .NotEmpty()
-            .MaximumLength(50);
+            .MaximumLength(50)
+            .IsValidName();
 
         RuleFor(r => r.Nip)
             .NotNull()
@@ -23,7 +24,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
 
         RuleFor(r => r.Address)
             .NotEmpty()
-            .MaximumLength(70);
+            .MaximumLength(70)
+            .IsValidAddress();
 
         RuleFor(r => r.PostalIndex)
             .NotNull()
@@ -31,7 +33,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
 
         RuleFor(r => r.City)
             .NotEmpty()
-            .MaximumLength(15);
+            .MaximumLength(15)
+            .IsValidCity();
 
         RuleFor(r => r.RentalContract)
             .FileUploadName(FileClass.Document, uploadService);
@@ -60,5 +63,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
         RuleForEach(r => r.Photos)
             .FileUploadName(FileClass.Image, uploadService)
             .NotNull();
+
+        RuleFor(r => r.Location)
+            .IsValidGeolocation();
     }
 }

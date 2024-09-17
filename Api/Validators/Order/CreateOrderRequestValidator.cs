@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Reservant.Api.Data;
-using Reservant.Api.Models.Dtos.Order;
+using Reservant.Api.Dtos.Order;
 
 namespace Reservant.Api.Validators.Order;
 

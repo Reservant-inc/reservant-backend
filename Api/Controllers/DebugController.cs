@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos.Visit;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 

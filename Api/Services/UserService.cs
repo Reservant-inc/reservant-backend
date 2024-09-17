@@ -1,16 +1,16 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Auth;
+using Reservant.Api.Dtos.Employment;
+using Reservant.Api.Dtos.User;
+using Reservant.Api.Dtos.Visit;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Auth;
-using Reservant.Api.Models.Dtos.Employment;
-using Reservant.Api.Models.Dtos.User;
-using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -40,6 +40,7 @@ public class UserService(
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(
         RegisterCustomerSupportAgentRequest request, string? id = null)
     {
+
         var user = new User
         {
             Id = id ?? Guid.NewGuid().ToString(),
@@ -170,13 +171,14 @@ public class UserService(
     }
 
     /// <summary>
-    /// returns whether login provided is unique among registered users
+    /// returns whether login provided is unique among registered users withought veryfying validity of a login
     /// </summary>
     public async Task<bool> IsUniqueLoginAsync(string login)
     {
         var result = await dbContext
             .Users
             .Where(r => r.UserName == login)
+            
             .AnyAsync();
 
         return (!result);
@@ -188,8 +190,10 @@ public class UserService(
     /// <returns></returns>
     public async Task<List<UserEmployeeVM>> GetEmployeesAsync(string userId)
     {
-        return await dbContext.Users
+        var employeeVMs = await dbContext.Users
             .Where(u => u.EmployerId == userId)
+            .Include(u => u.Employments)
+            .ThenInclude(e => e.Restaurant)
             .Select(u => new UserEmployeeVM
             {
                 UserId = u.Id,
@@ -201,7 +205,7 @@ public class UserService(
                 Employments = u.Employments
                     .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
-                    {   
+                    {
                         EmploymentId = e.Id,
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
@@ -209,44 +213,30 @@ public class UserService(
                         RestaurantName = e.Restaurant.Name,
                         DateFrom = e.DateFrom
                     })
-                    .ToList()
+                    .ToList(),
+                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
+                FriendStatus =
+                    (from fr in dbContext.FriendRequests
+                     let isOutgoing = fr.SenderId == userId && fr.ReceiverId == u.Id
+                     let isIncoming = fr.SenderId == u.Id && fr.ReceiverId == userId
+                     let isAccepted = fr.DateAccepted != null
+                     where isOutgoing || isIncoming
+                     select isAccepted
+                        ? FriendStatus.Friend
+                        : isIncoming
+                        ? FriendStatus.IncomingRequest
+                        : isOutgoing
+                        ? FriendStatus.OutgoingRequest
+                        : FriendStatus.Stranger).FirstOrDefault()
             })
             .ToListAsync();
+
+        return employeeVMs;
     }
 
-    /// <summary>
-    /// Gets the employee with the given id, provided he works for the current user
-    /// </summary>
-    /// <param name="empId"></param>
-    /// <param name="user"></param>
-    /// <returns></returns>
-    public async Task<Result<User>> GetEmployeeAsync(string empId, ClaimsPrincipal user)
-    {
-        var owner = (await userManager.GetUserAsync(user))!;
-        var emp = await userManager.FindByIdAsync(empId);
 
-        if (emp is null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = $"Emp: {empId} not found",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
 
-        if (emp.EmployerId != owner.Id)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = $"Emp: {empId} is not employed by {owner.Id}",
-                ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee
-            };
-        }
 
-        return emp;
-    }
     /// <summary>
     /// Gets roles for the given ClaimsPrincipal
     /// </summary>
@@ -480,7 +470,8 @@ public class UserService(
             from u in dbContext.Users
             join ur in dbContext.UserRoles on u.Id equals ur.UserId
             join r in dbContext.Roles on ur.RoleId equals r.Id
-            where (u.FirstName + " " + u.LastName).Contains(name) && r.Name == Roles.Customer
+            where r.Name == Roles.Customer
+            where u.Id != currentUserId && (u.FirstName + " " + u.LastName).Contains(name)
             select new FoundUserVM
             {
                 UserId = u.Id,
@@ -514,5 +505,116 @@ public class UserService(
         };
 
         return await query.PaginateAsync(page, perPage, []);
+    }
+
+    /// <summary>
+    /// Retrieves detailed information about a user. If the user is an employee of the current user,
+    /// returns full details. Otherwise, returns limited information.
+    /// </summary>
+    /// <param name="userId">The ID of the user to retrieve.</param>
+    /// <param name="currentUserId">The ID of the current user.</param>
+    /// <returns>A <see cref="UserEmployeeVM"/> with user details or a <see cref="ValidationFailure"/> if user is not found or other validation fails.</returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied, ErrorCodes.NotFound)]
+    public async Task<Result<UserEmployeeVM>> GetUserDetailsAsync(string userId, string currentUserId)
+    {
+        // Pobierz żądanego użytkownika z bazy danych
+        var requestedUser = await dbContext.Users
+            .Include(u => u.Employments)
+            .ThenInclude(e => e.Restaurant)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (requestedUser == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"User: {userId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
+        if (requestedUser.EmployerId == currentUserId)
+        {
+            // Zwrót pełnych danych dla pracownika
+            return new UserEmployeeVM
+            {
+                UserId = requestedUser.Id,
+                Login = requestedUser.UserName,
+                FirstName = requestedUser.FirstName,
+                LastName = requestedUser.LastName,
+                BirthDate = requestedUser.BirthDate!.Value,
+                PhoneNumber = requestedUser.PhoneNumber,
+                Employments = requestedUser.Employments
+                    .Where(e => e.DateUntil == null)
+                    .Select(e => new EmploymentVM
+                    {
+                        EmploymentId = e.Id,
+                        RestaurantId = e.RestaurantId,
+                        IsBackdoorEmployee = e.IsBackdoorEmployee,
+                        IsHallEmployee = e.IsHallEmployee,
+                        RestaurantName = e.Restaurant.Name,
+                        DateFrom = e.DateFrom
+                    })
+                    .ToList(),
+                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
+                FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id)
+            };
+        }
+
+        // Jeżeli użytkownik nie jest pracownikiem, zwróć ograniczone dane
+        if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer)) {
+            return new UserEmployeeVM
+            {
+                UserId = requestedUser.Id,
+                FirstName = requestedUser.FirstName,
+                LastName = requestedUser.LastName,
+                BirthDate = requestedUser.BirthDate!.Value,
+                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
+                FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id),
+                Login = null,
+                PhoneNumber = null,
+                Employments = null
+            };
+        }
+
+        return new ValidationFailure
+        {
+            PropertyName = null,
+            ErrorMessage = $"User: {userId} is not your emplyee or customer.",
+            ErrorCode = ErrorCodes.AccessDenied
+        };
+    }
+
+    /// <summary>
+    /// Determines the friendship status between the current user and the target user.
+    /// </summary>
+    /// <param name="currentUserId">The ID of the current logged-in user.</param>
+    /// <param name="targetUserId">The ID of the user whose friendship status is being checked.</param>
+    /// <returns>A <see cref="FriendStatus"/> representing the friendship status between the users.</returns>
+    private async Task<FriendStatus> GetFriendStatusAsync(string currentUserId, string targetUserId)
+    {
+        var status = await dbContext.FriendRequests
+            .Where(fr => (fr.SenderId == currentUserId && fr.ReceiverId == targetUserId) ||
+                         (fr.SenderId == targetUserId && fr.ReceiverId == currentUserId))
+            .Select(fr => new
+            {
+                IsAccepted = fr.DateAccepted != null,
+                IsOutgoing = fr.SenderId == currentUserId,
+                IsIncoming = fr.ReceiverId == currentUserId
+            })
+            .FirstOrDefaultAsync();
+
+        if (status == null)
+        {
+            return FriendStatus.Stranger;
+        }
+
+        if (status.IsAccepted)
+        {
+            return FriendStatus.Friend;
+        }
+
+        return status.IsOutgoing ? FriendStatus.OutgoingRequest : FriendStatus.IncomingRequest;
     }
 }

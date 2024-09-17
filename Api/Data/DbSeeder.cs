@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
+using Reservant.Api.Dtos.Auth;
+using Reservant.Api.Dtos.Ingredient;
+using Reservant.Api.Dtos.Order;
+using Reservant.Api.Dtos.OrderItem;
+using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.Visit;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Auth;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.OrderItem;
-using Reservant.Api.Models.Dtos.Restaurant;
-using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
@@ -30,6 +31,8 @@ public class DbSeeder(
     IOptions<FileUploadsOptions> fileUploadsOptions,
     GeometryFactory geometryFactory)
 {
+    private static readonly EventId EventSeedUpload = new(10000, $"{typeof(DbSeeder).FullName}.SeedUpload");
+
     private const string ExampleUploadsPath = "./example-uploads";
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
@@ -321,7 +324,7 @@ public class DbSeeder(
                 Takeaway = true,
                 TableRestaurantId = 1,
                 TableId = 1,
-                ClientId = customer1.Id,
+                ClientId = johnDoe.Id,
                 Client = customer1,
                 IsDeleted = false,
                 Participants = [customer2, customer3],
@@ -338,7 +341,7 @@ public class DbSeeder(
                 Takeaway = false,
                 TableRestaurantId = 1,
                 TableId = 2,
-                ClientId = customer2.Id,
+                ClientId = johnDoe.Id,
                 Client = customer2,
                 IsDeleted = false,
                 Participants = [customer3],
@@ -399,7 +402,7 @@ public class DbSeeder(
                 Description = "Event 2 Description",
                 Time = visits[1].Date,
                 MustJoinUntil = visits[1].Date.AddDays(-1),
-                Creator = customer2,
+                Creator = johnDoe,
                 RestaurantId = 1,
                 VisitId = null,
                 ParticipationRequests = [
@@ -422,8 +425,14 @@ public class DbSeeder(
                 ParticipationRequests = [
                     new ParticipationRequest
                     {
-                        User = customer1,
+                        User = customer2,
                         RequestDate = DateTime.UtcNow,
+                    },
+                    new ParticipationRequest
+                    {
+                        User = johnDoe,
+                        RequestDate = DateTime.UtcNow,
+                        Accepted = DateTime.UtcNow,
                     },
                 ],
             },
@@ -458,6 +467,11 @@ public class DbSeeder(
                         User = customer2,
                         RequestDate = DateTime.UtcNow,
                     },
+                    new ParticipationRequest
+                    {
+                        User = johnDoe,
+                        RequestDate = DateTime.UtcNow,
+                    },
                 ],
             }
         );
@@ -476,6 +490,7 @@ public class DbSeeder(
                     {
                         Amount = 1,
                         MenuItemId = 3,
+                        Price = 8m,
                         Status = OrderStatus.Taken,
                     }
                 },
@@ -491,6 +506,7 @@ public class DbSeeder(
                     {
                         Amount = 1,
                         MenuItemId = 1,
+                        Price = 39m,
                         Status = OrderStatus.Cancelled,
                     }
                 },
@@ -506,12 +522,14 @@ public class DbSeeder(
                     {
                         Amount = 1,
                         MenuItemId = 1,
+                        Price = 39m,
                         Status = OrderStatus.Taken,
                     },
                     new OrderItem
                     {
                         Amount = 1,
                         MenuItemId = 2,
+                        Price = 45m,
                         Status = OrderStatus.Taken,
                     }
                 },
@@ -522,6 +540,137 @@ public class DbSeeder(
 
         context.Orders.AddRange(orders);
 
+        var exampleJDThread = new MessageThread
+        {
+            Title = "Example Thread 1",
+            CreationDate = DateTime.UtcNow,
+            CreatorId = johnDoe.Id,
+            Creator = johnDoe,
+            Participants = [johnDoe, customer3],
+            Messages = [
+                new Message
+                {
+                    Contents = "hi!",
+                    DateSent = DateTime.UtcNow,
+                    DateRead = DateTime.UtcNow.AddMinutes(1),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "sup!",
+                    DateSent = DateTime.UtcNow.AddMinutes(1),
+                    DateRead = DateTime.UtcNow.AddMinutes(2),
+                    AuthorId = customer3.Id,
+                    Author = customer3
+                },
+                new Message
+                {
+                    Contents = "Thanks for visiting my restaurant! Did you enjoy the visit?",
+                    DateSent = DateTime.UtcNow.AddMinutes(3),
+                    DateRead = DateTime.UtcNow.AddMinutes(4),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "You're welcome. Yes I had a blast.",
+                    DateSent = DateTime.UtcNow.AddMinutes(5),
+                    DateRead = DateTime.UtcNow.AddMinutes(6),
+                    AuthorId = customer3.Id,
+                    Author = customer3
+                },
+                new Message
+                {
+                    Contents = "Would you like to leave a review then?",
+                    DateSent = DateTime.UtcNow.AddMinutes(7),
+                    DateRead = DateTime.UtcNow.AddMinutes(8),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "Sure, thanks for a reminder!",
+                    DateSent = DateTime.UtcNow.AddMinutes(9),
+                    DateRead = DateTime.UtcNow.AddMinutes(10),
+                    AuthorId = customer3.Id,
+                    Author = customer3
+                }
+            ]
+        };
+
+        await context.MessageThreads.AddAsync(exampleJDThread);
+
+        var exampleJDGroupThread = new MessageThread
+        {
+            Title = "Example Thread 2",
+            CreationDate = DateTime.UtcNow,
+            CreatorId = johnDoe.Id,
+            Creator = johnDoe,
+            Participants = [johnDoe, customer1, customer2],
+            Messages = [
+                new Message
+                {
+                    Contents = "hi!",
+                    DateSent = DateTime.UtcNow,
+                    DateRead = DateTime.UtcNow.AddMinutes(1),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                },
+                new Message
+                {
+                    Contents = "sup!",
+                    DateSent = DateTime.UtcNow.AddMinutes(1),
+                    DateRead = DateTime.UtcNow.AddMinutes(2),
+                    AuthorId = customer1.Id,
+                    Author = customer1
+                },
+                new Message
+                {
+                    Contents = "yo!",
+                    DateSent = DateTime.UtcNow.AddMinutes(2),
+                    DateRead = DateTime.UtcNow.AddMinutes(3),
+                    AuthorId = customer2.Id,
+                    Author = customer2
+                },
+                new Message
+                {
+                    Contents = "Thanks for visiting my restaurant",
+                    DateSent = DateTime.UtcNow.AddMinutes(4),
+                    DateRead = DateTime.UtcNow.AddMinutes(5),
+                    AuthorId = johnDoe.Id,
+                    Author = johnDoe
+                }
+            ]
+        };
+
+        await context.MessageThreads.AddAsync(exampleJDGroupThread);
+
+        var ingredient = await context.Ingredients.FirstAsync();
+        var delivery = new Delivery
+        {
+            OrderTime = DateTime.UtcNow,
+            DeliveredTime = DateTime.UtcNow.AddDays(2),
+            RestaurantId = johnDoesGroup.Restaurants.First().Id,
+            Restaurant = johnDoesGroup.Restaurants.First(),
+            UserId = johnDoe.Id,
+            User = johnDoe,
+            Ingredients = [
+                new IngredientDelivery
+                {
+                    IngredientId = ingredient.Id,
+                    AmountOrdered = ingredient.AmountToOrder ?? 1,
+                    AmountDelivered = ingredient.AmountToOrder ?? 1,
+                    ExpiryDate = DateTime.UtcNow.AddDays(7),
+                    StoreName = "Gusteau's",
+                    Ingredient = ingredient
+                }
+            ]
+        };
+
+        delivery.Ingredients.First().Delivery = delivery;
+
+        await context.AddAsync(delivery);
 
         await context.SaveChangesAsync();
     }
@@ -566,7 +715,9 @@ public class DbSeeder(
                     ContentType = contentType
                 });
 
-                logger.LogInformation("Added example upload {} for user {} (Id: {})",
+                logger.LogInformation(
+                    EventSeedUpload,
+                    "Added example upload {fileName} for user {userLogin} (Id: {userId})",
                     fileName, userLogin, userId);
             }
         }
@@ -598,7 +749,7 @@ public class DbSeeder(
             Address = "ul. Marszałkowska 2",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = geometryFactory.CreatePoint(new Coordinate(20.91364863552046,52.39625635)),
+            Location = geometryFactory.CreatePoint(new Coordinate(20.91364863552046, 52.39625635)),
             Group = johnDoesGroup,
             RentalContractFileName = null,
             AlcoholLicenseFileName = null!,
@@ -619,7 +770,7 @@ public class DbSeeder(
         };
 
         var visits = await context.Visits.ToListAsync();
-        for (int i = 0; i< visits.Count; i++)
+        for (int i = 0; i < visits.Count; i++)
         {
             visits[i].Restaurant = johnDoes;
         }
@@ -788,9 +939,431 @@ public class DbSeeder(
             }
         });
 
-        await context.SaveChangesAsync();
+        var bun = new Ingredient
+        {
+            PublicName = "Bun",
+            UnitOfMeasurement = UnitOfMeasurement.Unit,
+            MinimalAmount = 2,
+            AmountToOrder = 10
+        };
 
-        ///HERE1
+        var beefPatty = new Ingredient
+        {
+            PublicName = "Beef Patty",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 100,
+            AmountToOrder = 500
+        };
+
+        var cheese = new Ingredient
+        {
+            PublicName = "Cheese",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            MinimalAmount = 50,
+            AmountToOrder = 250
+        };
+
+        var beerDelivery = new Ingredient
+        {
+            PublicName = "Beer",
+            UnitOfMeasurement = UnitOfMeasurement.Liter,
+            MinimalAmount = 1,
+            AmountToOrder = 5
+        };
+
+        context.Deliveries.AddRange(new List<Delivery>()
+        {
+            new()
+            {
+                OrderTime = new DateTime(2023, 8, 1, 12, 0, 0),
+                DeliveredTime = new DateTime(2023, 8, 1, 14, 0, 0),
+                Restaurant = johnDoes, UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = new DateTime(2025, 1, 3, 9, 0, 0),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 7, 15, 10, 30, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 6, 20, 18, 45, 0),
+                DeliveredTime = new DateTime(2023, 6, 20, 19, 45, 0),
+                Restaurant = johnDoes, UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 5, 10, 11, 0, 0),
+                Restaurant = johnDoes, UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 4, 25, 9, 15, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = []
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 3, 15, 14, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 2, 10, 17, 30, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2023, 1, 20, 13, 0, 0),
+                DeliveredTime = new DateTime(2023, 1, 20, 14, 30, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 12, 5, 8, 0, 0),
+                DeliveredTime = new DateTime(2022, 12, 5, 10, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = DateTime.UtcNow.AddDays(7),
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 11, 15, 20, 45, 0),
+                DeliveredTime = new DateTime(2022, 11, 15, 22, 15, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 1.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 10, 10, 7, 15, 0),
+                DeliveredTime = new DateTime(2022, 10, 10, 8, 45, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 9, 5, 18, 0, 0),
+                DeliveredTime = new DateTime(2022, 9, 5, 20, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 1.0,
+                        AmountDelivered = 1.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 8, 25, 11, 30, 0),
+                DeliveredTime = new DateTime(2022, 8, 25, 13, 0, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 7, 10, 9, 45, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
+            },
+            new()
+            {
+                OrderTime = new DateTime(2022, 6, 1, 16, 15, 0),
+                Restaurant = johnDoes,
+                UserId = johnDoe.Id,
+                Ingredients = [
+                new()
+                    {
+                        Ingredient = bun,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = new DateTime(2025, 2, 10, 9, 0, 0),
+                        StoreName = "Bun"
+                    },
+                    new()
+                    {
+                        Ingredient = beefPatty,
+                        AmountOrdered = 2.5,
+                        AmountDelivered = 2.5,
+                        ExpiryDate = null,
+                        StoreName = "Beef Patty"
+                    },
+                    new()
+                    {
+                        Ingredient = beerDelivery,
+                        AmountOrdered = 10.0,
+                        AmountDelivered = 10.0,
+                        ExpiryDate = null,
+                        StoreName = "Beer"
+                    },
+                    new()
+                    {
+                        Ingredient = cheese,
+                        AmountOrdered = 2.0,
+                        AmountDelivered = 2.0,
+                        ExpiryDate = DateTime.UtcNow.AddDays(10),
+                        StoreName = "Cheese"
+                    }
+                ]
+            }
+        });
+
+        await context.SaveChangesAsync();
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -993,7 +1566,7 @@ public class DbSeeder(
         {
             Login = "employee",
             Password = "Pa$$w0rd",
-            FirstName = "Pracownik 2",
+            FirstName = "Pracownik Dwa",
             LastName = "Przykładowski",
             BirthDate = new DateOnly(2002, 1, 1),
             PhoneNumber = "+48123456789"
@@ -1022,7 +1595,7 @@ public class DbSeeder(
             Address = "ul. Konstruktorska 5",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = geometryFactory.CreatePoint(new Coordinate(20.99866252013997,  52.1853141)),
+            Location = geometryFactory.CreatePoint(new Coordinate(20.99866252013997, 52.1853141)),
             Group = kowalskisGroup,
             RentalContractFileName = null,
             RentalContract = exampleDocument,
@@ -1140,8 +1713,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE2
-
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1552,7 +2123,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE3
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");
@@ -1824,7 +2394,6 @@ public class DbSeeder(
                 }
             ]
         });
-        ///HERE4
 
         var customer1 = await context.Users.FirstAsync(u => u.UserName == "customer");
         var customer2 = await context.Users.FirstAsync(u => u.UserName == "customer2");

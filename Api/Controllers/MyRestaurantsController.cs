@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Menu;
-using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validators;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos.Menu;
+using Reservant.Api.Dtos.MenuItem;
+using Reservant.Api.Dtos.Restaurant;
 
 
 namespace Reservant.Api.Controllers
@@ -96,7 +96,7 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId"></param>
         /// <returns></returns>
         [HttpPost("{restaurantId:int}/employees")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(204), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.AddEmployeeAsync))]
         public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int restaurantId)
         {
@@ -178,7 +178,7 @@ namespace Reservant.Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("validate-first-step")]
-        [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+        [ProducesResponseType(204), ProducesResponseType(400), ProducesResponseType(401)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ValidateFirstStepAsync))]
         public async Task<ActionResult> ValidateFirstStep(ValidateRestaurantFirstStepRequest dto)
         {

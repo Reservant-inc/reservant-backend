@@ -1,15 +1,16 @@
 ﻿using System.Security.Claims;
+using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Message;
+using Reservant.Api.Dtos.Thread;
+using Reservant.Api.Dtos.User;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Message;
-using Reservant.Api.Models.Dtos.Thread;
-using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -19,10 +20,10 @@ namespace Reservant.Api.Services;
 /// Service for managing message threads.
 /// </summary>
 public class ThreadService(
-    UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService,
-    FileUploadService uploadService)
+    FileUploadService uploadService,
+    UserManager<User> userManager)
 {
     /// <summary>
     /// Creates a new message thread.
@@ -156,7 +157,6 @@ public class ThreadService(
     public async Task<Result> DeleteThreadAsync(int threadId, string userId)
     {
         var messageThread = await dbContext.MessageThreads
-            .Include(t => t.Participants)
             .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
@@ -182,14 +182,21 @@ public class ThreadService(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<ThreadSummaryVM>>> GetUserThreadsAsync(string userId, int page, int perPage)
+    public async Task<Result<Pagination<ThreadVM>>> GetUserThreadsAsync(string userId, int page, int perPage)
     {
         var query = dbContext.MessageThreads
             .Where(t => t.Participants.Any(p => p.Id == userId))
-            .Select(t => new ThreadSummaryVM
+            .Select(t => new ThreadVM
             {
+                ThreadId = t.Id,
                 Title = t.Title,
-                NumberOfParticipants = t.Participants.Count
+                Participants = t.Participants.Select(p => new UserSummaryVM
+                {
+                    UserId = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Photo = uploadService.GetPathForFileName(p.PhotoFileName)
+                }).ToList()
             });
 
         return await query.PaginateAsync(page, perPage, []);
@@ -293,19 +300,21 @@ public class ThreadService(
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
-            AuthorsFirstName = user.FirstName,
-            AuthorsLastName = user.LastName,
+            AuthorId = message.AuthorId,
             MessageThreadId = message.MessageThreadId
         };
     }
 
     /// <summary>
-    /// Get threads the logged-in user participates in
+    /// Get messages in a thread
     /// </summary>
     /// <param name="threadId">id of thread</param>
     /// <param name="userId">id of thread</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int page, int perPage)
     {
         var messageThread = await dbContext.MessageThreads
@@ -333,7 +342,6 @@ public class ThreadService(
         }
 
         var query = dbContext.Messages
-            .Include(m => m.Author)
             .Where(m => m.MessageThreadId == threadId);
 
         return await query
@@ -344,10 +352,145 @@ public class ThreadService(
                 Contents = m.Contents,
                 DateSent = m.DateSent,
                 DateRead = m.DateRead,
-                AuthorsFirstName = m.Author.FirstName,
-                AuthorsLastName = m.Author.LastName,
+                AuthorId = m.AuthorId,
                 MessageThreadId = m.MessageThreadId
             })
             .PaginateAsync(page, perPage, [], maxPerPage: 100);
+    }
+
+    /// <summary>
+    /// Add participant to a thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    /// <param name="currentUserId">ID of the current user for permission checks</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Thread not found")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User is not a participant of the thread")]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.CannotBeCurrentUser, "User cannot add themselves to a thread")]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.MustBeCustomerId)]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.Duplicate, "User already participates in the thread")]
+    public async Task<Result> AddParticipant(int threadId, AddRemoveParticipantDto dto, string currentUserId)
+    {
+        if (dto.UserId == currentUserId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.CannotBeCurrentUser,
+            };
+        }
+
+        var thread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
+            .SingleOrDefaultAsync();
+        if (thread is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Thread not found",
+            };
+        }
+
+        if (!thread.Participants.Any(u => u.Id == currentUserId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = "User is not a particpant of the thread",
+            };
+        }
+
+        var targetUser = await userManager.FindByIdAsync(dto.UserId);
+        if (targetUser is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+
+        if (!await userManager.IsInRoleAsync(targetUser, Roles.Customer))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.MustBeCustomerId,
+            };
+        }
+
+        if (thread.Participants.Contains(targetUser))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.Duplicate,
+            };
+        }
+
+        thread.Participants.Add(targetUser);
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// Remove participant from a thread
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="dto">DTO containing the user ID</param>
+    /// <param name="currentUserId">ID of the current user for permission checks</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Thread not found")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User is not a participant of the thread")]
+    [ErrorCode(nameof(dto.UserId), ErrorCodes.NotFound)]
+    public async Task<Result> RemoveParticipant(int threadId, AddRemoveParticipantDto dto, string currentUserId)
+    {
+        var thread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
+            .SingleOrDefaultAsync();
+        if (thread is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Thread not found",
+            };
+        }
+
+        if (!thread.Participants.Any(u => u.Id == currentUserId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = "User is not a particpant of the thread",
+            };
+        }
+
+        var targetUser = thread.Participants.SingleOrDefault(p => p.Id == dto.UserId);
+        if (targetUser is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.UserId),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Participant not found",
+            };
+        }
+
+        thread.Participants.Remove(targetUser);
+        if (thread.Participants.Count == 0)
+        {
+            thread.IsDeleted = true;
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models.Dtos.MenuItem;
+using Reservant.Api.Dtos.MenuItem;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.MenuItem;

@@ -2,9 +2,9 @@ using ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos.Employment;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -24,7 +24,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     /// <returns>A result indicating success or failure.</returns>
     [HttpDelete("{employmentId:int}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.DeleteEmploymentAsync))]
     public async Task<ActionResult> DeleteEmployment(int employmentId)
     {
@@ -45,7 +45,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     /// <returns></returns>
     [HttpPut]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.UpdateBulkEmploymentAsync))]
     public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests) {
         var user = await userManager.GetUserAsync(User);
@@ -65,7 +65,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     /// <returns></returns>
     [HttpDelete]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.DeleteBulkEmploymentAsync))]
     public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) {
         var user = await userManager.GetUserAsync(User);

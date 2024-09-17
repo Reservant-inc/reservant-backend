@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Message;
-using Reservant.Api.Models.Dtos.Thread;
 using Reservant.Api.Services;
-using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos;
+using Reservant.Api.Dtos.Message;
+using Reservant.Api.Validators;
 
 
 namespace Reservant.Api.Controllers;
@@ -68,7 +66,7 @@ public class MessageController(
     /// <param name="messageId">ID of the message</param>
     /// <returns>Result of the deletion</returns>
     [HttpDelete("{messageId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteMessage(int messageId)
     {

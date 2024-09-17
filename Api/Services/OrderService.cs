@@ -1,11 +1,12 @@
+using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos.Order;
+using Reservant.Api.Dtos.OrderItem;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.OrderItem;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -19,7 +20,8 @@ namespace Reservant.Api.Services;
 public class OrderService(
     UserManager<User> userManager,
     ApiDbContext context,
-    ValidationService validationService)
+    ValidationService validationService,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Gets the order with the given id
@@ -94,7 +96,8 @@ public class OrderService(
         {
             MenuItemId = i.MenuItemId,
             Amount = i.Amount,
-            Cost = i.Amount * i.MenuItem.Price,
+            Price = i.Price,
+            Cost = i.Amount * i.Price,
             Status = i.Status,
         }).ToList();
 
@@ -157,6 +160,13 @@ public class OrderService(
     /// <summary>
     /// Creating new order
     /// </summary>
+    [ErrorCode(nameof(request.Items), ErrorCodes.NotFound,
+        "Some of the menu items were not found")]
+    [ErrorCode(nameof(request.Items), ErrorCodes.BelongsToAnotherRestaurant,
+        "Order must only include items from the visit's restaurant")]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
+    [ValidatorErrorCodes<CreateOrderRequest>]
+    [ValidatorErrorCodes<Order>]
     public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
     {
         var result = await validationService.ValidateAsync(request, user.Id);
@@ -168,29 +178,37 @@ public class OrderService(
         var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
         var menuItems = await context.MenuItems
             .Where(mi => menuItemIds.Contains(mi.Id))
-            .ToListAsync();
+            .ToDictionaryAsync(mi => mi.Id);
+
+        if (menuItems.Count != request.Items.Count)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Items),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Some of the menu items were not found",
+            };
+        }
+
+        var access = await authorizationService
+            .VerifyVisitParticipant(request.VisitId, user.Id);
+        if (access.IsError)
+        {
+            return access.Errors;
+        }
 
         var visit = await context.Visits
             .Where(v => v.Id == request.VisitId)
             .Include(visit => visit.Participants)
             .FirstAsync();
 
-        if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                AttemptedValue = user.Id,
-                ErrorCode = ErrorCodes.UserDoesNotParticipateInVisit
-            };
-        }
-
-        if (menuItems.Any(mi => mi.RestaurantId != visit.RestaurantId))
+        if (menuItems.Values.Any(mi => mi.RestaurantId != visit.RestaurantId))
         {
             return new ValidationFailure
             {
                 PropertyName = nameof(request.Items),
-                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant
+                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant,
+                ErrorMessage = "Order must only include items from the visit's restaurant",
             };
         }
 
@@ -198,8 +216,8 @@ public class OrderService(
         {
             MenuItemId = c.MenuItemId,
             Amount = c.Amount,
+            Price = menuItems[c.MenuItemId].Price,
             Status = OrderStatus.InProgress,
-            MenuItem = menuItems.First(mi => mi.Id == c.MenuItemId)
         }).ToList();
 
         var order = new Order
@@ -331,9 +349,10 @@ public class OrderService(
             Items = order.OrderItems.Select(orderItem => new OrderItemVM
             {
                 Amount = orderItem.Amount,
+                Price = orderItem.Price,
                 Status = orderItem.Status,
                 MenuItemId = orderItem.MenuItemId,
-                Cost = orderItem.MenuItem.Price * orderItem.Amount
+                Cost = orderItem.Price * orderItem.Amount
             }).ToList(),
             Cost = order.Cost,
             EmployeeId = order.EmployeeId

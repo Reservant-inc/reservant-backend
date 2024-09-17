@@ -160,25 +160,56 @@ public static class ErrorCodes
     /// MustJoinUntil must be before Time
     /// </summary>
     public const string MustJoinUntilMustBeBeforeEventTime = "MustJoinUntilMustBeBeforeEventTime";
-    
+
+    /// <summary>
+    /// The current user cannot be used in the request (for example sending a friend request
+    /// </summary>
+    public const string CannotBeCurrentUser = "CannotBeCurrentUser";
+
+    /// <summary>
+    /// The string can contain only letters, spaces, hyphens, apostrophes, or periods
+    /// </summary>
+    public const string MustBeValidName = "MustBeValidName";
+
+    /// <summary>
+    /// The string can contain only ascii letters or digits, underscores, hyphens
+    /// </summary>
+    public const string MustBeValidLogin = "MustBeValidLogin";
+
+    /// <summary>
+    /// The string can contain only letters, numbers, spaces, hyphens, commas, periods, or slashes.
+    /// </summary>
+    public const string MustBeValidAddress = "MustBeValidAddress";
+
+
+    /// <summary>
+    /// The string can contain only letters, numbers, or '-'.
+    /// </summary>
+    public const string MustBeValidCity = "MustBeValidCity";
+
+    /// <summary>
+    /// The latitude may range from -90.0 to 90.0 and longitude may range from -180.0 to 180.0.
+    /// </summary>
+    public const string MustBeValidCoordinates = "MustBeValidCoordinates";
+
     /// <summary>
     /// MustJoinUntil must be before Time
     /// </summary>
     public const string EventIsFull = "EventIsFull";
-    
+
     /// <summary>
     /// User is already accepted
     /// </summary>
     public const string UserAlreadyAccepted = "UserAlreadyAccepted";
- 
+
     /// <summary>
     /// Event already passed
     /// </summary>
     public const string JoinDeadlinePassed = "JoinDeadlinePassed";
-    
+
     /// <summary>
     /// User already rejected
     /// </summary>
     public const string UserAlreadyRejected = "UserAlreadyRejected";
-    
+
 }

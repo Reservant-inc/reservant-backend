@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.User;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.Visit;
-using Reservant.Api.Models.Dtos.Event;
-using Reservant.Api.Models.Dtos.Thread;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Event;
+using Reservant.Api.Dtos.Thread;
+using Reservant.Api.Dtos.User;
+using Reservant.Api.Dtos.Visit;
+using ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;
 
@@ -226,7 +227,7 @@ public class UserController(
     [HttpGet("threads")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(401)]
-    public async Task<ActionResult<Pagination<ThreadSummaryVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    public async Task<ActionResult<Pagination<ThreadVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
         var userId = userManager.GetUserId(User);
         if (userId == null)

@@ -4,18 +4,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Delivery;
-using Reservant.Api.Models.Dtos.Event;
-using Reservant.Api.Models.Dtos.Ingredient;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.Restaurant;
-using Reservant.Api.Models.Dtos.Review;
-using Reservant.Api.Models.Dtos.Visit;
-using Reservant.Api.Models.Dtos.Menu;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.MenuItem;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Delivery;
+using Reservant.Api.Dtos.Event;
+using Reservant.Api.Dtos.Ingredient;
+using Reservant.Api.Dtos.Menu;
+using Reservant.Api.Dtos.MenuItem;
+using Reservant.Api.Dtos.Order;
+using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.Review;
+using Reservant.Api.Dtos.Visit;
 namespace Reservant.Api.Controllers;
 
 
@@ -37,6 +37,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
     /// <param name="name">Search by name</param>
     /// <param name="tags">Search restaurants that have certain tags (specify up to 4 times to search by multiple tags)</param>
+    /// <param name="minRating">Search restaurants with at least this many stars</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
     /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
@@ -49,12 +50,13 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindRestaurants(
         double? origLat, double? origLon,
         string? name, [FromQuery] HashSet<string> tags,
+        int? minRating,
         double? lat1, double? lon1, double? lat2, double? lon2,
         int page = 0, int perPage = 10)
     {
         var result = await service.FindRestaurantsAsync(
             origLat, origLon,
-            name, tags,
+            name, tags, minRating,
             lat1, lon1, lat2, lon2,
             page, perPage);
         return OkOrErrors(result);
@@ -70,30 +72,13 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId">ID of the restaurant</param>
     /// <response code="400">Restaurant already verified</response>
     [HttpPost("{restaurantId:int}/verify")]
-    [ProducesResponseType(200), ProducesResponseType(404), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.CustomerSupportAgent)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.SetVerifiedIdAsync))]
     public async Task<ActionResult> SetVerifiedId(int restaurantId)
     {
-        var user = await userManager.GetUserAsync(User);
-
-        if (user == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await service.SetVerifiedIdAsync(user, restaurantId);
-
-        switch (result)
-        {
-            case VerificationResult.VerifierSetSuccessfully:
-                return Ok();
-            case VerificationResult.VerifierAlreadyExists:
-                return BadRequest();
-            case VerificationResult.RestaurantNotFound:
-                return NotFound();
-            default:
-                throw new InvalidOperationException();
-        }
+        var result = await service.SetVerifiedIdAsync(User.GetUserId()!, restaurantId);
+        return OkOrErrors(result);
     }
 
     /// <summary>

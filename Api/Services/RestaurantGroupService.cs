@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.RestaurantGroup;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
-using Reservant.Api.Models.Dtos.Location;
-using Reservant.Api.Models.Dtos.Restaurant;
 using Reservant.Api.Validators;
+using Reservant.Api.Dtos.RestaurantGroup;
+using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.Location;
 
 namespace Reservant.Api.Services;
 
@@ -257,7 +257,7 @@ public class RestaurantGroupService(
 
         restaurantGroup.Name = request.Name.Trim();
 
-        var result = await validationService.ValidateAsync(restaurantService, userId);
+        var result = await validationService.ValidateAsync(restaurantGroup, userId);
         if (!result.IsValid)
         {
             return result;

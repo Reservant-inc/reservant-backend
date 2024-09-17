@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Models.Dtos.Location;
-using Reservant.Api.Models.Dtos.Restaurant;
-using Reservant.Api.Services;
 
 namespace Reservant.Api.Controllers;
 

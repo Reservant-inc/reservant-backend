@@ -6,7 +6,9 @@ using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Models.Dtos.OrderItem;
+using Reservant.Api.Dtos.OrderItem;
+using NetTopologySuite.Geometries;
+using Reservant.Api.Dtos.Location;
 
 namespace Reservant.Api.Validators;
 
@@ -66,7 +68,29 @@ public static class CustomRules
     public static IRuleBuilderOptions<T, string> Nip<T>(this IRuleBuilder<T, string> builder)
     {
         return builder
-            .Must(NipAttribute.IsValidNip)
+            .Must(value =>
+            {
+                if (string.IsNullOrEmpty(value) || value.Length != 10 || !value.All(char.IsDigit))
+                {
+                    return false;
+                }
+
+                int[] weights = { 6, 5, 7, 2, 3, 4, 5, 6, 7 };
+                int sum = 0;
+
+                for (int i = 0; i < weights.Length; i++)
+                {
+                    sum += weights[i] * (value[i] - '0');
+                }
+
+                int checksum = sum % 11;
+                if (checksum == 10)
+                {
+                    checksum = 0;
+                }
+
+                return checksum == (value[9] - '0');
+            })
             .WithErrorCode(ErrorCodes.Nip)
             .WithMessage("Must be a valid NIP");
     }
@@ -274,5 +298,81 @@ public static class CustomRules
             .NotEmpty()
             .WithErrorCode(ErrorCodes.EmptyList)
             .WithMessage("List cannot be empty.");
+    }
+
+    /// <summary>
+    /// Validates that the string is a valid name
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidName<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(name => name != null && name.All(
+                c => char.IsLetter(c)|| c == ' ' || c == '-' || c == '\'' || c == '.'))
+            .WithErrorCode(ErrorCodes.MustBeValidName)
+            .WithMessage("The name must contain only letters, spaces, hyphens, apostrophes, or periods.");
+    }
+
+    /// <summary>
+    /// Validates that the string is a valid city
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidCity<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(name => name != null && name.All(
+                c => char.IsLetter(c) || c == ' ' || c == '-'))
+            .WithErrorCode(ErrorCodes.MustBeValidCity)
+            .WithMessage("The city must contain only letters, spaces, hyphens.");
+    }
+
+    /// <summary>
+    /// Validates that the string is a valid login
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidLogin<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(login => login != null && login.All(c => char.IsAsciiLetterOrDigit(c) || c == '-' || c == '_'))
+            .WithErrorCode(ErrorCodes.MustBeValidLogin)
+            .WithMessage("The login must contain only ASCII letters, numbers, '-', and '_'.");
+    }
+
+    /// <summary>
+    /// Validates that the string is a valid address.
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidAddress<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(address => address != null && address.All(
+                c => char.IsLetterOrDigit(c) || c == ' ' || c == '-' || c == ',' || c == '.' || c == '/'))
+            .WithErrorCode(ErrorCodes.MustBeValidAddress)
+            .WithMessage("The address must contain only letters, numbers, spaces, hyphens, commas, periods, or slashes.");
+    }
+
+
+    /// <summary>
+    /// Validates that the location has valid coordinates
+    /// </summary>
+    public static IRuleBuilderOptions<T, Point> IsValidLocation<T>(
+        this IRuleBuilder<T, Point> builder)
+    {
+        return builder
+            .Must(loc => loc is { X: >= -180 and <= 180, Y: >= -90 and <= 90 })
+            .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
+            .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
+    }
+
+    /// <summary>
+    /// Validates that the location has valid coordinates
+    /// </summary>
+    public static IRuleBuilderOptions<T, Geolocation> IsValidGeolocation<T>(
+        this IRuleBuilder<T, Geolocation> builder)
+    {
+        return builder
+            .Must(loc => loc is { Longitude: >= -180 and <= 180, Latitude: >= -90 and <= 90 })
+            .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
+            .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
     }
 }

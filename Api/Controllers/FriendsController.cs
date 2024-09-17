@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.FriendRequest;
-using Reservant.Api.Models.Dtos;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.FriendRequest;
 
 namespace Reservant.Api.Controllers;
 
@@ -23,7 +23,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <param name="userId">ID of the target user</param>
     /// <response code="400">Friend request already exists</response>
     [HttpPost("{userId}/send-request")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.SendFriendRequestAsync))]
     public async Task<ActionResult> SendFriendRequest(string userId)
@@ -43,7 +43,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// </summary>
     /// <param name="senderId">ID of the user</param>
     [HttpPost("{senderId}/mark-read")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.MarkFriendRequestAsReadAsync))]
     public async Task<ActionResult> MarkFriendRequestAsRead(string senderId)
@@ -63,7 +63,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// </summary>
     /// <param name="senderId">ID of the user</param>
     [HttpPost("{senderId}/accept-request")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.AcceptFriendRequestAsync))]
     public async Task<ActionResult> AcceptFriendRequest(string senderId)
@@ -83,7 +83,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// </summary>
     /// <param name="otherUserId">ID of the other user</param>
     [HttpDelete("{otherUserId}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.DeleteFriendAsync))]
     public async Task<ActionResult> DeleteFriend(string otherUserId)
@@ -118,6 +118,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     /// <summary>
     /// Get list of incoming friend requests
     /// </summary>
+    /// <param name="unreadOnly">Return only unread requests</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>List of incoming friend requests</returns>
@@ -125,7 +126,8 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [ProducesResponseType(200)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.GetIncomingFriendRequestsAsync))]
-    public async Task<ActionResult<Pagination<FriendRequestVM>>> GetIncomingFriendRequests([FromQuery] int page = 0,
+    public async Task<ActionResult<Pagination<FriendRequestVM>>> GetIncomingFriendRequests(bool unreadOnly,
+        [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
@@ -134,7 +136,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
             return Unauthorized();
         }
 
-        var result = await service.GetIncomingFriendRequestsAsync(user.Id, page, perPage);
+        var result = await service.GetIncomingFriendRequestsAsync(user.Id, unreadOnly, page, perPage);
         return OkOrErrors(result);
     }
 

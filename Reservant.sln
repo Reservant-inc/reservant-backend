@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{2D24AA98-0616-4DE9-BFB5-C6F375112CBA}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{2D24AA98-0616-4DE9-BFB5-C6F375112CBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsViewer", "LogViewer\LogsViewer.csproj", "{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorCodeDocs", "ErrorCodeDocs\ErrorCodeDocs.csproj", "{4AAC0566-A6B6-4622-8D50-B40345445123}"
 EndProject
@@ -18,6 +23,10 @@ Global
 		{4AAC0566-A6B6-4622-8D50-B40345445123}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4AAC0566-A6B6-4622-8D50-B40345445123}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4AAC0566-A6B6-4622-8D50-B40345445123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

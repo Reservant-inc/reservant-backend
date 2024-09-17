@@ -20,7 +20,7 @@ public class AuthorizationService(
     /// </summary>
     /// <param name="restaurantId">The id of restaurant</param>
     /// <param name="user">The user to be tested as owner</param>
-    public async Task<Result<bool>> VerifyOwnerRole(int restaurantId, User user)
+    public async Task<Result> VerifyOwnerRole(int restaurantId, User user)
     {
         var restaurant = await context
             .Restaurants
@@ -34,7 +34,7 @@ public class AuthorizationService(
                 ErrorMessage = "User is not the owner of the restaurant.",
                 ErrorCode = ErrorCodes.AccessDenied
             };
-        return true;
+        return Result.Success;
     }
 
     /// <summary>
@@ -59,6 +59,33 @@ public class AuthorizationService(
             {
                 PropertyName = null,
                 ErrorMessage = "User must either be a backdoor employee or the owner of the restaurant",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// Verify that the user is the visit's participant
+    /// </summary>
+    /// <param name="visitId">ID of the visit</param>
+    /// <param name="userId">ID of the user</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User does not participate in the visit")]
+    public async Task<Result> VerifyVisitParticipant(int visitId, string userId)
+    {
+        var userIsVisitParticipant = await context.Visits
+            .Where(v => v.Id == visitId)
+            .Select(v => v.ClientId == userId
+                || v.Participants.Any(p => p.Id == userId))
+            .SingleOrDefaultAsync();
+        if (!userIsVisitParticipant)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User does not participate in the visit",
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }

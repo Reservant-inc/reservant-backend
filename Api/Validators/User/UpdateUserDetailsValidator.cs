@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Reservant.Api.Models.Dtos.User;
+using Reservant.Api.Dtos.User;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.User;
@@ -14,11 +14,13 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
     {
         RuleFor(u => u.FirstName)
             .NotEmpty()
-            .MaximumLength(30);
+            .MaximumLength(30)
+            .IsValidName();
 
         RuleFor(u => u.LastName)
             .NotEmpty()
-            .MaximumLength(30);
+            .MaximumLength(30)
+            .IsValidName();;
 
         RuleFor(r => r.PhoneNumber)
             .NotEmpty()

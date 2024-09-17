@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.User;
-using Reservant.Api.Models.Dtos.Order;
-using Reservant.Api.Models.Dtos.Visit;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.Api.Dtos.Visit;
+using Reservant.Api.Dtos.Order;
+using Reservant.Api.Dtos.User;
 
 namespace Reservant.Api.Services;
 

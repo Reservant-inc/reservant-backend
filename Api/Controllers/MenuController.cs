@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Menu;
+using Reservant.Api.Dtos.MenuItem;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos;
-using Reservant.Api.Models.Dtos.Menu;
-using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -162,19 +162,8 @@ public class MenuController(RestaurantMenuService service, UserManager<User> use
             return Unauthorized();
         }
 
-        var res = await service.RemoveMenuItemFromMenuAsync(user, menuId, req);
-
-        switch (res)
-        {
-            case RestaurantMenuService.RemoveMenuItemResult.Success:
-                return Ok();
-            case RestaurantMenuService.RemoveMenuItemResult.MenuNotFound:
-                return NotFound();
-            case RestaurantMenuService.RemoveMenuItemResult.NoValidMenuItems:
-                return BadRequest();
-            default:
-                return StatusCode(500, "Internal server error");
-        }
+        var res = await service.RemoveMenuItemFromMenuAsync(user, menuId, req);            
+        return OkOrErrors(res);
     }
 
     /// <summary>

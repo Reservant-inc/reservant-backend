@@ -2,12 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Event;
-using Reservant.Api.Models.Dtos.User;
-using Reservant.Api.Models.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Event;
+using Reservant.Api.Dtos.User;
 
 namespace Reservant.Api.Services
 {

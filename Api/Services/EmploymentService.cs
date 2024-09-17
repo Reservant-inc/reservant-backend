@@ -2,8 +2,8 @@ using ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos.Employment;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.Employment;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 

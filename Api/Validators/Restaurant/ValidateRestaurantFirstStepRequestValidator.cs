@@ -1,5 +1,5 @@
 using FluentValidation;
-using Reservant.Api.Models.Dtos.Restaurant;
+using Reservant.Api.Dtos.Restaurant;
 
 namespace Reservant.Api.Validators.Restaurant;
 
@@ -13,7 +13,8 @@ public class ValidateRestaurantFirstStepRequestValidator : AbstractValidator<Val
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MaximumLength(50);
+            .MaximumLength(50)
+            .IsValidName();
 
         RuleFor(x => x.Nip)
             .NotEmpty()
@@ -24,7 +25,8 @@ public class ValidateRestaurantFirstStepRequestValidator : AbstractValidator<Val
 
         RuleFor(x => x.Address)
             .NotEmpty()
-            .MaximumLength(70);
+            .MaximumLength(70)
+            .IsValidAddress();
 
         RuleFor(x => x.PostalIndex)
             .NotEmpty()
@@ -32,6 +34,7 @@ public class ValidateRestaurantFirstStepRequestValidator : AbstractValidator<Val
 
         RuleFor(x => x.City)
             .NotEmpty()
-            .MaximumLength(15);
+            .MaximumLength(15)
+            .IsValidCity();
     }
 }

@@ -1,5 +1,5 @@
 using FluentValidation;
-using Reservant.Api.Models.Dtos.Review;
+using Reservant.Api.Dtos.Review;
 
 namespace Reservant.Api.Validators.Review;
 

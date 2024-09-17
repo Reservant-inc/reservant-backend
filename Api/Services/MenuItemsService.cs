@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Models.Dtos.MenuItem;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
-using Reservant.Api.Models.Dtos.Ingredient;
 using ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos.MenuItem;
+using Reservant.Api.Dtos.Ingredient;
 
 namespace Reservant.Api.Services
 {
@@ -16,7 +16,8 @@ namespace Reservant.Api.Services
     public class MenuItemsService(
         ApiDbContext context,
         FileUploadService uploadService,
-        ValidationService validationService)
+        ValidationService validationService,
+        AuthorizationService authorizationService)
     {
         /// <summary>
         /// Validates and creates given menuItems
@@ -25,11 +26,13 @@ namespace Reservant.Api.Services
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
         [ErrorCode(nameof(CreateMenuItemRequest.RestaurantId), ErrorCodes.NotFound)]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
         [ValidatorErrorCodes<CreateMenuItemRequest>]
         [ValidatorErrorCodes<MenuItem>]
         public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
-            var restaurant = await context.Restaurants.FindAsync(req.RestaurantId);
+            var restaurant = await context.Restaurants
+                .FirstOrDefaultAsync(r => r.Id == req.RestaurantId);
 
             if (restaurant is null)
             {
@@ -39,6 +42,12 @@ namespace Reservant.Api.Services
                     ErrorMessage = $"Restaurant with ID {req.RestaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
+            }
+
+            var authResult = await authorizationService.VerifyOwnerRole(req.RestaurantId, user);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
             }
 
             var result = await validationService.ValidateAsync(req, user.Id);

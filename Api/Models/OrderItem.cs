@@ -14,6 +14,11 @@ public class OrderItem : ISoftDeletable
     public int Amount { get; set; }
 
     /// <summary>
+    /// Price of the item for which it was ordered
+    /// </summary>
+    public decimal Price { get; set; }
+
+    /// <summary>
     /// ID of the order
     /// </summary>
     public int OrderId { get; set; }
