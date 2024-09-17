@@ -28,7 +28,7 @@ public class EventVM
     /// When the event is going to happen
     /// </summary>
     public required DateTime Time { get; set; }
-    
+
     /// <summary>
     /// Max number of people that can attend event - only accepted, excluding creator
     /// </summary>
@@ -67,5 +67,5 @@ public class EventVM
     /// <summary>
     /// Users interested
     /// </summary>
-    public required List<UserSummaryVM> Interested { get; set; }
+    public required List<UserSummaryVM> Participants { get; set; }
 }

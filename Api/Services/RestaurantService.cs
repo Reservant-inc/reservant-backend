@@ -1134,7 +1134,7 @@ namespace Reservant.Api.Services
                     CreatorFullName = e.Creator.FullName,
                     RestaurantId = e.RestaurantId,
                     RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
-                    NumberInterested = e.Interested.Count
+                    NumberInterested = e.ParticipationRequests.Count
                 });
 
             return await query.PaginateAsync(page, perPage, []);

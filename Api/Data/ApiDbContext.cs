@@ -52,7 +52,7 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
     public DbSet<Delivery> Deliveries { get; init; } = null!;
 
     public DbSet<IngredientMenuItem> IngredientMenuItems { get; set; } = null!;
-    
+
     public DbSet<ParticipationRequest> EventParticipationRequests { get; init; } = null!;
 
     /// <summary>
@@ -122,12 +122,6 @@ public class ApiDbContext(DbContextOptions<ApiDbContext> options, IConfiguration
             eb.HasMany<Event>(u => u.EventsCreated)
                 .WithOne(e => e.Creator)
                 .HasForeignKey(e => e.CreatorId);
-
-            eb.HasMany<Event>(u => u.InterestedIn)
-                .WithMany(e => e.Interested);
-            
-            eb.HasMany<Event>(u => u.ParticipatingIn)
-                .WithMany(e => e.Participants);
 
             eb.HasMany<FileUpload>(u => u.Uploads)
                 .WithOne(fu => fu.User);

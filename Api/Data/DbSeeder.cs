@@ -370,10 +370,28 @@ public class DbSeeder(
                 Description = "Event 1 Description",
                 Time = visits[0].Date,
                 MustJoinUntil = visits[0].Date.AddHours(-3),
-                Creator = customer1,
+                Creator = johnDoe,
                 RestaurantId = 1,
                 Visit = visits[0],
-                Interested = [customer2, customer3]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer1,
+                        RequestDate = visits[0].Date.AddHours(-5),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = customer2,
+                        RequestDate = visits[0].Date.AddHours(-5),
+                        Accepted = visits[0].Date.AddHours(-4),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = customer3,
+                        RequestDate = visits[0].Date.AddHours(-5),
+                        Rejected = visits[0].Date.AddHours(-4),
+                    },
+                ],
             },
             new Event
             {
@@ -384,18 +402,30 @@ public class DbSeeder(
                 Creator = customer2,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer1]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer1,
+                        RequestDate = visits[1].Date.AddDays(-3),
+                    },
+                ],
             },
             new Event
             {
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow.AddHours(-1),
                 Description = "Event 3 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(10).AddHours(-1),
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer2]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer1,
+                        RequestDate = DateTime.UtcNow,
+                    },
+                ],
             },
             new Event
             {
@@ -406,18 +436,29 @@ public class DbSeeder(
                 Creator = customer1,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = []
+                ParticipationRequests = []
             },
             new Event
             {
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow.AddHours(-2),
                 Description = "Event 5 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(20),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(20).AddHours(-1),
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer1, customer2]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer1,
+                        RequestDate = DateTime.UtcNow.AddHours(-1),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = customer2,
+                        RequestDate = DateTime.UtcNow,
+                    },
+                ],
             }
         );
 

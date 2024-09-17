@@ -55,7 +55,6 @@ namespace Reservant.Api.Services
                 RestaurantId = request.RestaurantId,
                 Creator = user,
                 Restaurant = restaurant,
-                Interested = new List<User>(),
                 IsDeleted = false
             };
             result = await validationService.ValidateAsync(newEvent, user.Id);
@@ -79,13 +78,7 @@ namespace Reservant.Api.Services
                 RestaurantId = newEvent.RestaurantId,
                 RestaurantName = newEvent.Restaurant.Name,
                 VisitId = newEvent.VisitId,
-                Interested = newEvent.Interested.Select(i => new UserSummaryVM
-                {
-                    FirstName = i.FirstName,
-                    LastName = i.LastName,
-                    UserId = i.Id,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
-                }).ToList()
+                Participants = [],
             };
         }
 
@@ -96,10 +89,29 @@ namespace Reservant.Api.Services
         public async Task<Result<EventVM>> GetEventAsync(int id)
         {
             var checkedEvent = await context.Events
-                .Include(e => e.Interested)
-                .Include(e => e.Creator)
-                .Include(e => e.Restaurant)
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .Select(e => new EventVM
+                {
+                    CreatedAt = e.CreatedAt,
+                    Description = e.Description,
+                    Time = e.Time,
+                    MaxPeople = e.MaxPeople,
+                    EventId = e.Id,
+                    MustJoinUntil = e.MustJoinUntil,
+                    CreatorId = e.CreatorId,
+                    CreatorFullName = e.Creator.FullName,
+                    RestaurantId = e.RestaurantId,
+                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
+                    VisitId = e.VisitId,
+                    Participants = e.ParticipationRequests
+                        .Select(i => new UserSummaryVM
+                        {
+                            FirstName = i.User.FirstName,
+                            LastName = i.User.LastName,
+                            UserId = i.UserId,
+                            Photo = uploadService.GetPathForFileName(i.User.PhotoFileName),
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync(e => e.EventId == id);
             if (checkedEvent is null)
             {
                 return new ValidationFailure
@@ -109,27 +121,8 @@ namespace Reservant.Api.Services
                     ErrorMessage = ErrorCodes.NotFound
                 };
             }
-            return new EventVM
-            {
-                CreatedAt = checkedEvent.CreatedAt,
-                Description = checkedEvent.Description,
-                Time = checkedEvent.Time,
-                MaxPeople = checkedEvent.MaxPeople,
-                EventId = checkedEvent.Id,
-                MustJoinUntil = checkedEvent.MustJoinUntil,
-                CreatorId = checkedEvent.CreatorId,
-                CreatorFullName = checkedEvent.Creator.FullName,
-                RestaurantId = checkedEvent.RestaurantId,
-                RestaurantName = checkedEvent.Restaurant?.Name,
-                VisitId = checkedEvent.VisitId,
-                Interested = checkedEvent.Interested.Select(i => new UserSummaryVM
-                {
-                    FirstName = i.FirstName,
-                    LastName = i.LastName,
-                    UserId = i.Id,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
-                }).ToList()
-            };
+
+            return checkedEvent;
         }
 
         /// <summary>
@@ -137,26 +130,22 @@ namespace Reservant.Api.Services
         /// </summary>
         public async Task<Result<List<EventSummaryVM>>> GetEventsCreatedAsync(User user)
         {
-            var events = await context.Events
-                .Include(e => e.Interested)
-                .Include(e => e.Creator)
-                .Include(e => e.Restaurant)
+            return await context.Events
                 .Where(e => e.CreatorId == user.Id)
+                .Select(e => new EventSummaryVM
+                {
+                    CreatorFullName = e.Creator.FullName,
+                    Time = e.Time,
+                    MaxPeople = e.MaxPeople,
+                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
+                    RestaurantId = e.RestaurantId,
+                    NumberInterested = e.ParticipationRequests.Count,
+                    MustJoinUntil = e.MustJoinUntil,
+                    EventId = e.Id,
+                    Description = e.Description,
+                    CreatorId = e.CreatorId,
+                })
                 .ToListAsync();
-
-            return events.Select(e => new EventSummaryVM
-            {
-                CreatorFullName = e.Creator.FullName,
-                Time = e.Time,
-                MaxPeople = e.MaxPeople,
-                RestaurantName = e.Restaurant?.Name,
-                RestaurantId = e.RestaurantId,
-                NumberInterested = e.Interested.Count,
-                MustJoinUntil = e.MustJoinUntil,
-                EventId = e.Id,
-                Description = e.Description,
-                CreatorId = e.CreatorId,
-            }).ToList();
         }
 
         public async Task<Result> RequestParticipationAsync(int eventId, User user)
@@ -201,7 +190,7 @@ namespace Reservant.Api.Services
         public async Task<Result> AcceptParticipationRequestAsync(int eventId, string userId, User currentUser)
         {
             var eventFound = await context.Events
-                .Include(e => e.Participants)
+                .Include(e => e.ParticipationRequests)
                 .FirstOrDefaultAsync(e => e.Id == eventId);
 
             if (eventFound == null || eventFound.CreatorId != currentUser.Id)
@@ -214,9 +203,8 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var request = await context.EventParticipationRequests
-                .Include(participationRequest => participationRequest.User)
-                .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
+            var request = eventFound.ParticipationRequests
+                .FirstOrDefault(pr => pr.UserId == userId);
 
             if (request is not { Accepted: null })
             {
@@ -228,7 +216,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (eventFound.Participants.Count >= eventFound.MaxPeople)
+            var countParticipants = eventFound.ParticipationRequests
+                .Count(r => r.Accepted is not null);
+            if (countParticipants >= eventFound.MaxPeople)
             {
                 return new ValidationFailure
                 {
@@ -249,7 +239,6 @@ namespace Reservant.Api.Services
             }
 
             request.Accepted = DateTime.Now;
-            eventFound.Participants.Add(request.User);
             await context.SaveChangesAsync();
 
             return Result.Success;
@@ -298,7 +287,7 @@ namespace Reservant.Api.Services
         public async Task<Result> DeleteUserFromEventAsync(int id, User user)
         {
             var eventFound = await context.Events
-                .Include(e => e.Interested)
+                .Include(e => e.ParticipationRequests)
                 .Where(e=>e.Id==id)
                 .FirstOrDefaultAsync();
             if(eventFound==null)
@@ -311,7 +300,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (!eventFound.Interested.Remove(user))
+            var request = eventFound.ParticipationRequests
+                .FirstOrDefault(r => r.UserId == user.Id);
+            if (request is null)
             {
                 return new ValidationFailure
                 {
@@ -320,6 +311,8 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.UserNotInterestedInEvent
                 };
             }
+
+            context.Remove(request);
             await context.SaveChangesAsync();
 
             return Result.Success;
@@ -337,7 +330,7 @@ namespace Reservant.Api.Services
         {
             var query = context.Users
                 .Where(u => u.Id == user.Id)
-                .SelectMany(u => u.InterestedIn)
+                .SelectMany(u => u.EventParticipations.Select(e => e.Event))
                 .Where(u => u.Time > DateTime.UtcNow)
                 .OrderBy(u => u.Time)
                 .Select(e => new EventSummaryVM
@@ -351,7 +344,7 @@ namespace Reservant.Api.Services
                     CreatorFullName = e.Creator.FullName,
                     RestaurantId = e.RestaurantId,
                     RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
-                    NumberInterested = e.Interested.Count,
+                    NumberInterested = e.ParticipationRequests.Count,
                 });
 
             return await query.PaginateAsync(page, perPage, []);
@@ -374,7 +367,8 @@ namespace Reservant.Api.Services
            var eventToUpdate = await context.Events
             .Include(e => e.Creator)
             .Include(e => e.Restaurant)
-            .Include(e => e.Interested)
+            .Include(e => e.ParticipationRequests)
+            .ThenInclude(e => e.User)
             .FirstOrDefaultAsync(e => e.Id == eventId);
 
             if (eventToUpdate is null)
@@ -436,13 +430,17 @@ namespace Reservant.Api.Services
                 RestaurantId = eventToUpdate.RestaurantId,
                 RestaurantName = eventToUpdate.Restaurant.Name,
                 VisitId = eventToUpdate.VisitId,
-                Interested = eventToUpdate.Interested.Select(i => new UserSummaryVM
-                {
-                    FirstName = i.FirstName,
-                    LastName = i.LastName,
-                    UserId = i.Id,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
-                }).ToList()
+                Participants = eventToUpdate
+                    .ParticipationRequests
+                    .Where(r => r.Accepted != null)
+                    .Select(i => new UserSummaryVM
+                    {
+                        FirstName = i.User.FirstName,
+                        LastName = i.User.LastName,
+                        UserId = i.UserId,
+                        Photo = uploadService.GetPathForFileName(i.User.PhotoFileName),
+                    })
+                    .ToList()
             };
         }
 
