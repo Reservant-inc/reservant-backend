@@ -35,14 +35,14 @@ public class ParticipationRequest
     public User User { get; set; }
 
     /// <summary>
-    /// Request date
+    /// Time when the request was sent
     /// </summary>
-    public DateTime RequestDate { get; set; }
+    public DateTime DateSent { get; set; }
 
     /// <summary>
     /// Time when user got accepted
     /// </summary>
-    public DateTime? Accepted { get; set; }
+    public DateTime? DateAccepted { get; set; }
 
     /// <summary>
     /// Time when the request was deleted or rejected (same thing)

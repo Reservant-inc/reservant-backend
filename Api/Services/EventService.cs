@@ -183,7 +183,7 @@ namespace Reservant.Api.Services
             {
                 EventId = eventId,
                 UserId = user.Id,
-                RequestDate = DateTime.UtcNow
+                DateSent = DateTime.UtcNow
             };
 
             context.EventParticipationRequests.Add(participationRequest);
@@ -218,7 +218,7 @@ namespace Reservant.Api.Services
             var request = eventFound.ParticipationRequests
                 .FirstOrDefault(pr => pr.UserId == userId);
 
-            if (request is not { Accepted: null })
+            if (request is not { DateAccepted: null })
             {
                 return new ValidationFailure
                 {
@@ -229,7 +229,7 @@ namespace Reservant.Api.Services
             }
 
             var countParticipants = eventFound.ParticipationRequests
-                .Count(r => r.Accepted is not null);
+                .Count(r => r.DateAccepted is not null);
             if (countParticipants >= eventFound.MaxPeople)
             {
                 return new ValidationFailure
@@ -250,7 +250,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            request.Accepted = DateTime.Now;
+            request.DateAccepted = DateTime.Now;
             await context.SaveChangesAsync();
 
             return Result.Success;
@@ -450,7 +450,7 @@ namespace Reservant.Api.Services
                 VisitId = eventToUpdate.VisitId,
                 Participants = eventToUpdate
                     .ParticipationRequests
-                    .Where(r => r.Accepted != null)
+                    .Where(r => r.DateAccepted != null)
                     .Select(i => new UserSummaryVM
                     {
                         FirstName = i.User.FirstName,

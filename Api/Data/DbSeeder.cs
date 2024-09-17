@@ -380,18 +380,18 @@ public class DbSeeder(
                     new ParticipationRequest
                     {
                         User = customer1,
-                        RequestDate = visits[0].Date.AddHours(-5),
+                        DateSent = visits[0].Date.AddHours(-5),
                     },
                     new ParticipationRequest
                     {
                         User = customer2,
-                        RequestDate = visits[0].Date.AddHours(-5),
-                        Accepted = visits[0].Date.AddHours(-4),
+                        DateSent = visits[0].Date.AddHours(-5),
+                        DateAccepted = visits[0].Date.AddHours(-4),
                     },
                     new ParticipationRequest
                     {
                         User = customer3,
-                        RequestDate = visits[0].Date.AddHours(-5),
+                        DateSent = visits[0].Date.AddHours(-5),
                         DateDeleted = visits[0].Date.AddHours(-4),
                     },
                 ],
@@ -409,7 +409,7 @@ public class DbSeeder(
                     new ParticipationRequest
                     {
                         User = customer1,
-                        RequestDate = visits[1].Date.AddDays(-3),
+                        DateSent = visits[1].Date.AddDays(-3),
                     },
                 ],
             },
@@ -426,13 +426,13 @@ public class DbSeeder(
                     new ParticipationRequest
                     {
                         User = customer2,
-                        RequestDate = DateTime.UtcNow,
+                        DateSent = DateTime.UtcNow,
                     },
                     new ParticipationRequest
                     {
                         User = johnDoe,
-                        RequestDate = DateTime.UtcNow,
-                        Accepted = DateTime.UtcNow,
+                        DateSent = DateTime.UtcNow,
+                        DateAccepted = DateTime.UtcNow,
                     },
                 ],
             },
@@ -460,17 +460,17 @@ public class DbSeeder(
                     new ParticipationRequest
                     {
                         User = customer1,
-                        RequestDate = DateTime.UtcNow.AddHours(-1),
+                        DateSent = DateTime.UtcNow.AddHours(-1),
                     },
                     new ParticipationRequest
                     {
                         User = customer2,
-                        RequestDate = DateTime.UtcNow,
+                        DateSent = DateTime.UtcNow,
                     },
                     new ParticipationRequest
                     {
                         User = johnDoe,
-                        RequestDate = DateTime.UtcNow,
+                        DateSent = DateTime.UtcNow,
                     },
                 ],
             }
