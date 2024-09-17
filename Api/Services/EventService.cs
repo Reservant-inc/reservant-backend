@@ -148,6 +148,11 @@ namespace Reservant.Api.Services
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Create a ParticipationRequest
+        /// </summary>
+        /// <param name="eventId">ID of the event</param>
+        /// <param name="user">Request sender</param>
         public async Task<Result> RequestParticipationAsync(int eventId, User user)
         {
             var eventFound = await context.Events.FindAsync(eventId);
@@ -187,6 +192,13 @@ namespace Reservant.Api.Services
             return Result.Success;
         }
 
+        /// <summary>
+        /// Accept a ParticipationRequest as the Event creator
+        /// </summary>
+        /// <param name="eventId">ID of the event</param>
+        /// <param name="userId">ID of the request sender</param>
+        /// <param name="currentUser">Current user for permission checking</param>
+        /// <returns></returns>
         public async Task<Result> AcceptParticipationRequestAsync(int eventId, string userId, User currentUser)
         {
             var eventFound = await context.Events
@@ -244,6 +256,12 @@ namespace Reservant.Api.Services
             return Result.Success;
         }
 
+        /// <summary>
+        /// Reject a ParticipationRequest as the event creator
+        /// </summary>
+        /// <param name="eventId">ID of the event</param>
+        /// <param name="userId">ID of the request sender</param>
+        /// <param name="currentUser">Current user for permission checking</param>
         public async Task<Result> RejectParticipationRequestAsync(int eventId, string userId, User currentUser)
         {
             var eventFound = await context.Events
