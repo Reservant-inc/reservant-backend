@@ -392,7 +392,7 @@ public class DbSeeder(
                     {
                         User = customer3,
                         RequestDate = visits[0].Date.AddHours(-5),
-                        Rejected = visits[0].Date.AddHours(-4),
+                        DateDeleted = visits[0].Date.AddHours(-4),
                     },
                 ],
             },

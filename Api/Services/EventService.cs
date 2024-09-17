@@ -280,7 +280,7 @@ namespace Reservant.Api.Services
             var request = await context.EventParticipationRequests
                 .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
 
-            if (request is not { Rejected: null })
+            if (request is not { DateDeleted: null })
             {
                 return new ValidationFailure
                 {
@@ -290,7 +290,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            request.Rejected = DateTime.Now;
+            request.DateDeleted = DateTime.Now;
             await context.SaveChangesAsync();
 
             return Result.Success;
@@ -330,7 +330,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            context.Remove(request);
+            request.DateDeleted = DateTime.UtcNow;
             await context.SaveChangesAsync();
 
             return Result.Success;
