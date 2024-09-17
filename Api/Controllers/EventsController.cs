@@ -43,33 +43,10 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(await service.GetEventAsync(eventId));
         }
 
-
-
-
-        /// <summary>
-        /// Add logged-in user to event's interested list
-        /// </summary>
-        /// <param name="eventId"> Id of Event</param>
-        /// <returns></returns>
-        [HttpPost("{eventId:int}/interested")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
-        [Authorize(Roles = Roles.Customer)]
-        [MethodErrorCodes<EventService>(nameof(EventService.AddUserToEventAsync))]
-        public async Task<ActionResult> AddUserToEvent(int eventId)
-        {
-            var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
-
-            return OkOrErrors(await service.AddUserToEventAsync(eventId, user));
-        }
-        
         /// <summary>
         /// Request participation in an event
         /// </summary>
-        [HttpPost("{eventId:int}/participation-request")]
+        [HttpPost("{eventId:int}/interested")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         public async Task<ActionResult> RequestParticipation(int eventId)

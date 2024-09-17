@@ -88,43 +88,6 @@ namespace Reservant.Api.Services
                 }).ToList()
             };
         }
-        
-        /// <summary>
-        /// Add user from event's interested list
-        /// </summary>
-        [ErrorCode(null, ErrorCodes.NotFound)]
-        [ErrorCode(null, ErrorCodes.Duplicate, "User is already interested in the event")]
-        public async Task<Result> AddUserToEventAsync(int id, User user)
-        {
-            var eventFound = await context.Events
-                .Include(e => e.Interested)
-                .Where(e=>e.Id==id)
-                .FirstOrDefaultAsync();
-            if(eventFound==null)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorMessage = "Event not found",
-                    ErrorCode = ErrorCodes.NotFound
-                };
-            }
-
-            if (eventFound.Interested.Contains(user))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorMessage = "User is already interested in the event",
-                    ErrorCode = ErrorCodes.Duplicate
-                };
-            }
-
-            eventFound.Interested.Add(user);
-            await context.SaveChangesAsync();
-
-            return Result.Success;
-        }
 
         /// <summary>
         /// Get information about an Event
