@@ -22,7 +22,7 @@ public class EventSummaryVM
     /// When the event is going to happen
     /// </summary>
     public required DateTime Time { get; set; }
-    
+
     /// <summary>
     /// Max number of people that can attend event - only accepted, excluding creator
     /// </summary>
@@ -46,12 +46,12 @@ public class EventSummaryVM
     /// <summary>
     /// ID of the restaurant where the event takes place
     /// </summary>
-    public required int RestaurantId { get; set; }
+    public required int? RestaurantId { get; set; }
 
     /// <summary>
     /// Restaurant name
     /// </summary>
-    public required string RestaurantName { get; set; }
+    public required string? RestaurantName { get; set; }
 
     /// <summary>
     /// Number of users interested

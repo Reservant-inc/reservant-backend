@@ -120,7 +120,7 @@ namespace Reservant.Api.Services
                 CreatorId = checkedEvent.CreatorId,
                 CreatorFullName = checkedEvent.Creator.FullName,
                 RestaurantId = checkedEvent.RestaurantId,
-                RestaurantName = checkedEvent.Restaurant.Name,
+                RestaurantName = checkedEvent.Restaurant?.Name,
                 VisitId = checkedEvent.VisitId,
                 Interested = checkedEvent.Interested.Select(i => new UserSummaryVM
                 {
@@ -149,8 +149,8 @@ namespace Reservant.Api.Services
                 CreatorFullName = e.Creator.FullName,
                 Time = e.Time,
                 MaxPeople = e.MaxPeople,
-                RestaurantName = e.Restaurant.Name,
-                RestaurantId = e.Restaurant.Id,
+                RestaurantName = e.Restaurant?.Name,
+                RestaurantId = e.RestaurantId,
                 NumberInterested = e.Interested.Count,
                 MustJoinUntil = e.MustJoinUntil,
                 EventId = e.Id,
@@ -158,7 +158,7 @@ namespace Reservant.Api.Services
                 CreatorId = e.CreatorId,
             }).ToList();
         }
-        
+
         public async Task<Result> RequestParticipationAsync(int eventId, User user)
         {
             var eventFound = await context.Events.FindAsync(eventId);
@@ -227,7 +227,7 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.UserAlreadyAccepted
                 };
             }
-            
+
             if (eventFound.Participants.Count >= eventFound.MaxPeople)
             {
                 return new ValidationFailure
@@ -237,7 +237,7 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.EventIsFull
                 };
             }
-            
+
             if (DateTime.Compare(eventFound.MustJoinUntil, DateTime.Now) < 0)
             {
                 return new ValidationFailure
@@ -350,8 +350,8 @@ namespace Reservant.Api.Services
                     CreatorId = e.CreatorId,
                     CreatorFullName = e.Creator.FullName,
                     RestaurantId = e.RestaurantId,
-                    RestaurantName = e.Restaurant.Name,
-                    NumberInterested = e.Interested.Count
+                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
+                    NumberInterested = e.Interested.Count,
                 });
 
             return await query.PaginateAsync(page, perPage, []);

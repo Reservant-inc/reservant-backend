@@ -52,12 +52,12 @@ public class EventVM
     /// <summary>
     /// ID of the restaurant where the event takes place
     /// </summary>
-    public required int RestaurantId { get; set; }
+    public required int? RestaurantId { get; set; }
 
     /// <summary>
     /// Restaurant name
     /// </summary>
-    public required string RestaurantName { get; set; }
+    public required string? RestaurantName { get; set; }
 
     /// <summary>
     /// ID of the actual visit
