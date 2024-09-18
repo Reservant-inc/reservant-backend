@@ -269,6 +269,8 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Only the user who created the event can modify it")]
         [ErrorCode(nameof(UpdateEventRequest.RestaurantId), ErrorCodes.RestaurantDoesNotExist, "Restaurant with ID not found")]
+        [ErrorCode(nameof(request.Time), ErrorCodes.DateMustBeInFuture, "If changed, must be in the future")]
+        [ErrorCode(nameof(request.MustJoinUntil), ErrorCodes.DateMustBeInFuture, "If changed, must be in the future")]
         [ValidatorErrorCodes<Event>]
         public async Task<Result<EventVM>> UpdateEventAsync(int eventId, UpdateEventRequest request, User user)
         {
@@ -309,13 +311,23 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (request.Time <= DateTime.UtcNow)
+            if (request.Time != eventToUpdate.Time && request.Time <= DateTime.UtcNow)
             {
                 return new ValidationFailure
                 {
                     PropertyName = nameof(request.Time),
                     ErrorCode = ErrorCodes.DateMustBeInFuture,
                     ErrorMessage = "Event time must be in the future"
+                };
+            }
+
+            if (request.MustJoinUntil != eventToUpdate.MustJoinUntil && request.MustJoinUntil <= DateTime.UtcNow)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.MustJoinUntil),
+                    ErrorCode = ErrorCodes.DateMustBeInFuture,
+                    ErrorMessage = "MustJoinUntil must be in the future"
                 };
             }
 
