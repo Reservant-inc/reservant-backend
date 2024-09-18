@@ -396,7 +396,7 @@ public static class CustomRules
     {
         return builder
             .Matches(@"^\+\d+$")
-            .WithErrorCode("MustBeValidPhoneNumber")
+            .WithErrorCode(ErrorCodes.MustBeValidPhoneNumber)
             .WithMessage("The phone number must start with '+' followed by digits.");
     }
 
