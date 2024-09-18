@@ -320,7 +320,7 @@ public static class CustomRules
         this IRuleBuilder<T, string> builder)
     {
         return builder
-            .Must(phoneNumber => !string.IsNullOrEmpty(phoneNumber) && Regex.IsMatch(phoneNumber, @"^\+\d+$"))
+            .Matches(@"^\+\d+$")
             .WithErrorCode("MustBeValidPhoneNumber")
             .WithMessage("The phone number must start with '+' followed by digits.");
     }
