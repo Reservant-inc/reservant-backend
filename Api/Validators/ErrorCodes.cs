@@ -206,4 +206,9 @@ public static class ErrorCodes
     /// The string can contain singular plux followed by numbers
     /// </summary>
     public const string MustBeValidPhoneNumber = "MustBeValidPhoneNumber";
+
+    /// <summary>
+    /// Incorrect order of date start (or date from) and date end (or date until)
+    /// </summary>
+    public const string StartMustBeBeforeEnd = "StartMustBeBeforeEnd";
 }
