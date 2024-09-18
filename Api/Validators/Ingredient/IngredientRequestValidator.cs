@@ -12,6 +12,6 @@ public class IngredientRequestValidator : AbstractValidator<IngredientRequest>
     public IngredientRequestValidator()
     {
         RuleFor(x => x.AmountUsed)
-            .GreaterOrEqualToZero();
+            .GreaterOrEqualToOne();
     }
 }
