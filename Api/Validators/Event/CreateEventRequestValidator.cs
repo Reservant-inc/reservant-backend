@@ -20,7 +20,6 @@ public class CreateEventRequestValidator : AbstractValidator<CreateEventRequest>
             .DateTimeInFuture();
 
         RuleFor(e => e.RestaurantId)
-            .NotNull()
             .RestaurantExists(context);
 
         RuleFor(e => e.Description)

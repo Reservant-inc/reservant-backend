@@ -34,16 +34,7 @@ namespace Reservant.Api.Services
             if (!result.IsValid) {
                 return result;
             }
-            var restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
-            if (restaurant is null)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(request.RestaurantId),
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = ErrorCodes.NotFound
-                };
-            }
+
             var newEvent = new Event
             {
                 CreatedAt = DateTime.UtcNow,
@@ -54,9 +45,23 @@ namespace Reservant.Api.Services
                 CreatorId = user.Id,
                 RestaurantId = request.RestaurantId,
                 Creator = user,
-                Restaurant = restaurant,
                 IsDeleted = false
             };
+
+            if (request.RestaurantId is not null)
+            {
+                newEvent.Restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
+                if (newEvent.Restaurant is null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.RestaurantId),
+                        ErrorCode = ErrorCodes.NotFound,
+                        ErrorMessage = ErrorCodes.NotFound
+                    };
+                }
+            }
+
             result = await validationService.ValidateAsync(newEvent, user.Id);
             if (!result.IsValid)
             {
@@ -76,7 +81,7 @@ namespace Reservant.Api.Services
                 CreatorId = newEvent.CreatorId,
                 CreatorFullName = user.FullName,
                 RestaurantId = newEvent.RestaurantId,
-                RestaurantName = newEvent.Restaurant.Name,
+                RestaurantName = newEvent.Restaurant?.Name,
                 VisitId = newEvent.VisitId,
                 Participants = [],
             };
@@ -409,23 +414,29 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
-            if (restaurant is null)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(request.RestaurantId),
-                    ErrorCode = ErrorCodes.RestaurantDoesNotExist,
-                    ErrorMessage = $"Restaurant with ID {request.RestaurantId} not found"
-                };
-            }
-
             eventToUpdate.Description = request.Description;
             eventToUpdate.Time = request.Time;
             eventToUpdate.MaxPeople = request.MaxPeople;
             eventToUpdate.MustJoinUntil = request.MustJoinUntil;
             eventToUpdate.RestaurantId = request.RestaurantId;
-            eventToUpdate.Restaurant = restaurant;
+
+            if (request.RestaurantId is not null)
+            {
+                eventToUpdate.Restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
+                if (eventToUpdate.Restaurant is null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.RestaurantId),
+                        ErrorCode = ErrorCodes.RestaurantDoesNotExist,
+                        ErrorMessage = $"Restaurant with ID {request.RestaurantId} not found"
+                    };
+                }
+            }
+            else
+            {
+                eventToUpdate.Restaurant = null;
+            }
 
             var result = await validationService.ValidateAsync(eventToUpdate, user.Id);
             if (!result.IsValid)

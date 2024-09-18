@@ -14,7 +14,7 @@ public class UpdateEventRequest
     /// When the event is going to happen
     /// </summary>
     public DateTime Time { get; set; }
-    
+
     /// <summary>
     /// Max number of people that can attend event - only accepted, excluding creator
     /// </summary>
@@ -28,5 +28,5 @@ public class UpdateEventRequest
     /// <summary>
     /// ID of the restaurant where the event takes place
     /// </summary>
-    public int RestaurantId { get; set; }
+    public int? RestaurantId { get; set; }
 }

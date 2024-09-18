@@ -188,6 +188,26 @@ public static class CustomRules
     }
 
     /// <summary>
+    /// Validates that the restaurant with the given ID exists, if the ID is not null.
+    /// </summary>
+    public static IRuleBuilderOptions<T, int?> RestaurantExists<T>(this IRuleBuilder<T, int?> builder, ApiDbContext dbContext)
+    {
+        return builder
+            .MustAsync(async (restaurantId, cancellationToken) =>
+            {
+                if (restaurantId is not null)
+                {
+                    return true;
+                }
+
+                return await dbContext.Restaurants
+                    .AnyAsync(r => r.Id == restaurantId, cancellationToken);
+            })
+            .WithMessage("The specified Restaurant ID does not exist.")
+            .WithErrorCode(ErrorCodes.RestaurantDoesNotExist);
+    }
+
+    /// <summary>
     /// Validates that the given Table ID exists within the specified Restaurant ID.
     /// </summary>
     public static IRuleBuilderOptions<T, Tuple<int, int>> TableExistsInRestaurant<T>(this IRuleBuilder<T, Tuple<int, int>> builder, ApiDbContext dbContext)
