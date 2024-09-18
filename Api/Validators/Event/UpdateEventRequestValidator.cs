@@ -1,4 +1,5 @@
 using FluentValidation;
+using Reservant.Api.Data;
 using Reservant.Api.Dtos.Event;
 
 namespace Reservant.Api.Validators.Event;
@@ -9,15 +10,17 @@ namespace Reservant.Api.Validators.Event;
 public class UpdateEventRequestValidator : AbstractValidator<UpdateEventRequest>
 {
     /// <inheritdoc />
-    public UpdateEventRequestValidator()
+    public UpdateEventRequestValidator(ApiDbContext context)
     {
-        RuleFor(x => x.MustJoinUntil)
-            .LessThan(x => x.Time)
-            .DateTimeInFuture()
-            .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime);
+        RuleFor(e => e.MustJoinUntil)
+            .LessThan(e => e.Time)
+            .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime)
+            .WithMessage("MustJoinUntil must be before the event time");
 
-        RuleFor(x => x.Time)
-            .GreaterThan(x => x.MustJoinUntil)
-            .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime);
+        RuleFor(e => e.RestaurantId)
+            .RestaurantExists(context);
+
+        RuleFor(e => e.Description)
+            .MaximumLength(200);
     }
 }
