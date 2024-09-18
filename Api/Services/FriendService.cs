@@ -47,17 +47,24 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
             };
         }
 
-        var userIds = new List<string>() { senderId, receiverId };
+        var userIds = new[] { senderId, receiverId };
 
-        var areFriends = await context.FriendRequests
-            .AnyAsync(fr => 
-                fr.DateDeleted == null &&
-                fr.DateAccepted != null &&
+        var existingRequest = await context.FriendRequests
+            .FirstOrDefaultAsync(fr =>
                 userIds.Contains(fr.SenderId) &&
                 userIds.Contains(fr.ReceiverId)
             );
 
-        if (areFriends)
+        if (existingRequest is null)
+        {
+            context.Add(new FriendRequest
+            {
+                SenderId = senderId,
+                ReceiverId = receiverId,
+                DateSent = DateTime.UtcNow
+            });
+        }
+        else if (existingRequest.DateAccepted is not null)
         {
             return new ValidationFailure
             {
@@ -66,11 +73,11 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 ErrorCode = ErrorCodes.AlreadyFriends
             };
         }
-
-        var existingRequest = await context.FriendRequests
-            .AnyAsync(fr => fr.SenderId == senderId && fr.ReceiverId == receiverId && fr.DateDeleted == null);
-
-        if (existingRequest)
+        else if (existingRequest.SenderId == receiverId)
+        {
+            existingRequest.DateAccepted = DateTime.UtcNow;
+        }
+        else
         {
             return new ValidationFailure
             {
@@ -80,23 +87,6 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
             };
         }
 
-        var requestFromReceiver = await context.FriendRequests
-            .FirstOrDefaultAsync(fr => fr.SenderId == receiverId && fr.ReceiverId == senderId && fr.DateDeleted == null);
-
-        var friendRequest = new FriendRequest
-        {
-            SenderId = senderId,
-            ReceiverId = receiverId,
-            DateSent = DateTime.UtcNow
-        };
-
-        if (requestFromReceiver != null)
-        {
-            requestFromReceiver.DateAccepted = DateTime.UtcNow;
-            friendRequest.DateAccepted = DateTime.UtcNow;
-        }
-
-        context.FriendRequests.Add(friendRequest);
         await context.SaveChangesAsync();
         return Result.Success;
     }
