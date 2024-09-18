@@ -29,5 +29,8 @@ public class MenuValidator : AbstractValidator<Models.Menu>
 
         RuleFor(x => x.PhotoFileName)
             .FileUploadName(FileClass.Image, uploadService);
+    
+        RuleFor(x => x.DateUntil)
+            .DateInFuture();
     }
 }

@@ -269,14 +269,16 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Only the user who created the event can modify it")]
         [ErrorCode(nameof(UpdateEventRequest.RestaurantId), ErrorCodes.RestaurantDoesNotExist, "Restaurant with ID not found")]
+        [ErrorCode(nameof(request.Time), ErrorCodes.DateMustBeInFuture, "If changed, must be in the future")]
+        [ErrorCode(nameof(request.MustJoinUntil), ErrorCodes.DateMustBeInFuture, "If changed, must be in the future")]
         [ValidatorErrorCodes<Event>]
         public async Task<Result<EventVM>> UpdateEventAsync(int eventId, UpdateEventRequest request, User user)
         {
-           var eventToUpdate = await context.Events
-            .Include(e => e.Creator)
-            .Include(e => e.Restaurant)
-            .Include(e => e.Interested)
-            .FirstOrDefaultAsync(e => e.Id == eventId);
+            var eventToUpdate = await context.Events
+                .Include(e => e.Creator)
+                .Include(e => e.Restaurant)
+                .Include(e => e.Interested)
+                .FirstOrDefaultAsync(e => e.Id == eventId);
 
             if (eventToUpdate is null)
             {
@@ -288,7 +290,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if(eventToUpdate.Creator!=user)
+            if (eventToUpdate.Creator != user)
             {
                 return new ValidationFailure
                 {
@@ -306,6 +308,26 @@ namespace Reservant.Api.Services
                     PropertyName = nameof(request.RestaurantId),
                     ErrorCode = ErrorCodes.RestaurantDoesNotExist,
                     ErrorMessage = $"Restaurant with ID {request.RestaurantId} not found"
+                };
+            }
+
+            if (request.Time != eventToUpdate.Time && request.Time <= DateTime.UtcNow)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.Time),
+                    ErrorCode = ErrorCodes.DateMustBeInFuture,
+                    ErrorMessage = "Event time must be in the future"
+                };
+            }
+
+            if (request.MustJoinUntil != eventToUpdate.MustJoinUntil && request.MustJoinUntil <= DateTime.UtcNow)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.MustJoinUntil),
+                    ErrorCode = ErrorCodes.DateMustBeInFuture,
+                    ErrorMessage = "MustJoinUntil must be in the future"
                 };
             }
 
@@ -344,6 +366,7 @@ namespace Reservant.Api.Services
                 }).ToList()
             };
         }
+
 
         /// <summary>
         /// Deletes an existing event.

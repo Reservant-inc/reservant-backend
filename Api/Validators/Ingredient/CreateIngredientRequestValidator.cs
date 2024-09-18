@@ -25,5 +25,8 @@ public class CreateIngredientRequestValidator : AbstractValidator<CreateIngredie
 
         RuleFor(i => i.AmountToOrder)
             .GreaterOrEqualToZero();
+
+        RuleFor(i => i.Amount)
+            .GreaterOrEqualToZero();
     }
 }

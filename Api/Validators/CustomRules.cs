@@ -9,6 +9,7 @@ using Reservant.Api.Validation;
 using Reservant.Api.Dtos.OrderItem;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
+using System.Text.RegularExpressions;
 
 namespace Reservant.Api.Validators;
 
@@ -121,6 +122,17 @@ public static class CustomRules
             .Must(date => date >= DateTime.UtcNow)
             .WithErrorCode(ErrorCodes.DateMustBeInFuture)
             .WithMessage("The date must be today or in the future.");
+    }
+
+    /// <summary>
+    /// Validates that the date is today or in the future, or is null (implying it will be added in the future).
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly?> DateInFuture<T>(this IRuleBuilder<T, DateOnly?> builder)
+    {
+        return builder
+            .Must(date => !date.HasValue || date.Value >= DateOnly.FromDateTime(DateTime.UtcNow))
+            .WithErrorCode(ErrorCodes.DateMustBeInFuture)
+            .WithMessage("The date must be today or in the future, or be null.");
     }
 
     /// <summary>
@@ -374,5 +386,39 @@ public static class CustomRules
             .Must(loc => loc is { Longitude: >= -180 and <= 180, Latitude: >= -90 and <= 90 })
             .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
             .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
+    }
+
+    /// <summary>
+    /// Validates if string has a syntax of a phone number
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidPhoneNumber<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Matches(@"^\+\d+$")
+            .WithErrorCode("MustBeValidPhoneNumber")
+            .WithMessage("The phone number must start with '+' followed by digits.");
+    }
+
+    /// <summary>
+    /// Validates that the date is today or in the past
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly> DateInPast<T>(this IRuleBuilder<T, DateOnly> builder)
+    {
+        return builder
+            .Must(date => date <= DateOnly.FromDateTime(DateTime.UtcNow))
+            .WithErrorCode(ErrorCodes.DateMustBeInPast)
+            .WithMessage("The date must be today or in the past");
+    }
+
+     /// <summary>
+    /// Validates that the date is today or in the past, or is null
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly?> DateInPast<T>(this IRuleBuilder<T, DateOnly?> builder)
+    {
+        return builder
+            .Must(date => date == null || date <= DateOnly.FromDateTime(DateTime.UtcNow))
+            .WithErrorCode(ErrorCodes.DateMustBeInPast)
+            .WithMessage("The date must be today or in the past, or can be null");
     }
 }
