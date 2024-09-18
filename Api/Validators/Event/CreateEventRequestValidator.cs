@@ -17,7 +17,10 @@ public class CreateEventRequestValidator : AbstractValidator<CreateEventRequest>
 
         RuleFor(e => e.MustJoinUntil)
             .NotNull()
-            .DateTimeInFuture();
+            .DateTimeInFuture()
+            .LessThan(e => e.Time)
+            .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime)
+            .WithMessage("MustJoinUntil must be before the event time");
 
         RuleFor(e => e.RestaurantId)
             .NotNull()

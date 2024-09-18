@@ -309,16 +309,6 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if (request.MustJoinUntil >= request.Time)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(request.MustJoinUntil),
-                    ErrorCode = ErrorCodes.MustJoinUntilMustBeBeforeEventTime,
-                    ErrorMessage = "MustJoinUntil must be before the event time"
-                };
-            }
-
             if (request.Time <= DateTime.UtcNow)
             {
                 return new ValidationFailure
