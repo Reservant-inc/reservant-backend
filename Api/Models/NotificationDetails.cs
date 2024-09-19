@@ -85,11 +85,6 @@ public class NotificationNewRestaurantReview : NotificationDetails
 public class NotificationNewFriendRequest : NotificationDetails
 {
     /// <summary>
-    /// Date and time created
-    /// </summary>
-    public required DateTime DateSent { get; set; }
-
-    /// <summary>
     /// ID of the sender
     /// </summary>
     [StringLength(36)]
@@ -105,9 +100,4 @@ public class NotificationNewFriendRequest : NotificationDetails
     /// </summary>
     public required FileUpload? SenderPhoto { get; set; }
 
-    /// <summary>
-    /// ID of the target user
-    /// </summary>
-    [StringLength(36)]
-    public required string ReceiverId { get; set; } = null!;
 }

@@ -130,25 +130,23 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     /// Notify a user that they have a new friend request
     /// </summary>
     public async Task NotifyNewFriendRequest(string senderId, string receiverId)
-{
-    var sender = await context.Users
-        .Where(u => u.Id == senderId)
-        .Select(u => new { u.FullName, u.Photo })
-        .FirstOrDefaultAsync();
-
-    if (sender != null)
     {
-        await NotifyUser(
-            receiverId,
-            new NotificationNewFriendRequest
-            {
-                DateSent = DateTime.UtcNow,
-                SenderId = senderId,
-                SenderName = sender.FullName,
-                SenderPhoto = sender.Photo,
-                ReceiverId = receiverId,
-            });
+        var sender = await context.Users
+            .Where(u => u.Id == senderId)
+            .Select(u => new { u.FullName, u.Photo })
+            .FirstOrDefaultAsync();
+
+        if (sender != null)
+        {
+            await NotifyUser(
+                receiverId,
+                new NotificationNewFriendRequest
+                {
+                    SenderId = senderId,
+                    SenderName = sender.FullName,
+                    SenderPhoto = sender.Photo,
+                });
+        }
     }
-}
 
 }
