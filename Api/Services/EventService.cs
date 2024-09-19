@@ -158,6 +158,9 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="eventId">ID of the event</param>
         /// <param name="user">Request sender</param>
+        ///         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(nameof(eventId), ErrorCodes.Duplicate, "Request already exists")]
         public async Task<Result> RequestParticipationAsync(int eventId, User user)
         {
             var eventFound = await context.Events.FindAsync(eventId);
@@ -165,7 +168,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = nameof(eventId),
                     ErrorMessage = "Event not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
@@ -178,7 +181,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = nameof(eventId),
                     ErrorMessage = "Request already exists",
                     ErrorCode = ErrorCodes.Duplicate
                 };
@@ -203,7 +206,10 @@ namespace Reservant.Api.Services
         /// <param name="eventId">ID of the event</param>
         /// <param name="userId">ID of the request sender</param>
         /// <param name="currentUser">Current user for permission checking</param>
-        /// <returns></returns>
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(nameof(eventId), ErrorCodes.UserAlreadyAccepted, "User already accepted")]
+        [ErrorCode(nameof(eventId), ErrorCodes.EventIsFull, "Event is full")]
+        [ErrorCode(nameof(eventId), ErrorCodes.JoinDeadlinePassed, "Join deadline passed")]
         public async Task<Result> AcceptParticipationRequestAsync(int eventId, string userId, User currentUser)
         {
             var eventFound = await context.Events
@@ -214,8 +220,8 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
-                    ErrorMessage = "Event not found or access denied",
+                    PropertyName = nameof(eventId),
+                    ErrorMessage = "Event not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
@@ -227,7 +233,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = nameof(userId),
                     ErrorMessage = "User already accepted",
                     ErrorCode = ErrorCodes.UserAlreadyAccepted
                 };
@@ -239,7 +245,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = nameof(eventId),
                     ErrorMessage = "Event is full",
                     ErrorCode = ErrorCodes.EventIsFull
                 };
@@ -249,7 +255,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = nameof(eventId),
                     ErrorMessage = "Join deadline passed",
                     ErrorCode = ErrorCodes.JoinDeadlinePassed
                 };
@@ -267,6 +273,8 @@ namespace Reservant.Api.Services
         /// <param name="eventId">ID of the event</param>
         /// <param name="userId">ID of the request sender</param>
         /// <param name="currentUser">Current user for permission checking</param>
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(nameof(userId), ErrorCodes.UserAlreadyRejected, "User already rejected")]
         public async Task<Result> RejectParticipationRequestAsync(int eventId, string userId, User currentUser)
         {
             var eventFound = await context.Events
@@ -276,7 +284,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = nameof(eventId),
                     ErrorMessage = "Event not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
@@ -289,7 +297,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = nameof(userId),
                     ErrorMessage = "User already rejected",
                     ErrorCode = ErrorCodes.UserAlreadyRejected
                 };

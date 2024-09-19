@@ -49,6 +49,7 @@ namespace Reservant.Api.Controllers
         [HttpPost("{eventId:int}/interested")]
         [ProducesResponseType(204), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes<EventService>(nameof(EventService.RequestParticipationAsync))]
         public async Task<ActionResult> RequestParticipation(int eventId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -66,6 +67,7 @@ namespace Reservant.Api.Controllers
         [HttpPost("{eventId:int}/accept-user/{userId}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes<EventService>(nameof(EventService.AcceptParticipationRequestAsync))]
         public async Task<ActionResult> AcceptParticipation(int eventId, string userId)
         {
             var currentUser = await userManager.GetUserAsync(User);
@@ -83,6 +85,7 @@ namespace Reservant.Api.Controllers
         [HttpPost("{eventId:int}/reject-user/{userId}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes<EventService>(nameof(EventService.RejectParticipationRequestAsync))]
         public async Task<ActionResult> RejectParticipation(int eventId, string userId)
         {
             var currentUser = await userManager.GetUserAsync(User);
