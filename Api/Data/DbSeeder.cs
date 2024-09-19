@@ -315,7 +315,7 @@ public class DbSeeder(
         {
             new Visit
             {
-                Date = new DateTime(2024, 1, 1, 17, 0, 0),
+                Date = new DateTime(2024, 10, 1, 17, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 19, 32, 00),
                 Deposit = null,
@@ -332,7 +332,7 @@ public class DbSeeder(
             },
             new Visit
             {
-                Date = new DateTime(2024, 1, 4, 18, 0, 0),
+                Date = new DateTime(2024, 10, 4, 18, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 22, 32, 00),
                 Deposit = null,
@@ -349,7 +349,7 @@ public class DbSeeder(
             },
             new Visit
             {
-                Date = new DateTime(2024, 1, 5, 18, 0, 0),
+                Date = new DateTime(2024, 10, 5, 18, 0, 0),
                 NumberOfGuests = 1,
                 PaymentTime = new DateTime(2024, 1, 1, 15, 32, 00),
                 Deposit = null,
@@ -373,6 +373,7 @@ public class DbSeeder(
                 Description = "Event 1 Description",
                 Time = visits[0].Date,
                 MustJoinUntil = visits[0].Date.AddHours(-3),
+                MaxPeople = 13,
                 Creator = johnDoe,
                 RestaurantId = 1,
                 Visit = visits[0],
@@ -402,6 +403,7 @@ public class DbSeeder(
                 Description = "Event 2 Description",
                 Time = visits[1].Date,
                 MustJoinUntil = visits[1].Date.AddDays(-1),
+                MaxPeople = 10,
                 Creator = johnDoe,
                 RestaurantId = 1,
                 VisitId = null,
@@ -419,6 +421,7 @@ public class DbSeeder(
                 Description = "Event 3 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(10).AddHours(-1),
+                MaxPeople = 5,
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
@@ -442,6 +445,7 @@ public class DbSeeder(
                 Description = "Event 4 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(15),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(15).AddHours(-1),
+                MaxPeople = 20,
                 Creator = customer1,
                 RestaurantId = 1,
                 VisitId = null,
@@ -453,6 +457,7 @@ public class DbSeeder(
                 Description = "Event 5 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(20),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(20).AddHours(-1),
+                MaxPeople = 20,
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
