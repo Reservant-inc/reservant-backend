@@ -79,10 +79,4 @@ public class NotificationNewFriendRequest : NotificationDetails
     /// Name of the sender
     /// </summary>
     public required String SenderName { get; set; }
-
-    /// <summary>
-    /// Photo of the sender
-    /// </summary>
-    public required FileUpload? SenderPhoto { get; set; }
-
 }

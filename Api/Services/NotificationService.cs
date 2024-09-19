@@ -142,7 +142,7 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     {
         var sender = await context.Users
             .Where(u => u.Id == senderId)
-            .Select(u => new { u.FullName, u.Photo })
+            .Select(u => new { u.FullName, u.PhotoFileName })
             .FirstOrDefaultAsync();
 
         if (sender != null)
@@ -153,8 +153,8 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
                 {
                     SenderId = senderId,
                     SenderName = sender.FullName,
-                    SenderPhoto = sender.Photo,
-                });
+                }
+                ,sender.PhotoFileName);
         }
     }
 
