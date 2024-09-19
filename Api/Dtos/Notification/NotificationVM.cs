@@ -1,7 +1,4 @@
-﻿using Reservant.Api.Models.Enums;
-using System.Text.Json;
-
-namespace Reservant.Api.Dtos.Notification;
+﻿namespace Reservant.Api.Dtos.Notification;
 
 /// <summary>
 /// Info about a Notification
@@ -24,12 +21,18 @@ public class NotificationVM
     public required DateTime? DateRead { get; set; }
 
     /// <summary>
-    /// Type of the notification
+    /// Notification type
     /// </summary>
-    public required NotificationType NotificationType { get; set; }
+    public required string NotificationType { get; set; }
 
     /// <summary>
-    /// Extra data
+    /// Path to a picture related to the notification
     /// </summary>
-    public required JsonElement Details { get; set; }
+    public required string? Photo { get; set; }
+
+    /// <summary>
+    /// Extra details
+    /// </summary>
+    /// <example>{"prop1": "string", "prop2": "string", "prop3": "string"}</example>
+    public required object Details { get; set; }
 }

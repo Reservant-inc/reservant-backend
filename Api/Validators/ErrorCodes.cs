@@ -62,6 +62,11 @@ public static class ErrorCodes
     public const string DateMustBeInFuture = "DateMustBeInFuture";
 
     /// <summary>
+    /// The date must be in the past
+    /// </summary>
+    public const string DateMustBeInPast = "DateMustBeInPast";
+
+    /// <summary>
     /// Table does not exist
     /// </summary>
     public const string TableDoesNotExist = "TableDoesNotExist";
@@ -191,4 +196,40 @@ public static class ErrorCodes
     /// The latitude may range from -90.0 to 90.0 and longitude may range from -180.0 to 180.0.
     /// </summary>
     public const string MustBeValidCoordinates = "MustBeValidCoordinates";
+
+    /// <summary>
+    /// The users are already friends
+    /// </summary>
+    public const string AlreadyFriends = "AlreadyFriends";
+
+    /// <summary>
+    /// The string can contain singular plux followed by numbers
+    /// </summary>
+    public const string MustBeValidPhoneNumber = "MustBeValidPhoneNumber";
+
+    /// <summary>
+    /// Incorrect order of date start (or date from) and date end (or date until)
+    /// </summary>
+    public const string StartMustBeBeforeEnd = "StartMustBeBeforeEnd";
+
+    /// <summary>
+    /// MustJoinUntil must be before Time
+    /// </summary>
+    public const string EventIsFull = "EventIsFull";
+
+    /// <summary>
+    /// User is already accepted
+    /// </summary>
+    public const string UserAlreadyAccepted = "UserAlreadyAccepted";
+
+    /// <summary>
+    /// Event already passed
+    /// </summary>
+    public const string JoinDeadlinePassed = "JoinDeadlinePassed";
+
+    /// <summary>
+    /// User already rejected
+    /// </summary>
+    public const string UserAlreadyRejected = "UserAlreadyRejected";
+
 }

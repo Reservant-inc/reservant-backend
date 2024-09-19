@@ -1,6 +1,4 @@
 using System.Reflection;
-using System.Reflection.Emit;
-using System.Text.Json;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Models;
@@ -62,6 +60,8 @@ public class ApiDbContext(
 
     public DbSet<Notification> Notifications { get; set; } = null!;
 
+    public DbSet<ParticipationRequest> EventParticipationRequests { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
@@ -99,88 +99,10 @@ public class ApiDbContext(
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<Restaurant>()
-            .Property(r => r.Location)
-            .HasColumnType("geography");
+        builder.ApplyConfigurationsFromAssembly(typeof(ApiDbContext).Assembly);
 
-        builder.Entity<Visit>(eb =>
-        {
-            eb.HasOne<Restaurant>(v => v.Restaurant)
-                .WithMany()
-                .HasForeignKey(v => v.TableRestaurantId);
-        });
-
-        builder.Entity<Table>().HasKey(t => new { t.RestaurantId, t.Id });
-
-        builder.Entity<RestaurantPhoto>().HasKey(rp => new { rp.RestaurantId, rp.Order });
-
-        builder.Entity<RestaurantTag>().HasData([
-            new RestaurantTag { Name = "OnSite" },
-            new RestaurantTag { Name = "Takeaway" },
-            new RestaurantTag { Name = "Asian" },
-            new RestaurantTag { Name = "Italian" },
-            new RestaurantTag { Name = "Tag1" },
-            new RestaurantTag { Name = "Tag2" }
-        ]);
-
-        builder.Entity<OrderItem>(eb =>
-        {
-            eb.HasKey(oi => new { oi.MenuItemId, oi.OrderId });
-        });
-
-        builder.Entity<IngredientDelivery>(eb =>
-        {
-            eb.HasKey(id => new { id.DeliveryId, id.IngredientId });
-        });
-
-        builder.Entity<User>(eb =>
-        {
-            eb.Property(u => u.Id)
-                .HasMaxLength(36);
-
-            eb.HasOne<FileUpload>(u => u.Photo)
-                .WithOne()
-                .HasForeignKey<User>(u => u.PhotoFileName);
-
-            eb.HasMany<Event>(u => u.EventsCreated)
-                .WithOne(e => e.Creator)
-                .HasForeignKey(e => e.CreatorId);
-
-            eb.HasMany<Event>(u => u.InterestedIn)
-                .WithMany(e => e.Interested);
-
-            eb.HasMany<FileUpload>(u => u.Uploads)
-                .WithOne(fu => fu.User);
-
-            eb.HasMany<FriendRequest>(u => u.OutgoingRequests)
-                .WithOne(fr => fr.Sender);
-
-            eb.HasMany<FriendRequest>(u => u.IncomingRequests)
-                .WithOne(fr => fr.Receiver);
-
-            eb.HasMany(u => u.Threads)
-                .WithMany(mt => mt.Participants);
-        });
-
-        builder.Entity<MessageThread>(eb =>
-        {
-            eb.HasOne(mt => mt.Creator).WithMany();
-        });
-
-        builder.Entity<IngredientMenuItem>()
-                .HasKey(im => new { im.MenuItemId, im.IngredientId });
-
-        builder.Entity<FriendRequest>()
-            .HasQueryFilter(fr => fr.DateDeleted == null);
-
-        builder.Entity<Notification>(eb =>
-        {
-            eb.HasQueryFilter(n => n.TargetUserId == _userId);
-
-            eb.Property(n => n.Details).HasConversion(
-                value => JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
-                column => JsonSerializer.Deserialize<JsonElement>(column, (JsonSerializerOptions?)null));
-        });
+        builder.Entity<Notification>()
+            .HasQueryFilter(n => n.TargetUserId == _userId);
 
         var softDeletableEntities =
             from prop in GetType().GetProperties()

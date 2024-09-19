@@ -2,10 +2,8 @@
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Notification;
-using Reservant.Api.Models.Enums;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
 namespace Reservant.Api.Services;
@@ -13,7 +11,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing notifications
 /// </summary>
-public class NotificationService(ApiDbContext context)
+public class NotificationService(ApiDbContext context, FileUploadService uploadService)
 {
     /// <summary>
     /// Get all notifications
@@ -22,7 +20,7 @@ public class NotificationService(ApiDbContext context)
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page (max 100)</param>
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-    public async Task<Result<Pagination<NotificationVM>>> GetNotificaions(
+    public async Task<Result<Pagination<NotificationVM>>> GetNotifications(
         bool unreadOnly, int page, int perPage)
     {
         var query = context.Notifications.AsQueryable();
@@ -39,7 +37,8 @@ public class NotificationService(ApiDbContext context)
                 NotificationId = n.Id,
                 DateCreated = n.DateCreated,
                 DateRead = n.DateRead,
-                NotificationType = n.NotificationType,
+                Photo = uploadService.GetPathForFileName(n.PhotoFileName),
+                NotificationType = n.Details.GetType().Name,
                 Details = n.Details,
             })
             .PaginateAsync(page, perPage, [], 100);
@@ -78,25 +77,85 @@ public class NotificationService(ApiDbContext context)
     public async Task NotifyRestaurantVerified(
         string targetUserId, int restaurantId)
     {
+        var restaurant = await context.Restaurants
+            .AsNoTracking()
+            .SingleAsync(r => r.Id == restaurantId);
         await NotifyUser(
-            targetUserId, NotificationType.RestaurantVerified,
-            new { restaurantId });
+            targetUserId,
+            new NotificationRestaurantVerified
+            {
+                RestaurantId = restaurant.Id,
+                RestaurantName = restaurant.Name,
+            },
+            restaurant.LogoFileName);
+    }
+
+    /// <summary>
+    /// Notify a user that somebody left a review under one of their restaurants
+    /// </summary>
+    public async Task NotifyNewRestaurantReview(
+        string targetUserId, int reviewId)
+    {
+        var review = await context.Reviews
+            .AsNoTracking()
+            .Include(r => r.Restaurant)
+            .Include(r => r.Author)
+            .SingleAsync(r => r.Id == reviewId);
+        await NotifyUser(
+            targetUserId,
+            new NotificationNewRestaurantReview
+            {
+                RestaurantId = review.Restaurant.Id,
+                RestaurantName = review.Restaurant.Name,
+                ReviewId = review.Id,
+                Stars = review.Stars,
+                Contents = review.Contents,
+                AuthorId = review.AuthorId,
+                AuthorName = review.Author.FullName,
+            },
+            review.Restaurant.LogoFileName);
     }
 
     /// <summary>
     /// Notify a user that something has happened
     /// </summary>
+    /// <param name="targetUserId">ID of the user that will receive the notification</param>
+    /// <param name="details">Kind-specific information. Stored in JSON in the database</param>
+    /// <param name="photoFileName">
+    /// File name of a picture related to the notification.
+    /// For example a user's profile picture, or a restaurant's logo
+    /// </param>
     private async Task NotifyUser(
-        string targetUserId, NotificationType notificationType, object details)
+        string targetUserId, NotificationDetails details, string? photoFileName = null)
     {
-        context.Add(new Notification
+        context.Add(new Notification(DateTime.UtcNow, targetUserId, details)
         {
-            TargetUserId = targetUserId,
-            DateCreated = DateTime.UtcNow,
-            NotificationType = notificationType,
-            Details = JsonSerializer.SerializeToElement(details),
+            PhotoFileName = photoFileName,
         });
-
         await context.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// Notify a user that they have a new friend request
+    /// </summary>
+    public async Task NotifyNewFriendRequest(string senderId, string receiverId)
+    {
+        var sender = await context.Users
+            .Where(u => u.Id == senderId)
+            .Select(u => new { u.FullName, u.PhotoFileName })
+            .FirstOrDefaultAsync();
+
+        if (sender != null)
+        {
+            await NotifyUser(
+                receiverId,
+                new NotificationNewFriendRequest
+                {
+                    SenderId = senderId,
+                    SenderName = sender.FullName,
+                }
+                ,sender.PhotoFileName);
+        }
+    }
+
 }

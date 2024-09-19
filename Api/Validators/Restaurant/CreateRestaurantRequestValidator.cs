@@ -33,7 +33,8 @@ public class CreateRestaurantRequestValidator : AbstractValidator<CreateRestaura
 
         RuleFor(r => r.City)
             .NotEmpty()
-            .MaximumLength(15);
+            .MaximumLength(15)
+            .IsValidCity();
 
         RuleFor(r => r.RentalContract)
             .FileUploadName(FileClass.Document, uploadService);

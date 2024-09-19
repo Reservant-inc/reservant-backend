@@ -1,4 +1,5 @@
-﻿using Reservant.Api.Models.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Reservant.Api.Models;
@@ -26,20 +27,56 @@ public class Notification
     /// <summary>
     /// User that has received the notification
     /// </summary>
+    [StringLength(36)]
     public string TargetUserId { get; set; } = null!;
 
     /// <summary>
-    /// Type of the notification
+    /// File name of a picture related to the notification
     /// </summary>
-    public NotificationType NotificationType {  get; set; }
+    [StringLength(50)]
+    public string? PhotoFileName { get; set; }
 
     /// <summary>
-    /// Extra data
+    /// Type of the details, used for persistence
     /// </summary>
-    public JsonElement Details { get; set; }
+    private Type DetailsKind => Details.GetType();
+
+    /// <summary>
+    /// Serialized details, used for persistence
+    /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength")]
+    private string DetailsJson => JsonSerializer.Serialize(Details, DetailsKind);
+
+    /// <summary>
+    /// Extra details
+    /// </summary>
+    public NotificationDetails Details { get; set; }
 
     /// <summary>
     /// Navigation property for the user that has received the notification
     /// </summary>
     public User TargetUser { get; set; } = null!;
+
+    /// <summary>
+    /// Navigation property for a picture related to the notification
+    /// </summary>
+    public FileUpload Photo { get; set; } = null!;
+
+    /// <summary>
+    /// Constructor for Entity Framework
+    /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    private Notification(Type detailsKind, string detailsJson)
+    {
+        Details = (NotificationDetails)JsonSerializer.Deserialize(detailsJson, detailsKind)!;
+    }
+
+    /// <summary>
+    /// Constructor for the rest of the app
+    /// </summary>
+    public Notification(DateTime dateCreated, string targetUserId, NotificationDetails details)
+    {
+        (DateCreated, TargetUserId, Details) = (dateCreated, targetUserId, details);
+    }
 }

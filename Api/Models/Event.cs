@@ -44,7 +44,12 @@ public class Event : ISoftDeletable
     /// <summary>
     /// ID of the restaurant where the event takes place
     /// </summary>
-    public int RestaurantId { get; set; }
+    public int? RestaurantId { get; set; }
+
+    /// <summary>
+    /// Max number of people that can attend at the event
+    /// </summary>
+    public int MaxPeople { get; set; }
 
     /// <summary>
     /// ID of the actual visit
@@ -59,13 +64,12 @@ public class Event : ISoftDeletable
     /// <summary>
     /// Navigational property for the restaurant where the event takes place
     /// </summary>
-    public Restaurant Restaurant { get; set; } = null!;
+    public Restaurant? Restaurant { get; set; }
 
     /// <summary>
     /// Navigational property for the users interested
     /// </summary>
-    public ICollection<User> Interested { get; set; } = null!;
-
+    public ICollection<ParticipationRequest> ParticipationRequests { get; set; } = null!;
     /// <summary>
     /// Navigational property for the actual visit
     /// </summary>
