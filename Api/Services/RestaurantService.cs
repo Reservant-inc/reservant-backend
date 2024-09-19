@@ -1144,12 +1144,13 @@ namespace Reservant.Api.Services
                     EventId = e.Id,
                     Description = e.Description,
                     Time = e.Time,
+                    MaxPeople = e.MaxPeople,
                     MustJoinUntil = e.MustJoinUntil,
                     CreatorId = e.CreatorId,
                     CreatorFullName = e.Creator.FullName,
                     RestaurantId = e.RestaurantId,
-                    RestaurantName = e.Restaurant.Name,
-                    NumberInterested = e.Interested.Count
+                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
+                    NumberInterested = e.ParticipationRequests.Count
                 });
 
             return await query.PaginateAsync(page, perPage, []);

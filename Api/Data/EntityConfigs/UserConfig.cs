@@ -23,9 +23,6 @@ public class UserConfig : IEntityTypeConfiguration<User>
             .WithOne(e => e.Creator)
             .HasForeignKey(e => e.CreatorId);
 
-        builder.HasMany<Event>(u => u.InterestedIn)
-            .WithMany(e => e.Interested);
-
         builder.HasMany<FileUpload>(u => u.Uploads)
             .WithOne(fu => fu.User);
 

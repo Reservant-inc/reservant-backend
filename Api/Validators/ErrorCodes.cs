@@ -211,4 +211,25 @@ public static class ErrorCodes
     /// Incorrect order of date start (or date from) and date end (or date until)
     /// </summary>
     public const string StartMustBeBeforeEnd = "StartMustBeBeforeEnd";
+
+    /// <summary>
+    /// MustJoinUntil must be before Time
+    /// </summary>
+    public const string EventIsFull = "EventIsFull";
+
+    /// <summary>
+    /// User is already accepted
+    /// </summary>
+    public const string UserAlreadyAccepted = "UserAlreadyAccepted";
+
+    /// <summary>
+    /// Event already passed
+    /// </summary>
+    public const string JoinDeadlinePassed = "JoinDeadlinePassed";
+
+    /// <summary>
+    /// User already rejected
+    /// </summary>
+    public const string UserAlreadyRejected = "UserAlreadyRejected";
+
 }

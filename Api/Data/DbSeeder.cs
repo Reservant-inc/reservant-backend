@@ -373,10 +373,29 @@ public class DbSeeder(
                 Description = "Event 1 Description",
                 Time = visits[0].Date,
                 MustJoinUntil = visits[0].Date.AddHours(-3),
+                MaxPeople = 13,
                 Creator = johnDoe,
                 RestaurantId = 1,
                 Visit = visits[0],
-                Interested = [customer2, customer3]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer1,
+                        DateSent = visits[0].Date.AddHours(-5),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = customer2,
+                        DateSent = visits[0].Date.AddHours(-5),
+                        DateAccepted = visits[0].Date.AddHours(-4),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = customer3,
+                        DateSent = visits[0].Date.AddHours(-5),
+                        DateDeleted = visits[0].Date.AddHours(-4),
+                    },
+                ],
             },
             new Event
             {
@@ -384,21 +403,41 @@ public class DbSeeder(
                 Description = "Event 2 Description",
                 Time = visits[1].Date,
                 MustJoinUntil = visits[1].Date.AddDays(-1),
+                MaxPeople = 10,
                 Creator = johnDoe,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer1]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer1,
+                        DateSent = visits[1].Date.AddDays(-3),
+                    },
+                ],
             },
             new Event
             {
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow.AddHours(-1),
                 Description = "Event 3 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(10).AddHours(-1),
+                MaxPeople = 5,
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer2, johnDoe]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer2,
+                        DateSent = DateTime.UtcNow,
+                    },
+                    new ParticipationRequest
+                    {
+                        User = johnDoe,
+                        DateSent = DateTime.UtcNow,
+                        DateAccepted = DateTime.UtcNow,
+                    },
+                ],
             },
             new Event
             {
@@ -406,21 +445,39 @@ public class DbSeeder(
                 Description = "Event 4 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(15),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(15).AddHours(-1),
+                MaxPeople = 20,
                 Creator = customer1,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = []
+                ParticipationRequests = []
             },
             new Event
             {
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow.AddHours(-2),
                 Description = "Event 5 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(20),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(20).AddHours(-1),
+                MaxPeople = 20,
                 Creator = customer3,
                 RestaurantId = 1,
                 VisitId = null,
-                Interested = [customer1, customer2, johnDoe]
+                ParticipationRequests = [
+                    new ParticipationRequest
+                    {
+                        User = customer1,
+                        DateSent = DateTime.UtcNow.AddHours(-1),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = customer2,
+                        DateSent = DateTime.UtcNow,
+                    },
+                    new ParticipationRequest
+                    {
+                        User = johnDoe,
+                        DateSent = DateTime.UtcNow,
+                    },
+                ],
             }
         );
 
