@@ -37,6 +37,7 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
                 NotificationId = n.Id,
                 DateCreated = n.DateCreated,
                 DateRead = n.DateRead,
+                Photo = uploadService.GetPathForFileName(n.PhotoFileName),
                 NotificationType = n.Details.GetType().Name,
                 Details = n.Details,
             })
@@ -85,8 +86,8 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
             {
                 RestaurantId = restaurant.Id,
                 RestaurantName = restaurant.Name,
-                RestaurantLogo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-            });
+            },
+            restaurant.LogoFileName);
     }
 
     /// <summary>
@@ -106,23 +107,31 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
             {
                 RestaurantId = review.Restaurant.Id,
                 RestaurantName = review.Restaurant.Name,
-                RestaurantLogo = uploadService.GetPathForFileName(review.Restaurant.LogoFileName),
                 ReviewId = review.Id,
                 Stars = review.Stars,
                 Contents = review.Contents,
                 AuthorId = review.AuthorId,
                 AuthorName = review.Author.FullName,
-                AuthorPhoto = uploadService.GetPathForFileName(review.Author.PhotoFileName),
-            });
+            },
+            review.Restaurant.LogoFileName);
     }
 
     /// <summary>
     /// Notify a user that something has happened
     /// </summary>
+    /// <param name="targetUserId">ID of the user that will receive the notification</param>
+    /// <param name="details">Kind-specific information. Stored in JSON in the database</param>
+    /// <param name="photoFileName">
+    /// File name of a picture related to the notification.
+    /// For example a user's profile picture, or a restaurant's logo
+    /// </param>
     private async Task NotifyUser(
-        string targetUserId, NotificationDetails details)
+        string targetUserId, NotificationDetails details, string? photoFileName = null)
     {
-        context.Add(new Notification(DateTime.UtcNow, targetUserId, details));
+        context.Add(new Notification(DateTime.UtcNow, targetUserId, details)
+        {
+            PhotoFileName = photoFileName,
+        });
         await context.SaveChangesAsync();
     }
 

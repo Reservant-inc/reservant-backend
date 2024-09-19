@@ -24,5 +24,8 @@ public class IngredientValidator : AbstractValidator<Models.Ingredient>
 
         RuleFor(x => x.AmountToOrder)
             .GreaterOrEqualToZero();
+        
+        RuleFor(i => i.Amount)
+            .GreaterOrEqualToZero();
     }
 }

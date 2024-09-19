@@ -9,6 +9,7 @@ using Reservant.Api.Validation;
 using Reservant.Api.Dtos.OrderItem;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
+using System.Text.RegularExpressions;
 
 namespace Reservant.Api.Validators;
 
@@ -124,6 +125,17 @@ public static class CustomRules
     }
 
     /// <summary>
+    /// Validates that the date is today or in the future, or is null (implying it will be added in the future).
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly?> DateInFuture<T>(this IRuleBuilder<T, DateOnly?> builder)
+    {
+        return builder
+            .Must(date => !date.HasValue || date.Value >= DateOnly.FromDateTime(DateTime.UtcNow))
+            .WithErrorCode(ErrorCodes.DateMustBeInFuture)
+            .WithMessage("The date must be today or in the future, or be null.");
+    }
+
+    /// <summary>
     /// Validates that the property contains a valid postal code (e.g. 00-000).
     /// </summary>
     public static IRuleBuilderOptions<T, string> PostalCode<T>(this IRuleBuilder<T, string> builder)
@@ -180,6 +192,26 @@ public static class CustomRules
         return builder
             .MustAsync(async (restaurantId, cancellationToken) =>
             {
+                return await dbContext.Restaurants
+                    .AnyAsync(r => r.Id == restaurantId, cancellationToken);
+            })
+            .WithMessage("The specified Restaurant ID does not exist.")
+            .WithErrorCode(ErrorCodes.RestaurantDoesNotExist);
+    }
+
+    /// <summary>
+    /// Validates that the restaurant with the given ID exists, if the ID is not null.
+    /// </summary>
+    public static IRuleBuilderOptions<T, int?> RestaurantExists<T>(this IRuleBuilder<T, int?> builder, ApiDbContext dbContext)
+    {
+        return builder
+            .MustAsync(async (restaurantId, cancellationToken) =>
+            {
+                if (restaurantId is not null)
+                {
+                    return true;
+                }
+
                 return await dbContext.Restaurants
                     .AnyAsync(r => r.Id == restaurantId, cancellationToken);
             })
@@ -374,5 +406,39 @@ public static class CustomRules
             .Must(loc => loc is { Longitude: >= -180 and <= 180, Latitude: >= -90 and <= 90 })
             .WithErrorCode(ErrorCodes.MustBeValidCoordinates)
             .WithMessage("The longitude and latitude must be between -180, 180 and -90, 90 respectively");
+    }
+
+    /// <summary>
+    /// Validates if string has a syntax of a phone number
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> IsValidPhoneNumber<T>(
+        this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Matches(@"^\+\d+$")
+            .WithErrorCode(ErrorCodes.MustBeValidPhoneNumber)
+            .WithMessage("The phone number must start with '+' followed by digits.");
+    }
+
+    /// <summary>
+    /// Validates that the date is today or in the past
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly> DateInPast<T>(this IRuleBuilder<T, DateOnly> builder)
+    {
+        return builder
+            .Must(date => date <= DateOnly.FromDateTime(DateTime.UtcNow))
+            .WithErrorCode(ErrorCodes.DateMustBeInPast)
+            .WithMessage("The date must be today or in the past");
+    }
+
+     /// <summary>
+    /// Validates that the date is today or in the past, or is null
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateOnly?> DateInPast<T>(this IRuleBuilder<T, DateOnly?> builder)
+    {
+        return builder
+            .Must(date => date == null || date <= DateOnly.FromDateTime(DateTime.UtcNow))
+            .WithErrorCode(ErrorCodes.DateMustBeInPast)
+            .WithMessage("The date must be today or in the past, or can be null");
     }
 }

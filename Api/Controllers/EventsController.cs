@@ -43,19 +43,14 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(await service.GetEventAsync(eventId));
         }
 
-
-
-
         /// <summary>
-        /// Add logged-in user to event's interested list
+        /// Request participation in an event
         /// </summary>
-        /// <param name="eventId"> Id of Event</param>
-        /// <returns></returns>
         [HttpPost("{eventId:int}/interested")]
         [ProducesResponseType(204), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
-        [MethodErrorCodes<EventService>(nameof(EventService.AddUserToEventAsync))]
-        public async Task<ActionResult> AddUserToEvent(int eventId)
+        [MethodErrorCodes<EventService>(nameof(EventService.RequestParticipationAsync))]
+        public async Task<ActionResult> RequestParticipation(int eventId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -63,9 +58,46 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            return OkOrErrors(await service.AddUserToEventAsync(eventId, user));
+            return OkOrErrors(await service.RequestParticipationAsync(eventId, user));
         }
 
+        /// <summary>
+        /// Accept a user's participation request
+        /// </summary>
+        [HttpPost("{eventId:int}/accept-user/{userId}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes<EventService>(nameof(EventService.AcceptParticipationRequestAsync))]
+        public async Task<ActionResult> AcceptParticipation(int eventId, string userId)
+        {
+            var currentUser = await userManager.GetUserAsync(User);
+            if (currentUser is null)
+            {
+                return Unauthorized();
+            }
+
+            return OkOrErrors(await service.AcceptParticipationRequestAsync(eventId, userId, currentUser));
+        }
+
+        /// <summary>
+        /// Reject a user's participation request
+        /// </summary>
+        [HttpPost("{eventId:int}/reject-user/{userId}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [Authorize(Roles = Roles.Customer)]
+        [MethodErrorCodes<EventService>(nameof(EventService.RejectParticipationRequestAsync))]
+        public async Task<ActionResult> RejectParticipation(int eventId, string userId)
+        {
+            var currentUser = await userManager.GetUserAsync(User);
+            if (currentUser is null)
+            {
+                return Unauthorized();
+            }
+
+            return OkOrErrors(await service.RejectParticipationRequestAsync(eventId, userId, currentUser));
+        }
+
+        
         /// <summary>
         /// Remove logged-in user to event's interested list
         /// </summary>
@@ -85,12 +117,8 @@ namespace Reservant.Api.Controllers
 
             return OkOrErrors(await service.DeleteUserFromEventAsync(eventId, user));
         }
-
-
-
-
-
-
+        
+        
         /// <summary>
         /// Update an existing event
         /// </summary>

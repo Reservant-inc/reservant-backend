@@ -20,11 +20,6 @@ public class NotificationRestaurantVerified : NotificationDetails
     /// Name of the restaurant
     /// </summary>
     public required string RestaurantName { get; init; }
-
-    /// <summary>
-    /// Path to the restaurant logo
-    /// </summary>
-    public required string? RestaurantLogo { get; init; }
 }
 
 /// <summary>
@@ -41,11 +36,6 @@ public class NotificationNewRestaurantReview : NotificationDetails
     /// Name of the restaurant
     /// </summary>
     public required string RestaurantName { get; init; }
-
-    /// <summary>
-    /// Path to the logo of the restaurant
-    /// </summary>
-    public required string? RestaurantLogo { get; init; }
 
     /// <summary>
     /// ID of the new review
@@ -71,11 +61,6 @@ public class NotificationNewRestaurantReview : NotificationDetails
     /// Name of the review author
     /// </summary>
     public required string AuthorName { get; init; }
-
-    /// <summary>
-    /// Profile picture of the review author
-    /// </summary>
-    public required string? AuthorPhoto { get; init; }
 }
 
 

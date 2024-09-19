@@ -60,6 +60,8 @@ public class ApiDbContext(
 
     public DbSet<Notification> Notifications { get; set; } = null!;
 
+    public DbSet<ParticipationRequest> EventParticipationRequests { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
