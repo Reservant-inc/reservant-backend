@@ -27,7 +27,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <param name="req">Request dto</param>
     /// <returns></returns>
     [HttpPost]
-    [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
+    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     public async Task<ActionResult<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req)
     {
 
