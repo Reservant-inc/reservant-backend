@@ -1,6 +1,6 @@
-﻿using LogsViewer.Data;
+﻿using Reservant.LogsViewer.Data;
 
-namespace LogsViewer.Viewer;
+namespace Reservant.LogsViewer.Viewer;
 
 internal class HttpLog
 {

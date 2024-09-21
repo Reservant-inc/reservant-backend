@@ -6,7 +6,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace LogsViewer.Viewer;
+namespace Reservant.LogsViewer.Viewer;
 
 /// <summary>
 /// Middleware that shows the logs viewer UI

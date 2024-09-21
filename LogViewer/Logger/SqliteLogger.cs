@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 
-namespace LogsViewer.Logger;
+namespace Reservant.LogsViewer.Logger;
 
 /// <summary>
 /// Logs messages to an SQLite database

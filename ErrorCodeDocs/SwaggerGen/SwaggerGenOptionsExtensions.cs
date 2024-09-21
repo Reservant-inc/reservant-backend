@@ -2,7 +2,7 @@
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
-namespace ErrorCodeDocs.SwaggerGen;
+namespace Reservant.ErrorCodeDocs.SwaggerGen;
 
 /// <summary>
 /// Extension methods for SwaggerGenOptions

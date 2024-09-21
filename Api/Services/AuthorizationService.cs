@@ -4,7 +4,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
-using ErrorCodeDocs.Attributes;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services;
 

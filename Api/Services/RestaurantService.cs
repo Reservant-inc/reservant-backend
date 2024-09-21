@@ -8,7 +8,7 @@ using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
-using ErrorCodeDocs.Attributes;
+using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Delivery;
 using Reservant.Api.Dtos.Event;

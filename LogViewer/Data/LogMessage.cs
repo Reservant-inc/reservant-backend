@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace LogsViewer.Data;
+namespace Reservant.LogsViewer.Data;
 
 /// <summary>
 /// Represents a log message

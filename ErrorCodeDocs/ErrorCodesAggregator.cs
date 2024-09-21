@@ -1,13 +1,13 @@
-﻿using ErrorCodeDocs.Attributes;
-using FluentValidation;
+﻿using FluentValidation;
 using System.Reflection;
+using Reservant.ErrorCodeDocs.Attributes;
 
-namespace ErrorCodeDocs;
+namespace Reservant.ErrorCodeDocs;
 
 /// <summary>
 /// Methods to aggregate error codes for a selected method
 /// </summary>
-/// 
+///
 public class ErrorCodesAggregator
 {
     private readonly Dictionary<Type, Type> _validators = [];

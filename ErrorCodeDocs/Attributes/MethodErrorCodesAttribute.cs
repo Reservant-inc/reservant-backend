@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
-namespace ErrorCodeDocs.Attributes;
+namespace Reservant.ErrorCodeDocs.Attributes;
 
 /// <summary>
 /// Use <see cref="MethodErrorCodesAttribute{TContaining}"/> instead.

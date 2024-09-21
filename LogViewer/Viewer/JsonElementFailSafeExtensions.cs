@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace LogsViewer.Viewer;
+namespace Reservant.LogsViewer.Viewer;
 
 /// <summary>
 /// Extension methods for fail-safe fluent JsonElement querying

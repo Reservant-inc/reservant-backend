@@ -4,7 +4,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
-using ErrorCodeDocs.Attributes;
+using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.FriendRequest;
 

@@ -1,4 +1,4 @@
-﻿using ErrorCodeDocs.Attributes;
+﻿using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Notification;

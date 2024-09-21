@@ -1,6 +1,6 @@
-﻿using ErrorCodeDocs.Attributes;
+﻿using Reservant.ErrorCodeDocs.Attributes;
 
-namespace ErrorCodeDocs;
+namespace Reservant.ErrorCodeDocs;
 
 /// <summary>
 /// Describes an error code that can be returned from a method

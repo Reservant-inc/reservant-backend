@@ -7,6 +7,7 @@
         <InvariantGlobalization>false</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>Reservant.Api</RootNamespace>
+        <AssemblyName>Reservant.Api</AssemblyName>
         <UserSecretsId>71abd42b-36f0-4f9f-9166-bf4b4ee57b99</UserSecretsId>
     </PropertyGroup>
 
@@ -17,11 +18,11 @@
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\net8.0\Api.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\net8.0\$(AssemblyName).xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\net8.0\Api.xml</DocumentationFile>
+      <DocumentationFile>bin\Release\net8.0\$(AssemblyName).xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

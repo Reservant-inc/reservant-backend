@@ -1,12 +1,12 @@
-﻿using LogsViewer.Data;
-using LogsViewer.Logger;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Reservant.LogsViewer.Data;
+using Reservant.LogsViewer.Logger;
 
-namespace LogsViewer.Viewer;
+namespace Reservant.LogsViewer.Viewer;
 
 /// <summary>
 /// Service responsible for rendering the logs viewer UI

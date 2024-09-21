@@ -6,7 +6,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
-using ErrorCodeDocs.Attributes;
+using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos.Menu;
 using Reservant.Api.Dtos.MenuItem;
 using Reservant.Api.Dtos.Restaurant;

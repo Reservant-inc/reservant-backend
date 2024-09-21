@@ -1,4 +1,4 @@
-﻿using ErrorCodeDocs.Attributes;
+﻿using Reservant.ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
