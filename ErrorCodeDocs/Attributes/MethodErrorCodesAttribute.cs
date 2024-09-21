@@ -1,8 +1,6 @@
 ﻿namespace Reservant.ErrorCodeDocs.Attributes;
 
 /// <summary>
-/// Use <see cref="MethodErrorCodesAttribute{TContaining}"/> instead.
-///
 /// Documents that an endpoint (or a method) can return error codes produced by the specified method
 /// </summary>
 /// <param name="containingType">Type that contains the method</param>
