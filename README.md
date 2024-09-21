@@ -1,5 +1,8 @@
 # Reservant API
 
+![Build Status](https://github.com/Reservant-inc/reservant-backend/actions/workflows/test-build.yml/badge.svg)
+![Code QL Status](https://github.com/Reservant-inc/reservant-backend/actions/workflows/github-code-scanning/codeql/badge.svg)
+
 Backend for the app in the form of a web API.
 
 ## Running Locally
