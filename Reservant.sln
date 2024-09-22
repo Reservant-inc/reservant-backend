@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsViewer", "LogViewer\Log
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorCodeDocs", "ErrorCodeDocs\ErrorCodeDocs.csproj", "{4AAC0566-A6B6-4622-8D50-B40345445123}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorCodeDocs.Test", "ErrorCodeDocs.Test\ErrorCodeDocs.Test.csproj", "{99C04399-6F77-49B8-9B13-C014F6AC4C9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0A8B7B0-C023-4A14-BC24-FAE6B06B790D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99C04399-6F77-49B8-9B13-C014F6AC4C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99C04399-6F77-49B8-9B13-C014F6AC4C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99C04399-6F77-49B8-9B13-C014F6AC4C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99C04399-6F77-49B8-9B13-C014F6AC4C9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
