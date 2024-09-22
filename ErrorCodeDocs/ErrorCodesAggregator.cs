@@ -36,18 +36,57 @@ public class ErrorCodesAggregator
     public IEnumerable<ErrorCodeDescription> GetErrorCodes(MethodInfo method)
     {
         var codes = new SortedSet<ErrorCodeDescription>(ErrorCodeComparer);
+        foreach (var sourceMethod in GetAllMethodsContributingErrorCodes(method))
+        {
+            AddErrorCodesFromMethod(sourceMethod, codes);
+        }
 
+        return codes;
+    }
+
+    /// <summary>
+    /// Get methods that the given method can return error codes of (including itself).
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    private static HashSet<MethodInfo> GetAllMethodsContributingErrorCodes(MethodInfo method)
+    {
+        var methodsToInspect = new Queue<MethodInfo>();
+        methodsToInspect.Enqueue(method);
+
+        var inspectedMethods = new HashSet<MethodInfo>();
+        while (methodsToInspect.Count > 0)
+        {
+            var sourceMethod = methodsToInspect.Dequeue();
+            inspectedMethods.Add(sourceMethod);
+
+            foreach (var attribute in sourceMethod.GetCustomAttributes(typeof(MethodErrorCodesAttribute<>)))
+            {
+                var methodAttribute = (MethodErrorCodesAttribute)attribute;
+                var referencedMethod =
+                    methodAttribute.ContainingType.GetMethod(methodAttribute.MethodName)
+                    ?? throw new InvalidOperationException(
+                        $"Method not found {methodAttribute.MethodName} in type {methodAttribute.ContainingType.Name}");
+
+                if (!inspectedMethods.Contains(referencedMethod))
+                {
+                    methodsToInspect.Enqueue(referencedMethod);
+                }
+            }
+        }
+
+        return inspectedMethods;
+    }
+
+    /// <summary>
+    /// Add error codes that a method can return, ignoring MethodErrorCodes attributes
+    /// </summary>
+    /// <param name="method">The method</param>
+    /// <param name="codes">The collection to add the codes to</param>
+    private void AddErrorCodesFromMethod(MethodInfo method, ICollection<ErrorCodeDescription> codes)
+    {
         foreach (var errorCode in method.GetCustomAttributes<ErrorCodeAttribute>())
         {
             codes.Add(new ErrorCodeDescription(errorCode));
-        }
-
-        foreach (var inheritedMethod in method.GetCustomAttributes(typeof(MethodErrorCodesAttribute<>)))
-        {
-            foreach (var errorCode in GetReferencedMethodErrorCodes(inheritedMethod))
-            {
-                codes.Add(errorCode);
-            }
         }
 
         foreach (var inheritedValidator in method.GetCustomAttributes(typeof(ValidatorErrorCodesAttribute<>)))
@@ -56,32 +95,6 @@ public class ErrorCodesAggregator
             {
                 codes.Add(errorCode);
             }
-        }
-
-        return codes;
-    }
-
-    /// <summary>
-    /// Get error codes that can be returned from the method referenced in a <see cref="MethodErrorCodesAttribute{TContaining}"/>
-    /// </summary>
-    /// <param name="attribute">The attribute, must inherit from <see cref="MethodErrorCodesAttribute"/></param>
-    /// <exception cref="ArgumentException">The attribute does not inherit from <see cref="MethodErrorCodesAttribute"/></exception>
-    /// <exception cref="InvalidOperationException">The method referenced was not found</exception>
-    private IEnumerable<ErrorCodeDescription> GetReferencedMethodErrorCodes(Attribute attribute)
-    {
-        if (attribute is not MethodErrorCodesAttribute methodAttribute)
-        {
-            throw new ArgumentException($"Attribute must be a {nameof(MethodErrorCodesAttribute)}", nameof(attribute));
-        }
-
-        var referencedMethod = methodAttribute.ContainingType
-            .GetMethod(methodAttribute.MethodName)
-            ?? throw new InvalidOperationException(
-                $"Method not found {methodAttribute.MethodName} in type {methodAttribute.ContainingType.Name}");
-
-        foreach (var errorCode in GetErrorCodes(referencedMethod))
-        {
-            yield return errorCode;
         }
     }
 

@@ -67,6 +67,24 @@ public class ErrorCodeAggregatorTest
     }
 
     [Fact]
+    public void ReferenceCyclesAreIgnored()
+    {
+        // Arrange
+        var method = GetSampleMethod(nameof(SampleMethods.ReferenceCycle));
+
+        // Act
+        var codes = _sut.GetErrorCodes(method);
+
+        // Assert
+        var expected = new ErrorCodeDescription[]
+        {
+            new(null, ErrorCodes.FirstCode),
+            new(null, ErrorCodes.SecondCode),
+        };
+        Assert.Equal(expected, codes);
+    }
+
+    [Fact]
     public void RemovesDuplicates()
     {
         // Arrange

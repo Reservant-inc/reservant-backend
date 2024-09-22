@@ -39,6 +39,20 @@ public class SampleMethods
         throw new NotSupportedException();
     }
 
+    [ErrorCode(null, ErrorCodes.FirstCode)]
+    [MethodErrorCodes<SampleMethods>(nameof(ReferenceCycle2))]
+    public void ReferenceCycle()
+    {
+        throw new NotSupportedException();
+    }
+
+    [ErrorCode(null, ErrorCodes.SecondCode)]
+    [MethodErrorCodes<SampleMethods>(nameof(ReferenceCycle))]
+    public void ReferenceCycle2()
+    {
+        throw new NotSupportedException();
+    }
+
     [ErrorCode(nameof(SampleDto.Property1), ErrorCodes.ValidatorFirstCode, "Description from validator")]
     [ErrorCode(nameof(SampleDto.Property2), ErrorCodes.ValidatorSecondCode, "Different description")]
     [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.FirstCode)]
