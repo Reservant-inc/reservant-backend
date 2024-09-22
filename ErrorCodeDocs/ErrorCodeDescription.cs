@@ -15,4 +15,10 @@ public record struct ErrorCodeDescription(string? PropertyName, string ErrorCode
     /// </summary>
     public ErrorCodeDescription(ErrorCodeAttribute attribute)
         : this(attribute.PropertyName, attribute.ErrorCode, attribute.Description) { }
+
+    public override string ToString()
+    {
+        var description = Description is null ? "" : $" ({Description})";
+        return $"\"{PropertyName}\": {ErrorCode}{description}";
+    }
 }
