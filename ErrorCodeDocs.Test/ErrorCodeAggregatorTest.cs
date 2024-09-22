@@ -66,6 +66,28 @@ public class ErrorCodeAggregatorTest
         Assert.Equal(expected, codes);
     }
 
+    [Fact]
+    public void RemovesDuplicates()
+    {
+        // Arrange
+        var method = GetSampleMethod(nameof(SampleMethods.DuplicateCodes));
+
+        // Act
+        var codes = _sut.GetErrorCodes(method);
+
+        // Assert
+        var expected = new ErrorCodeDescription[]
+        {
+            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.FirstCode),
+            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.SecondCode),
+            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.SecondCode, "Different description"),
+            new(nameof(SampleDto.Property1), ErrorCodes.ValidatorFirstCode, "Description from validator"),
+            new(nameof(SampleDto.Property2), ErrorCodes.ValidatorSecondCode, "Description from validator"),
+            new(nameof(SampleDto.Property2), ErrorCodes.ValidatorSecondCode, "Different description"),
+        };
+        Assert.Equal(expected, codes);
+    }
+
     private static MethodInfo GetSampleMethod(string name, params Type[] paramTypes)
         => typeof(SampleMethods).GetMethod(name, paramTypes)
            ?? throw new InvalidOperationException(

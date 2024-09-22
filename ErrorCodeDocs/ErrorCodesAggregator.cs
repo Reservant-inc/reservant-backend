@@ -9,6 +9,9 @@ namespace Reservant.ErrorCodeDocs;
 /// </summary>
 public class ErrorCodesAggregator
 {
+    private static readonly Comparer<ErrorCodeDescription> ErrorCodeComparer =
+        Comparer<ErrorCodeDescription>.Default;
+
     private readonly Dictionary<Type, Type> _validators = [];
 
     /// <summary>
@@ -32,26 +35,30 @@ public class ErrorCodesAggregator
     /// <param name="method">The method</param>
     public IEnumerable<ErrorCodeDescription> GetErrorCodes(MethodInfo method)
     {
+        var codes = new SortedSet<ErrorCodeDescription>(ErrorCodeComparer);
+
         foreach (var errorCode in method.GetCustomAttributes<ErrorCodeAttribute>())
         {
-            yield return new ErrorCodeDescription(errorCode);
+            codes.Add(new ErrorCodeDescription(errorCode));
         }
 
         foreach (var inheritedMethod in method.GetCustomAttributes(typeof(MethodErrorCodesAttribute<>)))
         {
             foreach (var errorCode in GetReferencedMethodErrorCodes(inheritedMethod))
             {
-                yield return errorCode;
+                codes.Add(errorCode);
             }
         }
 
-        foreach (var inheritedMethod in method.GetCustomAttributes(typeof(ValidatorErrorCodesAttribute<>)))
+        foreach (var inheritedValidator in method.GetCustomAttributes(typeof(ValidatorErrorCodesAttribute<>)))
         {
-            foreach (var errorCode in GetValidatorErrorCodes(inheritedMethod))
+            foreach (var errorCode in GetValidatorErrorCodes(inheritedValidator))
             {
-                yield return errorCode;
+                codes.Add(errorCode);
             }
         }
+
+        return codes;
     }
 
     /// <summary>

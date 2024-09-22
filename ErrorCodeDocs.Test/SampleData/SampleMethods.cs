@@ -38,4 +38,15 @@ public class SampleMethods
     {
         throw new NotSupportedException();
     }
+
+    [ErrorCode(nameof(SampleDto.Property1), ErrorCodes.ValidatorFirstCode, "Description from validator")]
+    [ErrorCode(nameof(SampleDto.Property2), ErrorCodes.ValidatorSecondCode, "Different description")]
+    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.FirstCode)]
+    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.SecondCode, "Different description")]
+    [MethodErrorCodes<SampleMethods>(nameof(MethodToInheritFrom))]
+    [ValidatorErrorCodes<SampleDto>]
+    public void DuplicateCodes()
+    {
+        throw new NotSupportedException();
+    }
 }
