@@ -12,6 +12,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
 using Reservant.Api.Options;
+using Reservant.Api.Push;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -52,6 +53,7 @@ builder.Services.AddDbContext<ApiDbContext>();
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddIdentityServices(builder.Configuration);
 
+builder.Services.AddPushServices();
 builder.Services.AddBusinessServices();
 
 var app = builder.Build();
@@ -66,6 +68,9 @@ app.UseLogsViewerUI();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseWebSockets();
+app.UsePushMiddleware();
 
 app.UseHttpLogging();
 
