@@ -15,4 +15,27 @@ public class SampleMethods
     {
         throw new NotSupportedException();
     }
+
+    [ErrorCode(nameof(InheritsFromAnotherMethod), ErrorCodes.FirstCode)]
+    [ErrorCode(nameof(InheritsFromAnotherMethod), ErrorCodes.SecondCode)]
+    [MethodErrorCodes<SampleMethods>(nameof(MethodToInheritFrom))]
+    public void InheritsFromAnotherMethod()
+    {
+        throw new NotSupportedException();
+    }
+
+    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.FirstCode)]
+    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.SecondCode)]
+    public void MethodToInheritFrom()
+    {
+        throw new NotSupportedException();
+    }
+
+    [ErrorCode(null, ErrorCodes.FirstCode)]
+    [ErrorCode(null, ErrorCodes.SecondCode)]
+    [ValidatorErrorCodes<SampleDto>]
+    public void InheritsFromValidator()
+    {
+        throw new NotSupportedException();
+    }
 }
