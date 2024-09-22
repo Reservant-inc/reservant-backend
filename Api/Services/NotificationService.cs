@@ -158,4 +158,58 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
         }
     }
 
+
+
+
+
+    /// <summary>
+    /// Notify a user that they have a new participation request
+    /// </summary>
+    public async Task NotifyNewParticipationRequest(string receiverId, string senderId, int eventId)
+    {
+        var sender = await context.Users
+            .Where(u => u.Id == senderId)
+            .Select(u => new { u.FullName, u.PhotoFileName })
+            .FirstOrDefaultAsync();
+
+        if (sender != null)
+        {
+            await NotifyUser(
+                receiverId,
+                new NotificationNewParticipationRequest
+                {
+                    SenderId = senderId,
+                    SenderName = sender.FullName,
+                    EventId = eventId,
+                },
+                sender.PhotoFileName); // Assuming you want to send the first photo
+        }
+    }
+
+    /// <summary>
+    /// Notify a user that they have a new participation request response
+    /// </summary>
+    public async Task NotifyNewParticipationRequestResponse(string receiverId, int eventId, bool accepted)
+    {
+        var eventData = await context.Events
+            .Where(e => e.Id == eventId)
+            .Include(e => e.Restaurant)
+            .ThenInclude(r => r.Photos)
+            .Select(e => new { e.Description, Photos = e.Restaurant.Photos.Select(p => p.PhotoFileName) })
+            .FirstOrDefaultAsync();
+
+        if (eventData != null)
+        {
+            await NotifyUser(
+                receiverId,
+                new NotificationNewParticipationRequestResponse
+                {
+                    EventId = eventId,
+                    DateAccepted = accepted ? DateTime.Now : null,
+                    DateDeleted = accepted ? null : DateTime.Now
+                },
+                eventData.Photos.FirstOrDefault());
+        }
+    }
+
 }

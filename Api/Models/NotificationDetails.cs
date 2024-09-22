@@ -63,7 +63,6 @@ public class NotificationNewRestaurantReview : NotificationDetails
     public required string AuthorName { get; init; }
 }
 
-
 /// <summary>
 /// Details for a new friend request notification
 /// </summary>
@@ -79,4 +78,52 @@ public class NotificationNewFriendRequest : NotificationDetails
     /// Name of the sender
     /// </summary>
     public required String SenderName { get; set; }
+}
+
+
+
+
+
+
+/// <summary>
+/// Details for a new participation request notification
+/// </summary>
+public class NotificationNewParticipationRequest : NotificationDetails
+{
+    /// <summary>
+    /// ID of the sender
+    /// </summary>
+    [StringLength(36)]
+    public required string SenderId { get; set; } = null!;
+
+    /// <summary>
+    /// Name of the sender
+    /// </summary>
+    public required String SenderName { get; set; }
+
+    /// <summary>
+    /// Event ID
+    /// </summary>
+    public int EventId { get; set; }
+}
+
+/// <summary>
+/// Details for a new participation requests response notification
+/// </summary>
+public class NotificationNewParticipationRequestResponse : NotificationDetails
+{
+    /// <summary>
+    /// Event ID
+    /// </summary>
+    public int EventId { get; set; }
+
+    /// <summary>
+    /// Time when user got accepted
+    /// </summary>
+    public DateTime? DateAccepted { get; set; }
+
+    /// <summary>
+    /// Time when the request was deleted or rejected (same thing)
+    /// </summary>
+    public DateTime? DateDeleted { get; set; }
 }

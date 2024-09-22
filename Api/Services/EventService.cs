@@ -17,7 +17,9 @@ namespace Reservant.Api.Services
     public class EventService(
         ApiDbContext context,
         ValidationService validationService,
-        FileUploadService uploadService)
+        FileUploadService uploadService,
+        NotificationService notificationService
+        )
     {
         /// <summary>
         /// Action for
@@ -197,6 +199,8 @@ namespace Reservant.Api.Services
             context.EventParticipationRequests.Add(participationRequest);
             await context.SaveChangesAsync();
 
+            await notificationService.NotifyNewParticipationRequest(eventFound.Creator.Id,user.Id,eventId);
+
             return Result.Success;
         }
 
@@ -263,6 +267,7 @@ namespace Reservant.Api.Services
 
             request.DateAccepted = DateTime.Now;
             await context.SaveChangesAsync();
+            await notificationService.NotifyNewParticipationRequestResponse(userId,eventId,true);
 
             return Result.Success;
         }
@@ -305,6 +310,7 @@ namespace Reservant.Api.Services
 
             request.DateDeleted = DateTime.Now;
             await context.SaveChangesAsync();
+            await notificationService.NotifyNewParticipationRequestResponse(userId,eventId,false);
 
             return Result.Success;
         }
