@@ -38,10 +38,12 @@ public class ErrorCodeAggregatorTest
         // Assert
         var expected = new ErrorCodeDescription[]
         {
+            new(nameof(SampleMethods.FirstOrderInheritedMethod), ErrorCodes.FirstCode),
+            new(nameof(SampleMethods.FirstOrderInheritedMethod), ErrorCodes.SecondCode),
+            new(nameof(SampleMethods.InheritedUsingTypeof), ErrorCodes.FirstCode),
             new(method.Name, ErrorCodes.FirstCode),
             new(method.Name, ErrorCodes.SecondCode),
-            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.FirstCode),
-            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.SecondCode),
+            new(nameof(SampleMethods.SecondOrderInheritedMethod), ErrorCodes.FirstCode),
         };
         Assert.Equal(expected, codes);
     }
@@ -96,12 +98,13 @@ public class ErrorCodeAggregatorTest
         // Assert
         var expected = new ErrorCodeDescription[]
         {
-            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.FirstCode),
-            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.SecondCode),
-            new(nameof(SampleMethods.MethodToInheritFrom), ErrorCodes.SecondCode, "Different description"),
+            new(nameof(SampleMethods.FirstOrderInheritedMethod), ErrorCodes.FirstCode),
+            new(nameof(SampleMethods.FirstOrderInheritedMethod), ErrorCodes.SecondCode),
+            new(nameof(SampleMethods.FirstOrderInheritedMethod), ErrorCodes.SecondCode, "Different description"),
             new(nameof(SampleDto.Property1), ErrorCodes.ValidatorFirstCode, "Description from validator"),
             new(nameof(SampleDto.Property2), ErrorCodes.ValidatorSecondCode, "Description from validator"),
             new(nameof(SampleDto.Property2), ErrorCodes.ValidatorSecondCode, "Different description"),
+            new(nameof(SampleMethods.SecondOrderInheritedMethod), ErrorCodes.FirstCode),
         };
         Assert.Equal(expected, codes);
     }

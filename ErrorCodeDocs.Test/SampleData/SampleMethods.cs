@@ -18,15 +18,29 @@ public class SampleMethods
 
     [ErrorCode(nameof(InheritsFromAnotherMethod), ErrorCodes.FirstCode)]
     [ErrorCode(nameof(InheritsFromAnotherMethod), ErrorCodes.SecondCode)]
-    [MethodErrorCodes<SampleMethods>(nameof(MethodToInheritFrom))]
+    [MethodErrorCodes<SampleMethods>(nameof(FirstOrderInheritedMethod))]
+    [MethodErrorCodes(typeof(SampleMethods), nameof(InheritedUsingTypeof))]
     public void InheritsFromAnotherMethod()
     {
         throw new NotSupportedException();
     }
 
-    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.FirstCode)]
-    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.SecondCode)]
-    public void MethodToInheritFrom()
+    [ErrorCode(nameof(FirstOrderInheritedMethod), ErrorCodes.FirstCode)]
+    [ErrorCode(nameof(FirstOrderInheritedMethod), ErrorCodes.SecondCode)]
+    [MethodErrorCodes<SampleMethods>(nameof(SecondOrderInheritedMethod))]
+    public void FirstOrderInheritedMethod()
+    {
+        throw new NotSupportedException();
+    }
+
+    [ErrorCode(nameof(InheritedUsingTypeof), ErrorCodes.FirstCode)]
+    public void InheritedUsingTypeof()
+    {
+        throw new NotSupportedException();
+    }
+
+    [ErrorCode(nameof(SecondOrderInheritedMethod), ErrorCodes.FirstCode)]
+    public void SecondOrderInheritedMethod()
     {
         throw new NotSupportedException();
     }
@@ -55,9 +69,9 @@ public class SampleMethods
 
     [ErrorCode(nameof(SampleDto.Property1), ErrorCodes.ValidatorFirstCode, "Description from validator")]
     [ErrorCode(nameof(SampleDto.Property2), ErrorCodes.ValidatorSecondCode, "Different description")]
-    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.FirstCode)]
-    [ErrorCode(nameof(MethodToInheritFrom), ErrorCodes.SecondCode, "Different description")]
-    [MethodErrorCodes<SampleMethods>(nameof(MethodToInheritFrom))]
+    [ErrorCode(nameof(FirstOrderInheritedMethod), ErrorCodes.FirstCode)]
+    [ErrorCode(nameof(FirstOrderInheritedMethod), ErrorCodes.SecondCode, "Different description")]
+    [MethodErrorCodes<SampleMethods>(nameof(FirstOrderInheritedMethod))]
     [ValidatorErrorCodes<SampleDto>]
     public void DuplicateCodes()
     {
