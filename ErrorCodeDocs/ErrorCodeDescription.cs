@@ -8,7 +8,7 @@ namespace Reservant.ErrorCodeDocs;
 /// <param name="PropertyName">Property name for which the error code is returned</param>
 /// <param name="ErrorCode">The error code returned</param>
 /// <param name="ErrorCode">Optional description of the reason the error code might be returned</param>
-public record struct ErrorCodeDescription(
+public readonly record struct ErrorCodeDescription(
     string? PropertyName, string ErrorCode, string? Description = null)
     : IComparable<ErrorCodeDescription>
 {
