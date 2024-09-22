@@ -5,9 +5,6 @@ namespace Reservant.ErrorCodeDocs;
 /// <summary>
 /// Describes an error code that can be returned from a method
 /// </summary>
-/// <param name="PropertyName">Property name for which the error code is returned</param>
-/// <param name="ErrorCode">The error code returned</param>
-/// <param name="Description">Optional description of the reason the error code might be returned</param>
 public struct ErrorCodeDescription
 {
     /// <summary>
@@ -26,7 +23,7 @@ public struct ErrorCodeDescription
     public string? Description { get; set; }
 
     /// <summary>
-    /// Consruct an instance based on an <see cref="ErrorCodeAttribute"/>
+    /// Construct an instance based on an <see cref="ErrorCodeAttribute"/>
     /// </summary>
     public ErrorCodeDescription(ErrorCodeAttribute attribute)
     {

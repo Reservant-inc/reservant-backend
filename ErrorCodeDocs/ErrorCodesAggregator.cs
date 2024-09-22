@@ -7,7 +7,6 @@ namespace Reservant.ErrorCodeDocs;
 /// <summary>
 /// Methods to aggregate error codes for a selected method
 /// </summary>
-///
 public class ErrorCodesAggregator
 {
     private readonly Dictionary<Type, Type> _validators = [];
