@@ -59,9 +59,8 @@ public class ErrorCodesAggregator
             var sourceMethod = methodsToInspect.Dequeue();
             inspectedMethods.Add(sourceMethod);
 
-            foreach (var attribute in sourceMethod.GetCustomAttributes(typeof(MethodErrorCodesAttribute<>)))
+            foreach (var methodAttribute in sourceMethod.GetCustomAttributes<MethodErrorCodesAttribute>())
             {
-                var methodAttribute = (MethodErrorCodesAttribute)attribute;
                 var referencedMethod =
                     methodAttribute.ContainingType.GetMethod(methodAttribute.MethodName)
                     ?? throw new InvalidOperationException(
