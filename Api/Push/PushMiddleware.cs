@@ -9,10 +9,13 @@ namespace Reservant.Api.Push;
 /// </summary>
 public class PushMiddleware(
     PushService pushService,
-    ILogger<PushMiddleware> logger) : IMiddleware
+    ILogger<PushMiddleware> logger,
+    IHostApplicationLifetime appLifetime) : IMiddleware
 {
     private const string EndpointPath = "/notifications/ws";
     private const int MessagePollDelayMs = 1000;
+
+    private readonly CancellationToken _appStopping = appLifetime.ApplicationStopping;
 
     /// <inheritdoc />
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -26,7 +29,7 @@ public class PushMiddleware(
         if (!context.WebSockets.IsWebSocketRequest)
         {
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsync("Must be a WS connection");
+            await context.Response.WriteAsync("Must be a WS connection", CancellationToken.None);
             return;
         }
 
@@ -34,54 +37,54 @@ public class PushMiddleware(
         {
             using var socket = await context.WebSockets.AcceptWebSocketAsync();
 
-            var requestCancel = new CancellationTokenSource();
+            using var clientClosingTokenSource = new CancellationTokenSource();
             var stopToken = CancellationTokenSource.CreateLinkedTokenSource(
-                requestCancel.Token, context.RequestAborted).Token;
+                clientClosingTokenSource.Token, _appStopping).Token;
 
-            var pushTask = Task.Run(async () =>
+            var receiveTask = Task.Run(async () =>
             {
                 try
                 {
                     // socket is disposed only after we await the result
                     // ReSharper disable once AccessToDisposedClosure
-                    await PushMessages(pushService, socket, stopToken);
+                    await ReceiveMessages(socket, CancellationToken.None);
                 }
                 finally
                 {
-                    await requestCancel.CancelAsync();
+                    // clientClosingTokenSource is disposed only after we await the result
+                    // ReSharper disable once AccessToDisposedClosure
+                    await clientClosingTokenSource.CancelAsync();
                 }
-            });
+            }, CancellationToken.None);
 
-            try
+            await PushMessages(pushService, socket, stopToken);
+
+            if (clientClosingTokenSource.IsCancellationRequested)
             {
-                await ReceiveMessages(socket, stopToken);
+                await receiveTask;
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Goodbye",
+                    CancellationToken.None);
             }
-            finally
-            {
-                await requestCancel.CancelAsync();
-            }
-
-            await pushTask; // Wait for any pending send operations to complete
-
-            while (!stopToken.IsCancellationRequested)
+            else
             {
                 await socket.CloseAsync(
                     WebSocketCloseStatus.EndpointUnavailable,
                     "Server stopped",
                     CancellationToken.None);
+                await receiveTask; // Receive the closing frame
             }
         }
         catch (WebSocketException ex)
         {
-            switch (ex.WebSocketErrorCode)
+            if (ex.WebSocketErrorCode is WebSocketError.ConnectionClosedPrematurely)
             {
-                case WebSocketError.ConnectionClosedPrematurely:
-                    logger.LogInformation(ex, "Client connection closed prematurely");
-                    break;
-
-                default:
-                    logger.LogError(ex, "Unexpected WebSocket error");
-                    break;
+                logger.LogInformation(ex, "Client connection closed prematurely");
+            }
+            else
+            {
+                logger.LogError(ex, "Unexpected WebSocket error");
             }
         }
     }
@@ -111,6 +114,7 @@ public class PushMiddleware(
                     cancelToken);
             }
         }
+        catch (OperationCanceledException) { }
         finally
         {
             source.OnMessage -= EnqueueAuthorizedMessages;
@@ -125,18 +129,22 @@ public class PushMiddleware(
     }
 
     /// <summary>
-    /// Receive message from the client in a loop, until the client closes connection
+    /// Receive messages from the client in a loop, until the client sends a closing frame
     /// </summary>
     private static async Task ReceiveMessages(WebSocket socket, CancellationToken cancelToken)
     {
-        while (!cancelToken.IsCancellationRequested)
+        try
         {
-            var (response, message) = await ReceiveFullMessage(socket, cancelToken);
-            if (response.MessageType == WebSocketMessageType.Close)
+            while (!cancelToken.IsCancellationRequested)
             {
-                break;
+                var (response, message) = await ReceiveFullMessage(socket, cancelToken);
+                if (response.MessageType == WebSocketMessageType.Close)
+                {
+                    break;
+                }
             }
         }
+        catch (OperationCanceledException) { }
     }
 
     /// <summary>
