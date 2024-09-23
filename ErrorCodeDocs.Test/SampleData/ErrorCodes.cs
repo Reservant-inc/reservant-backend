@@ -1,4 +1,4 @@
-namespace ErrorCodeDocs.Test.SampleData;
+namespace Reservant.ErrorCodeDocs.Test.SampleData;
 
 public static class ErrorCodes
 {

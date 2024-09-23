@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace ErrorCodeDocs.Test.SampleData;
+namespace Reservant.ErrorCodeDocs.Test.SampleData;
 
 public class SampleValidator : AbstractValidator<SampleDto>
 {

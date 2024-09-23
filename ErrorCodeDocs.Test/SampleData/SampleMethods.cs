@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Reservant.ErrorCodeDocs.Attributes;
 
-namespace ErrorCodeDocs.Test.SampleData;
+namespace Reservant.ErrorCodeDocs.Test.SampleData;
 
 /// <summary>
 /// Sample methods that are used to test error code attributes

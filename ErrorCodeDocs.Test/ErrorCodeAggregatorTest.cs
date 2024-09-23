@@ -1,8 +1,7 @@
 using System.Reflection;
-using ErrorCodeDocs.Test.SampleData;
-using Reservant.ErrorCodeDocs;
+using Reservant.ErrorCodeDocs.Test.SampleData;
 
-namespace ErrorCodeDocs.Test;
+namespace Reservant.ErrorCodeDocs.Test;
 
 public class ErrorCodeAggregatorTest
 {

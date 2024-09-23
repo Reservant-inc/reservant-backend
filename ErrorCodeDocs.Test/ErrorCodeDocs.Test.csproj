@@ -7,6 +7,9 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+
+        <RootNamespace>Reservant.ErrorCodeDocs.Test</RootNamespace>
+        <AssemblyName>Reservant.ErrorCodeDocs.Test</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
