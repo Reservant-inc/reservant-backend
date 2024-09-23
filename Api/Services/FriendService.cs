@@ -13,11 +13,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing friends and friend requests
 /// </summary>
-<<<<<<< HEAD
 public class FriendService(ApiDbContext context, FileUploadService uploadService, NotificationService notificationService)
-=======
-public class FriendService(ApiDbContext context, FileUploadService uploadService,NotificationService notificationService)
->>>>>>> dev
 {
     /// <summary>
     /// Create a friend request
@@ -58,7 +54,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 userIds.Contains(fr.SenderId) &&
                 userIds.Contains(fr.ReceiverId)
             );
-
+        var notificationConfirmation = false;
         if (existingRequest is null)
         {
             context.Add(new FriendRequest
@@ -80,6 +76,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
         else if (existingRequest.SenderId == receiverId)
         {
             existingRequest.DateAccepted = DateTime.UtcNow;
+            notificationConfirmation = true;
         }
         else
         {
@@ -92,7 +89,10 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
         }
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyNewFriendRequest(senderId,receiverId);
+        if (notificationConfirmation)
+        {
+            await notificationService.NotifyFriendRequestAccepted(existingRequest.SenderId, existingRequest.Id);
+        }
         return Result.Success;
     }
 
@@ -272,7 +272,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, bool unreadOnly, int page, int perPage)
     {
         var query = context.FriendRequests
-            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null && (!unreadOnly || fr.DateRead==null))
+            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null && (!unreadOnly || fr.DateRead == null))
             .OrderByDescending(fr => fr.DateSent)
             .Select(fr => new FriendRequestVM
             {
@@ -309,7 +309,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                OtherUser  = new Dtos.User.UserSummaryVM
+                OtherUser = new Dtos.User.UserSummaryVM
                 {
                     UserId = fr.ReceiverId,
                     FirstName = fr.Receiver.FirstName,

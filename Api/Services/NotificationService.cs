@@ -5,8 +5,6 @@ using Reservant.Api.Dtos.Notification;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;
-using FluentValidation.Results;
-using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -136,7 +134,7 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
         });
         await context.SaveChangesAsync();
     }
-<<<<<<< HEAD
+
     /// <summary>
     /// Notify a user that his friend request was accepted
     /// </summary>
@@ -156,37 +154,12 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
             new NotificationFriendRequestAccepted
             {
                 FriendRequestId = request.Id,
-                DateRequestSend = request.DateSent,
-                SenderId = request.SenderId,
-                ReceiverId = request.ReceiverId,
-                SenderDetails = new Dtos.User.UserDetailsVM
-                {
-                    UserId = request.SenderId,
-                    Login = request.Sender.UserName,
-                    Email = request.Sender.Email,
-                    PhoneNumber = request.Sender.PhoneNumber,
-                    FirstName = request.Sender.FirstName,
-                    LastName = request.Sender.LastName,
-                    RegisteredAt = request.Sender.RegisteredAt,
-                    Photo = uploadService.GetPathForFileName(request.Sender.PhotoFileName),
-                    Roles = await userService.GetRolesAsync(request.Sender)
-                },
-                ReceiverDetails = new Dtos.User.UserDetailsVM
-                {
-                    UserId = request.ReceiverId,
-                    Login = request.Receiver.UserName,
-                    Email = request.Receiver.Email,
-                    PhoneNumber = request.Receiver.PhoneNumber,
-                    FirstName = request.Receiver.FirstName,
-                    LastName = request.Receiver.LastName,
-                    RegisteredAt = request.Receiver.RegisteredAt,
-                    Photo = uploadService.GetPathForFileName(request.Receiver.PhotoFileName),
-                    Roles = await userService.GetRolesAsync(request.Receiver)
-                }
+                AcceptingUserId = request.SenderId, //Here sender-receiver roles are reversed because person that sent the request is the one to receive
+                NotifiedUserId = request.ReceiverId, // the notification with confirmation of the other party accepting the friend request
+                AcceptingUserFullName = request.Receiver.FullName
             }
             );
     }
-=======
 
     /// <summary>
     /// Notify a user that they have a new friend request
@@ -207,9 +180,8 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
                     SenderId = senderId,
                     SenderName = sender.FullName,
                 }
-                ,sender.PhotoFileName);
+                , sender.PhotoFileName);
         }
     }
 
->>>>>>> dev
 }
