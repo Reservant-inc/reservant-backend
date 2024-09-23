@@ -10,6 +10,5 @@ public class CreateTableRequest
     /// <summary>
     /// Table's capacity
     /// </summary>
-    [Required, Range(1, 10)]
     public required int Capacity { get; init; }
 }

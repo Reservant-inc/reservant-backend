@@ -11,13 +11,11 @@ public class CreateMenuRequest
     /// <summary>
     /// id of restaurant this menu will belog to
     /// </summary>
-    [Required]
     public int RestaurantId { get; set; }
 
     /// <summary>
     /// Name of the menu
     /// </summary>
-    [Required]
     public required string Name { get; set; }
 
     /// <summary>
@@ -28,13 +26,11 @@ public class CreateMenuRequest
     /// <summary>
     /// Typ menu
     /// </summary>
-    [Required]
     public MenuType MenuType { get; set; }
 
     /// <summary>
     /// First day the menu is valid
     /// </summary>
-    [Required]
     public DateOnly DateFrom { get; set; }
 
     /// <summary>

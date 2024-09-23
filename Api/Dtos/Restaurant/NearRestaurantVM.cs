@@ -14,14 +14,12 @@ public class NearRestaurantVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    [Required]
     public required int RestaurantId { get; init; }
 
     /// <summary>
     /// Nazwa
     /// </summary>
     /// <example>McJohn's</example>
-    [Required, StringLength(50)]
     public required string Name { get; init; }
 
     /// <summary>
@@ -33,39 +31,33 @@ public class NearRestaurantVM
     /// Adres
     /// </summary>
     ///  <example>ul. Koszykowa 86</example>
-    [Required, StringLength(70)]
     public required string Address { get; init; }
 
     /// <summary>
     /// City of the restaurant
     /// </summary>
     /// <example>Warszawa</example>
-    [Required, StringLength(15)]
     public required string City { get; init; }
 
     /// <summary>
     /// Geolocation class having Longitude, Latitude
     /// </summary>
     /// <example></example>
-    [Required]
     public required Geolocation Location { get; init; }
 
     /// <summary>
     /// URI of the logo
     /// </summary>
-    [Required]
     public required string Logo { get; init; }
 
     /// <summary>
     /// Optional description
     /// </summary>
-    [StringLength(200)]
     public required string? Description { get; init; }
 
     /// <summary>
     /// Deposit
     /// </summary>
-    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
     public required decimal? ReservationDeposit { get; init; }
 
     /// <summary>
@@ -76,24 +68,20 @@ public class NearRestaurantVM
     /// <summary>
     /// Restaurant tags
     /// </summary>
-    [Required]
     public required List<string> Tags { get; init; }
 
     /// <summary>
     /// Distance from User
     /// </summary>
-    [Required]
     public required double? DistanceFrom { get; init; }
 
     /// <summary>
     /// Rating of the restaurant based on the reviews
     /// </summary>
-    [Required]
     public required double Rating { get; set; }
 
     /// <summary>
     /// Number of reviews about this restaurant
     /// </summary>
-    [Required]
     public required int NumberReviews { get; set; }
 }

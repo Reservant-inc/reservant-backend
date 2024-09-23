@@ -7,7 +7,6 @@ public class RestaurantGroupSummaryVM
 {
     public required int RestaurantGroupId { get; init; }
 
-    [Required, StringLength(50)]
     public required string Name { get; init; }
 
     public required int RestaurantCount { get; init; }

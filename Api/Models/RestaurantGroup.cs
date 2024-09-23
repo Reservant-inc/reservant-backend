@@ -17,13 +17,13 @@ public class RestaurantGroup : ISoftDeletable
     /// <summary>
     /// Nazwa
     /// </summary>
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public required string Name { get; set; }
 
     /// <summary>
     /// Owner ID
     /// </summary>
-    [Required, StringLength(36)]
+    [StringLength(36)]
     public required string OwnerId { get; set; }
 
     /// <summary>

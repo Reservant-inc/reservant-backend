@@ -17,13 +17,12 @@ public class Employment : ISoftDeletable
     /// <summary>
     /// ID of the employee
     /// </summary>
-    [Required, StringLength(36)]
+    [StringLength(36)]
     public string EmployeeId { get; set; } = null!;
 
     /// <summary>
     /// ID of the restaurant
     /// </summary>
-    [Required]
     public int RestaurantId { get; set; }
 
     /// <summary>
@@ -39,7 +38,6 @@ public class Employment : ISoftDeletable
     /// <summary>
     /// The start date of employment.
     /// </summary>
-    [Required]
     public DateOnly DateFrom { get; set; }
 
     /// <summary>

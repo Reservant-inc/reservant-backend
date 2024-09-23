@@ -12,19 +12,18 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// Imię.
     /// </summary>
-    [Required, ProtectedPersonalData, StringLength(30)]
+    [StringLength(30)]
     public required string FirstName { get; set; }
 
     /// <summary>
     /// Nazwisko.
     /// </summary>
-    [Required, ProtectedPersonalData, StringLength(30)]
+    [StringLength(30)]
     public required string LastName { get; set; }
 
     /// <summary>
     /// Data rejestracji.
     /// </summary>
-    [Required]
     public required DateTime RegisteredAt { get; set; }
 
     /// <summary>

@@ -21,7 +21,6 @@ public class Table : ISoftDeletable
     /// <summary>
     /// Ilość miejsc
     /// </summary>
-    [Range(1, 10)]
     public required int Capacity { get; set; }
 
     /// <summary>

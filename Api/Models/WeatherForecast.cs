@@ -9,7 +9,6 @@ public class WeatherForecast
     [Key]
     public DateOnly Date { get; init; }
 
-    [Range(-100, 100)]
     public int TemperatureC { get; init; }
 
     [StringLength(20)]

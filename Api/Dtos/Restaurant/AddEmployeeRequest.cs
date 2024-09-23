@@ -10,7 +10,6 @@ public class AddEmployeeRequest
     /// <summary>
     /// ID of the employee
     /// </summary>
-    [Required]
     public required string EmployeeId { get; init; }
 
     /// <summary>

@@ -10,7 +10,6 @@ public class EventSummaryVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    [Key]
     public required int EventId { get; set; }
 
     /// <summary>

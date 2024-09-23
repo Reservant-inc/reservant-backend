@@ -10,6 +10,5 @@ public class RemoveItemsRequest
     /// <summary>
     /// IDs of the MenuItem's to add
     /// </summary>
-    [Required]
     public required List<int> ItemIds { get; init; }
 }

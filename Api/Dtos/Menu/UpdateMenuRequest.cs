@@ -12,7 +12,6 @@ public class UpdateMenuRequest
     /// <summary>
     /// Name of the menu
     /// </summary>
-    [Required]
     public required string Name { get; set; }
 
     /// <summary>
@@ -23,13 +22,11 @@ public class UpdateMenuRequest
     /// <summary>
     /// Typ menu
     /// </summary>
-    [Required]
     public MenuType MenuType { get; set; }
 
     /// <summary>
     /// First day the menu is valid
     /// </summary>
-    [Required]
     public DateOnly DateFrom { get; set; }
 
     /// <summary>

@@ -6,18 +6,13 @@ namespace Reservant.Api.Dtos.Auth;
 
 public class RegisterRestaurantOwnerRequest
 {
-    [Required, StringLength(30)]
     public required string FirstName { get; init; }
 
-    [Required, StringLength(30)]
     public required string LastName { get; init; }
 
-    [Required, StringLength(50), EmailAddress]
     public required string Email { get; init; }
 
-    [Required, StringLength(15), Phone]
     public required string PhoneNumber { get; init; }
 
-    [Required, StringLength(50)]
     public required string Password { get; init; }
 }

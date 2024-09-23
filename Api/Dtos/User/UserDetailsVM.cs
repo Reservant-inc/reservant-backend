@@ -11,48 +11,41 @@ public class UserDetailsVM
     /// User ID
     /// </summary>
     /// <example>e5779baf-5c9b-4638-b9e7-ec285e57b367</example>
-    [Required]
     public required string UserId { get; init; }
 
     /// <summary>
     /// User's login
     /// </summary>
     /// <example>JD</example>
-    [Required]
     public required string Login { get; init; }
 
     /// <summary>
     /// User's email address
     /// </summary>
     /// <example>john@doe.pl</example>
-    [Required]
     public required string Email { get; init; }
 
     /// <summary>
     /// User's phone number
     /// </summary>
     /// <example>+48123456789</example>
-    [Required]
     public required string PhoneNumber { get; init; }
 
     /// <summary>
     /// First name
     /// </summary>
     /// <example>John</example>
-    [Required]
     public required string FirstName { get; init; }
 
     /// <summary>
     /// Last name
     /// </summary>
     /// <example>Doe</example>
-    [Required]
     public required string LastName { get; init; }
 
     /// <summary>
     /// When the account was created
     /// </summary>
-    [Required]
     public required DateTime RegisteredAt { get; set; }
 
     /// <summary>
@@ -64,7 +57,6 @@ public class UserDetailsVM
     /// <summary>
     /// User's roles
     /// </summary>
-    [Required]
     public required List<string> Roles { get; init; }
 
     /// <summary>
