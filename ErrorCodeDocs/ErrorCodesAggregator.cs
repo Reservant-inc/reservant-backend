@@ -1,15 +1,17 @@
-﻿using ErrorCodeDocs.Attributes;
-using FluentValidation;
+﻿using FluentValidation;
 using System.Reflection;
+using Reservant.ErrorCodeDocs.Attributes;
 
-namespace ErrorCodeDocs;
+namespace Reservant.ErrorCodeDocs;
 
 /// <summary>
 /// Methods to aggregate error codes for a selected method
 /// </summary>
-/// 
 public class ErrorCodesAggregator
 {
+    private static readonly Comparer<ErrorCodeDescription> ErrorCodeComparer =
+        Comparer<ErrorCodeDescription>.Default;
+
     private readonly Dictionary<Type, Type> _validators = [];
 
     /// <summary>
@@ -33,49 +35,65 @@ public class ErrorCodesAggregator
     /// <param name="method">The method</param>
     public IEnumerable<ErrorCodeDescription> GetErrorCodes(MethodInfo method)
     {
-        foreach (var errorCode in method.GetCustomAttributes<ErrorCodeAttribute>())
+        var codes = new SortedSet<ErrorCodeDescription>(ErrorCodeComparer);
+        foreach (var sourceMethod in GetAllMethodsContributingErrorCodes(method))
         {
-            yield return new ErrorCodeDescription(errorCode);
+            AddErrorCodesFromMethod(sourceMethod, codes);
         }
 
-        foreach (var inheritedMethod in method.GetCustomAttributes(typeof(MethodErrorCodesAttribute<>)))
-        {
-            foreach (var errorCode in GetReferencedMethodErrorCodes(inheritedMethod))
-            {
-                yield return errorCode;
-            }
-        }
-
-        foreach (var inheritedMethod in method.GetCustomAttributes(typeof(ValidatorErrorCodesAttribute<>)))
-        {
-            foreach (var errorCode in GetValidatorErrorCodes(inheritedMethod))
-            {
-                yield return errorCode;
-            }
-        }
+        return codes;
     }
 
     /// <summary>
-    /// Get error codes that can be returned from the method referenced in a <see cref="MethodErrorCodesAttribute{TContaining}"/>
+    /// Get methods that the given method can return error codes of (including itself).
     /// </summary>
-    /// <param name="attribute">The attribute, must inherit from <see cref="MethodErrorCodesAttribute"/></param>
-    /// <exception cref="ArgumentException">The attribute does not inherit from <see cref="MethodErrorCodesAttribute"/></exception>
-    /// <exception cref="InvalidOperationException">The method referenced was not found</exception>
-    private IEnumerable<ErrorCodeDescription> GetReferencedMethodErrorCodes(Attribute attribute)
+    /// <exception cref="InvalidOperationException"></exception>
+    private static HashSet<MethodInfo> GetAllMethodsContributingErrorCodes(MethodInfo method)
     {
-        if (attribute is not MethodErrorCodesAttribute methodAttribute)
+        var methodsToInspect = new Queue<MethodInfo>();
+        methodsToInspect.Enqueue(method);
+
+        var inspectedMethods = new HashSet<MethodInfo>();
+        while (methodsToInspect.Count > 0)
         {
-            throw new ArgumentException($"Attribute must be a {nameof(MethodErrorCodesAttribute)}", nameof(attribute));
+            var sourceMethod = methodsToInspect.Dequeue();
+            inspectedMethods.Add(sourceMethod);
+
+            foreach (var methodAttribute in sourceMethod.GetCustomAttributes<MethodErrorCodesAttribute>())
+            {
+                var referencedMethod =
+                    methodAttribute.ContainingType.GetMethod(methodAttribute.MethodName)
+                    ?? throw new InvalidOperationException(
+                        $"Method not found {methodAttribute.MethodName} in type {methodAttribute.ContainingType.Name}");
+
+                if (!inspectedMethods.Contains(referencedMethod))
+                {
+                    methodsToInspect.Enqueue(referencedMethod);
+                }
+            }
         }
 
-        var referencedMethod = methodAttribute.ContainingType
-            .GetMethod(methodAttribute.MethodName)
-            ?? throw new InvalidOperationException(
-                $"Method not found {methodAttribute.MethodName} in type {methodAttribute.ContainingType.Name}");
+        return inspectedMethods;
+    }
 
-        foreach (var errorCode in GetErrorCodes(referencedMethod))
+    /// <summary>
+    /// Add error codes that a method can return, ignoring MethodErrorCodes attributes
+    /// </summary>
+    /// <param name="method">The method</param>
+    /// <param name="codes">The collection to add the codes to</param>
+    private void AddErrorCodesFromMethod(MethodInfo method, ICollection<ErrorCodeDescription> codes)
+    {
+        foreach (var errorCode in method.GetCustomAttributes<ErrorCodeAttribute>())
         {
-            yield return errorCode;
+            codes.Add(new ErrorCodeDescription(errorCode));
+        }
+
+        foreach (var inheritedValidator in method.GetCustomAttributes(typeof(ValidatorErrorCodesAttribute<>)))
+        {
+            foreach (var errorCode in GetValidatorErrorCodes(inheritedValidator))
+            {
+                codes.Add(errorCode);
+            }
         }
     }
 

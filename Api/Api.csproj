@@ -7,6 +7,7 @@
         <InvariantGlobalization>false</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>Reservant.Api</RootNamespace>
+        <AssemblyName>Reservant.Api</AssemblyName>
         <UserSecretsId>71abd42b-36f0-4f9f-9166-bf4b4ee57b99</UserSecretsId>
     </PropertyGroup>
 
@@ -17,27 +18,27 @@
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DocumentationFile>bin\Debug\net8.0\Api.xml</DocumentationFile>
+      <DocumentationFile>bin\Debug\net8.0\$(AssemblyName).xml</DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DocumentationFile>bin\Release\net8.0\Api.xml</DocumentationFile>
+      <DocumentationFile>bin\Release\net8.0\$(AssemblyName).xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.9.1" />
+        <PackageReference Include="FluentValidation" Version="11.10.0" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="8.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.5">
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="8.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NetTopologySuite" Version="2.5.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -50,68 +51,7 @@
         <Content Include="example-uploads\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="example-uploads\AY\human4.png" />
-      <None Remove="example-uploads\AY\human5.png" />
-      <None Remove="example-uploads\AY\owner1.png" />
-      <None Remove="example-uploads\AY\ResBurger1.jpg" />
-      <None Remove="example-uploads\AY\ResBurger2.jpg" />
-      <None Remove="example-uploads\AY\ResInside1.jpg" />
-      <None Remove="example-uploads\AY\ResInside2.jpg" />
-      <None Remove="example-uploads\AY\ResLogo1.png" />
-      <None Remove="example-uploads\AY\sushi.png" />
-      <None Remove="example-uploads\AY\wege.png" />
-      <None Remove="example-uploads\AY\woda.png" />
-      <None Remove="example-uploads\GR\owner2.png" />
-      <None Remove="example-uploads\GR\owner3.png" />
-      <None Remove="example-uploads\GR\owner5.png" />
-      <None Remove="example-uploads\GR\ramen.png" />
-      <None Remove="example-uploads\GR\ResInside3.jpg" />
-      <None Remove="example-uploads\GR\ResInside4.jpg" />
-      <None Remove="example-uploads\GR\ResKebab1.jpg" />
-      <None Remove="example-uploads\GR\ResKebab2.jpg" />
-      <None Remove="example-uploads\GR\ResLogo3.png" />
-      <None Remove="example-uploads\GR\saladki.png" />
-      <None Remove="example-uploads\GR\stek.png" />
-      <None Remove="example-uploads\JD\owner6.png" />
-      <None Remove="example-uploads\JD\owner7.png" />
-      <None Remove="example-uploads\JD\owner8.png" />
-      <None Remove="example-uploads\JD\pierogi.png" />
-      <None Remove="example-uploads\JD\piwo.png" />
-      <None Remove="example-uploads\JD\pizza.png" />
-      <None Remove="example-uploads\JD\ResInside5.jpg" />
-      <None Remove="example-uploads\JD\ResInside9.jpg" />
-      <None Remove="example-uploads\JD\ResLogo2.png" />
-      <None Remove="example-uploads\JD\ResPizza1.jpg" />
-      <None Remove="example-uploads\JD\ResPizza2.jpg" />
-      <None Remove="example-uploads\JD\ResSushi1.jpg" />
-      <None Remove="example-uploads\KK\menu.png" />
-      <None Remove="example-uploads\KK\menuicon.png" />
-      <None Remove="example-uploads\KK\padthai.png" />
-      <None Remove="example-uploads\KK\ResInside6.jpg" />
-      <None Remove="example-uploads\KK\ResLogo4.png" />
-      <None Remove="example-uploads\KK\ResSushi2.jpg" />
-      <None Remove="example-uploads\KK\RestaurantBoss1.png" />
-      <None Remove="example-uploads\KK\RestaurantBoss2.png" />
-      <None Remove="example-uploads\KK\restaurantboss3.PNG" />
-      <None Remove="example-uploads\PA\human1.png" />
-      <None Remove="example-uploads\PA\human2.png" />
-      <None Remove="example-uploads\PA\human3.png" />
-      <None Remove="example-uploads\PA\kurczak.png" />
-      <None Remove="example-uploads\PA\makarony.png" />
-      <None Remove="example-uploads\PA\meksyanskie.png" />
-      <None Remove="example-uploads\PA\ResInside7.jpg" />
-      <None Remove="example-uploads\PA\ResLogo5.png" />
-      <None Remove="example-uploads\PA\ResVegan1.jpg" />
-      <None Remove="example-uploads\WW\burger.png" />
-      <None Remove="example-uploads\WW\drinki.png" />
-      <None Remove="example-uploads\WW\kebab.png" />
-      <None Remove="example-uploads\WW\ResInside8.jpg" />
-      <None Remove="example-uploads\WW\restaurantboss4.PNG" />
-      <None Remove="example-uploads\WW\restaurantBossUltimate.png" />
-      <None Remove="example-uploads\WW\ResVegan2.jpg" />
+        <None Remove="example-uploads\**" />
     </ItemGroup>
 
     <ItemGroup>

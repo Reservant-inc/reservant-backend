@@ -26,6 +26,11 @@ public class NotificationVM
     public required string NotificationType { get; set; }
 
     /// <summary>
+    /// Path to a picture related to the notification
+    /// </summary>
+    public required string? Photo { get; set; }
+
+    /// <summary>
     /// Extra details
     /// </summary>
     /// <example>{"prop1": "string", "prop2": "string", "prop3": "string"}</example>

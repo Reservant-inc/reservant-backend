@@ -1,4 +1,4 @@
-﻿using ErrorCodeDocs.Attributes;
+﻿using Reservant.ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +27,7 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     /// <returns>The created menuItem</returns>
     [HttpPost]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    [ProducesResponseType(201), ProducesResponseType(400), ProducesResponseType(401)]
+    [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     [MethodErrorCodes<MenuItemsService>(nameof(MenuItemsService.CreateMenuItemsAsync))]
     public async Task<ActionResult<MenuItemVM>> CreateMenuItems(CreateMenuItemRequest menuItem)
     {

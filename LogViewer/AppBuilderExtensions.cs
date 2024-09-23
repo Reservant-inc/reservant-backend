@@ -1,14 +1,14 @@
-﻿using LogsViewer.Data;
-using LogsViewer.Logger;
-using LogsViewer.Viewer;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Reservant.LogsViewer.Data;
+using Reservant.LogsViewer.Logger;
+using Reservant.LogsViewer.Viewer;
 
-namespace LogsViewer;
+namespace Reservant.LogsViewer;
 
 /// <summary>
 /// Extension methods for adding the logs viewer conviniently

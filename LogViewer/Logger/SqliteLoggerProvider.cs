@@ -1,9 +1,9 @@
-﻿using LogsViewer.Data;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Reservant.LogsViewer.Data;
 
-namespace LogsViewer.Logger;
+namespace Reservant.LogsViewer.Logger;
 
 /// <summary>
 /// Logs messages to an SQLite database

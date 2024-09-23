@@ -1,4 +1,4 @@
-﻿using ErrorCodeDocs.SwaggerGen;
+﻿using Reservant.ErrorCodeDocs.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Reflection;

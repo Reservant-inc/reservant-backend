@@ -1,4 +1,4 @@
-﻿namespace ErrorCodeDocs.Attributes;
+﻿namespace Reservant.ErrorCodeDocs.Attributes;
 
 /// <summary>
 /// Documents that an endpoint (or a method) can return an error code

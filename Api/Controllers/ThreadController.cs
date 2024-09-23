@@ -8,7 +8,7 @@ using Reservant.Api.Validation;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Message;
 using Reservant.Api.Dtos.Thread;
-using ErrorCodeDocs.Attributes;
+using Reservant.ErrorCodeDocs.Attributes;
 
 
 namespace Reservant.Api.Controllers;

@@ -8,7 +8,7 @@ using NetTopologySuite.Geometries;
 using Reservant.Api.Identity;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validators;
-using ErrorCodeDocs.Attributes;
+using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Delivery;
 using Reservant.Api.Dtos.Event;
@@ -1144,12 +1144,13 @@ namespace Reservant.Api.Services
                     EventId = e.Id,
                     Description = e.Description,
                     Time = e.Time,
+                    MaxPeople = e.MaxPeople,
                     MustJoinUntil = e.MustJoinUntil,
                     CreatorId = e.CreatorId,
                     CreatorFullName = e.Creator.FullName,
                     RestaurantId = e.RestaurantId,
-                    RestaurantName = e.Restaurant.Name,
-                    NumberInterested = e.Interested.Count
+                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
+                    NumberInterested = e.ParticipationRequests.Count
                 });
 
             return await query.PaginateAsync(page, perPage, []);

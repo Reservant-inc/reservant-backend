@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Dtos;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api;
 
@@ -30,6 +31,7 @@ public static class Utils
     /// <param name="perPage">Items per page</param>
     /// <param name="orderByOptions">Available sorting options (only used to return the info to the client)</param>
     /// <param name="maxPerPage">Maximum value for <paramref name="perPage"/></param>
+    [ErrorCode(null, ErrorCodes.InvalidPerPageValue, "Must be >= 1 and <= maximum value")]
     public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
         this IQueryable<T> query, int page, int perPage, string[] orderByOptions, int maxPerPage = 10)
     {

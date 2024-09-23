@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace LogsViewer.Data;
+namespace Reservant.LogsViewer.Data;
 
 /// <summary>
 /// Database context for the logs database

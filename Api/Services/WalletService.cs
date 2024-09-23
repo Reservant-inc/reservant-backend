@@ -1,4 +1,4 @@
-﻿using ErrorCodeDocs.Attributes;
+﻿using Reservant.ErrorCodeDocs.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;

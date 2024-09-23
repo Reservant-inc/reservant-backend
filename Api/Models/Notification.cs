@@ -31,6 +31,12 @@ public class Notification
     public string TargetUserId { get; set; } = null!;
 
     /// <summary>
+    /// File name of a picture related to the notification
+    /// </summary>
+    [StringLength(50)]
+    public string? PhotoFileName { get; set; }
+
+    /// <summary>
     /// Type of the details, used for persistence
     /// </summary>
     private Type DetailsKind => Details.GetType();
@@ -51,6 +57,11 @@ public class Notification
     /// Navigation property for the user that has received the notification
     /// </summary>
     public User TargetUser { get; set; } = null!;
+
+    /// <summary>
+    /// Navigation property for a picture related to the notification
+    /// </summary>
+    public FileUpload Photo { get; set; } = null!;
 
     /// <summary>
     /// Constructor for Entity Framework

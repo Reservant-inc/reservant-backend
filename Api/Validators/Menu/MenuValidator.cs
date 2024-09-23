@@ -29,5 +29,13 @@ public class MenuValidator : AbstractValidator<Models.Menu>
 
         RuleFor(x => x.PhotoFileName)
             .FileUploadName(FileClass.Image, uploadService);
+
+        RuleFor(x => x.DateUntil)
+            .GreaterThan(x => x.DateFrom)
+            .WithErrorCode(ErrorCodes.StartMustBeBeforeEnd)
+            .WithMessage($"Must be after {nameof(Models.Menu.DateFrom)}");
+
+        RuleFor(x => x.DateUntil)
+            .DateInFuture();
     }
 }

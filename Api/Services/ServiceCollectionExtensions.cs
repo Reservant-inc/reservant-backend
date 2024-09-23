@@ -1,4 +1,6 @@
-﻿namespace Reservant.Api.Services;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace Reservant.Api.Services;
 
 /// <summary>
 /// Extension methods to help registering business services
@@ -14,7 +16,7 @@ public static class ServiceCollectionExtensions
             .GetTypes().Where(t => t.Name.EndsWith("Service"));
         foreach (var type in types)
         {
-            services.AddScoped(type);
+            services.TryAddScoped(type);
         }
     }
 }

@@ -20,14 +20,16 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
         RuleFor(u => u.LastName)
             .NotEmpty()
             .MaximumLength(30)
-            .IsValidName();;
+            .IsValidName();
 
         RuleFor(r => r.PhoneNumber)
             .NotEmpty()
-            .MaximumLength(15);
+            .MaximumLength(15)
+            .IsValidPhoneNumber();
 
         RuleFor(r => r.BirthDate)
-            .NotEmpty();
+            .NotEmpty()
+            .DateInPast();
 
         RuleFor(u => u.Photo)
             .MaximumLength(50)

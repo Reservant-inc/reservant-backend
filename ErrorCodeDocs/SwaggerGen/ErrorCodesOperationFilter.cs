@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 
-namespace ErrorCodeDocs.SwaggerGen;
+namespace Reservant.ErrorCodeDocs.SwaggerGen;
 
 /// <summary>
 /// Operation filter that adds error code information to Swagger
