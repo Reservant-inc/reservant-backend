@@ -5,6 +5,8 @@ using Reservant.Api.Dtos.Notification;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
 
 namespace Reservant.Api.Services;
 
@@ -125,8 +127,13 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
         context.Add(new Notification(DateTime.UtcNow, targetUserId, details));
         await context.SaveChangesAsync();
     }
-
-    public async Task NotifyNewFriendRequest(string targetUserId, int friendRequestId)
+    /// <summary>
+    /// Notify a user that his friend request was accepted
+    /// </summary>
+    /// <param name="targetUserId">ID of the person to receive the notification</param>
+    /// <param name="friendRequestId">ID of the friend request that was accepted</param>
+    /// <returns></returns>
+    public async Task NotifyFriendRequestAccepted(string targetUserId, int friendRequestId)
     {
         var request = await context.FriendRequests
             .Include(r => r.Sender)
@@ -136,13 +143,14 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
 
         await NotifyUser(
             targetUserId,
-            new NotificationNewFriendRequest
+            new NotificationFriendRequestAccepted
             {
                 FriendRequestId = request.Id,
                 DateRequestSend = request.DateSent,
                 SenderId = request.SenderId,
-                ReveiverId = request.ReceiverId,
-                SenderDetails = new Dtos.User.UserDetailsVM { 
+                ReceiverId = request.ReceiverId,
+                SenderDetails = new Dtos.User.UserDetailsVM
+                {
                     UserId = request.SenderId,
                     Login = request.Sender.UserName,
                     Email = request.Sender.Email,
