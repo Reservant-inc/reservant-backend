@@ -47,7 +47,8 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.UpdateBulkEmploymentAsync))]
-    public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests) {
+    public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests)
+    {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
@@ -67,7 +68,8 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.DeleteBulkEmploymentAsync))]
-    public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) {
+    public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds)
+    {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
@@ -75,6 +77,27 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         }
 
         var result = await employmentService.DeleteBulkEmploymentAsync(employmentIds, user);
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Gets current users empmloyments, can be set to include terminated xor ongoing contracts
+    /// </summary>
+    /// <param name="returnTerminated">parameter in query that decides whether the search should include terminated employments or not</param>
+    /// <returns></returns>
+    [HttpGet]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.GetCurrentUsersEmploymentsAsync))]
+    public async Task<ActionResult<List<EmploymentSummaryVM>>> GetCurrentUsersEmployments([FromQuery] bool returnTerminated)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await employmentService.GetCurrentUsersEmploymentsAsync(user.Id, returnTerminated);
         return OkOrErrors(result);
     }
 }

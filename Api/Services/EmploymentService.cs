@@ -136,4 +136,87 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         await context.SaveChangesAsync();
         return Result.Success;
     }
+
+    /// <summary>
+    /// Gets current or completed employments for the user that makes this request
+    /// </summary>
+    /// <param name="userId">ID of the user that makes the request</param>
+    /// <param name="isTerminated">parameter that tells if the search should include terminated xor ongoing employments</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(string userId, bool isTerminated)
+    {
+        var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId);
+        if (user is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound
+            };
+        }
+        var employments = await context.Employments
+            .Include(e => e.Restaurant)
+                .ThenInclude(r => r.Tags)
+            .Include(e => e.Restaurant)
+                .ThenInclude(r => r.Reviews)
+            .Include(e => e.Restaurant)
+                .ThenInclude(r => r.Logo)
+            .Where(e => e.EmployeeId == userId)
+            .ToListAsync();
+
+        if (isTerminated == true)
+        {
+            employments = employments.Where(e => e.DateUntil != null).ToList();
+        }
+        else
+        {
+            employments = employments.Where(e => e.DateUntil == null).ToList();
+        }
+
+        if (employments is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound
+            };
+        }
+
+        var employmentsVM = employments.Select(e => new EmploymentSummaryVM
+        {
+            EmploymentId = e.Id,
+            DateFrom = e.DateFrom,
+            DateUntill = e.DateUntil,
+            Restaurant = new Dtos.Restaurant.RestaurantSummaryVM
+            {
+                Address = e.Restaurant.Address,
+                Tags = e.Restaurant.Tags.Select(t => t.Name).ToList(),
+                Name = e.Restaurant.Name,
+                Nip = e.Restaurant.Nip,
+                RestaurantType = e.Restaurant.RestaurantType,
+                City = e.Restaurant.City,
+                Location = new Dtos.Location.Geolocation
+                {
+                    Longitude = e.Restaurant.Location.PointOnSurface.X,
+                    Latitude = e.Restaurant.Location.PointOnSurface.Y
+                },
+                GroupId = e.Restaurant.GroupId,
+                Logo = e.Restaurant.Logo.FileName,
+                Description = e.Restaurant.Description,
+                ReservationDeposit = e.Restaurant.ReservationDeposit,
+                ProvideDelivery = e.Restaurant.ProvideDelivery,
+                IsVerified = e.Restaurant.VerifierId == null ? false : true,
+                RestaurantId = e.RestaurantId,
+                Rating = e.Restaurant.Rating,
+                NumberReviews = e.Restaurant.Reviews.Count
+            },
+            IsBackdoorEmployee = e.IsBackdoorEmployee,
+            IsHallEmployee = e.IsHallEmployee
+        }).ToList();
+
+        return employmentsVM;
+    }
 }
