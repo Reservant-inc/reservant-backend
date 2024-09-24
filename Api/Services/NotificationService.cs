@@ -144,21 +144,19 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     public async Task NotifyFriendRequestAccepted(string targetUserId, int friendRequestId)
     {
         var request = await context.FriendRequests
-            .Include(r => r.Sender)
             .Include(r => r.Receiver)
             .Where(r => r.Id == friendRequestId)
-            .FirstOrDefaultAsync();
+            .SingleAsync();
 
         await NotifyUser(
             targetUserId,
             new NotificationFriendRequestAccepted
             {
                 FriendRequestId = request.Id,
-                AcceptingUserId = request.SenderId, //Here sender-receiver roles are reversed because person that sent the request is the one to receive
-                NotifiedUserId = request.ReceiverId, // the notification with confirmation of the other party accepting the friend request
+                AcceptingUserId = request.SenderId,
                 AcceptingUserFullName = request.Receiver.FullName
-            }
-            );
+            },
+            request.Receiver.PhotoFileName);
     }
 
     /// <summary>
