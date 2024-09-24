@@ -69,9 +69,6 @@ app.UseLogsViewerUI();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseWebSockets();
-app.UsePushMiddleware();
-
 app.UseHttpLogging();
 
 using (var scope = app.Services.CreateScope())
@@ -86,6 +83,9 @@ using (var scope = app.Services.CreateScope())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseWebSockets();
+app.UsePushMiddleware();
 
 app.MapControllers();
 

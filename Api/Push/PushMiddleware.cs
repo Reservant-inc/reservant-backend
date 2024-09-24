@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
+using Reservant.Api.Identity;
 
 namespace Reservant.Api.Push;
 
@@ -33,13 +34,41 @@ public class PushMiddleware(
             return;
         }
 
+        if (!context.User.Identity?.IsAuthenticated ?? false)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("User must be authenticated", CancellationToken.None);
+            return;
+        }
+
+        await ServeWebSocket(context);
+    }
+
+    /// <summary>
+    /// The main serving method. Accepts the connection and starts
+    /// receiving and sending messages
+    /// </summary>
+    private async Task ServeWebSocket(HttpContext context)
+    {
         try
         {
             using var socket = await context.WebSockets.AcceptWebSocketAsync();
 
             using var clientClosingTokenSource = new CancellationTokenSource();
-            var stopToken = CancellationTokenSource.CreateLinkedTokenSource(
-                clientClosingTokenSource.Token, _appStopping).Token;
+
+            List<CancellationToken> allTokens = [clientClosingTokenSource.Token, _appStopping];
+
+            using var sessionTimeout =
+                context.Items[HttpContextItems.AuthExpiresUtc] is DateTimeOffset authExpiresUtc
+                    ? new CancellationTokenSource(authExpiresUtc - DateTime.UtcNow)
+                    : null;
+            if (sessionTimeout is not null)
+            {
+                allTokens.Add(sessionTimeout.Token);
+            }
+
+            using var stopTokenSource = CancellationTokenSource.CreateLinkedTokenSource(allTokens.ToArray());
+            var stopToken = stopTokenSource.Token;
 
             var receiveTask = Task.Run(async () =>
             {
@@ -66,6 +95,14 @@ public class PushMiddleware(
                     WebSocketCloseStatus.NormalClosure,
                     "Goodbye",
                     CancellationToken.None);
+            }
+            else if (sessionTimeout?.IsCancellationRequested ?? false)
+            {
+                await socket.CloseAsync(
+                    WebSocketCloseStatus.PolicyViolation,
+                    "Authenticated token expired",
+                    CancellationToken.None);
+                await receiveTask; // Receive the closing frame
             }
             else
             {

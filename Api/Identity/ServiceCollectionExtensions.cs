@@ -32,6 +32,14 @@ public static class ServiceCollectionExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(jwtOptions.GetKeyBytes()),
                     ValidateIssuerSigningKey = true
                 };
+
+                o.Events = new JwtBearerEvents();
+                o.Events.OnTokenValidated += context =>
+                {
+                    context.HttpContext.Items.Add(
+                        HttpContextItems.AuthExpiresUtc, context.Properties.ExpiresUtc);
+                    return Task.CompletedTask;
+                };
             });
 
         services.AddAuthorization();
