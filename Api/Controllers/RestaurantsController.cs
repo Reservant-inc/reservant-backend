@@ -266,7 +266,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
-    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     /// <summary>
     /// Get list of menus by given restaurant id
     /// </summary>
