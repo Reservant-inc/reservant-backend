@@ -48,15 +48,15 @@ public class RestaurantEmployeeVM
     /// <summary>
     /// Start date of the employment.
     /// </summary>
-    public DateOnly DateFrom { get; init; }
+    public required DateOnly DateFrom { get; init; }
 
     /// <summary>
     /// End date of the employment, if applicable.
     /// </summary>
-    public DateOnly? DateUntil { get; init; }
+    public required DateOnly? DateUntil { get; init; }
 
     /// <summary>
     /// Employment ID.
     /// </summary>
-    public int EmploymentId { get; init; }
+    public required int EmploymentId { get; init; }
 }

@@ -10,7 +10,7 @@ public class CreateOrderRequest
     /// <summary>
     /// ID of the visit associated with the order
     /// </summary>
-    public int VisitId { get; init; }
+    public required int VisitId { get; init; }
 
     /// <summary>
     /// Optional note

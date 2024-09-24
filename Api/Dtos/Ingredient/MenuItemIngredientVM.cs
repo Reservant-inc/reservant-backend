@@ -8,7 +8,7 @@ public class MenuItemIngredientVM
     /// <summary>
     /// ID of the ingredient
     /// </summary>
-    public int IngredientId { get; set; }
+    public required int IngredientId { get; set; }
 
     /// <summary>
     /// Name of the ingredient item as shown to the customer
@@ -18,5 +18,5 @@ public class MenuItemIngredientVM
     /// <summary>
     /// Amount of the ingredient used
     /// </summary>
-    public double AmountUsed { get; set; }
+    public required double AmountUsed { get; set; }
 }

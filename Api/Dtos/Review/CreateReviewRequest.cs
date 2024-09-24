@@ -8,7 +8,7 @@ public class CreateReviewRequest
     /// <summary>
     /// Number of stars (1-5)
     /// </summary>
-    public int Stars { get; set; }
+    public required int Stars { get; set; }
 
     /// <summary>
     /// Optional comment

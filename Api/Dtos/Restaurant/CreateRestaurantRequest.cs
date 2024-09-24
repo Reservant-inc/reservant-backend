@@ -25,7 +25,7 @@ public class CreateRestaurantRequest
     /// <summary>
     /// Restaurant type
     /// </summary>
-    public RestaurantType RestaurantType { get; init; }
+    public required RestaurantType RestaurantType { get; init; }
 
     /// <summary>
     /// Address of the restaurant

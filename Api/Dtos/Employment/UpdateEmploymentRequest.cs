@@ -8,14 +8,14 @@ public class UpdateEmploymentRequest
     /// <summary>
     /// Id of the employment
     /// </summary>
-    public int EmploymentId { get; set; }
+    public required int EmploymentId { get; set; }
     /// <summary>
     /// Whether the employee is a hall employee (Pracownik sali)
     /// </summary>
-    public bool IsHallEmployee { get; set; }
+    public required bool IsHallEmployee { get; set; }
 
     /// <summary>
     /// Whether the employee is a backdoor employee (Pracownik zaplecza)
     /// </summary>
-    public bool IsBackdoorEmployee { get; set; }
+    public required bool IsBackdoorEmployee { get; set; }
 }

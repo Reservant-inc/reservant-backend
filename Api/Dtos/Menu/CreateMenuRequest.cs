@@ -11,7 +11,7 @@ public class CreateMenuRequest
     /// <summary>
     /// id of restaurant this menu will belog to
     /// </summary>
-    public int RestaurantId { get; set; }
+    public required int RestaurantId { get; set; }
 
     /// <summary>
     /// Name of the menu
@@ -26,17 +26,17 @@ public class CreateMenuRequest
     /// <summary>
     /// Typ menu
     /// </summary>
-    public MenuType MenuType { get; set; }
+    public required MenuType MenuType { get; set; }
 
     /// <summary>
     /// First day the menu is valid
     /// </summary>
-    public DateOnly DateFrom { get; set; }
+    public required DateOnly DateFrom { get; set; }
 
     /// <summary>
     /// Last day the menu is valid
     /// </summary>
-    public DateOnly? DateUntil { get; set; }
+    public required DateOnly? DateUntil { get; set; }
 
     /// <summary>
     /// File name of the photo

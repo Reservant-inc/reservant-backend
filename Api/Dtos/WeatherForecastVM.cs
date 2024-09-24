@@ -3,11 +3,11 @@ namespace Reservant.Api.Dtos;
 
 public class WeatherForecastVM
 {
-    public DateOnly Date { get; init; }
+    public required DateOnly Date { get; init; }
 
-    public int TemperatureC { get; init; }
+    public required int TemperatureC { get; init; }
 
-    public string? Summary { get; init; }
+    public required string? Summary { get; init; }
 
-    public int TemperatureF { get; init; }
+    public required int TemperatureF { get; init; }
 }

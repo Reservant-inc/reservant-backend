@@ -8,10 +8,10 @@ public class IngredientRequest
     /// <summary>
     /// ID of the ingredient
     /// </summary>
-    public int IngredientId { get; set; }
+    public required int IngredientId { get; set; }
 
     /// <summary>
     /// Amount of the ingredient used
     /// </summary>
-    public double AmountUsed { get; set; }
+    public required double AmountUsed { get; set; }
 }
