@@ -16,7 +16,6 @@ namespace Reservant.Api.Controllers;
 /// </summary>
 [ApiController, Route("/ingredients")]
 public class IngredientsController(
-    UserManager<User> userManager,
     IngredientService ingredientService
 ) : StrictController
 {
