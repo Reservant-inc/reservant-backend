@@ -13,7 +13,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing friends and friend requests
 /// </summary>
-public class FriendService(ApiDbContext context, FileUploadService uploadService,NotificationService notificationService)
+public class FriendService(ApiDbContext context, FileUploadService uploadService, NotificationService notificationService)
 {
     /// <summary>
     /// Create a friend request
@@ -63,8 +63,13 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 ReceiverId = receiverId,
                 DateSent = DateTime.UtcNow
             });
+
+            await context.SaveChangesAsync();
+            await notificationService.NotifyNewFriendRequest(senderId, receiverId);
+            return Result.Success;
         }
-        else if (existingRequest.DateAccepted is not null)
+
+        if (existingRequest.DateAccepted is not null)
         {
             return new ValidationFailure
             {
@@ -73,23 +78,22 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 ErrorCode = ErrorCodes.AlreadyFriends
             };
         }
-        else if (existingRequest.SenderId == receiverId)
+
+        if (existingRequest.SenderId == receiverId)
         {
             existingRequest.DateAccepted = DateTime.UtcNow;
-        }
-        else
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(receiverId),
-                ErrorMessage = "Friend request already exists",
-                ErrorCode = ErrorCodes.Duplicate
-            };
+
+            await context.SaveChangesAsync();
+            await notificationService.NotifyFriendRequestAccepted(existingRequest.SenderId, existingRequest.Id);
+            return Result.Success;
         }
 
-        await context.SaveChangesAsync();
-        await notificationService.NotifyNewFriendRequest(senderId,receiverId);
-        return Result.Success;
+        return new ValidationFailure
+        {
+            PropertyName = nameof(receiverId),
+            ErrorMessage = "Friend request already exists",
+            ErrorCode = ErrorCodes.Duplicate
+        };
     }
 
     /// <summary>
@@ -175,6 +179,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
         friendRequest.DateAccepted = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
+        await notificationService.NotifyFriendRequestAccepted(senderId, friendRequest.Id);
         return Result.Success;
     }
 
@@ -267,7 +272,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
     public async Task<Result<Pagination<FriendRequestVM>>> GetIncomingFriendRequestsAsync(string userId, bool unreadOnly, int page, int perPage)
     {
         var query = context.FriendRequests
-            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null && (!unreadOnly || fr.DateRead==null))
+            .Where(fr => fr.ReceiverId == userId && fr.DateAccepted == null && fr.DateDeleted == null && (!unreadOnly || fr.DateRead == null))
             .OrderByDescending(fr => fr.DateSent)
             .Select(fr => new FriendRequestVM
             {
@@ -304,7 +309,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                OtherUser  = new Dtos.User.UserSummaryVM
+                OtherUser = new Dtos.User.UserSummaryVM
                 {
                     UserId = fr.ReceiverId,
                     FirstName = fr.Receiver.FirstName,

@@ -11,7 +11,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing notifications
 /// </summary>
-public class NotificationService(ApiDbContext context, FileUploadService uploadService)
+public class NotificationService(ApiDbContext context, FileUploadService uploadService, UserService userService)
 {
     /// <summary>
     /// Get all notifications
@@ -136,6 +136,30 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     }
 
     /// <summary>
+    /// Notify a user that his friend request was accepted
+    /// </summary>
+    /// <param name="targetUserId">ID of the person to receive the notification</param>
+    /// <param name="friendRequestId">ID of the friend request that was accepted</param>
+    /// <returns></returns>
+    public async Task NotifyFriendRequestAccepted(string targetUserId, int friendRequestId)
+    {
+        var request = await context.FriendRequests
+            .Include(r => r.Receiver)
+            .Where(r => r.Id == friendRequestId)
+            .SingleAsync();
+
+        await NotifyUser(
+            targetUserId,
+            new NotificationFriendRequestAccepted
+            {
+                FriendRequestId = request.Id,
+                AcceptingUserId = request.SenderId,
+                AcceptingUserFullName = request.Receiver.FullName
+            },
+            request.Receiver.PhotoFileName);
+    }
+
+    /// <summary>
     /// Notify a user that they have a new friend request
     /// </summary>
     public async Task NotifyNewFriendRequest(string senderId, string receiverId)
@@ -154,7 +178,7 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
                     SenderId = senderId,
                     SenderName = sender.FullName,
                 }
-                ,sender.PhotoFileName);
+                , sender.PhotoFileName);
         }
     }
 
