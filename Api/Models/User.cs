@@ -12,13 +12,13 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// Imię.
     /// </summary>
-    [StringLength(30)]
+    [ProtectedPersonalData, StringLength(30)]
     public required string FirstName { get; set; }
 
     /// <summary>
     /// Nazwisko.
     /// </summary>
-    [StringLength(30)]
+    [ProtectedPersonalData, StringLength(30)]
     public required string LastName { get; set; }
 
     /// <summary>
@@ -29,6 +29,7 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// Data urodzenia.
     /// </summary>
+    [ProtectedPersonalData]
     public DateOnly? BirthDate { get; set; }
 
     /// <summary>
