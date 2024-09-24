@@ -1,4 +1,4 @@
-﻿using Reservant.Api.Models.Dtos.Ingredient;
+﻿using Reservant.Api.Dtos.Ingredient;
 
 namespace Reservant.Api.Dtos.Delivery;
 
