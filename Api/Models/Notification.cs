@@ -44,6 +44,8 @@ public class Notification
     /// <summary>
     /// Serialized details, used for persistence
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "EntityFramework.ModelValidation.UnlimitedStringLength")]
     private string DetailsJson => JsonSerializer.Serialize(Details, DetailsKind);
 
     /// <summary>
@@ -64,6 +66,7 @@ public class Notification
     /// <summary>
     /// Constructor for Entity Framework
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     private Notification(Type detailsKind, string detailsJson)
     {
         Details = (NotificationDetails)JsonSerializer.Deserialize(detailsJson, detailsKind)!;
