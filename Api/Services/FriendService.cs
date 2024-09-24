@@ -54,7 +54,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 userIds.Contains(fr.SenderId) &&
                 userIds.Contains(fr.ReceiverId)
             );
-        var notificationConfirmation = false;
+
         if (existingRequest is null)
         {
             context.Add(new FriendRequest
@@ -63,8 +63,13 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 ReceiverId = receiverId,
                 DateSent = DateTime.UtcNow
             });
+
+            await context.SaveChangesAsync();
+            await notificationService.NotifyNewFriendRequest(senderId, receiverId);
+            return Result.Success;
         }
-        else if (existingRequest.DateAccepted is not null)
+
+        if (existingRequest.DateAccepted is not null)
         {
             return new ValidationFailure
             {
@@ -73,27 +78,22 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 ErrorCode = ErrorCodes.AlreadyFriends
             };
         }
-        else if (existingRequest.SenderId == receiverId)
+
+        if (existingRequest.SenderId == receiverId)
         {
             existingRequest.DateAccepted = DateTime.UtcNow;
-            notificationConfirmation = true;
-        }
-        else
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(receiverId),
-                ErrorMessage = "Friend request already exists",
-                ErrorCode = ErrorCodes.Duplicate
-            };
+
+            await context.SaveChangesAsync();
+            await notificationService.NotifyFriendRequestAccepted(existingRequest.SenderId, existingRequest.Id);
+            return Result.Success;
         }
 
-        await context.SaveChangesAsync();
-        if (notificationConfirmation)
+        return new ValidationFailure
         {
-            await notificationService.NotifyFriendRequestAccepted(existingRequest.SenderId, existingRequest.Id);
-        }
-        return Result.Success;
+            PropertyName = nameof(receiverId),
+            ErrorMessage = "Friend request already exists",
+            ErrorCode = ErrorCodes.Duplicate
+        };
     }
 
     /// <summary>
