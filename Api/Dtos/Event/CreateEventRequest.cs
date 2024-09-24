@@ -13,17 +13,17 @@ public class CreateEventRequest
     /// <summary>
     /// When the event is going to happen
     /// </summary>
-    public DateTime Time { get; set; }
+    public required DateTime Time { get; set; }
 
     /// <summary>
     /// Max number of people that can attend event - only accepted, excluding creator
     /// </summary>
-    public int MaxPeople { get; set; }
+    public required int MaxPeople { get; set; }
 
     /// <summary>
     /// People must join until this time
     /// </summary>
-    public DateTime MustJoinUntil { get; set; }
+    public required DateTime MustJoinUntil { get; set; }
 
     /// <summary>
     /// ID of the restaurant where the event takes place

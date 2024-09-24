@@ -8,5 +8,5 @@ public class MoveToGroupRequest
     /// <summary>
     /// ID of the group to move the restaurant to
     /// </summary>
-    public int GroupId { get; init; }
+    public required int GroupId { get; init; }
 }

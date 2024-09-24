@@ -15,12 +15,12 @@ public class UpdateIngredientRequest
     /// <summary>
     /// Unit of measurement used for amount
     /// </summary>
-    public UnitOfMeasurement UnitOfMeasurement { get; set; }
+    public required UnitOfMeasurement UnitOfMeasurement { get; set; }
 
     /// <summary>
     /// Minimal amount considered enough
     /// </summary>
-    public double MinimalAmount { get; set; }
+    public required double MinimalAmount { get; set; }
 
     /// <summary>
     /// When added to the shopping list, the amount to order

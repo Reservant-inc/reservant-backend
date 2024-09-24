@@ -12,7 +12,6 @@ public class VisitVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    [Key]
     public required int VisitId { get; set; }
 
     /// <summary>

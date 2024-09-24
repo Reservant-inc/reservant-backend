@@ -18,13 +18,13 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// Cena
     /// </summary>
-    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
+    [Column(TypeName = "decimal(5, 2)")]
     public required decimal Price { get; set; }
 
     /// <summary>
     /// Nazwa
     /// </summary>
-    [Required, StringLength(20)]
+    [StringLength(20)]
     public required string Name { get; set; }
 
     /// <summary>
@@ -36,7 +36,7 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// Zawartość alkoholu
     /// </summary>
-    [Range(0, 100), Column(TypeName = "decimal(4, 1)")]
+    [Column(TypeName = "decimal(4, 1)")]
     public required decimal? AlcoholPercentage { get; set; }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// File name of the photo
     /// </summary>
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public required string PhotoFileName { get; set; }
 
     /// <summary>

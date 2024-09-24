@@ -14,7 +14,7 @@ public class RegisterCustomerRequest
 
     public required string PhoneNumber { get; init; }
 
-    public DateOnly BirthDate { get; init; }
+    public required DateOnly BirthDate { get; init; }
 
     public required string Password { get; init; }
 }

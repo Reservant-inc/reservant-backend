@@ -11,7 +11,6 @@ public class EventVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    [Key]
     public required int EventId { get; set; }
 
     /// <summary>

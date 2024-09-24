@@ -10,10 +10,10 @@ public class CreateOrderItemRequest
     /// <summary>
     /// ID of the ordered MenuItem
     /// </summary>
-    public int MenuItemId { get; init; }
+    public required int MenuItemId { get; init; }
 
     /// <summary>
     /// Number of items ordered
     /// </summary>
-    public int Amount { get; set; }
+    public required int Amount { get; set; }
 }

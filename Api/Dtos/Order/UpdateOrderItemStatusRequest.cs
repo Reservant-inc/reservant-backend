@@ -10,11 +10,11 @@ namespace Reservant.Api.Dtos.Order
         /// <summary>
         /// Ordered item ID
         /// </summary>
-        public int MenuItemId { get; set; }
+        public required int MenuItemId { get; set; }
 
         /// <summary>
         /// Ordered item status
         /// </summary>
-        public OrderStatus Status { get; set; }
+        public required OrderStatus Status { get; set; }
     }
 }

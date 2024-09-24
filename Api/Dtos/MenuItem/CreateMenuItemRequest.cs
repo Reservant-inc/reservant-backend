@@ -10,12 +10,12 @@ namespace Reservant.Api.Dtos.MenuItem
         /// <summary>
         /// id of a restaurant
         /// </summary>
-        public int RestaurantId { get; set; }
+        public required int RestaurantId { get; set; }
 
         /// <summary>
         /// Cena
         /// </summary>
-        public decimal Price { get; set; }
+        public required decimal Price { get; set; }
 
         /// <summary>
         /// Nazwa

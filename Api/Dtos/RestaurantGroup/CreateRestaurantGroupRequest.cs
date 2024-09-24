@@ -6,9 +6,7 @@ namespace Reservant.Api.Dtos.RestaurantGroup;
 
 public class CreateRestaurantGroupRequest
 {
-    [Required, StringLength(50)]
     public required string Name { get; init; }
 
-    [Required, Length(1, 10)]
     public required List<int> RestaurantIds { get; init; }
 }

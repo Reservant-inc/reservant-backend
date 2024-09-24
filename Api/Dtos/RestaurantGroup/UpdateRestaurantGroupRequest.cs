@@ -10,6 +10,5 @@ public class UpdateRestaurantGroupRequest
     /// <summary>
     /// New name
     /// </summary>
-    [Required, StringLength(50)]
     public required string Name { get; init; }
 }

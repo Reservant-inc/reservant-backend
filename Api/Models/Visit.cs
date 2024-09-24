@@ -33,7 +33,7 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// Deposit
     /// </summary>
-    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
+    [Column(TypeName = "decimal(5, 2)")]
     public decimal? Deposit { get; set; }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// Optional tip
     /// </summary>
-    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
+    [Column(TypeName = "decimal(5, 2)")]
     public decimal? Tip { get; set; }
 
     /// <summary>

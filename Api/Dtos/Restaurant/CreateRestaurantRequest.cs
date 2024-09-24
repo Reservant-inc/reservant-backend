@@ -25,7 +25,7 @@ public class CreateRestaurantRequest
     /// <summary>
     /// Restaurant type
     /// </summary>
-    public RestaurantType RestaurantType { get; init; }
+    public required RestaurantType RestaurantType { get; init; }
 
     /// <summary>
     /// Address of the restaurant
@@ -99,7 +99,6 @@ public class CreateRestaurantRequest
     /// <summary>
     /// Deposit
     /// </summary>
-    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
     public decimal? ReservationDeposit { get; init; }
 
     /// <summary>
@@ -110,6 +109,5 @@ public class CreateRestaurantRequest
     /// <summary>
     /// Restaurant photos
     /// </summary>
-    [Required]
     public required List<string> Photos { get; init; }
 }

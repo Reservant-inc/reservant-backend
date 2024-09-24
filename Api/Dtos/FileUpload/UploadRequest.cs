@@ -10,6 +10,5 @@ public class UploadRequest
     /// <summary>
     /// The file to upload
     /// </summary>
-    [Required]
     public required IFormFile File { get; init; }
 }

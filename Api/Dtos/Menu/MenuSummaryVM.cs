@@ -11,13 +11,11 @@ public class MenuSummaryVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    [Required]
     public required int MenuId { get; set; }
 
     /// <summary>
     /// Name of the menu
     /// </summary>
-    [Required]
     public required string Name { get; set; }
 
     /// <summary>
@@ -28,13 +26,11 @@ public class MenuSummaryVM
     /// <summary>
     /// Typ menu
     /// </summary>
-    [Required]
     public required MenuType MenuType { get; set; }
 
     /// <summary>
     /// First day the menu is valid
     /// </summary>
-    [Required]
     public required DateOnly DateFrom { get; set; }
 
     /// <summary>
@@ -45,6 +41,5 @@ public class MenuSummaryVM
     /// <summary>
     /// File name of the photo
     /// </summary>
-    [Required, StringLength(50)]
     public required string Photo { get; set; }
 }

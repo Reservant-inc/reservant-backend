@@ -14,5 +14,5 @@ public class AddMoneyRequest
     /// <summary>
     /// Amount of money to add to the wallet
     /// </summary>
-    public decimal Amount { get; set; }
+    public required decimal Amount { get; set; }
 }

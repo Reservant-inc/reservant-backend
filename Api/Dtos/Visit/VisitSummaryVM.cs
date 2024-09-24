@@ -8,17 +8,17 @@ public class VisitSummaryVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int VisitId { get; set; }
+    public required int VisitId { get; set; }
 
     /// <summary>
     /// Date of the visit
     /// </summary>
-    public DateTime Date { get; set; }
+    public required DateTime Date { get; set; }
 
     /// <summary>
     /// Number of guests + number of clients
     /// </summary>
-    public int NumberOfPeople { get; set; }
+    public required int NumberOfPeople { get; set; }
 
     /// <summary>
     /// Deposit

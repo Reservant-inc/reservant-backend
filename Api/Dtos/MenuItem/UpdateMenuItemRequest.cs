@@ -10,7 +10,7 @@ public class UpdateMenuItemRequest
     /// <summary>
     /// Cena
     /// </summary>
-    public decimal Price { get; set; }
+    public required decimal Price { get; set; }
 
     /// <summary>
     /// Nazwa

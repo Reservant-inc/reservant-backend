@@ -16,12 +16,10 @@ public class RestaurantGroupVM
     /// <summary>
     /// Name
     /// </summary>
-    [Required, StringLength(50)]
     public required string Name { get; init; }
 
     /// <summary>
     /// Information about its restaurants
     /// </summary>
-    [Required, Length(1, 10)]
     public required List<RestaurantSummaryVM> Restaurants { get; init; }
 }

@@ -21,13 +21,13 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// Nazwa
     /// </summary>
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public required string Name { get; set; }
 
     /// <summary>
     /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a> associated with the restaurant
     /// </summary>
-    [Required, Nip, StringLength(13)]
+    [StringLength(13)]
     public required string Nip { get; set; }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// Adres
     /// </summary>
-    [Required, StringLength(70)]
+    [StringLength(70)]
     public required string Address { get; set; }
 
 
@@ -50,13 +50,13 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// Postal index of the restaurant
     /// </summary>
-    [Required, PostalIndex, StringLength(6)]
+    [StringLength(6)]
     public required string PostalIndex { get; set; }
 
     /// <summary>
     /// City of the restaurant
     /// </summary>
-    [Required, StringLength(15)]
+    [StringLength(15)]
     public required string City { get; set; }
 
     /// <summary>
@@ -74,13 +74,13 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// File name of the permission to conduct business (zgoda na prowadzenie działalności)
     /// </summary>
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public required string BusinessPermissionFileName { get; set; }
 
     /// <summary>
     /// File name of the ID card (dowód osobisty)
     /// </summary>
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public required string IdCardFileName { get; set; }
 
     /// <summary>
@@ -96,7 +96,7 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// File name of the logo
     /// </summary>
-    [Required, StringLength(50)]
+    [StringLength(50)]
     public required string LogoFileName { get; set; }
 
     /// <summary>
@@ -108,7 +108,7 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// Deposit
     /// </summary>
-    [Range(0, 500), Column(TypeName = "decimal(5, 2)")]
+    [Column(TypeName = "decimal(5, 2)")]
     public decimal? ReservationDeposit { get; set; }
 
     /// <summary>
