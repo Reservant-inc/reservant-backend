@@ -88,15 +88,21 @@ public class NotificationNewFriendRequest : NotificationDetails
 /// </summary>
 public class NotificationFriendRequestAccepted : NotificationDetails
 {
+    /// <summary>
+    /// ID of the friend request
+    /// </summary>
     public required int FriendRequestId { get; init; }
+
     /// <summary>
     /// ID of the person that accepted the friend request
     /// </summary>
     public required string AcceptingUserId { get; init; }
+
     /// <summary>
     /// ID of the person that sent the friend request that was accepted
     /// </summary>
     public required string NotifiedUserId { get; init; }
+
     /// <summary>
     /// FullName of the user that accepted the friend request
     /// </summary>
