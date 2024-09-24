@@ -21,18 +21,18 @@ public class ParticipationRequest
     /// <summary>
     /// Event navigation property
     /// </summary>
-    public Event Event { get; set; }
+    public Event Event { get; set; } = null!;
 
     /// <summary>
     /// User ID
     /// </summary>
     [StringLength(36)]
-    public string UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     /// <summary>
     /// User navigation property
     /// </summary>
-    public User User { get; set; }
+    public User User { get; set; } = null!;
 
     /// <summary>
     /// Time when the request was sent
