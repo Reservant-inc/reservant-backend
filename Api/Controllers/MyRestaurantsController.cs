@@ -206,7 +206,7 @@ namespace Reservant.Api.Controllers
         {
             var user = await userManager.GetUserAsync(User);
 
-            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user);
+            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user!);
             return OkOrErrors(result);
         }
 

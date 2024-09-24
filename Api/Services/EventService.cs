@@ -487,7 +487,7 @@ namespace Reservant.Api.Services
                 CreatorId = eventToUpdate.CreatorId,
                 CreatorFullName = eventToUpdate.Creator.FullName,
                 RestaurantId = eventToUpdate.RestaurantId,
-                RestaurantName = eventToUpdate.Restaurant.Name,
+                RestaurantName = eventToUpdate.Restaurant?.Name,
                 VisitId = eventToUpdate.VisitId,
                 Participants = eventToUpdate
                     .ParticipationRequests
