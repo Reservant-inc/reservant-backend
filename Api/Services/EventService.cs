@@ -208,7 +208,8 @@ namespace Reservant.Api.Services
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of users with pending participation requests.</returns>
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
-        public async Task<Result<Pagination<UserSummaryVM>>> GetInterestedUsersAsync(int eventId, int page, int perPage)
+        [ErrorCode(nameof(userId), ErrorCodes.AccessDenied, "User not creator of the event")]
+        public async Task<Result<Pagination<UserSummaryVM>>> GetInterestedUsersAsync(int eventId, string userId, int page, int perPage)
         {
             var eventEntity = await context.Events.FindAsync(eventId);
             if (eventEntity == null)
@@ -221,9 +222,19 @@ namespace Reservant.Api.Services
                 };
             }
 
+            if (eventEntity.CreatorId != userId)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(userId),
+                    ErrorMessage = $"User not creator of the event {eventId}",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
             var query = context.EventParticipationRequests
                 .Where(pr => pr.EventId == eventId && pr.DateAccepted == null && pr.DateDeleted == null)
-                .OrderBy(pr => pr.DateSent)
+                .OrderByDescending(pr => pr.DateSent)
                 .Select(pr => new UserSummaryVM
                 {
                     UserId = pr.UserId,
