@@ -43,7 +43,8 @@ namespace Reservant.Api.Controllers
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of users with pending participation requests.</returns>
         [HttpGet("{eventId:int}/interested")]
-        [ProducesResponseType(200), ProducesResponseType(400)]
+        [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+        [Authorize(Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.GetInterestedUsersAsync))]
         public async Task<ActionResult<Pagination<UserSummaryVM>>> GetInterestedUsers(int eventId, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
         {
@@ -53,7 +54,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await service.GetInterestedUsersAsync(eventId, page, perPage);
+            var result = await service.GetInterestedUsersAsync(eventId, userId, page, perPage);
             return OkOrErrors(result);
         }
 
