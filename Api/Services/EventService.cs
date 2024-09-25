@@ -199,6 +199,41 @@ namespace Reservant.Api.Services
 
             return Result.Success;
         }
+        
+        /// <summary>
+        /// Get paginated list of users who are interested in an event but not accepted or rejected.
+        /// </summary>
+        /// <param name="eventId">ID of the event.</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of users with pending participation requests.</returns>
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        public async Task<Result<Pagination<UserSummaryVM>>> GetInterestedUsersAsync(int eventId, int page, int perPage)
+        {
+            var eventEntity = await context.Events.FindAsync(eventId);
+            if (eventEntity == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(eventId),
+                    ErrorMessage = $"Event with ID {eventId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var query = context.EventParticipationRequests
+                .Where(pr => pr.EventId == eventId && pr.DateAccepted == null && pr.DateDeleted == null)
+                .OrderBy(pr => pr.DateSent)
+                .Select(pr => new UserSummaryVM
+                {
+                    UserId = pr.UserId,
+                    FirstName = pr.User.FirstName,
+                    LastName = pr.User.LastName,
+                    Photo = uploadService.GetPathForFileName(pr.User.PhotoFileName)
+                });
+
+            return await query.PaginateAsync(page, perPage, []);
+        }
 
         /// <summary>
         /// Accept a ParticipationRequest as the Event creator
