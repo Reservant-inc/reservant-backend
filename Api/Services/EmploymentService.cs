@@ -146,11 +146,10 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     [ErrorCode(null, ErrorCodes.NotFound)]
     public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(string userId, bool isTerminated)
     {
-        var user = await context.Users.SingleAsync(u => u.Id == userId);
+        var employments = context.Employments
+            .Where(e => e.EmployeeId == userId);
 
-        var employments = context.Employments.Include(e => e.Restaurant).ThenInclude(r => r.Reviews).Where(e => e.EmployeeId == userId);
-
-        if (isTerminated == true)
+        if (isTerminated)
         {
             employments = employments.Where(e => e.DateUntil != null);
         }
@@ -159,7 +158,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             employments = employments.Where(e => e.DateUntil == null);
         }
 
-        var employmentsVM = employments.Select(e => new EmploymentSummaryVM
+        var employmentsVM = await employments.Select(e => new EmploymentSummaryVM
         {
             EmploymentId = e.Id,
             DateFrom = e.DateFrom,
@@ -182,14 +181,14 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
                 Description = e.Restaurant.Description,
                 ReservationDeposit = e.Restaurant.ReservationDeposit,
                 ProvideDelivery = e.Restaurant.ProvideDelivery,
-                IsVerified = e.Restaurant.VerifierId == null ? false : true,
+                IsVerified = e.Restaurant.VerifierId != null,
                 RestaurantId = e.RestaurantId,
-                Rating = e.Restaurant.Rating,
+                Rating = e.Restaurant.Reviews.Average(r => (double?)r.Stars) ?? 0,
                 NumberReviews = e.Restaurant.Reviews.Count
             },
             IsBackdoorEmployee = e.IsBackdoorEmployee,
             IsHallEmployee = e.IsHallEmployee
-        }).ToList();
+        }).ToListAsync();
 
         return employmentsVM;
     }
