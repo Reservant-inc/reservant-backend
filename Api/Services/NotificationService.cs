@@ -159,52 +159,61 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     }
 
     /// <summary>
-    /// Notify a user that they have a new participation request
+    /// Notify a user that somebody wants to participate in their event
     /// </summary>
-    public async Task NotifyParticipationRequest(string receiverId, string senderId, int eventId)
+    public async Task NotifyNewParticipationRequest(string receiverId, string senderId, int eventId)
     {
+        var eventName = await context.Events
+            .Where(e => e.Id == eventId)
+            .Select(e => e.Name)
+            .SingleAsync();
+
         var sender = await context.Users
             .Where(u => u.Id == senderId)
             .Select(u => new { u.FullName, u.PhotoFileName })
-            .FirstOrDefaultAsync();
+            .SingleAsync();
 
-        if (sender != null)
-        {
-            await NotifyUser(
-                receiverId,
-                new NotificationParticipationRequest
-                {
-                    SenderId = senderId,
-                    SenderName = sender.FullName,
-                    EventId = eventId,
-                },
-                sender.PhotoFileName); // Assuming you want to send the first photo
-        }
+        await NotifyUser(
+            receiverId,
+            new NotificationNewParticipationRequest
+            {
+                SenderId = senderId,
+                SenderName = sender.FullName,
+                EventId = eventId,
+                EventName = eventName,
+            },
+            sender.PhotoFileName);
     }
 
     /// <summary>
-    /// Notify a user that they have a new participation request response
+    /// Notify a user that their participation request was accepted/rejected
     /// </summary>
     public async Task NotifyParticipationRequestResponse(string receiverId, int eventId, bool isAccepted)
     {
         var eventData = await context.Events
             .Where(e => e.Id == eventId)
-                .Include(u => u.Creator)
-                .ThenInclude(u => u.Photo)
-            .Select(e => new { e.Description, Photo = e.Creator.PhotoFileName })
+            .Select(e => new
+            {
+                e.Name,
+                e.Creator.PhotoFileName,
+                e.CreatorId,
+                CreatorName = e.Creator.FirstName + " " + e.Creator.LastName,
+            })
             .FirstOrDefaultAsync();
 
         if (eventData != null)
         {
             await NotifyUser(
                 receiverId,
-                new NotificationNewParticipationRequestResponse
+                new NotificationParticipationRequestResponse
                 {
                     EventId = eventId,
-                    IsAccepted=isAccepted,
+                    Name = eventData.Name,
+                    IsAccepted = isAccepted,
+                    CreatorId = eventData.CreatorId,
+                    CreatorName = eventData.CreatorName,
                 },
-                eventData.Photo);
+                eventData.PhotoFileName);
         }
     }
-
 }

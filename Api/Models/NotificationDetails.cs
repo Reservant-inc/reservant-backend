@@ -83,7 +83,7 @@ public class NotificationNewFriendRequest : NotificationDetails
 /// <summary>
 /// Details for a new participation request notification
 /// </summary>
-public class NotificationParticipationRequest : NotificationDetails
+public class NotificationNewParticipationRequest : NotificationDetails
 {
     /// <summary>
     /// ID of the sender
@@ -94,31 +94,46 @@ public class NotificationParticipationRequest : NotificationDetails
     /// <summary>
     /// Name of the sender
     /// </summary>
-    public required String SenderName { get; set; }
+    public required string SenderName { get; set; }
 
     /// <summary>
     /// Event ID
     /// </summary>
-    public int EventId { get; set; }
+    public required int EventId { get; set; }
+
+    /// <summary>
+    /// Event name
+    /// </summary>
+    public required string EventName { get; set; }
 }
 
 /// <summary>
 /// Details for a new participation requests response notification
 /// </summary>
-public class NotificationNewParticipationRequestResponse : NotificationDetails
+public class NotificationParticipationRequestResponse : NotificationDetails
 {
     /// <summary>
     /// Event ID
     /// </summary>
-    public int EventId { get; set; }
+    public required int EventId { get; set; }
 
     /// <summary>
     /// name of the event
     /// </summary>
-    public String Name { get; set; }
+    public required string Name { get; set; }
 
     /// <summary>
-    /// Bool determening if its accepted
+    /// ID of the creator of the event
     /// </summary>
-    public bool IsAccepted { get; set; }
+    public required string CreatorId { get; set; }
+
+    /// <summary>
+    /// Event creator's name
+    /// </summary>
+    public required string CreatorName { get; set; }
+
+    /// <summary>
+    /// Bool determining if its accepted
+    /// </summary>
+    public required bool IsAccepted { get; set; }
 }

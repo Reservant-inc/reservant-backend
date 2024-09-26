@@ -203,7 +203,7 @@ namespace Reservant.Api.Services
             context.EventParticipationRequests.Add(participationRequest);
             await context.SaveChangesAsync();
 
-            await notificationService.NotifyParticipationRequest(eventFound.Creator.Id,user.Id,eventId);
+            await notificationService.NotifyNewParticipationRequest(eventFound.CreatorId,user.Id,eventId);
 
             return Result.Success;
         }
