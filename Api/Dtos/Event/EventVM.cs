@@ -13,6 +13,13 @@ public class EventVM
     /// </summary>
     public required int EventId { get; set; }
 
+
+    /// <summary>
+    /// name of the event
+    /// </summary>
+    public required string Name { get; set; }
+
+
     /// <summary>
     /// When the event was created
     /// </summary>

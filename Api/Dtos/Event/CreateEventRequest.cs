@@ -6,6 +6,11 @@ namespace Reservant.Api.Dtos.Event;
 public class CreateEventRequest
 {
     /// <summary>
+    /// Name of the event
+    /// </summary>
+    public required string Name { get; set; }
+
+    /// <summary>
     /// Optional description
     /// </summary>
     public string? Description { get; set; }

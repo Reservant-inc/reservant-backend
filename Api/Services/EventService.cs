@@ -17,7 +17,9 @@ namespace Reservant.Api.Services
     public class EventService(
         ApiDbContext context,
         ValidationService validationService,
-        FileUploadService uploadService)
+        FileUploadService uploadService,
+        NotificationService notificationService
+        )
     {
         /// <summary>
         /// Action for
@@ -37,6 +39,7 @@ namespace Reservant.Api.Services
 
             var newEvent = new Event
             {
+                Name=request.Name,
                 CreatedAt = DateTime.UtcNow,
                 Description = request.Description,
                 Time = request.Time,
@@ -72,6 +75,7 @@ namespace Reservant.Api.Services
 
             return new EventVM
             {
+                Name = request.Name,
                 CreatedAt = newEvent.CreatedAt,
                 Description = newEvent.Description,
                 Time = newEvent.Time,
@@ -96,6 +100,7 @@ namespace Reservant.Api.Services
             var checkedEvent = await context.Events
                 .Select(e => new EventVM
                 {
+                    Name = e.Name,
                     CreatedAt = e.CreatedAt,
                     Description = e.Description,
                     Time = e.Time,
@@ -139,6 +144,7 @@ namespace Reservant.Api.Services
                 .Where(e => e.CreatorId == user.Id)
                 .Select(e => new EventSummaryVM
                 {
+                    Name=e.Name,
                     CreatorFullName = e.Creator.FullName,
                     Time = e.Time,
                     MaxPeople = e.MaxPeople,
@@ -196,6 +202,8 @@ namespace Reservant.Api.Services
 
             context.EventParticipationRequests.Add(participationRequest);
             await context.SaveChangesAsync();
+
+            await notificationService.NotifyNewParticipationRequest(eventFound.CreatorId,user.Id,eventId);
 
             return Result.Success;
         }
@@ -263,6 +271,7 @@ namespace Reservant.Api.Services
 
             request.DateAccepted = DateTime.Now;
             await context.SaveChangesAsync();
+            await notificationService.NotifyParticipationRequestResponse(userId,eventId,true);
 
             return Result.Success;
         }
@@ -305,6 +314,7 @@ namespace Reservant.Api.Services
 
             request.DateDeleted = DateTime.Now;
             await context.SaveChangesAsync();
+            await notificationService.NotifyParticipationRequestResponse(userId,eventId,false);
 
             return Result.Success;
         }
@@ -367,6 +377,7 @@ namespace Reservant.Api.Services
                 .Select(e => new EventSummaryVM
                 {
                     EventId = e.Id,
+                    Name = e.Name,
                     Description = e.Description,
                     Time = e.Time,
                     MaxPeople = e.MaxPeople,
@@ -444,6 +455,7 @@ namespace Reservant.Api.Services
                 };
             }
 
+            eventToUpdate.Name = request.Name;
             eventToUpdate.Description = request.Description;
             eventToUpdate.Time = request.Time;
             eventToUpdate.MaxPeople = request.MaxPeople;
@@ -479,6 +491,7 @@ namespace Reservant.Api.Services
             return new EventVM
             {
                 EventId = eventToUpdate.Id,
+                Name = eventToUpdate.Name,
                 CreatedAt = eventToUpdate.CreatedAt,
                 Description = eventToUpdate.Description,
                 Time = eventToUpdate.Time,

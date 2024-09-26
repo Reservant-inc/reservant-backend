@@ -12,6 +12,13 @@ public class EventSummaryVM
     /// </summary>
     public required int EventId { get; set; }
 
+
+    /// <summary>
+    /// name of the event
+    /// </summary>
+    public required string Name { get; set; }
+
+
     /// <summary>
     /// Optional description
     /// </summary>

@@ -12,6 +12,10 @@ public class UpdateEventRequestValidator : AbstractValidator<UpdateEventRequest>
     /// <inheritdoc />
     public UpdateEventRequestValidator(ApiDbContext context)
     {
+        RuleFor(e => e.Name)
+            .NotEmpty()
+            .IsValidName();
+
         RuleFor(e => e.MustJoinUntil)
             .LessThan(e => e.Time)
             .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime)

@@ -182,4 +182,62 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
         }
     }
 
+    /// <summary>
+    /// Notify a user that somebody wants to participate in their event
+    /// </summary>
+    public async Task NotifyNewParticipationRequest(string receiverId, string senderId, int eventId)
+    {
+        var eventName = await context.Events
+            .Where(e => e.Id == eventId)
+            .Select(e => e.Name)
+            .SingleAsync();
+
+        var sender = await context.Users
+            .Where(u => u.Id == senderId)
+            .Select(u => new { u.FullName, u.PhotoFileName })
+            .SingleAsync();
+
+        await NotifyUser(
+            receiverId,
+            new NotificationNewParticipationRequest
+            {
+                SenderId = senderId,
+                SenderName = sender.FullName,
+                EventId = eventId,
+                EventName = eventName,
+            },
+            sender.PhotoFileName);
+    }
+
+    /// <summary>
+    /// Notify a user that their participation request was accepted/rejected
+    /// </summary>
+    public async Task NotifyParticipationRequestResponse(string receiverId, int eventId, bool isAccepted)
+    {
+        var eventData = await context.Events
+            .Where(e => e.Id == eventId)
+            .Select(e => new
+            {
+                e.Name,
+                e.Creator.PhotoFileName,
+                e.CreatorId,
+                CreatorName = e.Creator.FirstName + " " + e.Creator.LastName,
+            })
+            .FirstOrDefaultAsync();
+
+        if (eventData != null)
+        {
+            await NotifyUser(
+                receiverId,
+                new NotificationParticipationRequestResponse
+                {
+                    EventId = eventId,
+                    Name = eventData.Name,
+                    IsAccepted = isAccepted,
+                    CreatorId = eventData.CreatorId,
+                    CreatorName = eventData.CreatorName,
+                },
+                eventData.PhotoFileName);
+        }
+    }
 }

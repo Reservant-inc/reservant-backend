@@ -15,6 +15,11 @@ public class Event : ISoftDeletable
     public int Id { get; set; }
 
     /// <summary>
+    /// name of the event
+    /// </summary>
+    public String Name { get; set; }
+
+    /// <summary>
     /// When the event was created
     /// </summary>
     public DateTime CreatedAt { get; set; }

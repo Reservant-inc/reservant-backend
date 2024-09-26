@@ -369,6 +369,7 @@ public class DbSeeder(
         context.Events.AddRange(
             new Event
             {
+                Name="Posiadówa w John Doe's",
                 CreatedAt = visits[0].Date.AddDays(-1),
                 Description = "Event 1 Description",
                 Time = visits[0].Date,
@@ -399,6 +400,7 @@ public class DbSeeder(
             },
             new Event
             {
+                Name="Posiadówa w John Doe's vol. 2",
                 CreatedAt = visits[1].Date.AddDays(-5),
                 Description = "Event 2 Description",
                 Time = visits[1].Date,
@@ -417,6 +419,7 @@ public class DbSeeder(
             },
             new Event
             {
+                Name="Przyszłe Wydarzenie",
                 CreatedAt = DateTime.UtcNow.AddHours(-1),
                 Description = "Event 3 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
@@ -441,6 +444,7 @@ public class DbSeeder(
             },
             new Event
             {
+                Name="Event 4",
                 CreatedAt = DateTime.UtcNow,
                 Description = "Event 4 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(15),
@@ -453,6 +457,7 @@ public class DbSeeder(
             },
             new Event
             {
+                Name="Wydarzenie 5",
                 CreatedAt = DateTime.UtcNow.AddHours(-2),
                 Description = "Event 5 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(20),

@@ -65,7 +65,6 @@ public class NotificationNewRestaurantReview : NotificationDetails
     public required string AuthorName { get; init; }
 }
 
-
 /// <summary>
 /// Details for a new friend request notification
 /// </summary>
@@ -102,4 +101,63 @@ public class NotificationFriendRequestAccepted : NotificationDetails
     /// FullName of the user that accepted the friend request
     /// </summary>
     public required string AcceptingUserFullName { get; init; }
+}
+
+
+/// <summary>
+/// Details for a new participation request notification
+/// </summary>
+public class NotificationNewParticipationRequest : NotificationDetails
+{
+    /// <summary>
+    /// ID of the sender
+    /// </summary>
+    [StringLength(36)]
+    public required string SenderId { get; set; } = null!;
+
+    /// <summary>
+    /// Name of the sender
+    /// </summary>
+    public required string SenderName { get; set; }
+
+    /// <summary>
+    /// Event ID
+    /// </summary>
+    public required int EventId { get; set; }
+
+    /// <summary>
+    /// Event name
+    /// </summary>
+    public required string EventName { get; set; }
+}
+
+/// <summary>
+/// Details for a new participation requests response notification
+/// </summary>
+public class NotificationParticipationRequestResponse : NotificationDetails
+{
+    /// <summary>
+    /// Event ID
+    /// </summary>
+    public required int EventId { get; set; }
+
+    /// <summary>
+    /// name of the event
+    /// </summary>
+    public required string Name { get; set; }
+
+    /// <summary>
+    /// ID of the creator of the event
+    /// </summary>
+    public required string CreatorId { get; set; }
+
+    /// <summary>
+    /// Event creator's name
+    /// </summary>
+    public required string CreatorName { get; set; }
+
+    /// <summary>
+    /// Bool determining if its accepted
+    /// </summary>
+    public required bool IsAccepted { get; set; }
 }
