@@ -11,7 +11,7 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing notifications
 /// </summary>
-public class NotificationService(ApiDbContext context, FileUploadService uploadService, UserService userService)
+public class NotificationService(ApiDbContext context, FileUploadService uploadService)
 {
     /// <summary>
     /// Get all notifications
