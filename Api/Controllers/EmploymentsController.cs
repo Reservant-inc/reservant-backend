@@ -47,7 +47,8 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.UpdateBulkEmploymentAsync))]
-    public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests) {
+    public async Task<ActionResult> PutEmployments(List<UpdateEmploymentRequest> requests)
+    {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
@@ -67,7 +68,8 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.DeleteBulkEmploymentAsync))]
-    public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds) {
+    public async Task<ActionResult> BulkDeleteEmployment(List<int> employmentIds)
+    {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {

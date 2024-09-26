@@ -136,4 +136,60 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         await context.SaveChangesAsync();
         return Result.Success;
     }
+
+    /// <summary>
+    /// Gets current or completed employments for the user that makes this request
+    /// </summary>
+    /// <param name="userId">ID of the user that makes the request</param>
+    /// <param name="isTerminated">parameter that tells if the search should include terminated xor ongoing employments</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(string userId, bool isTerminated)
+    {
+        var employments = context.Employments
+            .Where(e => e.EmployeeId == userId);
+
+        if (isTerminated)
+        {
+            employments = employments.Where(e => e.DateUntil != null);
+        }
+        else
+        {
+            employments = employments.Where(e => e.DateUntil == null);
+        }
+
+        var employmentsVM = await employments.Select(e => new EmploymentSummaryVM
+        {
+            EmploymentId = e.Id,
+            DateFrom = e.DateFrom,
+            DateUntill = e.DateUntil,
+            Restaurant = new Dtos.Restaurant.RestaurantSummaryVM
+            {
+                Address = e.Restaurant.Address,
+                Tags = e.Restaurant.Tags.Select(t => t.Name).ToList(),
+                Name = e.Restaurant.Name,
+                Nip = e.Restaurant.Nip,
+                RestaurantType = e.Restaurant.RestaurantType,
+                City = e.Restaurant.City,
+                Location = new Dtos.Location.Geolocation
+                {
+                    Longitude = e.Restaurant.Location.PointOnSurface.X,
+                    Latitude = e.Restaurant.Location.PointOnSurface.Y
+                },
+                GroupId = e.Restaurant.GroupId,
+                Logo = e.Restaurant.Logo.FileName,
+                Description = e.Restaurant.Description,
+                ReservationDeposit = e.Restaurant.ReservationDeposit,
+                ProvideDelivery = e.Restaurant.ProvideDelivery,
+                IsVerified = e.Restaurant.VerifierId != null,
+                RestaurantId = e.RestaurantId,
+                Rating = e.Restaurant.Reviews.Average(r => (double?)r.Stars) ?? 0,
+                NumberReviews = e.Restaurant.Reviews.Count
+            },
+            IsBackdoorEmployee = e.IsBackdoorEmployee,
+            IsHallEmployee = e.IsHallEmployee
+        }).ToListAsync();
+
+        return employmentsVM;
+    }
 }

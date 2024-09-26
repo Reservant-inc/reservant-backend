@@ -6,6 +6,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Employment;
 using Reservant.Api.Dtos.Event;
 using Reservant.Api.Dtos.Thread;
 using Reservant.Api.Dtos.User;
@@ -236,6 +237,23 @@ public class UserController(
         }
 
         var result = await threadService.GetUserThreadsAsync(userId, page, perPage);
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Gets current users empmloyments, can be set to include terminated xor ongoing contracts
+    /// </summary>
+    /// <param name="returnTerminated">parameter in query that decides whether the search should include terminated employments or not</param>
+    /// <param name="employmentService"></param>
+    /// <returns></returns>
+    [HttpGet("employments")]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.GetCurrentUsersEmploymentsAsync))]
+    public async Task<ActionResult<List<EmploymentSummaryVM>>> GetCurrentUsersEmployments(
+        [FromQuery] bool returnTerminated, [FromServices] EmploymentService employmentService)
+    {
+        var result = await employmentService.GetCurrentUsersEmploymentsAsync(User.GetUserId()!, returnTerminated);
         return OkOrErrors(result);
     }
 }
