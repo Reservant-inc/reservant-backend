@@ -91,13 +91,7 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.GetCurrentUsersEmploymentsAsync))]
     public async Task<ActionResult<List<EmploymentSummaryVM>>> GetCurrentUsersEmployments([FromQuery] bool returnTerminated)
     {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await employmentService.GetCurrentUsersEmploymentsAsync(user.Id, returnTerminated);
+        var result = await employmentService.GetCurrentUsersEmploymentsAsync(user.GetUserId(), returnTerminated);
         return OkOrErrors(result);
     }
 }
