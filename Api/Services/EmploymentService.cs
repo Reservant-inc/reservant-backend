@@ -146,43 +146,17 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     [ErrorCode(null, ErrorCodes.NotFound)]
     public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(string userId, bool isTerminated)
     {
-        var user = await context.Users.SingleOrDefaultAsync(u => u.Id == userId);
-        if (user is null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound
-            };
-        }
-        var employments = await context.Employments
-            .Include(e => e.Restaurant)
-                .ThenInclude(r => r.Tags)
-            .Include(e => e.Restaurant)
-                .ThenInclude(r => r.Reviews)
-            .Include(e => e.Restaurant)
-                .ThenInclude(r => r.Logo)
-            .Where(e => e.EmployeeId == userId)
-            .ToListAsync();
+        var user = await context.Users.SingleAsync(u => u.Id == userId);
+
+        var employments = context.Employments.Include(e => e.Restaurant).ThenInclude(r => r.Reviews).Where(e => e.EmployeeId == userId);
 
         if (isTerminated == true)
         {
-            employments = employments.Where(e => e.DateUntil != null).ToList();
+            employments = employments.Where(e => e.DateUntil != null);
         }
         else
         {
-            employments = employments.Where(e => e.DateUntil == null).ToList();
-        }
-
-        if (employments is null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound
-            };
+            employments = employments.Where(e => e.DateUntil == null);
         }
 
         var employmentsVM = employments.Select(e => new EmploymentSummaryVM
