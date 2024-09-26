@@ -12,6 +12,7 @@ public class CreateEventRequestValidator : AbstractValidator<CreateEventRequest>
     /// <inheritdoc />
     public CreateEventRequestValidator(ApiDbContext context) {
         RuleFor(e => e.Name)
+            .MaximumLength(50)
             .NotEmpty()
             .IsValidName();
 

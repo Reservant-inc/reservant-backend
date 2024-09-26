@@ -17,7 +17,8 @@ public class Event : ISoftDeletable
     /// <summary>
     /// name of the event
     /// </summary>
-    public String Name { get; set; }
+    [StringLength(50)]
+    public string Name { get; set; } = null!;
 
     /// <summary>
     /// When the event was created

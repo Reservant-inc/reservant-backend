@@ -13,6 +13,7 @@ public class UpdateEventRequestValidator : AbstractValidator<UpdateEventRequest>
     public UpdateEventRequestValidator(ApiDbContext context)
     {
         RuleFor(e => e.Name)
+            .MaximumLength(50)
             .NotEmpty()
             .IsValidName();
 
