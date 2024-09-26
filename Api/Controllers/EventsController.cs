@@ -34,7 +34,7 @@ namespace Reservant.Api.Controllers
 
             return OkOrErrors(await service.CreateEventAsync(request, user));
         }
-        
+
         /// <summary>
         /// Get paginated list of users who are interested but not yet accepted or rejected.
         /// </summary>
@@ -121,7 +121,7 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(await service.RejectParticipationRequestAsync(eventId, userId, currentUser));
         }
 
-        
+
         /// <summary>
         /// Remove logged-in user to event's interested list
         /// </summary>
@@ -141,8 +141,8 @@ namespace Reservant.Api.Controllers
 
             return OkOrErrors(await service.DeleteUserFromEventAsync(eventId, user));
         }
-        
-        
+
+
         /// <summary>
         /// Update an existing event
         /// </summary>

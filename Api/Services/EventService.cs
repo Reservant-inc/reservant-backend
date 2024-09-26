@@ -199,16 +199,18 @@ namespace Reservant.Api.Services
 
             return Result.Success;
         }
-        
+
         /// <summary>
         /// Get paginated list of users who are interested in an event but not accepted or rejected.
         /// </summary>
         /// <param name="eventId">ID of the event.</param>
+        /// <param name="userId">ID of the current user for permission checking</param>
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of users with pending participation requests.</returns>
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
-        [ErrorCode(nameof(userId), ErrorCodes.AccessDenied, "User not creator of the event")]
+        [ErrorCode(nameof(eventId), ErrorCodes.AccessDenied, "User not creator of the event")]
+        [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
         public async Task<Result<Pagination<UserSummaryVM>>> GetInterestedUsersAsync(int eventId, string userId, int page, int perPage)
         {
             var eventEntity = await context.Events.FindAsync(eventId);
@@ -226,7 +228,7 @@ namespace Reservant.Api.Services
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(userId),
+                    PropertyName = nameof(eventId),
                     ErrorMessage = $"User not creator of the event {eventId}",
                     ErrorCode = ErrorCodes.AccessDenied
                 };
