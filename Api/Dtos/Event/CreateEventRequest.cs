@@ -8,7 +8,7 @@ public class CreateEventRequest
     /// <summary>
     /// Name of the event
     /// </summary>
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     /// <summary>
     /// Optional description

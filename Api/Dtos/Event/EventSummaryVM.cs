@@ -13,11 +13,11 @@ public class EventSummaryVM
     [Key]
     public required int EventId { get; set; }
 
-    
+
     /// <summary>
     /// name of the event
     /// </summary>
-    public String Name { get; set; }
+    public required string Name { get; set; }
 
 
     /// <summary>

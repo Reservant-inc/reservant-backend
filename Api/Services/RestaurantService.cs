@@ -1142,6 +1142,7 @@ namespace Reservant.Api.Services
                 .Select(e => new EventSummaryVM
                 {
                     EventId = e.Id,
+                    Name = e.Name,
                     Description = e.Description,
                     Time = e.Time,
                     MaxPeople = e.MaxPeople,
