@@ -209,6 +209,54 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
+        /// Get paginated list of users who are interested in an event but not accepted or rejected.
+        /// </summary>
+        /// <param name="eventId">ID of the event.</param>
+        /// <param name="userId">ID of the current user for permission checking</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of users with pending participation requests.</returns>
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(nameof(eventId), ErrorCodes.AccessDenied, "User not creator of the event")]
+        [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
+        public async Task<Result<Pagination<UserSummaryVM>>> GetInterestedUsersAsync(int eventId, string userId, int page, int perPage)
+        {
+            var eventEntity = await context.Events.FindAsync(eventId);
+            if (eventEntity == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(eventId),
+                    ErrorMessage = $"Event with ID {eventId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            if (eventEntity.CreatorId != userId)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(eventId),
+                    ErrorMessage = $"User not creator of the event {eventId}",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+
+            var query = context.EventParticipationRequests
+                .Where(pr => pr.EventId == eventId && pr.DateAccepted == null && pr.DateDeleted == null)
+                .OrderByDescending(pr => pr.DateSent)
+                .Select(pr => new UserSummaryVM
+                {
+                    UserId = pr.UserId,
+                    FirstName = pr.User.FirstName,
+                    LastName = pr.User.LastName,
+                    Photo = uploadService.GetPathForFileName(pr.User.PhotoFileName)
+                });
+
+            return await query.PaginateAsync(page, perPage, []);
+        }
+
+        /// <summary>
         /// Accept a ParticipationRequest as the Event creator
         /// </summary>
         /// <param name="eventId">ID of the event</param>

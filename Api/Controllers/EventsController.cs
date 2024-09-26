@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Event;
+using Reservant.Api.Dtos.User;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
-using Reservant.Api.Validation;
 
 namespace Reservant.Api.Controllers
 {
@@ -32,6 +33,29 @@ namespace Reservant.Api.Controllers
             }
 
             return OkOrErrors(await service.CreateEventAsync(request, user));
+        }
+
+        /// <summary>
+        /// Get paginated list of users who are interested but not yet accepted or rejected.
+        /// </summary>
+        /// <param name="eventId">ID of the event.</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
+        /// <returns>Paginated list of users with pending participation requests.</returns>
+        [HttpGet("{eventId:int}/interested")]
+        [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+        [Authorize(Roles.Customer)]
+        [MethodErrorCodes<EventService>(nameof(EventService.GetInterestedUsersAsync))]
+        public async Task<ActionResult<Pagination<UserSummaryVM>>> GetInterestedUsers(int eventId, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+        {
+            var userId = userManager.GetUserId(User);
+            if (userId is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await service.GetInterestedUsersAsync(eventId, userId, page, perPage);
+            return OkOrErrors(result);
         }
 
         /// <summary>
@@ -97,7 +121,7 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(await service.RejectParticipationRequestAsync(eventId, userId, currentUser));
         }
 
-        
+
         /// <summary>
         /// Remove logged-in user to event's interested list
         /// </summary>
@@ -117,8 +141,8 @@ namespace Reservant.Api.Controllers
 
             return OkOrErrors(await service.DeleteUserFromEventAsync(eventId, user));
         }
-        
-        
+
+
         /// <summary>
         /// Update an existing event
         /// </summary>
