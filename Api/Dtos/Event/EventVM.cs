@@ -14,6 +14,13 @@ public class EventVM
     [Key]
     public required int EventId { get; set; }
 
+    
+    /// <summary>
+    /// name of the event
+    /// </summary>
+    public String Name { get; set; }
+
+
     /// <summary>
     /// When the event was created
     /// </summary>

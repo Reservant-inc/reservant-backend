@@ -80,15 +80,10 @@ public class NotificationNewFriendRequest : NotificationDetails
     public required String SenderName { get; set; }
 }
 
-
-
-
-
-
 /// <summary>
 /// Details for a new participation request notification
 /// </summary>
-public class NotificationNewParticipationRequest : NotificationDetails
+public class NotificationParticipationRequest : NotificationDetails
 {
     /// <summary>
     /// ID of the sender
@@ -118,12 +113,12 @@ public class NotificationNewParticipationRequestResponse : NotificationDetails
     public int EventId { get; set; }
 
     /// <summary>
-    /// Time when user got accepted
+    /// name of the event
     /// </summary>
-    public DateTime? DateAccepted { get; set; }
+    public String Name { get; set; }
 
     /// <summary>
-    /// Time when the request was deleted or rejected (same thing)
+    /// Bool determening if its accepted
     /// </summary>
-    public DateTime? DateDeleted { get; set; }
+    public bool IsAccepted { get; set; }
 }

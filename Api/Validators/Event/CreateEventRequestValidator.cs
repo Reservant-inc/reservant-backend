@@ -11,6 +11,10 @@ public class CreateEventRequestValidator : AbstractValidator<CreateEventRequest>
 {
     /// <inheritdoc />
     public CreateEventRequestValidator(ApiDbContext context) {
+        RuleFor(e => e.Name)
+            .NotEmpty()
+            .IsValidName();
+
         RuleFor(e => e.Time)
             .DateTimeInFuture();
 

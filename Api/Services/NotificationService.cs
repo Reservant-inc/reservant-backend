@@ -158,14 +158,10 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
         }
     }
 
-
-
-
-
     /// <summary>
     /// Notify a user that they have a new participation request
     /// </summary>
-    public async Task NotifyNewParticipationRequest(string receiverId, string senderId, int eventId)
+    public async Task NotifyParticipationRequest(string receiverId, string senderId, int eventId)
     {
         var sender = await context.Users
             .Where(u => u.Id == senderId)
@@ -176,7 +172,7 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
         {
             await NotifyUser(
                 receiverId,
-                new NotificationNewParticipationRequest
+                new NotificationParticipationRequest
                 {
                     SenderId = senderId,
                     SenderName = sender.FullName,
@@ -189,13 +185,13 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     /// <summary>
     /// Notify a user that they have a new participation request response
     /// </summary>
-    public async Task NotifyNewParticipationRequestResponse(string receiverId, int eventId, bool accepted)
+    public async Task NotifyParticipationRequestResponse(string receiverId, int eventId, bool isAccepted)
     {
         var eventData = await context.Events
             .Where(e => e.Id == eventId)
-            .Include(e => e.Restaurant)
-            .ThenInclude(r => r.Photos)
-            .Select(e => new { e.Description, Photos = e.Restaurant.Photos.Select(p => p.PhotoFileName) })
+                .Include(u => u.Creator)
+                .ThenInclude(u => u.Photo)
+            .Select(e => new { e.Description, Photo = e.Creator.PhotoFileName })
             .FirstOrDefaultAsync();
 
         if (eventData != null)
@@ -205,10 +201,9 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
                 new NotificationNewParticipationRequestResponse
                 {
                     EventId = eventId,
-                    DateAccepted = accepted ? DateTime.Now : null,
-                    DateDeleted = accepted ? null : DateTime.Now
+                    IsAccepted=isAccepted,
                 },
-                eventData.Photos.FirstOrDefault());
+                eventData.Photo);
         }
     }
 

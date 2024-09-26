@@ -10,6 +10,10 @@ public class EventValidator : AbstractValidator<Models.Event>
     /// <inheritdoc />
     public EventValidator()
     {
+        RuleFor(e => e.Name)
+            .NotEmpty()
+            .IsValidName();
+
         RuleFor(x => x.Description)
             .Length(0, 200)
             .When(x => x.Description is not null);
