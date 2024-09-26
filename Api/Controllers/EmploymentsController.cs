@@ -79,19 +79,4 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
         var result = await employmentService.DeleteBulkEmploymentAsync(employmentIds, user);
         return OkOrErrors(result);
     }
-
-    /// <summary>
-    /// Gets current users empmloyments, can be set to include terminated xor ongoing contracts
-    /// </summary>
-    /// <param name="returnTerminated">parameter in query that decides whether the search should include terminated employments or not</param>
-    /// <returns></returns>
-    [HttpGet("user/employments")]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.GetCurrentUsersEmploymentsAsync))]
-    public async Task<ActionResult<List<EmploymentSummaryVM>>> GetCurrentUsersEmployments([FromQuery] bool returnTerminated)
-    {
-        var result = await employmentService.GetCurrentUsersEmploymentsAsync(User.GetUserId(), returnTerminated);
-        return OkOrErrors(result);
-    }
 }
