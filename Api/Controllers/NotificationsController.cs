@@ -1,9 +1,12 @@
-﻿using Reservant.ErrorCodeDocs.Attributes;
+﻿using System.Text;
+using Reservant.ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Notification;
+using Reservant.Api.Models;
 using Reservant.Api.Services;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Reservant.Api.Controllers;
 
@@ -18,6 +21,9 @@ public class NotificationsController(NotificationService service) : StrictContro
     /// <summary>
     /// Get all notifications
     /// </summary>
+    /// <remarks>
+    /// <a href="/notifications/types">Possible notification types</a>
+    /// </remarks>
     /// <param name="unreadOnly">Return only unread notifications</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page (max 100)</param>
@@ -51,5 +57,45 @@ public class NotificationsController(NotificationService service) : StrictContro
     {
         await service.MarkRead(dto);
         return Ok();
+    }
+
+    /// <summary>
+    /// Renders an HTML page documenting possible notification types
+    /// </summary>
+    [HttpGet("types")]
+    [AllowAnonymous]
+    public ActionResult GetPossibleNotificationTypes()
+    {
+        var types = typeof(NotificationDetails).Assembly
+            .DefinedTypes
+            .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(NotificationDetails)))
+            .Select(t => new NotificationTypeVM
+            {
+                Name = t.Name,
+                DetailsFields = t.DeclaredProperties
+                    .Where(p => p.IsPubliclyReadable())
+                    .ToDictionary(
+                        p => Utils.PropertyPathToCamelCase(p.Name),
+                        p => p.PropertyType.Name)
+            })
+            .ToList();
+
+        var htmlBuilder = new StringBuilder();
+        htmlBuilder.AppendLine("<h1>Notification Types</h1>");
+
+        foreach (var notificationType in types)
+        {
+            htmlBuilder.AppendLine($"<h2>{notificationType.Name}</h2>");
+            htmlBuilder.AppendLine("<ul>");
+
+            foreach (var (name, type) in notificationType.DetailsFields)
+            {
+                htmlBuilder.AppendLine($"<li>{name} : {type}</li>");
+            }
+
+            htmlBuilder.AppendLine("</ul>");
+        }
+
+        return Content(htmlBuilder.ToString(), "text/html");
     }
 }
