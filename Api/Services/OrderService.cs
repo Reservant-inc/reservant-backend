@@ -105,8 +105,8 @@ public class OrderService(
         {
             OrderId = order.Id,
             VisitId = order.VisitId,
-            Cost = order.Cost,
-            Status = order.Status,
+            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
+            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
             Items = orderItems,
             EmployeeId = order.EmployeeId
         };
@@ -240,9 +240,9 @@ public class OrderService(
         return new OrderSummaryVM
         {
             OrderId = order.Id,
-            Cost = order.Cost,
+            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
             Note = order.Note,
-            Status = order.Status,
+            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
             VisitId = order.VisitId,
             Date = visit.Date
         };
@@ -345,7 +345,7 @@ public class OrderService(
         {
             OrderId = order.Id,
             VisitId = order.VisitId,
-            Status = order.Status,
+            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
             Items = order.OrderItems.Select(orderItem => new OrderItemVM
             {
                 Amount = orderItem.Amount,
@@ -354,7 +354,7 @@ public class OrderService(
                 MenuItemId = orderItem.MenuItemId,
                 Cost = orderItem.Price * orderItem.Amount
             }).ToList(),
-            Cost = order.Cost,
+            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
             EmployeeId = order.EmployeeId
         };
     }

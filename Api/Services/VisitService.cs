@@ -70,8 +70,8 @@ public class VisitService(
                 OrderId = o.Id,
                 VisitId = o.VisitId,
                 Date = o.Visit.Date,
-                Cost = o.Cost,
-                Status = o.Status
+                Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount),
+                Status = o.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s)
             }).ToList()
         };
 

@@ -38,30 +38,6 @@ public class User : IdentityUser, ISoftDeletable
     public int? Reputation { get; set; }
 
     /// <summary>
-    /// Wiek.
-    /// </summary>
-    public int? Age
-    {
-        get
-        {
-            if (BirthDate is null)
-            {
-                return null;
-            }
-
-            var today = DateTime.Today;
-
-            var age = today.Year - BirthDate.Value.Year;
-            if (today.DayOfYear < BirthDate.Value.DayOfYear)
-            {
-                age -= 1;
-            }
-
-            return age;
-        }
-    }
-
-    /// <summary>
     /// First name + last name
     /// </summary>
     public string FullName => $"{FirstName} {LastName}";

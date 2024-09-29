@@ -594,7 +594,7 @@ namespace Reservant.Api.Services
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
                 IsVerified = restaurant.VerifierId != null,
-                Rating = restaurant.Rating,
+                Rating = restaurant.Reviews == null ? 0 : restaurant.Reviews.Count == 0 ? 0 : restaurant.Reviews.Average(rev => (double)rev.Stars),
                 NumberReviews = restaurant.Reviews.Count
             };
         }
@@ -1446,8 +1446,8 @@ namespace Reservant.Api.Services
                         VisitId = o.VisitId,
                         Date = o.Visit.Date,
                         Note = o.Note,
-                        Cost = o.Cost, // This now safely computes Cost
-                        Status = o.Status
+                        Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount), // This now safely computes Cost
+                        Status = o.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s)
                     }).ToList()
                 })
                 .PaginateAsync(page, perPage, Enum.GetNames<VisitSorting>());

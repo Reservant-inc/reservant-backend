@@ -32,42 +32,6 @@ public class Order : ISoftDeletable
     public string? EmployeeId { get; set; }
 
     /// <summary>
-    /// Total cost of the order
-    /// </summary>
-    /// <remarks>
-    /// OrderItems and then OrderItems.MenuItem must be loaded
-    /// </remarks>
-    public decimal Cost
-    {
-        get
-        {
-            var items = OrderItems ??
-                        throw new InvalidOperationException(
-                            $"{nameof(OrderItems)} must be loaded to compute {nameof(Cost)}");
-            return items.Sum(oi => oi.Price * oi.Amount);
-        }
-    }
-
-    /// <summary>
-    /// Status of the whole order
-    /// </summary>
-    /// <remarks>
-    /// OrderItems must be loaded
-    /// </remarks>
-    public OrderStatus Status
-    {
-        get
-        {
-            var items = OrderItems ??
-                        throw new InvalidOperationException(
-                            $"{nameof(OrderItems)} must be loaded to compute {nameof(Status)}");
-            return items
-                .Select(oi => oi.Status)
-                .MaxBy(s => (int)s);
-        }
-    }
-
-    /// <summary>
     /// Navigational collection for the visit
     /// </summary>
     public Visit Visit { get; set; } = null!;
