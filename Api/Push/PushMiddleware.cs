@@ -86,7 +86,7 @@ public class PushMiddleware(
                 }
             }, CancellationToken.None);
 
-            await PushMessages(pushService, socket, stopToken);
+            await PushMessages(pushService, socket, context.User.GetUserId()!, stopToken);
 
             if (clientClosingTokenSource.IsCancellationRequested)
             {
@@ -129,11 +129,12 @@ public class PushMiddleware(
     /// <summary>
     /// Send messages from PushService in a loop
     /// </summary>
-    private static async Task PushMessages(PushService source, WebSocket socket, CancellationToken cancelToken)
+    private static async Task PushMessages(
+        PushService source, WebSocket socket, string userId, CancellationToken cancelToken)
     {
         var messages = new ConcurrentQueue<byte[]>();
 
-        source.OnMessage += EnqueueAuthorizedMessages;
+        source.Subscribe(userId, EnqueueAuthorizedMessages);
         try
         {
             while (!cancelToken.IsCancellationRequested)
@@ -154,7 +155,7 @@ public class PushMiddleware(
         catch (OperationCanceledException) { }
         finally
         {
-            source.OnMessage -= EnqueueAuthorizedMessages;
+            source.Unsubscribe(userId, EnqueueAuthorizedMessages);
         }
 
         return;
