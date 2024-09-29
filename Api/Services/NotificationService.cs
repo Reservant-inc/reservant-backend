@@ -1,18 +1,28 @@
-﻿using Reservant.ErrorCodeDocs.Attributes;
+﻿using System.Text.Json;
+using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Notification;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Push;
 
 namespace Reservant.Api.Services;
 
 /// <summary>
 /// Service for managing notifications
 /// </summary>
-public class NotificationService(ApiDbContext context, FileUploadService uploadService)
+public class NotificationService(
+    ApiDbContext context,
+    FileUploadService uploadService,
+    PushService pushService)
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     /// <summary>
     /// Get all notifications
     /// </summary>
@@ -128,11 +138,22 @@ public class NotificationService(ApiDbContext context, FileUploadService uploadS
     private async Task NotifyUser(
         string targetUserId, NotificationDetails details, string? photoFileName = null)
     {
-        context.Add(new Notification(DateTime.UtcNow, targetUserId, details)
+        var notification = new Notification(DateTime.UtcNow, targetUserId, details)
         {
             PhotoFileName = photoFileName,
-        });
+        };
+        context.Add(notification);
         await context.SaveChangesAsync();
+
+        pushService.SendToUser(targetUserId, JsonSerializer.SerializeToUtf8Bytes(new NotificationVM
+        {
+            NotificationId = notification.Id,
+            DateCreated = notification.DateCreated,
+            DateRead = notification.DateRead,
+            Photo = uploadService.GetPathForFileName(notification.PhotoFileName),
+            NotificationType = notification.Details.GetType().Name,
+            Details = notification.Details,
+        }, JsonOptions));
     }
 
     /// <summary>
