@@ -134,6 +134,29 @@ public class AuthController(
     }
 
     /// <summary>
+    /// Register a Firebase device token to send push notifications to the mobile device
+    /// </summary>
+    /// <remarks>
+    /// For now only one device token is supported at a time. If a second one is
+    /// registered, the first one stops receiving notifications.
+    /// </remarks>
+    [HttpPost("register-firebase-token")]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(401)]
+    public async Task<ActionResult> RegisterFirebaseToken(FirebaseTokenRequest request)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        user.FirebaseDeviceToken = request.DeviceToken;
+        await userManager.UpdateAsync(user);
+        return Ok();
+    }
+
+    /// <summary>
     /// Unregister a Firebase device token, so that the device stops receiving push notifications
     /// </summary>
     [HttpPost("unregister-firebase-token")]
