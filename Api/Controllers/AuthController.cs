@@ -86,6 +86,10 @@ public class AuthController(
     /// </summary>
     /// <remarks>
     /// Returns a JWT bearer token intended to be sent in the Authorization header.
+    ///
+    /// If "firebaseDeviceToken" is set, registers the token to send push notifications to
+    /// a device. For now only one device token is supported at a time. If a second one is
+    /// registered, the first one stops receiving notifications.
     /// </remarks>
     /// <param name="request"> Login request DTO</param>
     /// <request code="400"> Validation errors </request>
@@ -109,6 +113,12 @@ public class AuthController(
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
+        if (!string.IsNullOrEmpty(request.FirebaseDeviceToken))
+        {
+            user.FirebaseDeviceToken = request.FirebaseDeviceToken;
+            await userManager.UpdateAsync(user);
+        }
+
         var token = authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
         var roles = await userManager.GetRolesAsync(user);
@@ -121,6 +131,29 @@ public class AuthController(
             LastName = user.LastName,
             Roles = roles.ToList()
         });
+    }
+
+    /// <summary>
+    /// Unregister a Firebase device token, so that the device stops receiving push notifications
+    /// </summary>
+    [HttpPost("unregister-firebase-token")]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(401)]
+    public async Task<ActionResult> UnregisterFirebaseToken(FirebaseTokenRequest request)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        if (user.FirebaseDeviceToken == request.DeviceToken)
+        {
+            user.FirebaseDeviceToken = null;
+            await userManager.UpdateAsync(user);
+        }
+
+        return Ok();
     }
 
     /// <summary>

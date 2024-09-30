@@ -90,6 +90,16 @@ public class User : IdentityUser, ISoftDeletable
     public string? PhotoFileName { get; set; }
 
     /// <summary>
+    /// Device token used for sending push notifications.
+    /// </summary>
+    /// <remarks>
+    /// Ideally this should be a group token grouping all the user's devices,
+    /// but for now one device will suffice.
+    /// </remarks>
+    [StringLength(170)]
+    public string? FirebaseDeviceToken { get; set; }
+
+    /// <summary>
     /// Navigation property for the photo upload
     /// </summary>
     public FileUpload? Photo { get; set; }
