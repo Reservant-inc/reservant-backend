@@ -59,6 +59,7 @@ builder.Services.AddBusinessServices();
 var app = builder.Build();
 
 await app.EnsureDatabaseCreatedAndSeeded();
+await app.TryInitFirebase();
 
 app.Services.RegisterLogsViewerProvider();
 

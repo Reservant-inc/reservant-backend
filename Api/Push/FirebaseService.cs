@@ -2,18 +2,15 @@ using System.Text;
 using FirebaseAdmin.Messaging;
 using System.Text.Json;
 using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
-using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Options;
 
 namespace Reservant.Api.Push;
 
 /// <summary>
 /// Service responsible for interacting with Firebase
 /// </summary>
-public class FirebaseService(ApiDbContext context, IOptions<FirebaseOptions> options)
+public class FirebaseService(ApiDbContext context)
 {
     /// <summary>
     /// Send a push notification to a specific user
@@ -22,10 +19,7 @@ public class FirebaseService(ApiDbContext context, IOptions<FirebaseOptions> opt
     {
         if (FirebaseApp.DefaultInstance is null)
         {
-            FirebaseApp.Create(new AppOptions
-            {
-                Credential = GoogleCredential.FromFile(options.Value.CredentialsPath),
-            });
+            return;
         }
 
         var targetUser = await context.FindAsync<User>(notification.TargetUserId)
