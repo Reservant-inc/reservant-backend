@@ -16,7 +16,8 @@ namespace Reservant.Api.Services;
 public class NotificationService(
     ApiDbContext context,
     FileUploadService uploadService,
-    PushService pushService)
+    PushService pushService,
+    FirebaseService firebaseService)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -154,6 +155,8 @@ public class NotificationService(
             NotificationType = notification.Details.GetType().Name,
             Details = notification.Details,
         }, JsonOptions));
+
+        await firebaseService.SendNotification(notification);
     }
 
     /// <summary>
