@@ -62,4 +62,18 @@ public class IngredientsController(
         var result = await ingredientService.UpdateIngredientAsync(ingredientId, request, userId);
         return OkOrErrors(result);
     }
+
+    [HttpPost("{ingredientId:int}/correct-amount")]
+    [Authorize(Roles = $"{Roles.RestaurantOwner}, {Roles.RestaurantEmployee}")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<IngredientService>(nameof(IngredientService.CorrectIngredientAmountAsync))]
+    public async Task<ActionResult<IngredientAmountCorrectionVM>> CorrectIngredientAmount(int ingredientId, [FromBody] IngredientAmountCorrectionRequest request) {
+        var userId = User.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+        var result = await ingredientService.CorrectIngredientAmountAsync(ingredientId, userId, request);
+        return OkOrErrors(result);
+    }
 }

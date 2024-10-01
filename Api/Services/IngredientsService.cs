@@ -16,7 +16,8 @@ namespace Reservant.Api.Services;
 public class IngredientService(
     ApiDbContext dbContext,
     ValidationService validationService,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    FileUploadService fileUploadService)
 {
     /// <summary>
     /// Creates a new ingredient.
@@ -146,7 +147,7 @@ public class IngredientService(
         }
 
         var access = await authorizationService
-                .VerifyRestaurantBackdoorAccess(menuItem.RestaurantId,userId );
+                .VerifyRestaurantBackdoorAccess(menuItem.RestaurantId, userId);
         if (access.IsError)
         {
             return access.Errors;
@@ -176,4 +177,88 @@ public class IngredientService(
         };
     }
 
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(nameof(request.NewAmount), ErrorCodes.ValueLessThanZero)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
+    public async Task<Result<IngredientAmountCorrectionVM>> CorrectIngredientAmountAsync(int ingredientId, string userId, IngredientAmountCorrectionRequest request)
+    {
+        var user = await dbContext.Users.FindAsync(userId); //user na pewno jest w bazie, więc nie ma sensu sprawdzać
+
+        var ingredient = await dbContext.Ingredients
+            .Include(i => i.MenuItems)
+            .ThenInclude(m => m.MenuItem)
+            .FirstOrDefaultAsync(i => i.Id == ingredientId);
+
+        if (ingredient is null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound,
+                PropertyName = null
+            };
+        }
+
+        if (request.NewAmount < 0)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.NewAmount),
+                ErrorCode = ErrorCodes.ValueLessThanZero,
+                ErrorMessage = ErrorCodes.ValueLessThanZero
+            };
+        }
+
+        var access = await authorizationService
+                .VerifyRestaurantBackdoorAccess(ingredient.MenuItems.First().MenuItem.RestaurantId, userId);
+        if (access.IsError)
+        {
+            return access.Errors;
+        }
+
+        var correction = new IngredientAmountCorrection
+        {
+            IngredientId = ingredientId,
+            Ingredient = ingredient,
+            OldAmount = ingredient.Amount,
+            NewAmount = request.NewAmount,
+            CorrectionDate = DateTime.UtcNow,
+            UserId = userId,
+            User = user,
+            Comment = request.Comment
+        };
+
+        dbContext.Add(correction);
+
+        ingredient.Amount = correction.NewAmount;
+
+        await dbContext.SaveChangesAsync();
+
+        return new IngredientAmountCorrectionVM
+        {
+            Id = correction.Id,
+            IngredientId = correction.IngredientId,
+            IngredientVM = new IngredientVM
+            {
+                Amount = ingredient.Amount,
+                IngredientId = ingredient.Id,
+                PublicName = ingredient.PublicName,
+                AmountToOrder = ingredient.AmountToOrder,
+                UnitOfMeasurement = ingredient.UnitOfMeasurement,
+                MinimalAmount = ingredient.MinimalAmount
+            },
+            OldAmount = correction.OldAmount,
+            NewAmount = correction.NewAmount,
+            CorrectionDate = correction.CorrectionDate,
+            UserId = correction.UserId,
+            UserSummaryVM = new Dtos.User.UserSummaryVM
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserId = user.Id,
+                Photo = fileUploadService.GetPathForFileName(user.PhotoFileName)
+            },
+            Comment = correction.Comment
+        };
+    }
 }
