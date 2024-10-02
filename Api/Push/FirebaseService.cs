@@ -24,6 +24,10 @@ public class FirebaseService(ApiDbContext context)
 
         var targetUser = await context.FindAsync<User>(notification.TargetUserId)
             ?? throw new InvalidOperationException("Target user not found");
+        if (targetUser.FirebaseDeviceToken is null)
+        {
+            return;
+        }
 
         var notificationType = notification.Details.GetType().Name;
 
