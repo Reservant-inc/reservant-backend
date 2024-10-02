@@ -11,7 +11,7 @@
         <UserSecretsId>71abd42b-36f0-4f9f-9166-bf4b4ee57b99</UserSecretsId>
     </PropertyGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
         <AssemblyAttribute Include="Reservant.Api.Documentation.BuildTime">
             <_Parameter1>$([System.DateTime]::Now.ToString("s"))</_Parameter1>
         </AssemblyAttribute>
