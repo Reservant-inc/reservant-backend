@@ -39,6 +39,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NetTopologySuite" Version="2.5.0" />
+        <PackageReference Include="SmartFormat" Version="3.5.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
     </ItemGroup>
 
@@ -58,6 +59,12 @@
     <ItemGroup>
       <ProjectReference Include="..\ErrorCodeDocs\ErrorCodeDocs.csproj" />
       <ProjectReference Include="..\LogViewer\LogsViewer.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\**">
+        <Generator>ResXFileCodeGenerator</Generator>
+      </EmbeddedResource>
     </ItemGroup>
 
 </Project>

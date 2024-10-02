@@ -1,21 +1,25 @@
-using System.Text;
+using System.Globalization;
 using FirebaseAdmin.Messaging;
-using System.Text.Json;
 using FirebaseAdmin;
+using Microsoft.Extensions.Localization;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using SmartFormat;
+using Notification = Reservant.Api.Models.Notification;
+using FirebaseMessage = FirebaseAdmin.Messaging.Message;
+using FirebaseNotification = FirebaseAdmin.Messaging.Notification;
 
 namespace Reservant.Api.Push;
 
 /// <summary>
 /// Service responsible for interacting with Firebase
 /// </summary>
-public class FirebaseService(ApiDbContext context)
+public class FirebaseService(ApiDbContext context, IStringLocalizer<FirebaseService> localizer)
 {
     /// <summary>
     /// Send a push notification to a specific user
     /// </summary>
-    public async Task SendNotification(Models.Notification notification)
+    public async Task SendNotification(Notification notification)
     {
         if (FirebaseApp.DefaultInstance is null)
         {
@@ -29,16 +33,36 @@ public class FirebaseService(ApiDbContext context)
             return;
         }
 
-        var notificationType = notification.Details.GetType().Name;
+        var userCulture = new CultureInfo("pl-PL");
 
-        await FirebaseMessaging.DefaultInstance.SendAsync(new FirebaseAdmin.Messaging.Message
+        await FirebaseMessaging.DefaultInstance.SendAsync(new FirebaseMessage
         {
-            Notification = new FirebaseAdmin.Messaging.Notification
-            {
-                Title = notificationType,
-                Body = Encoding.UTF8.GetString(JsonSerializer.SerializeToUtf8Bytes((object)notification.Details)),
-            },
+            Notification = ComposeNotification(notification, userCulture),
             Token = targetUser.FirebaseDeviceToken,
         });
+    }
+
+    /// <summary>
+    /// Compose human-readable notification from a Notification object
+    /// </summary>
+    /// <param name="notification">The Notification object</param>
+    /// <param name="culture">Language of the notification</param>
+    private FirebaseNotification ComposeNotification(Notification notification, CultureInfo culture)
+    {
+        var notificationType = notification.Details.GetType().Name;
+
+        var originalCulture = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = culture;
+
+        var title = Smart.Format(localizer[$"{notificationType}.Title"], notification.Details);
+        var body = Smart.Format(localizer[$"{notificationType}.Details"], notification.Details);
+
+        CultureInfo.CurrentUICulture = originalCulture;
+
+        return new FirebaseNotification
+        {
+            Title = title,
+            Body = body,
+        };
     }
 }

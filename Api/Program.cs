@@ -53,6 +53,7 @@ builder.Services.AddDbContext<ApiDbContext>();
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddIdentityServices(builder.Configuration);
 
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddPushServices();
 builder.Services.AddBusinessServices();
 
