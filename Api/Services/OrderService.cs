@@ -11,6 +11,7 @@ using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Security.Claims;
+using Microsoft.Identity.Client;
 
 namespace Reservant.Api.Services;
 
@@ -169,6 +170,7 @@ public class OrderService(
     [ValidatorErrorCodes<Order>]
     public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
     {
+        var todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var result = await validationService.ValidateAsync(request, user.Id);
         if (!result.IsValid)
         {
@@ -209,6 +211,22 @@ public class OrderService(
                 PropertyName = nameof(request.Items),
                 ErrorCode = ErrorCodes.BelongsToAnotherRestaurant,
                 ErrorMessage = "Order must only include items from the visit's restaurant",
+            };
+        }
+
+        var menuCount = await context.Menus
+            .CountAsync(m => 
+                (m.DateUntil ?? todaysDate) >= todaysDate && 
+                m.MenuItems.Any(mi => menuItemIds.Contains(mi.Id))
+            );
+
+        if (menuCount != menuItems.Count)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Items),
+                ErrorCode = ErrorCodes.MenuNotFound,
+                ErrorMessage = "All menuItems must be in a publicly available menu",
             };
         }
 

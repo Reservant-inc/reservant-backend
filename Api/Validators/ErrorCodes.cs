@@ -232,4 +232,9 @@ public static class ErrorCodes
     /// </summary>
     public const string UserAlreadyRejected = "UserAlreadyRejected";
 
+    /// <summary>
+    /// MenuItem is not in any public Menus
+    /// </summary>
+    public const string MenuNotFound = "MenuNotFound";
+
 }
