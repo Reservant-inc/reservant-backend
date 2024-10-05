@@ -167,4 +167,13 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     [return: NotNullIfNotNull(nameof(fileName))]
     public string? GetPathForFileName(string? fileName) =>
         fileName == null ? null : $"{options.Value.ServePath}/{fileName}";
+
+    /// <summary>
+    /// Returns the URL of the uploaded file or null if fileName is null
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    [return: NotNullIfNotNull(nameof(fileName))]
+    public string? GetUrlForFileName(string? fileName) =>
+        fileName == null ? null : $"{options.Value.ServeUrlBase}/{fileName}";
 }

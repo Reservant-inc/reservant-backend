@@ -24,6 +24,9 @@ public static class ServiceCollectionExtensions
             .Validate(
                 o => !Path.EndsInDirectorySeparator(o.ServePath),
                 $"{nameof(FileUploadsOptions.ServePath)} must not end with /")
+            .Validate(
+                o => !Path.EndsInDirectorySeparator(o.ServeUrlBase),
+                $"{nameof(FileUploadsOptions.ServeUrlBase)} must not end with /")
             .ValidateOnStart();
 
         services.AddOptions<FirebaseOptions>()

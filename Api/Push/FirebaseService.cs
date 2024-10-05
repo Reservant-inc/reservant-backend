@@ -4,6 +4,7 @@ using FirebaseAdmin;
 using Microsoft.Extensions.Localization;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
+using Reservant.Api.Services;
 using SmartFormat;
 using Notification = Reservant.Api.Models.Notification;
 using FirebaseMessage = FirebaseAdmin.Messaging.Message;
@@ -14,7 +15,10 @@ namespace Reservant.Api.Push;
 /// <summary>
 /// Service responsible for interacting with Firebase
 /// </summary>
-public class FirebaseService(ApiDbContext context, IStringLocalizer<FirebaseService> localizer)
+public class FirebaseService(
+    ApiDbContext context,
+    IStringLocalizer<FirebaseService> localizer,
+    FileUploadService uploadService)
 {
     /// <summary>
     /// Send a push notification to a specific user
@@ -63,6 +67,7 @@ public class FirebaseService(ApiDbContext context, IStringLocalizer<FirebaseServ
         {
             Title = title,
             Body = body,
+            ImageUrl = uploadService.GetUrlForFileName(notification.PhotoFileName),
         };
     }
 }
