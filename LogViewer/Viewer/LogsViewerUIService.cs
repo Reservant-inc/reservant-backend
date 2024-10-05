@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using Microsoft.Extensions.Logging;
 using Reservant.LogsViewer.Data;
 using Reservant.LogsViewer.Logger;
 
@@ -104,6 +105,21 @@ internal class LogsViewerUIService(LogDbContext db)
                 <summary class="request-summary">
                     <div class="status-code status-{statusClass}">{statusCode}</div>
                     <div class="request-summary-title">{requestLogHeader}</div>
+            """);
+
+        if (log.CountErrors > 0)
+        {
+            htmlBuilder.AppendLine(
+                $"<div class=\"request-summary-bubble request-summary-bubble-errors\">{log.CountErrors}</div>");
+        }
+        else if (log.CountWarnings > 0)
+        {
+            htmlBuilder.AppendLine(
+                $"<div class=\"request-summary-bubble request-summary-bubble-warnings\">{log.CountWarnings}</div>");
+        }
+
+        htmlBuilder.AppendLine(
+            $"""
                     <div class="request-summary-time">
                         <time datetime="{log.StartTime:s}Z">{log.StartTime:g} UTC</time>
                     </div>
@@ -232,7 +248,9 @@ internal class LogsViewerUIService(LogDbContext db)
             {
                 TraceId = g.Key,
                 Messages = g.OrderBy(l => l.Timestamp).ToList(),
-                StartTime = g.Min(l => l.Timestamp)
+                StartTime = g.Min(l => l.Timestamp),
+                CountErrors = g.Count(l => l.Level >= LogLevel.Error),
+                CountWarnings = g.Count(l => l.Level == LogLevel.Warning),
             })
             .OrderByDescending(g => g.StartTime)
             .ToListAsync();
