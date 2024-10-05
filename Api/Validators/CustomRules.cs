@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -440,5 +441,27 @@ public static class CustomRules
             .Must(date => date == null || date <= DateOnly.FromDateTime(DateTime.UtcNow))
             .WithErrorCode(ErrorCodes.DateMustBeInPast)
             .WithMessage("The date must be today or in the past, or can be null");
+    }
+
+    /// <summary>
+    /// Validates that the string is a valid locale identifier
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> CultureInfoString<T>(this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(locale =>
+            {
+                try
+                {
+                    _ = CultureInfo.GetCultureInfo(locale);
+                    return true;
+                }
+                catch (CultureNotFoundException)
+                {
+                    return false;
+                }
+            })
+            .WithErrorCode(ErrorCodes.MustBeLocaleId)
+            .WithMessage("Must be a valid locale identifier (e.g. pl, en_GB)");
     }
 }

@@ -19,6 +19,7 @@ namespace Reservant.Api.Controllers;
 /// Manage the current user
 /// </summary>
 [ApiController, Route("/user")]
+[Authorize]
 public class UserController(
     UserManager<User> userManager,
     UserService userService,
@@ -255,5 +256,27 @@ public class UserController(
     {
         var result = await employmentService.GetCurrentUsersEmploymentsAsync(User.GetUserId()!, returnTerminated);
         return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Get current user's settings
+    /// </summary>
+    [HttpGet("settings")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<UserService>(nameof(UserService.GetSettings))]
+    public async Task<ActionResult<SettingsDto>> GetSettings()
+    {
+        return OkOrErrors(await userService.GetSettings(User.GetUserId()!));
+    }
+
+    /// <summary>
+    /// Get current user's settings
+    /// </summary>
+    [HttpPut("settings")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<UserService>(nameof(UserService.UpdateSettings))]
+    public async Task<ActionResult<SettingsDto>> UpdateSettings(SettingsDto dto)
+    {
+        return OkOrErrors(await userService.UpdateSettings(User.GetUserId()!, dto));
     }
 }

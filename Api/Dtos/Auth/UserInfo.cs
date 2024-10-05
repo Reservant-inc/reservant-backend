@@ -1,4 +1,6 @@
-﻿namespace Reservant.Api.Dtos.Auth;
+﻿using System.Globalization;
+
+namespace Reservant.Api.Dtos.Auth;
 
 /// <summary>
 /// Information about the current user, returned after a successful login
@@ -29,6 +31,11 @@ public class UserInfo
     /// User's last name
     /// </summary>
     public required string LastName { get; init; }
+
+    /// <summary>
+    /// User's preferred language
+    /// </summary>
+    public required string Language { get; init; }
 
     /// <summary>
     /// User's roles

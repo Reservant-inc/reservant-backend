@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
+using System.Security.Claims;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
@@ -178,7 +179,7 @@ public class UserService(
         var result = await dbContext
             .Users
             .Where(r => r.UserName == login)
-            
+
             .AnyAsync();
 
         return (!result);
@@ -616,5 +617,52 @@ public class UserService(
         }
 
         return status.IsOutgoing ? FriendStatus.OutgoingRequest : FriendStatus.IncomingRequest;
+    }
+
+    /// <summary>
+    /// Get a user's settings
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    public async Task<Result<SettingsDto>> GetSettings(string userId)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new InvalidOperationException($"User with ID {userId} not found");
+        }
+
+        return new SettingsDto
+        {
+            Language = user.Language.ToString(),
+        };
+    }
+
+    /// <summary>
+    /// Update a user's settings
+    /// </summary>
+    /// <param name="userId">ID of the user</param>
+    /// <param name="dto">New settings</param>
+    [ValidatorErrorCodes<SettingsDto>]
+    public async Task<Result<SettingsDto>> UpdateSettings(string userId, SettingsDto dto)
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            throw new InvalidOperationException($"User with ID {userId} not found");
+        }
+
+        var result = await validationService.ValidateAsync(dto, userId);
+        if (!result.IsValid)
+        {
+            return result;
+        }
+
+        user.Language = CultureInfo.GetCultureInfo(dto.Language);
+        await dbContext.SaveChangesAsync();
+
+        return new SettingsDto
+        {
+            Language = user.Language.ToString(),
+        };
     }
 }
