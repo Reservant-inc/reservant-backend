@@ -33,7 +33,7 @@ public class FirebaseService(ApiDbContext context, IStringLocalizer<FirebaseServ
             return;
         }
 
-        var userCulture = new CultureInfo("pl-PL");
+        var userCulture = targetUser.Language;
 
         await FirebaseMessaging.DefaultInstance.SendAsync(new FirebaseMessage
         {
