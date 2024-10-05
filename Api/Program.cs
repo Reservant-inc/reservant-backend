@@ -8,6 +8,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using Reservant.Api;
 using Reservant.Api.Data;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
@@ -44,6 +45,7 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter());
     });
 
+builder.Services.AddCustomExceptionHandler();
 builder.Services.AddScoped<GeometryFactory>(_ =>
     NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -72,6 +74,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpLogging();
+app.UseExceptionHandler();
 
 using (var scope = app.Services.CreateScope())
 {
