@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Data;
 
@@ -98,6 +99,11 @@ public class User : IdentityUser, ISoftDeletable
     /// </remarks>
     [StringLength(170)]
     public string? FirebaseDeviceToken { get; set; }
+
+    /// <summary>
+    /// User's preferred language
+    /// </summary>
+    public CultureInfo Language { get; set; } = CultureInfo.InvariantCulture;
 
     /// <summary>
     /// Navigation property for the photo upload
