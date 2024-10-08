@@ -120,7 +120,7 @@ public class DbSeeder(
             PhoneNumber = "+48987654321",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1989, 1, 2)
-        }, Guid.Parse("je4nd6f9-j4bn-9374-n4s3-j3nd85ht0a03"))).OrThrow();
+        }, Guid.Parse("28b618d7-2f32-4f0c-823d-e63ffa56e47f"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(anon.Id);
 
         var walter = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -132,7 +132,7 @@ public class DbSeeder(
             PhoneNumber = "+48475927476",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1991, 3, 2)
-        }, Guid.Parse("meko2a3d-me2f-0394-me04-jend74t50sj3"))).OrThrow();
+        }, Guid.Parse("e20eeb3b-563c-480a-8b8c-85b3afac7c66"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(walter.Id);
 
         var geralt = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -144,7 +144,7 @@ public class DbSeeder(
             PhoneNumber = "+48049586273",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1986, 12, 12)
-        }, Guid.Parse("s3ka3ac0-m2ko-2137-ckw0-wmk32knap2ks"))).OrThrow();
+        }, Guid.Parse("5ad4c90f-c52a-4b14-a8e5-e12eecfd4c8c"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(geralt.Id);
 
         var muadib = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -156,7 +156,7 @@ public class DbSeeder(
             PhoneNumber = "+48423597532",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1978, 4, 20)
-        }, Guid.Parse("emsko2a3-02ms-1376-m0z3-me2kzo2nsk20"))).OrThrow();
+        }, Guid.Parse("f1e788f1-523c-4aa9-b26f-5eb43ce59573"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(muadib.Id);
 
         var kowalski = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
