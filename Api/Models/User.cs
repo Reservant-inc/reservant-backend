@@ -125,6 +125,11 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// </summary>
     public ICollection<Notification> Notifications { get; set; } = null!;
 
+    /// <summary>
+    /// Ingredient amount corrections
+    /// </summary>
+    public ICollection<IngredientAmountCorrection> IngredientCorrections { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 

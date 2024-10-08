@@ -47,5 +47,10 @@ public class Ingredient
     /// <summary>
     /// MenueItems ingrendiant is used in
     /// </summary>
-    public ICollection<IngredientMenuItem> MenuItems { get; set; } = null!; 
+    public ICollection<IngredientMenuItem> MenuItems { get; set; } = null!;
+
+    /// <summary>
+    /// Amount correction history
+    /// </summary>
+    public ICollection<IngredientAmountCorrection> Corrections { get; set; } = null!;
 }
