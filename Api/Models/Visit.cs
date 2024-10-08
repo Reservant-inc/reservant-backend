@@ -60,12 +60,7 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// ID of the restaurant
     /// </summary>
-    public int TableRestaurantId { get; set; }
-
-    /// <summary>
-    /// ID of the restaurant
-    /// </summary>
-    public int RestaurantId => TableRestaurantId;
+    public int RestaurantId { get; set; }
 
     /// <summary>
     /// ID of the table within the restaurant

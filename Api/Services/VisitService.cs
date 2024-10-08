@@ -113,7 +113,7 @@ public class VisitService(
             Client = user,
             ClientId = user.Id,
             Takeaway = request.Takeaway,
-            TableRestaurantId = request.RestaurantId,
+            RestaurantId = request.RestaurantId,
             TableId = request.TableId,
             Participants = participants,
             Deposit = restaurant.ReservationDeposit

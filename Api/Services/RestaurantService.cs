@@ -1078,7 +1078,7 @@ namespace Reservant.Api.Services
                 .Include(order => order.Visit)
                 .Include(order => order.OrderItems)
                 .ThenInclude(orderItem => orderItem.MenuItem)
-                .Where(order => order.Visit.TableRestaurantId == restaurantId);
+                .Where(order => order.Visit.RestaurantId == restaurantId);
 
             if (returnFinished)
             {
@@ -1395,7 +1395,7 @@ namespace Reservant.Api.Services
                 .Include(x => x.Orders)
                 .ThenInclude(o => o.OrderItems)
                 .ThenInclude(oi => oi.MenuItem)
-                .Where(e => e.TableRestaurantId == restaurantId);
+                .Where(e => e.RestaurantId == restaurantId);
 
             if (dateStart is not null)
             {

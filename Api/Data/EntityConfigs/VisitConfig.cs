@@ -14,10 +14,10 @@ public class VisitConfig : IEntityTypeConfiguration<Visit>
     {
         builder.HasOne<Restaurant>(v => v.Restaurant)
             .WithMany()
-            .HasForeignKey(v => v.TableRestaurantId);
+            .HasForeignKey(v => v.RestaurantId);
 
         builder.HasOne(v => v.Table)
             .WithMany()
-            .HasForeignKey(v => new { v.TableRestaurantId, v.TableId });
+            .HasForeignKey(v => new { v.RestaurantId, v.TableId });
     }
 }
