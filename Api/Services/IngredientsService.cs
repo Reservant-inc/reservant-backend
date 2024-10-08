@@ -176,6 +176,13 @@ public class IngredientService(
         };
     }
 
+    /// <summary>
+    /// Update ingredient amount
+    /// </summary>
+    /// <param name="ingredientId">ID of the ingredient to update</param>
+    /// <param name="userId">ID of the current user for permission checking</param>
+    /// <param name="request">The DTO containing the new data</param>
+    /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
     [ValidatorErrorCodes<IngredientAmountCorrectionRequest>]

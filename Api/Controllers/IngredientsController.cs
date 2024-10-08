@@ -63,6 +63,9 @@ public class IngredientsController(
         return OkOrErrors(result);
     }
 
+    /// <summary>
+    /// Update ingredient amount
+    /// </summary>
     [HttpPost("{ingredientId:int}/correct-amount")]
     [Authorize(Roles = $"{Roles.RestaurantOwner}, {Roles.RestaurantEmployee}")]
     [ProducesResponseType(200), ProducesResponseType(400)]

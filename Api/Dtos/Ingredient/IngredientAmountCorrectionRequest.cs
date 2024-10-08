@@ -1,5 +1,8 @@
 ﻿namespace Reservant.Api.Dtos.Ingredient
 {
+    /// <summary>
+    /// Request to update an ingredient's amount
+    /// </summary>
     public class IngredientAmountCorrectionRequest
     {
         /// <summary>
