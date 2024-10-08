@@ -27,8 +27,7 @@ public class Notification
     /// <summary>
     /// User that has received the notification
     /// </summary>
-    [StringLength(36)]
-    public string TargetUserId { get; set; } = null!;
+    public Guid TargetUserId { get; set; }
 
     /// <summary>
     /// File name of a picture related to the notification
@@ -75,7 +74,7 @@ public class Notification
     /// <summary>
     /// Constructor for the rest of the app
     /// </summary>
-    public Notification(DateTime dateCreated, string targetUserId, NotificationDetails details)
+    public Notification(DateTime dateCreated, Guid targetUserId, NotificationDetails details)
     {
         (DateCreated, TargetUserId, Details) = (dateCreated, targetUserId, details);
     }

@@ -10,7 +10,7 @@ public class AddEmployeeRequest
     /// <summary>
     /// ID of the employee
     /// </summary>
-    public required string EmployeeId { get; init; }
+    public required Guid EmployeeId { get; init; }
 
     /// <summary>
     /// Whether the employee is a hall employee (Pracownik sali)

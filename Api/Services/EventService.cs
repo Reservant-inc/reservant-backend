@@ -219,7 +219,7 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
         [ErrorCode(nameof(eventId), ErrorCodes.AccessDenied, "User not creator of the event")]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-        public async Task<Result<Pagination<UserSummaryVM>>> GetInterestedUsersAsync(int eventId, string userId, int page, int perPage)
+        public async Task<Result<Pagination<UserSummaryVM>>> GetInterestedUsersAsync(int eventId, Guid userId, int page, int perPage)
         {
             var eventEntity = await context.Events.FindAsync(eventId);
             if (eventEntity == null)
@@ -266,7 +266,7 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(eventId), ErrorCodes.UserAlreadyAccepted, "User already accepted")]
         [ErrorCode(nameof(eventId), ErrorCodes.EventIsFull, "Event is full")]
         [ErrorCode(nameof(eventId), ErrorCodes.JoinDeadlinePassed, "Join deadline passed")]
-        public async Task<Result> AcceptParticipationRequestAsync(int eventId, string userId, User currentUser)
+        public async Task<Result> AcceptParticipationRequestAsync(int eventId, Guid userId, User currentUser)
         {
             var eventFound = await context.Events
                 .Include(e => e.ParticipationRequests)
@@ -332,7 +332,7 @@ namespace Reservant.Api.Services
         /// <param name="currentUser">Current user for permission checking</param>
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
         [ErrorCode(nameof(userId), ErrorCodes.UserAlreadyRejected, "User already rejected")]
-        public async Task<Result> RejectParticipationRequestAsync(int eventId, string userId, User currentUser)
+        public async Task<Result> RejectParticipationRequestAsync(int eventId, Guid userId, User currentUser)
         {
             var eventFound = await context.Events
                 .FirstOrDefaultAsync(e => e.Id == eventId);

@@ -39,12 +39,12 @@ public class UserService(
     /// <param name="id">ID of the new user, if null then generated automatically</param>
     [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(
-        RegisterCustomerSupportAgentRequest request, string? id = null)
+        RegisterCustomerSupportAgentRequest request, Guid? id = null)
     {
 
         var user = new User
         {
-            Id = id ?? Guid.NewGuid().ToString(),
+            Id = id ?? Guid.NewGuid(),
             UserName = request.Email.Trim(),
             Email = request.Email.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
@@ -82,13 +82,13 @@ public class UserService(
     /// <returns></returns>
     [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
-        RegisterRestaurantEmployeeRequest request, User employer, string? id = null)
+        RegisterRestaurantEmployeeRequest request, User employer, Guid? id = null)
     {
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
         var employee = new User
         {
-            Id = id ?? Guid.NewGuid().ToString(),
+            Id = id ?? Guid.NewGuid(),
             UserName = username,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
@@ -122,7 +122,7 @@ public class UserService(
     /// <returns></returns>
     [ValidatorErrorCodes<RegisterCustomerRequest>]
     [ValidatorErrorCodes<User>]
-    public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, string? id = null)
+    public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, Guid? id = null)
     {
         var result = await validationService.ValidateAsync(request, null);
         if (!result.IsValid)
@@ -132,7 +132,7 @@ public class UserService(
 
         var user = new User
         {
-            Id = id ?? Guid.NewGuid().ToString(),
+            Id = id ?? Guid.NewGuid(),
             UserName = request.Login.Trim(),
             Email = request.Email.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
@@ -163,7 +163,7 @@ public class UserService(
     /// Add the RestaurantOwner role to a user
     /// </summary>
     /// <param name="id">ID of the user</param>
-    public async Task<User?> MakeRestaurantOwnerAsync(string id)
+    public async Task<User?> MakeRestaurantOwnerAsync(Guid id)
     {
         var user = await dbContext.Users.Where(u => u.Id.Equals(id)).FirstOrDefaultAsync();
         if (user == null) { return null; }
@@ -189,7 +189,7 @@ public class UserService(
     /// Return employees of the given user
     /// </summary>
     /// <returns></returns>
-    public async Task<List<UserEmployeeVM>> GetEmployeesAsync(string userId)
+    public async Task<List<UserEmployeeVM>> GetEmployeesAsync(Guid userId)
     {
         var employeeVMs = await dbContext.Users
             .Where(u => u.EmployerId == userId)
@@ -266,10 +266,10 @@ public class UserService(
     /// <param name="empId"></param>
     /// <param name="user"></param>
     /// <returns></returns>
-    public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, string empId, ClaimsPrincipal user)
+    public async Task<Result<User>> PutEmployeeAsync(UpdateUserDetailsRequest request, Guid empId, ClaimsPrincipal user)
     {
         var owner = (await userManager.GetUserAsync(user))!;
-        var employee = await userManager.FindByIdAsync(empId);
+        var employee = await userManager.FindByIdAsync(empId.ToString());
 
         if (employee is null)
         {
@@ -409,7 +409,7 @@ public class UserService(
     /// <param name="id">ID of the user</param>
     /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result> ArchiveUserAsync(string id, string employerId)
+    public async Task<Result> ArchiveUserAsync(Guid id, Guid employerId)
     {
         var user = await dbContext.Users
             .Include(user => user.Employments)
@@ -465,7 +465,7 @@ public class UserService(
     /// <param name="perPage">Items per page</param>
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<FoundUserVM>>> FindUsersAsync(
-        string name, UserSearchFilter filter, string currentUserId, int page, int perPage)
+        string name, UserSearchFilter filter, Guid currentUserId, int page, int perPage)
     {
         var query =
             from u in dbContext.Users
@@ -516,7 +516,7 @@ public class UserService(
     /// <param name="currentUserId">The ID of the current user.</param>
     /// <returns>A <see cref="UserEmployeeVM"/> with user details or a <see cref="ValidationFailure"/> if user is not found or other validation fails.</returns>
     [ErrorCode(null, ErrorCodes.AccessDenied, ErrorCodes.NotFound)]
-    public async Task<Result<UserEmployeeVM>> GetUserDetailsAsync(string userId, string currentUserId)
+    public async Task<Result<UserEmployeeVM>> GetUserDetailsAsync(Guid userId, Guid currentUserId)
     {
         // Pobierz żądanego użytkownika z bazy danych
         var requestedUser = await dbContext.Users
@@ -593,7 +593,7 @@ public class UserService(
     /// <param name="currentUserId">The ID of the current logged-in user.</param>
     /// <param name="targetUserId">The ID of the user whose friendship status is being checked.</param>
     /// <returns>A <see cref="FriendStatus"/> representing the friendship status between the users.</returns>
-    private async Task<FriendStatus> GetFriendStatusAsync(string currentUserId, string targetUserId)
+    private async Task<FriendStatus> GetFriendStatusAsync(Guid currentUserId, Guid targetUserId)
     {
         var status = await dbContext.FriendRequests
             .Where(fr => (fr.SenderId == currentUserId && fr.ReceiverId == targetUserId) ||
@@ -623,9 +623,9 @@ public class UserService(
     /// Get a user's settings
     /// </summary>
     /// <param name="userId">ID of the user</param>
-    public async Task<Result<SettingsDto>> GetSettings(string userId)
+    public async Task<Result<SettingsDto>> GetSettings(Guid userId)
     {
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await userManager.FindByIdAsync(userId.ToString());
         if (user is null)
         {
             throw new InvalidOperationException($"User with ID {userId} not found");
@@ -643,9 +643,9 @@ public class UserService(
     /// <param name="userId">ID of the user</param>
     /// <param name="dto">New settings</param>
     [ValidatorErrorCodes<SettingsDto>]
-    public async Task<Result<SettingsDto>> UpdateSettings(string userId, SettingsDto dto)
+    public async Task<Result<SettingsDto>> UpdateSettings(Guid userId, SettingsDto dto)
     {
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await userManager.FindByIdAsync(userId.ToString());
         if (user is null)
         {
             throw new InvalidOperationException($"User with ID {userId} not found");

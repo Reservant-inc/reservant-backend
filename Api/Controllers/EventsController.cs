@@ -48,13 +48,13 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<EventService>(nameof(EventService.GetInterestedUsersAsync))]
         public async Task<ActionResult<Pagination<UserSummaryVM>>> GetInterestedUsers(int eventId, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
         {
-            var userId = userManager.GetUserId(User);
+            var userId = User.GetUserId();
             if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await service.GetInterestedUsersAsync(eventId, userId, page, perPage);
+            var result = await service.GetInterestedUsersAsync(eventId, userId.Value, page, perPage);
             return OkOrErrors(result);
         }
 
@@ -92,7 +92,7 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.AcceptParticipationRequestAsync))]
-        public async Task<ActionResult> AcceptParticipation(int eventId, string userId)
+        public async Task<ActionResult> AcceptParticipation(int eventId, Guid userId)
         {
             var currentUser = await userManager.GetUserAsync(User);
             if (currentUser is null)
@@ -110,7 +110,7 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400)]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.RejectParticipationRequestAsync))]
-        public async Task<ActionResult> RejectParticipation(int eventId, string userId)
+        public async Task<ActionResult> RejectParticipation(int eventId, Guid userId)
         {
             var currentUser = await userManager.GetUserAsync(User);
             if (currentUser is null)

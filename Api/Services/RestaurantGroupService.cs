@@ -168,7 +168,7 @@ public class RestaurantGroupService(
     /// <param name="groupId">The ID of the restaurant group.</param>
     /// <param name="userId">The ID of the user requesting the information.</param>
     /// <returns>A <see cref="Task{Result}"/> representing the asynchronous operation, containing the result of the operation.</returns>
-    public async Task<Result<RestaurantGroupVM>> GetRestaurantGroupAsync(int groupId, string userId)
+    public async Task<Result<RestaurantGroupVM>> GetRestaurantGroupAsync(int groupId, Guid userId)
     {
         var restaurantGroup = await context.RestaurantGroups
             .Include(rg => rg.Restaurants)
@@ -223,7 +223,7 @@ public class RestaurantGroupService(
     /// <param name="groupId">The ID of the restaurant group.</param>
     /// <param name="request">Request containing restaurant name.</param>
     /// <param name="userId">Id of user calling the method</param>
-    public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
+    public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, Guid userId)
     {
         var restaurantGroup = await context.RestaurantGroups
             .Include(restaurantGroup => restaurantGroup.Restaurants)

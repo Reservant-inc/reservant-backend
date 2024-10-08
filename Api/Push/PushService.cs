@@ -12,14 +12,14 @@ public delegate void MessageSubscriber(byte[] message);
 /// </summary>
 public class PushService
 {
-    private readonly ConcurrentDictionary<string, List<MessageSubscriber>> _subscribers = [];
+    private readonly ConcurrentDictionary<Guid, List<MessageSubscriber>> _subscribers = [];
 
     /// <summary>
     /// Add a message handler to handle sending messages
     /// </summary>
     /// <param name="userId">ID of the user that the handler should send the messages to</param>
     /// <param name="subscriber">The handler delegate</param>
-    public void Subscribe(string userId, MessageSubscriber subscriber)
+    public void Subscribe(Guid userId, MessageSubscriber subscriber)
     {
         var userHandlers = _subscribers.GetOrAdd(userId, _ => []);
         lock (userHandlers)
@@ -33,7 +33,7 @@ public class PushService
     /// </summary>
     /// <param name="userId">ID of the user that the handler sent messages to</param>
     /// <param name="subscriber">The handler delegate</param>
-    public void Unsubscribe(string userId, MessageSubscriber subscriber)
+    public void Unsubscribe(Guid userId, MessageSubscriber subscriber)
     {
         var userHandlers = _subscribers.GetOrAdd(userId, _ => []);
         lock (userHandlers)
@@ -66,7 +66,7 @@ public class PushService
     /// <summary>
     /// Send a message to a subscribed user
     /// </summary>
-    public void SendToUser(string userId, byte[] message)
+    public void SendToUser(Guid userId, byte[] message)
     {
         if (!_subscribers.TryGetValue(userId, out var userHandlers))
         {

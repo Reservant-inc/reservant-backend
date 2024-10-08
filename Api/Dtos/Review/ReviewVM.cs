@@ -18,7 +18,7 @@ public class ReviewVM
     /// <summary>
     /// ID of the user who created the review
     /// </summary>
-    public required string AuthorId { get; set; }
+    public required Guid AuthorId { get; set; }
 
     /// <summary>
     /// Navigational property for the user who created the review

@@ -10,7 +10,7 @@ public class UserInfo
     /// <summary>
     /// User's ID
     /// </summary>
-    public required string UserId { get; init; }
+    public required Guid UserId { get; init; }
 
     /// <summary>
     /// API token used to authorize requests

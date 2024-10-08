@@ -86,7 +86,7 @@ public class NotificationService(
     /// Notify a user that a restaurant has been verified
     /// </summary>
     public async Task NotifyRestaurantVerified(
-        string targetUserId, int restaurantId)
+        Guid targetUserId, int restaurantId)
     {
         var restaurant = await context.Restaurants
             .AsNoTracking()
@@ -105,7 +105,7 @@ public class NotificationService(
     /// Notify a user that somebody left a review under one of their restaurants
     /// </summary>
     public async Task NotifyNewRestaurantReview(
-        string targetUserId, int reviewId)
+        Guid targetUserId, int reviewId)
     {
         var review = await context.Reviews
             .AsNoTracking()
@@ -137,7 +137,7 @@ public class NotificationService(
     /// For example a user's profile picture, or a restaurant's logo
     /// </param>
     private async Task NotifyUser(
-        string targetUserId, NotificationDetails details, string? photoFileName = null)
+        Guid targetUserId, NotificationDetails details, string? photoFileName = null)
     {
         var notification = new Notification(DateTime.UtcNow, targetUserId, details)
         {
@@ -165,7 +165,7 @@ public class NotificationService(
     /// <param name="targetUserId">ID of the person to receive the notification</param>
     /// <param name="friendRequestId">ID of the friend request that was accepted</param>
     /// <returns></returns>
-    public async Task NotifyFriendRequestAccepted(string targetUserId, int friendRequestId)
+    public async Task NotifyFriendRequestAccepted(Guid targetUserId, int friendRequestId)
     {
         var request = await context.FriendRequests
             .Include(r => r.Receiver)
@@ -186,7 +186,7 @@ public class NotificationService(
     /// <summary>
     /// Notify a user that they have a new friend request
     /// </summary>
-    public async Task NotifyNewFriendRequest(string senderId, string receiverId)
+    public async Task NotifyNewFriendRequest(Guid senderId, Guid receiverId)
     {
         var sender = await context.Users
             .Where(u => u.Id == senderId)
@@ -209,7 +209,7 @@ public class NotificationService(
     /// <summary>
     /// Notify a user that somebody wants to participate in their event
     /// </summary>
-    public async Task NotifyNewParticipationRequest(string receiverId, string senderId, int eventId)
+    public async Task NotifyNewParticipationRequest(Guid receiverId, Guid senderId, int eventId)
     {
         var eventName = await context.Events
             .Where(e => e.Id == eventId)
@@ -236,7 +236,7 @@ public class NotificationService(
     /// <summary>
     /// Notify a user that their participation request was accepted/rejected
     /// </summary>
-    public async Task NotifyParticipationRequestResponse(string receiverId, int eventId, bool isAccepted)
+    public async Task NotifyParticipationRequestResponse(Guid receiverId, int eventId, bool isAccepted)
     {
         var eventData = await context.Events
             .Where(e => e.Id == eventId)

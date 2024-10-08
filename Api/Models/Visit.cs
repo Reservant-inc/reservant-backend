@@ -55,8 +55,7 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// ID of the client who made the reservation
     /// </summary>
-    [StringLength(36)]
-    public string ClientId { get; set; } = null!;
+    public Guid ClientId { get; set; }
 
     /// <summary>
     /// ID of the restaurant

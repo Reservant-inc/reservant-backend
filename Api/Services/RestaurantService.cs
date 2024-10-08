@@ -437,7 +437,7 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed,
             "Employee is alredy employed in a restaurant")]
         public async Task<Result> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
-            string employerId)
+            Guid employerId)
         {
             var restaurantOwnerId = await context.Restaurants
                 .Where(r => r.Id == restaurantId)
@@ -445,7 +445,7 @@ namespace Reservant.Api.Services
                 .FirstOrDefaultAsync();
 
 
-            if (restaurantOwnerId is null)
+            if (restaurantOwnerId == Guid.Empty)
             {
                 return new ValidationFailure
                 {
@@ -606,7 +606,7 @@ namespace Reservant.Api.Services
         /// <param name="userId">ID of the current user (to check permissions)</param>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant with ID is not owned by the current user")]
-        public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, string userId)
+        public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, Guid userId)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
@@ -788,7 +788,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
         [ErrorCode(null, ErrorCodes.Duplicate, "Restaurant already verified")]
-        public async Task<Result> SetVerifiedIdAsync(string userId, int idRestaurant)
+        public async Task<Result> SetVerifiedIdAsync(Guid userId, int idRestaurant)
         {
             var result = await context
                 .Restaurants
@@ -1009,10 +1009,10 @@ namespace Reservant.Api.Services
         /// <param name="perPage">Items per page</param>
         /// <param name="orderBy">Sorting order</param>
         /// <returns>Paginated order list</returns>
-        public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(string userId, int restaurantId,
+        public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(Guid userId, int restaurantId,
             bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
                 return new ValidationFailure
@@ -1471,10 +1471,10 @@ namespace Reservant.Api.Services
         public async Task<Result<Pagination<DeliverySummaryVM>>> GetDeliveriesInRestaurantAsync(
             int restaurantId,
             bool returnDelivered,
-            string? userId,
+            Guid? userId,
             string? userName,
             DeliverySorting orderBy,
-            string currentUserId,
+            Guid currentUserId,
             int page = 0,
             int perPage = 10)
         {

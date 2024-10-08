@@ -26,7 +26,7 @@ public class AuthorizationService(
             .Restaurants
             .Include(x => x.Group)
             .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
-        
+
         if (restaurant == null)
             return new ValidationFailure
             {
@@ -45,7 +45,7 @@ public class AuthorizationService(
     /// <param name="userId">ID of the user</param>
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.AccessDenied)]
-    public async Task<Result> VerifyRestaurantBackdoorAccess(int restaurantId, string userId)
+    public async Task<Result> VerifyRestaurantBackdoorAccess(int restaurantId, Guid userId)
     {
         var userHasBackdoorsAccess = await context.Restaurants
             .Where(r => r.Id == restaurantId)
@@ -73,7 +73,7 @@ public class AuthorizationService(
     /// <param name="userId">ID of the user</param>
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.AccessDenied, "User does not participate in the visit")]
-    public async Task<Result> VerifyVisitParticipant(int visitId, string userId)
+    public async Task<Result> VerifyVisitParticipant(int visitId, Guid userId)
     {
         var userIsVisitParticipant = await context.Visits
             .Where(v => v.Id == visitId)

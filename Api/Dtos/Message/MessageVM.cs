@@ -25,7 +25,7 @@ public class MessageVM
     /// <summary>
     /// ID of the message's author
     /// </summary>
-    public required string AuthorId { get; set; }
+    public required Guid AuthorId { get; set; }
     /// <summary>
     /// MessageThreadId of the message
     /// </summary>

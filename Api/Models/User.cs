@@ -8,7 +8,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// One class for all user classes.
 /// </summary>
-public class User : IdentityUser, ISoftDeletable
+public class User : IdentityUser<Guid>, ISoftDeletable
 {
     /// <summary>
     /// Imię.
@@ -70,8 +70,7 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// ID of the RestaurantOwner who employs the user. For restaurant employees
     /// </summary>
-    [StringLength(36)]
-    public string? EmployerId { get; set; }
+    public Guid? EmployerId { get; set; }
 
     /// <summary>
     /// Employer of the user. For restaurant employees

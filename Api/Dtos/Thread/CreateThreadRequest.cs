@@ -15,5 +15,5 @@ public class CreateThreadRequest
     /// IDs of the participants
     /// </summary>
     /// <example>["a79631a0-a3bf-43fa-8fbe-46e5ee697eeb"]</example>
-    public required List<string> ParticipantIds { get; set; }
+    public required List<Guid> ParticipantIds { get; set; }
 }

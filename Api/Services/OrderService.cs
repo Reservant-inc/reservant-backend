@@ -317,7 +317,7 @@ public class OrderService(
             {
                 return new ValidationFailure
                 {
-                    PropertyName = request.EmployeeIds.ElementAt(i),
+                    PropertyName = request.EmployeeIds.ElementAt(i).ToString(),
                     ErrorCode = ErrorCodes.NotFound,
                     ErrorMessage = "Employee not found"
                 };
@@ -329,7 +329,7 @@ public class OrderService(
             {
                 return new ValidationFailure
                 {
-                    PropertyName = request.EmployeeIds.ElementAt(i),
+                    PropertyName = request.EmployeeIds.ElementAt(i).ToString(),
                     ErrorCode = ErrorCodes.MustBeRestaurantEmployee,
                     ErrorMessage = "The user does not work at the restaurant"
                 };

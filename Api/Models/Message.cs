@@ -33,8 +33,7 @@ public class Message : ISoftDeletable
     /// <summary>
     /// ID of the user who sent the message
     /// </summary>
-    [StringLength(36)]
-    public required string AuthorId { get; set; }
+    public required Guid AuthorId { get; set; }
 
     /// <summary>
     /// ID of the message thread

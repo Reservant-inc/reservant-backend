@@ -19,7 +19,6 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/threads")]
 [Authorize(Roles = Roles.Customer)]
 public class ThreadsController(
-    UserManager<User> userManager,
     ThreadService threadService
     ) : StrictController
 {
@@ -36,13 +35,13 @@ public class ThreadsController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<ThreadVM>> CreateThread([FromBody] CreateThreadRequest request)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await threadService.CreateThreadAsync(request, userId);
+        var result = await threadService.CreateThreadAsync(request, userId.Value);
         return OkOrErrors(result);
     }
 
@@ -57,13 +56,13 @@ public class ThreadsController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<ThreadVM>> UpdateThread(int threadId, [FromBody] UpdateThreadRequest request)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await threadService.UpdateThreadAsync(threadId, request, userId);
+        var result = await threadService.UpdateThreadAsync(threadId, request, userId.Value);
         return OkOrErrors(result);
     }
 
@@ -77,13 +76,13 @@ public class ThreadsController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteThread(int threadId)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await threadService.DeleteThreadAsync(threadId, userId);
+        var result = await threadService.DeleteThreadAsync(threadId, userId.Value);
         return OkOrErrors(result);
     }
 
@@ -97,13 +96,13 @@ public class ThreadsController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<ThreadVM>> GetThread(int threadId)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await threadService.GetThreadAsync(threadId, userId);
+        var result = await threadService.GetThreadAsync(threadId, userId.Value);
         return OkOrErrors(result);
     }
 
@@ -118,13 +117,13 @@ public class ThreadsController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<MessageVM>> CreateThreadsMessages(int threadId,CreateMessageRequest createMessageRequest)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await threadService.CreateThreadsMessageAsync(threadId, userId,createMessageRequest);
+        var result = await threadService.CreateThreadsMessageAsync(threadId, userId.Value, createMessageRequest);
         return OkOrErrors(result);
     }
 
@@ -134,7 +133,7 @@ public class ThreadsController(
     /// <remarks>
     /// Use `GET /threads/{threadId}` first to fetch and cache the participants info.
     /// Then you can use `authorId` to get information about the message author locally.
-    /// 
+    ///
     /// Returns messages sorted by date from newest to oldest
     /// </remarks>
     /// <param name="threadId">id of thread</param>
@@ -147,13 +146,13 @@ public class ThreadsController(
     public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(
         int threadId, [FromQuery] int page = 0, [FromQuery] int perPage = 100)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId, page, perPage);
+        var result = await threadService.GetThreadMessagesByIdAsync(threadId,userId.Value, page, perPage);
         return OkOrErrors(result);
     }
 
@@ -168,7 +167,7 @@ public class ThreadsController(
     public async Task<ActionResult> AddParticipant(int threadId, AddRemoveParticipantDto dto)
     {
         return OkOrErrors(await threadService.AddParticipant(
-            threadId, dto, User.GetUserId()!));
+            threadId, dto, User.GetUserId()!.Value));
     }
 
     /// <summary>
@@ -185,6 +184,6 @@ public class ThreadsController(
     public async Task<ActionResult> RemoveParticipant(int threadId, AddRemoveParticipantDto dto)
     {
         return OkOrErrors(await threadService.RemoveParticipant(
-            threadId, dto, User.GetUserId()!));
+            threadId, dto, User.GetUserId()!.Value));
     }
 }

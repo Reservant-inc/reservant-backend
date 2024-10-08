@@ -8,5 +8,5 @@ public class AddRemoveParticipantDto
     /// <summary>
     /// ID of the user
     /// </summary>
-    public required string UserId { get; set; }
+    public required Guid UserId { get; set; }
 }

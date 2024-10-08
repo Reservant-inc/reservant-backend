@@ -1,5 +1,6 @@
 using FluentValidation;
 using FluentValidation.Results;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Validation;
 
@@ -15,7 +16,7 @@ public class ValidationService(IServiceProvider serviceProvider)
     /// <typeparam name="T">Type of the object to validate</typeparam>
     /// <param name="userId">ID of the logged in user</param>
     /// <returns><see cref="ValidationResult"/></returns>
-    public async Task<ValidationResult> ValidateAsync<T>(T instance, string? userId)
+    public async Task<ValidationResult> ValidateAsync<T>(T instance, Guid? userId)
     {
         var validationContext = new ValidationContext<T>(instance);
         validationContext.RootContextData["UserId"] = userId;

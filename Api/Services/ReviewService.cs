@@ -25,7 +25,7 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied)]
-        public async Task<Result> DeleteReviewAsync(int reivewId, string userid)
+        public async Task<Result> DeleteReviewAsync(int reivewId, Guid userid)
         {
             var review = await context.Reviews.FirstOrDefaultAsync(r => r.Id == reivewId);
             if (review == null)
@@ -60,7 +60,7 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.AccessDenied)]
         [ValidatorErrorCodes<CreateReviewRequest>]
         [ValidatorErrorCodes<Review>]
-        public async Task<Result<ReviewVM>> UpdateReviewAsync(int reviewId, string userid, CreateReviewRequest request)
+        public async Task<Result<ReviewVM>> UpdateReviewAsync(int reviewId, Guid userid, CreateReviewRequest request)
         {
             var res = await validationService.ValidateAsync(request, userid);
             if (!res.IsValid)

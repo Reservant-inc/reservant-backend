@@ -23,8 +23,7 @@ public class RestaurantGroup : ISoftDeletable
     /// <summary>
     /// Owner ID
     /// </summary>
-    [StringLength(36)]
-    public required string OwnerId { get; set; }
+    public required Guid OwnerId { get; set; }
 
     /// <summary>
     /// Navigation property for the owner

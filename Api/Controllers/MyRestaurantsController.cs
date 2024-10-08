@@ -100,13 +100,13 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.AddEmployeeAsync))]
         public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int restaurantId)
         {
-            var userId = userManager.GetUserId(User);
+            var userId = User.GetUserId();
             if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await restaurantService.AddEmployeeAsync(request, restaurantId, userId);
+            var result = await restaurantService.AddEmployeeAsync(request, restaurantId, userId.Value);
             return OkOrErrors(result);
         }
 
@@ -140,13 +140,13 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesAsync))]
         public async Task<ActionResult<List<RestaurantEmployeeVM>>> GetEmployees(int restaurantId)
         {
-            var userId = userManager.GetUserId(User);
+            var userId = User.GetUserId();
             if (userId is null)
             {
                 return Unauthorized();
             }
 
-            var result = await restaurantService.GetEmployeesAsync(restaurantId, userId);
+            var result = await restaurantService.GetEmployeesAsync(restaurantId, userId.Value);
             return OkOrErrors(result);
         }
 

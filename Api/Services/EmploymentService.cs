@@ -22,7 +22,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <returns>The bool returned inside the result does not mean anything</returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied)]
-    public async Task<Result> DeleteEmploymentAsync(int employmentId, string userId)
+    public async Task<Result> DeleteEmploymentAsync(int employmentId, Guid userId)
     {
         var employment = await context.Employments
             .Include(e => e.Restaurant)
@@ -144,7 +144,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <param name="isTerminated">parameter that tells if the search should include terminated xor ongoing employments</param>
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
-    public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(string userId, bool isTerminated)
+    public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(Guid userId, bool isTerminated)
     {
         var employments = context.Employments
             .Where(e => e.EmployeeId == userId);

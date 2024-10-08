@@ -8,7 +8,7 @@ public class FoundUserVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    public required string UserId { get; init; }
+    public required Guid UserId { get; init; }
 
     /// <summary>
     /// First name

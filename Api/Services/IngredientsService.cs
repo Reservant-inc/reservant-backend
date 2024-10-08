@@ -28,7 +28,7 @@ public class IngredientService(
     [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(request.MenuItem), ErrorCodes.NotFound)]
     [ErrorCode(nameof(request.MenuItem), ErrorCodes.AccessDenied)]
-    public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, string userId)
+    public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, Guid userId)
     {
         var result = await validationService.ValidateAsync(request, userId);
         if (!result.IsValid)
@@ -102,7 +102,7 @@ public class IngredientService(
     /// <summary>
     /// Update an ingredient.
     /// </summary>
-    /// <param name="ingredientId"></param> 
+    /// <param name="ingredientId"></param>
     /// <param name="request"></param>
     /// <param name="userId">ID of the creator user</param>
     /// <returns></returns>
@@ -110,7 +110,7 @@ public class IngredientService(
     [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(ingredientId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(ingredientId), ErrorCodes.AccessDenied)]
-    public async Task<Result<IngredientVM>> UpdateIngredientAsync(int ingredientId, UpdateIngredientRequest request, String userId)
+    public async Task<Result<IngredientVM>> UpdateIngredientAsync(int ingredientId, UpdateIngredientRequest request, Guid userId)
     {
         var dtoValidationResult = await validationService.ValidateAsync(request, userId);
         if (!dtoValidationResult.IsValid)

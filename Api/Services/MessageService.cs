@@ -21,7 +21,7 @@ public class MessageService(
     /// <param name="request"> update request</param>
     /// <param name="userId">ID of the user making the request</param>
     /// <returns></returns>
-    public async Task<Result<MessageVM>> UpdateMessageAsync(int messageId, UpdateMessageRequest request, string userId)
+    public async Task<Result<MessageVM>> UpdateMessageAsync(int messageId, UpdateMessageRequest request, Guid userId)
     {
         var message = await dbContext.Messages
             .FirstOrDefaultAsync(m => m.Id == messageId);
@@ -47,7 +47,7 @@ public class MessageService(
         }
 
         message.Contents = request.Contents;
-    
+
         var validationResult = await validationService.ValidateAsync(message, userId);
         if (!validationResult.IsValid)
         {
@@ -75,7 +75,7 @@ public class MessageService(
     /// <param name="messageId">Id of the message</param>
     /// <param name="userId">Id of the message</param>
     /// <returns>marks message as read</returns>
-    public async Task<Result<MessageVM>> MarkMessageAsReadByIdAsync(int messageId, string userId)
+    public async Task<Result<MessageVM>> MarkMessageAsReadByIdAsync(int messageId, Guid userId)
     {
         var message = await dbContext.Messages
         .Include(m => m.MessageThread)
@@ -92,7 +92,7 @@ public class MessageService(
             };
         }
 
-        
+
         if (message.DateRead == null)
         {
             if (!message.MessageThread.Participants.Any(p => p.Id == userId))
@@ -116,7 +116,7 @@ public class MessageService(
             }
 
             message.DateRead = DateTime.UtcNow;
-        
+
             var validationResult = await validationService.ValidateAsync(message, userId);
             if (!validationResult.IsValid)
             {
@@ -135,7 +135,7 @@ public class MessageService(
             DateRead = message.DateRead,
             AuthorId = message.AuthorId,
             MessageThreadId = message.MessageThreadId
-        };   
+        };
     }
 
 
@@ -145,7 +145,7 @@ public class MessageService(
     /// <param name="messageId">id of a message</param>
     /// <param name="userId">ID of the user making the request</param>
     /// <returns></returns>
-    public async Task<Result> DeleteMessageAsync(int messageId, string userId)
+    public async Task<Result> DeleteMessageAsync(int messageId, Guid userId)
     {
         var message = await dbContext.Messages
             .FirstOrDefaultAsync(t => t.Id == messageId);
@@ -160,7 +160,7 @@ public class MessageService(
             };
         }
 
-        if (message.AuthorId != userId) 
+        if (message.AuthorId != userId)
         {
             return new ValidationFailure
             {

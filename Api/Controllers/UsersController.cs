@@ -15,7 +15,7 @@ namespace Reservant.Api.Controllers
     /// Fetching information about other users and managing employees
     /// </summary>
     [ApiController, Route("/users")]
-    public class UsersController(UserService userService, FileUploadService uploadService, UserManager<User> userManager) : StrictController
+    public class UsersController(UserService userService, FileUploadService uploadService) : StrictController
     {
         /// <summary>
         /// Find users
@@ -37,7 +37,7 @@ namespace Reservant.Api.Controllers
             int page = 0, int perPage = 10)
         {
             var result = await userService.FindUsersAsync(
-                name, filter, User.GetUserId()!, page, perPage);
+                name, filter, User.GetUserId()!.Value, page, perPage);
             return OkOrErrors(result);
         }
 
@@ -48,7 +48,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [ProducesResponseType(200), ProducesResponseType(404)]
         [HttpPost("{userId}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
-        public async Task<ActionResult> MakeRestaurantOwner(string userId) {
+        public async Task<ActionResult> MakeRestaurantOwner(Guid userId) {
             var user = await userService.MakeRestaurantOwnerAsync(userId);
             if (user == null){ return NotFound(); }
             return Ok();
@@ -63,7 +63,7 @@ namespace Reservant.Api.Controllers
         [HttpPut("{employeeId}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-        public async Task<ActionResult<UserDetailsVM>> PutEmployee(UpdateUserDetailsRequest request, string employeeId)
+        public async Task<ActionResult<UserDetailsVM>> PutEmployee(UpdateUserDetailsRequest request, Guid employeeId)
         {
             var result = await userService.PutEmployeeAsync(request, employeeId, User);
 
@@ -99,9 +99,9 @@ namespace Reservant.Api.Controllers
         [Authorize]
         [ProducesResponseType(200), ProducesResponseType(401), ProducesResponseType(403), ProducesResponseType(400)]
         [MethodErrorCodes<UserService>(nameof(UserService.GetUserDetailsAsync))]
-        public async Task<ActionResult<UserEmployeeVM>> GetUserById(string userId)
+        public async Task<ActionResult<UserEmployeeVM>> GetUserById(Guid userId)
         {
-            var result = await userService.GetUserDetailsAsync(userId, userManager.GetUserId(User)!);
+            var result = await userService.GetUserDetailsAsync(userId, User.GetUserId()!.Value);
             return OkOrErrors(result);
         }
     }

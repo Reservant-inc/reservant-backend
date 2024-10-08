@@ -174,8 +174,7 @@ public class Restaurant : ISoftDeletable
     /// <summary>
     /// Proof of verification by specific CustomerSupportAgent
     /// </summary>
-    [StringLength(36)]
-    public string? VerifierId { get; set; }
+    public Guid? VerifierId { get; set; }
 
     /// <summary>
     /// Navigational collection for reviews

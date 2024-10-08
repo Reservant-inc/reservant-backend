@@ -40,9 +40,9 @@ public static class CustomRules
                     return true;
                 }
 
-                var userId = (string)context.RootContextData["UserId"];
+                var userId = (Guid?)context.RootContextData["UserId"];
                 var result = await uploadService.ProcessUploadNameAsync(
-                    value, userId, expectedClass, context.PropertyPath);
+                    value, userId!.Value, expectedClass, context.PropertyPath);
                 return !result.IsError;
             })
             .WithErrorCode($"{ErrorCodes.FileName}.{expectedClass}")
@@ -100,14 +100,14 @@ public static class CustomRules
     /// <summary>
     /// Validates that the user exists in the database.
     /// </summary>
-    public static IRuleBuilderOptions<T, string> CustomerExists<T>(
-        this IRuleBuilder<T, string> builder,
+    public static IRuleBuilderOptions<T, Guid> CustomerExists<T>(
+        this IRuleBuilder<T, Guid> builder,
         UserManager<Models.User> userManager)
     {
         return builder
             .MustAsync(async (userId, _) =>
             {
-                var user = await userManager.FindByIdAsync(userId);
+                var user = await userManager.FindByIdAsync(userId.ToString());
                 return user != null && await userManager.IsInRoleAsync(user, Roles.Customer);
             })
             .WithErrorCode(ErrorCodes.MustBeCustomerId)
@@ -163,22 +163,17 @@ public static class CustomRules
     /// <summary>
     /// Validate that the given ID corresponds to current user's employee
     /// </summary>
-    public static IRuleBuilderOptions<T, string> CurrentUsersEmployee<T>(this IRuleBuilder<T, string> builder, ApiDbContext db)
+    public static IRuleBuilderOptions<T, Guid> CurrentUsersEmployee<T>(this IRuleBuilder<T, Guid> builder, ApiDbContext db)
     {
         return builder.MustAsync(async (_, value, context, _) =>
         {
-            if (value is null)
-            {
-                return false;
-            }
-
             var user = await db.Users.FindAsync(value);
             if (user is null)
             {
                 return false;
             }
 
-            var userId = (string)context.RootContextData["UserId"];
+            var userId = (Guid?)context.RootContextData["UserId"];
             return userId is null || user.EmployerId == userId;
         })
         .WithErrorCode(ErrorCodes.MustBeCurrentUsersEmployee)

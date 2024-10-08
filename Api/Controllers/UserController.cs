@@ -37,13 +37,13 @@ public class UserController(
     [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult<List<UserEmployeeVM>>> GetEmployees()
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId is null)
         {
             return Unauthorized();
         }
 
-        return Ok(await userService.GetEmployeesAsync(userId));
+        return Ok(await userService.GetEmployeesAsync(userId.Value));
     }
     /// <summary>
     /// Gets information about the current user.
@@ -186,7 +186,7 @@ public class UserController(
     [HttpDelete("{employeeId}")]
     [Authorize(Roles = $"{Roles.RestaurantOwner}")]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    public async Task<ActionResult> ArchiveUser(string employeeId)
+    public async Task<ActionResult> ArchiveUser(Guid employeeId)
     {
         var user = await userManager.GetUserAsync(User);
 
@@ -231,13 +231,13 @@ public class UserController(
     [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult<Pagination<ThreadVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await threadService.GetUserThreadsAsync(userId, page, perPage);
+        var result = await threadService.GetUserThreadsAsync(userId.Value, page, perPage);
         return OkOrErrors(result);
     }
 
@@ -254,7 +254,7 @@ public class UserController(
     public async Task<ActionResult<List<EmploymentSummaryVM>>> GetCurrentUsersEmployments(
         [FromQuery] bool returnTerminated, [FromServices] EmploymentService employmentService)
     {
-        var result = await employmentService.GetCurrentUsersEmploymentsAsync(User.GetUserId()!, returnTerminated);
+        var result = await employmentService.GetCurrentUsersEmploymentsAsync(User.GetUserId()!.Value, returnTerminated);
         return OkOrErrors(result);
     }
 
@@ -266,7 +266,7 @@ public class UserController(
     [MethodErrorCodes<UserService>(nameof(UserService.GetSettings))]
     public async Task<ActionResult<SettingsDto>> GetSettings()
     {
-        return OkOrErrors(await userService.GetSettings(User.GetUserId()!));
+        return OkOrErrors(await userService.GetSettings(User.GetUserId()!.Value));
     }
 
     /// <summary>
@@ -277,6 +277,6 @@ public class UserController(
     [MethodErrorCodes<UserService>(nameof(UserService.UpdateSettings))]
     public async Task<ActionResult<SettingsDto>> UpdateSettings(SettingsDto dto)
     {
-        return OkOrErrors(await userService.UpdateSettings(User.GetUserId()!, dto));
+        return OkOrErrors(await userService.UpdateSettings(User.GetUserId()!.Value, dto));
     }
 }

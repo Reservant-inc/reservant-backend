@@ -33,7 +33,7 @@ public class VisitSummaryVM
     /// <summary>
     /// ID of the client who made the reservation
     /// </summary>
-    public required string ClientId { get; init; }
+    public required Guid ClientId { get; init; }
 
     /// <summary>
     /// ID of the restaurant

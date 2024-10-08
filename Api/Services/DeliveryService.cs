@@ -25,9 +25,9 @@ public class DeliveryService(
     /// <param name="userId">ID of the current user for permission checking</param>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
-    public async Task<Result<DeliveryVM>> GetDeliveryById(int deliveryId, string userId)
+    public async Task<Result<DeliveryVM>> GetDeliveryById(int deliveryId, Guid userId)
     {
-        
+
 
         var delivery = await context.Deliveries
             .FirstOrDefaultAsync(d => d.Id == deliveryId);
@@ -80,7 +80,7 @@ public class DeliveryService(
         "Some of the ingredients were not found")]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
     [ValidatorErrorCodes<Delivery>]
-    public async Task<Result<DeliveryVM>> PostDelivery(CreateDeliveryRequest request, string userId)
+    public async Task<Result<DeliveryVM>> PostDelivery(CreateDeliveryRequest request, Guid userId)
     {
         var access = await authorizationService.VerifyRestaurantBackdoorAccess(request.RestaurantId, userId);
         if (access.IsError)

@@ -100,7 +100,7 @@ public class VisitService(
 
         foreach(var userId in request.Participants)
         {
-            var currentUser = await userManager.FindByIdAsync(userId);
+            var currentUser = await userManager.FindByIdAsync(userId.ToString());
             if (currentUser != null) participants.Add(currentUser);
         }
 

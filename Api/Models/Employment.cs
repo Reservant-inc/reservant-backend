@@ -17,8 +17,7 @@ public class Employment : ISoftDeletable
     /// <summary>
     /// ID of the employee
     /// </summary>
-    [StringLength(36)]
-    public string EmployeeId { get; set; } = null!;
+    public Guid EmployeeId { get; set; }
 
     /// <summary>
     /// ID of the restaurant
