@@ -492,7 +492,7 @@ public class DbSeeder(
         {
             new Order
             {
-                VisitId = visits.First().Id,
+                VisitId = visits.First().VisitId,
                 IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
@@ -508,7 +508,7 @@ public class DbSeeder(
             },
             new Order
             {
-                VisitId = visits[1].Id,
+                VisitId = visits[1].VisitId,
                 IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
@@ -524,7 +524,7 @@ public class DbSeeder(
             },
             new Order
             {
-                VisitId = visits[2].Id,
+                VisitId = visits[2].VisitId,
                 IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
@@ -661,14 +661,14 @@ public class DbSeeder(
         {
             OrderTime = DateTime.UtcNow,
             DeliveredTime = DateTime.UtcNow.AddDays(2),
-            RestaurantId = johnDoesGroup.Restaurants.First().Id,
+            RestaurantId = johnDoesGroup.Restaurants.First().RestaurantId,
             Restaurant = johnDoesGroup.Restaurants.First(),
             UserId = johnDoe.Id,
             User = johnDoe,
             Ingredients = [
                 new IngredientDelivery
                 {
-                    IngredientId = ingredient.Id,
+                    IngredientId = ingredient.IngredientId,
                     AmountOrdered = ingredient.AmountToOrder ?? 1,
                     AmountDelivered = ingredient.AmountToOrder ?? 1,
                     ExpiryDate = DateTime.UtcNow.AddDays(7),
@@ -792,25 +792,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = johnDoes,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -1429,7 +1429,7 @@ public class DbSeeder(
                 IsHallEmployee = true
             }
             },
-            johnDoes.Id,
+            johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
 
         var backdoorEmployee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
@@ -1450,7 +1450,7 @@ public class DbSeeder(
                 IsHallEmployee = false
             }
             },
-            johnDoes.Id,
+            johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
     }
 
@@ -1490,25 +1490,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 1,
+                TableId = 1,
                 Capacity = 2
             },
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 2,
+                TableId = 2,
                 Capacity = 2
             },
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 4,
+                TableId = 4,
                 Capacity = 4
             }
         };
@@ -1589,7 +1589,7 @@ public class DbSeeder(
                 IsBackdoorEmployee = true,
                 IsHallEmployee = true
             } },
-            johnDoes2.Id,
+            johnDoes2.RestaurantId,
             johnDoe.Id)).OrThrow();
     }
 
@@ -1631,13 +1631,13 @@ public class DbSeeder(
             new()
             {
                 Restaurant = kowalskisRestaurant,
-                Id = 1,
+                TableId = 1,
                 Capacity = 3
             },
             new()
             {
                 Restaurant = kowalskisRestaurant,
-                Id = 2,
+                TableId = 2,
                 Capacity = 2
             },
         };
@@ -1925,25 +1925,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = anons,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = anons,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = anons,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = anons,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -2214,25 +2214,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = geralts,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = geralts,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = geralts,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = geralts,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -2477,25 +2477,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = atreides,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = atreides,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = atreides,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = atreides,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -2711,25 +2711,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = walters,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = walters,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = walters,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = walters,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };

@@ -12,7 +12,7 @@ public class Event : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int EventId { get; set; }
 
     /// <summary>
     /// name of the event

@@ -16,7 +16,7 @@ public class Table : ISoftDeletable
     /// <summary>
     /// Unique ID within the restaurant
     /// </summary>
-    public int Id { get; set; }
+    public int TableId { get; set; }
 
     /// <summary>
     /// Ilość miejsc

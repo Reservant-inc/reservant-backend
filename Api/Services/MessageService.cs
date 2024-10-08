@@ -24,7 +24,7 @@ public class MessageService(
     public async Task<Result<MessageVM>> UpdateMessageAsync(int messageId, UpdateMessageRequest request, Guid userId)
     {
         var message = await dbContext.Messages
-            .FirstOrDefaultAsync(m => m.Id == messageId);
+            .FirstOrDefaultAsync(m => m.MessageId == messageId);
 
         if (message == null)
         {
@@ -59,7 +59,7 @@ public class MessageService(
 
         return new MessageVM
         {
-            MessageId = message.Id,
+            MessageId = message.MessageId,
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
@@ -80,7 +80,7 @@ public class MessageService(
         var message = await dbContext.Messages
         .Include(m => m.MessageThread)
             .ThenInclude(m => m.Participants)
-        .FirstOrDefaultAsync(m => m.Id == messageId);
+        .FirstOrDefaultAsync(m => m.MessageId == messageId);
 
         if (message == null)
         {
@@ -129,7 +129,7 @@ public class MessageService(
 
         return new MessageVM
         {
-            MessageId = message.Id,
+            MessageId = message.MessageId,
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
@@ -148,7 +148,7 @@ public class MessageService(
     public async Task<Result> DeleteMessageAsync(int messageId, Guid userId)
     {
         var message = await dbContext.Messages
-            .FirstOrDefaultAsync(t => t.Id == messageId);
+            .FirstOrDefaultAsync(t => t.MessageId == messageId);
 
         if (message == null)
         {

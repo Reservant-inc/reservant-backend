@@ -12,7 +12,7 @@ public class Employment : ISoftDeletable
     /// Unique identifier for the employment record.
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int EmploymentId { get; set; }
 
     /// <summary>
     /// ID of the employee

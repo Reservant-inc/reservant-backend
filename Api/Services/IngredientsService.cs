@@ -35,7 +35,7 @@ public class IngredientService(
         {
             return result;
         }
-        var menuItem = await dbContext.MenuItems.Include(m => m.Ingredients).Where(m => m.Id == request.MenuItem.MenuItemId).FirstOrDefaultAsync();
+        var menuItem = await dbContext.MenuItems.Include(m => m.Ingredients).Where(m => m.MenuItemId == request.MenuItem.MenuItemId).FirstOrDefaultAsync();
         if (menuItem is null)
         {
             return new ValidationFailure
@@ -69,8 +69,8 @@ public class IngredientService(
 
         var ingredientMenuItem = new IngredientMenuItem
         {
-            MenuItemId = menuItem.Id,
-            IngredientId = ingredient.Id,
+            MenuItemId = menuItem.MenuItemId,
+            IngredientId = ingredient.IngredientId,
             AmountUsed = ingredient.MinimalAmount,
             MenuItem = menuItem,
             Ingredient = ingredient
@@ -89,7 +89,7 @@ public class IngredientService(
 
         return new IngredientVM
         {
-            IngredientId = ingredient.Id,
+            IngredientId = ingredient.IngredientId,
             PublicName = ingredient.PublicName,
             UnitOfMeasurement = ingredient.UnitOfMeasurement,
             MinimalAmount = ingredient.MinimalAmount,
@@ -121,7 +121,7 @@ public class IngredientService(
         var ingredient = await dbContext.Ingredients
             .Include(i => i.MenuItems)
                 .ThenInclude(mi => mi.MenuItem)
-            .FirstOrDefaultAsync(i => i.Id == ingredientId);
+            .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient == null)
         {
@@ -167,7 +167,7 @@ public class IngredientService(
 
         return new IngredientVM
         {
-            IngredientId = ingredient.Id,
+            IngredientId = ingredient.IngredientId,
             PublicName = ingredient.PublicName,
             UnitOfMeasurement = ingredient.UnitOfMeasurement,
             MinimalAmount = ingredient.MinimalAmount,

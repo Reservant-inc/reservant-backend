@@ -12,7 +12,7 @@ public class Order : ISoftDeletable
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int OrderId { get; set; }
 
     /// <summary>
     /// ID of the visit

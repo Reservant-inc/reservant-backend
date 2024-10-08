@@ -11,7 +11,7 @@ public class ParticipationRequest
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int ParticipationRequestId { get; set; }
 
     /// <summary>
     /// Event ID

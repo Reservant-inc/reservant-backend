@@ -27,7 +27,7 @@ namespace Reservant.Api.Services
         [ErrorCode(null, ErrorCodes.AccessDenied)]
         public async Task<Result> DeleteReviewAsync(int reivewId, Guid userid)
         {
-            var review = await context.Reviews.FirstOrDefaultAsync(r => r.Id == reivewId);
+            var review = await context.Reviews.FirstOrDefaultAsync(r => r.ReviewId == reivewId);
             if (review == null)
             {
                 return new ValidationFailure
@@ -67,7 +67,7 @@ namespace Reservant.Api.Services
             {
                 return res.Errors;
             }
-            var review = await context.Reviews.Include(r => r.Author).FirstOrDefaultAsync(r => r.Id == reviewId);
+            var review = await context.Reviews.Include(r => r.Author).FirstOrDefaultAsync(r => r.ReviewId == reviewId);
             if (review == null)
             {
                 return new ValidationFailure
@@ -96,8 +96,8 @@ namespace Reservant.Api.Services
             await context.SaveChangesAsync();
             return new ReviewVM
             {
-                ReviewId = review.Id,
-                RestaurantId = review.Id,
+                ReviewId = review.ReviewId,
+                RestaurantId = review.ReviewId,
                 Stars = review.Stars,
                 AuthorId = review.AuthorId,
                 AuthorFullName = review.Author.FullName,
@@ -119,8 +119,8 @@ namespace Reservant.Api.Services
             var review = await context.Reviews
                 .Select(review => new ReviewVM
                 {
-                    ReviewId = review.Id,
-                    RestaurantId = review.Id,
+                    ReviewId = review.ReviewId,
+                    RestaurantId = review.ReviewId,
                     Stars = review.Stars,
                     AuthorId = review.AuthorId,
                     AuthorFullName = review.Author.FullName,

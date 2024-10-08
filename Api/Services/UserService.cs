@@ -207,7 +207,7 @@ public class UserService(
                     .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
                     {
-                        EmploymentId = e.Id,
+                        EmploymentId = e.EmploymentId,
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
                         IsHallEmployee = e.IsHallEmployee,
@@ -358,7 +358,7 @@ public class UserService(
 
         var result = await query.Select(visit => new VisitSummaryVM
         {
-            VisitId = visit.Id,
+            VisitId = visit.VisitId,
             Date = visit.Date,
             NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
             Takeaway = visit.Takeaway,
@@ -390,7 +390,7 @@ public class UserService(
 
         var result = await query.Select(visit => new VisitSummaryVM
         {
-            VisitId = visit.Id,
+            VisitId = visit.VisitId,
             Date = visit.Date,
             NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
             Takeaway = visit.Takeaway,
@@ -550,7 +550,7 @@ public class UserService(
                     .Where(e => e.DateUntil == null)
                     .Select(e => new EmploymentVM
                     {
-                        EmploymentId = e.Id,
+                        EmploymentId = e.EmploymentId,
                         RestaurantId = e.RestaurantId,
                         IsBackdoorEmployee = e.IsBackdoorEmployee,
                         IsHallEmployee = e.IsHallEmployee,

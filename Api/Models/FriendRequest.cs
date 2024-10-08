@@ -10,7 +10,7 @@ public class FriendRequest
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int FriendRequestId { get; set; }
 
     /// <summary>
     /// Date and time created

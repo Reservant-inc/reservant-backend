@@ -10,7 +10,7 @@ public class Delivery : ISoftDeletable
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int DeliveryId { get; set; }
 
     /// <summary>
     /// When was ordered

@@ -189,7 +189,7 @@ public static class CustomRules
             .MustAsync(async (restaurantId, cancellationToken) =>
             {
                 return await dbContext.Restaurants
-                    .AnyAsync(r => r.Id == restaurantId, cancellationToken);
+                    .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")
             .WithErrorCode(ErrorCodes.RestaurantDoesNotExist);
@@ -209,7 +209,7 @@ public static class CustomRules
                 }
 
                 return await dbContext.Restaurants
-                    .AnyAsync(r => r.Id == restaurantId, cancellationToken);
+                    .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")
             .WithErrorCode(ErrorCodes.RestaurantDoesNotExist);
@@ -225,7 +225,7 @@ public static class CustomRules
             {
                 var (restaurantId, tableId) = tuple;
                 return await dbContext.Tables
-                    .AnyAsync(t => t.Id == tableId && t.RestaurantId == restaurantId, cancellationToken);
+                    .AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.")
             .WithErrorCode(ErrorCodes.TableDoesNotExist);
@@ -241,7 +241,7 @@ public static class CustomRules
             .MustAsync(async (item, cancellationToken) =>
             {
                 var itemExists = await context.MenuItems
-                    .AnyAsync(m => m.Id == item.MenuItemId, cancellationToken);
+                    .AnyAsync(m => m.MenuItemId == item.MenuItemId, cancellationToken);
 
                 return itemExists;
             })
@@ -259,7 +259,7 @@ public static class CustomRules
             .MustAsync(async (visitId, cancellationToken) =>
             {
                 var visitExists = await context.Visits
-                    .AnyAsync(v => v.Id == visitId, cancellationToken);
+                    .AnyAsync(v => v.VisitId == visitId, cancellationToken);
 
                 return visitExists;
             })

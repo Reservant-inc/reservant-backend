@@ -12,7 +12,7 @@ public class Message : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int MessageId { get; set; }
 
     /// <summary>
     /// Contents of the message

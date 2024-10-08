@@ -11,7 +11,7 @@ public class PaymentTransaction
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int PaymentTransactionId { get; set; }
 
     /// <summary>
     /// Transaction title

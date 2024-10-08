@@ -12,7 +12,7 @@ public class Notification
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get ; set; }
+    public int NotificationId { get ; set; }
 
     /// <summary>
     /// When the notification was created

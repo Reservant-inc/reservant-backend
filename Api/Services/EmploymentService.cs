@@ -27,7 +27,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
         var employment = await context.Employments
             .Include(e => e.Restaurant)
             .ThenInclude(r => r.Group)
-            .FirstOrDefaultAsync(e => e.Id == employmentId && e.DateUntil == null);
+            .FirstOrDefaultAsync(e => e.EmploymentId == employmentId && e.DateUntil == null);
 
         if (employment == null)
         {
@@ -69,7 +69,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             var employment = await context.Employments
             .Include(e => e.Restaurant)
             .ThenInclude(r => r.Group)
-            .FirstOrDefaultAsync(e => e.Id == employmentId && e.DateUntil == null);
+            .FirstOrDefaultAsync(e => e.EmploymentId == employmentId && e.DateUntil == null);
 
             if (employment == null)
             {
@@ -118,7 +118,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             }
             var employment = context.Employments.Include(e => e.Restaurant)
                 .ThenInclude(r => r.Group)
-                .FirstOrDefault(e => e.Id == request.EmploymentId && e.Restaurant.Group.OwnerId == user.Id);
+                .FirstOrDefault(e => e.EmploymentId == request.EmploymentId && e.Restaurant.Group.OwnerId == user.Id);
 
             if (employment is null)
             {
@@ -160,7 +160,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
 
         var employmentsVM = await employments.Select(e => new EmploymentSummaryVM
         {
-            EmploymentId = e.Id,
+            EmploymentId = e.EmploymentId,
             DateFrom = e.DateFrom,
             DateUntill = e.DateUntil,
             Restaurant = new Dtos.Restaurant.RestaurantSummaryVM

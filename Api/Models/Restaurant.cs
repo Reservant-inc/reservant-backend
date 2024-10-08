@@ -16,7 +16,7 @@ public class Restaurant : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int RestaurantId { get; set; }
 
     /// <summary>
     /// Nazwa

@@ -13,7 +13,7 @@ public class Visit : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int VisitId { get; set; }
 
     /// <summary>
     /// Date of the visit

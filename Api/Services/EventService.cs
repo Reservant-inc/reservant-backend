@@ -80,7 +80,7 @@ namespace Reservant.Api.Services
                 Description = newEvent.Description,
                 Time = newEvent.Time,
                 MaxPeople = newEvent.MaxPeople,
-                EventId = newEvent.Id,
+                EventId = newEvent.EventId,
                 MustJoinUntil = newEvent.MustJoinUntil,
                 CreatorId = newEvent.CreatorId,
                 CreatorFullName = user.FullName,
@@ -105,7 +105,7 @@ namespace Reservant.Api.Services
                     Description = e.Description,
                     Time = e.Time,
                     MaxPeople = e.MaxPeople,
-                    EventId = e.Id,
+                    EventId = e.EventId,
                     MustJoinUntil = e.MustJoinUntil,
                     CreatorId = e.CreatorId,
                     CreatorFullName = e.Creator.FullName,
@@ -152,7 +152,7 @@ namespace Reservant.Api.Services
                     RestaurantId = e.RestaurantId,
                     NumberInterested = e.ParticipationRequests.Count,
                     MustJoinUntil = e.MustJoinUntil,
-                    EventId = e.Id,
+                    EventId = e.EventId,
                     Description = e.Description,
                     CreatorId = e.CreatorId,
                 })
@@ -270,7 +270,7 @@ namespace Reservant.Api.Services
         {
             var eventFound = await context.Events
                 .Include(e => e.ParticipationRequests)
-                .FirstOrDefaultAsync(e => e.Id == eventId);
+                .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventFound == null || eventFound.CreatorId != currentUser.Id)
             {
@@ -335,7 +335,7 @@ namespace Reservant.Api.Services
         public async Task<Result> RejectParticipationRequestAsync(int eventId, Guid userId, User currentUser)
         {
             var eventFound = await context.Events
-                .FirstOrDefaultAsync(e => e.Id == eventId);
+                .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventFound == null || eventFound.CreatorId != currentUser.Id)
             {
@@ -377,7 +377,7 @@ namespace Reservant.Api.Services
         {
             var eventFound = await context.Events
                 .Include(e => e.ParticipationRequests)
-                .Where(e=>e.Id==id)
+                .Where(e=>e.EventId==id)
                 .FirstOrDefaultAsync();
             if(eventFound==null)
             {
@@ -424,7 +424,7 @@ namespace Reservant.Api.Services
                 .OrderBy(u => u.Time)
                 .Select(e => new EventSummaryVM
                 {
-                    EventId = e.Id,
+                    EventId = e.EventId,
                     Name = e.Name,
                     Description = e.Description,
                     Time = e.Time,
@@ -461,7 +461,7 @@ namespace Reservant.Api.Services
                 .Include(e => e.Restaurant)
                 .Include(e => e.ParticipationRequests)
                 .ThenInclude(e => e.User)
-                .FirstOrDefaultAsync(e => e.Id == eventId);
+                .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventToUpdate is null)
             {
@@ -538,7 +538,7 @@ namespace Reservant.Api.Services
 
             return new EventVM
             {
-                EventId = eventToUpdate.Id,
+                EventId = eventToUpdate.EventId,
                 Name = eventToUpdate.Name,
                 CreatedAt = eventToUpdate.CreatedAt,
                 Description = eventToUpdate.Description,
@@ -576,7 +576,7 @@ namespace Reservant.Api.Services
         public async Task<Result> DeleteEventAsync(int eventId, User user)
         {
             var eventToDelete = await context.Events
-                .FirstOrDefaultAsync(e => e.Id == eventId);
+                .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventToDelete is null)
             {

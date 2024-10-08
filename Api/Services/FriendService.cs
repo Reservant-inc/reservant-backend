@@ -84,7 +84,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
             existingRequest.DateAccepted = DateTime.UtcNow;
 
             await context.SaveChangesAsync();
-            await notificationService.NotifyFriendRequestAccepted(existingRequest.SenderId, existingRequest.Id);
+            await notificationService.NotifyFriendRequestAccepted(existingRequest.SenderId, existingRequest.FriendRequestId);
             return Result.Success;
         }
 
@@ -179,7 +179,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
         friendRequest.DateAccepted = DateTime.UtcNow;
         context.FriendRequests.Update(friendRequest);
         await context.SaveChangesAsync();
-        await notificationService.NotifyFriendRequestAccepted(senderId, friendRequest.Id);
+        await notificationService.NotifyFriendRequestAccepted(senderId, friendRequest.FriendRequestId);
         return Result.Success;
     }
 

@@ -30,7 +30,7 @@ public class DeliveryService(
 
 
         var delivery = await context.Deliveries
-            .FirstOrDefaultAsync(d => d.Id == deliveryId);
+            .FirstOrDefaultAsync(d => d.DeliveryId == deliveryId);
 
         if (delivery == null)
         {
@@ -49,7 +49,7 @@ public class DeliveryService(
 
         return new DeliveryVM
         {
-            DeliveryId = delivery.Id,
+            DeliveryId = delivery.DeliveryId,
             OrderTime = delivery.OrderTime,
             DeliveredTime = delivery.DeliveredTime,
             RestaurantId = delivery.RestaurantId,
@@ -97,7 +97,7 @@ public class DeliveryService(
         var countRealIngredients = await context.Ingredients
             .CountAsync(i => request.Ingredients
                 .Select(ri => ri.IngredientId)
-                .Contains(i.Id));
+                .Contains(i.IngredientId));
         if (countRealIngredients != request.Ingredients.Count)
         {
             return new ValidationFailure
@@ -133,7 +133,7 @@ public class DeliveryService(
 
         return new DeliveryVM
         {
-            DeliveryId = delivery.Id,
+            DeliveryId = delivery.DeliveryId,
             OrderTime = delivery.OrderTime,
             DeliveredTime = delivery.DeliveredTime,
             RestaurantId = delivery.RestaurantId,

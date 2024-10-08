@@ -12,7 +12,7 @@ public class RestaurantGroup : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int RestaurantGroupId { get; set; }
 
     /// <summary>
     /// Nazwa

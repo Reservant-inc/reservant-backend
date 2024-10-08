@@ -78,7 +78,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
-            ThreadId = messageThread.Id,
+            ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
             Participants = messageThread.Participants
                 .Select(p => new UserSummaryVM
@@ -109,7 +109,7 @@ public class ThreadService(
 
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
         {
@@ -134,7 +134,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
-            ThreadId = messageThread.Id,
+            ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
             Participants = messageThread.Participants
                 .Select(p => new UserSummaryVM
@@ -157,7 +157,7 @@ public class ThreadService(
     public async Task<Result> DeleteThreadAsync(int threadId, Guid userId)
     {
         var messageThread = await dbContext.MessageThreads
-            .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
         {
@@ -188,7 +188,7 @@ public class ThreadService(
             .Where(t => t.Participants.Any(p => p.Id == userId))
             .Select(t => new ThreadVM
             {
-                ThreadId = t.Id,
+                ThreadId = t.MessageThreadId,
                 Title = t.Title,
                 Participants = t.Participants.Select(p => new UserSummaryVM
                 {
@@ -212,7 +212,7 @@ public class ThreadService(
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
         {
@@ -226,7 +226,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
-            ThreadId = messageThread.Id,
+            ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
             Participants = messageThread.Participants
                 .Select(p => new UserSummaryVM
@@ -251,7 +251,7 @@ public class ThreadService(
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId);
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId);
 
         if (messageThread == null)
         {
@@ -296,7 +296,7 @@ public class ThreadService(
 
         return new MessageVM
         {
-            MessageId = message.Id,
+            MessageId = message.MessageId,
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
@@ -319,7 +319,7 @@ public class ThreadService(
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId);
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId);
 
         if (messageThread == null)
         {
@@ -348,7 +348,7 @@ public class ThreadService(
             .OrderByDescending(m => m.DateSent)
             .Select(m => new MessageVM
             {
-                MessageId = m.Id,
+                MessageId = m.MessageId,
                 Contents = m.Contents,
                 DateSent = m.DateSent,
                 DateRead = m.DateRead,
@@ -383,7 +383,7 @@ public class ThreadService(
 
         var thread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .SingleOrDefaultAsync(t => t.Id == threadId);
+            .SingleOrDefaultAsync(t => t.MessageThreadId == threadId);
         if (thread is null)
         {
             return new ValidationFailure
@@ -451,7 +451,7 @@ public class ThreadService(
     {
         var thread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .SingleOrDefaultAsync(t => t.Id == threadId);
+            .SingleOrDefaultAsync(t => t.MessageThreadId == threadId);
         if (thread is null)
         {
             return new ValidationFailure
