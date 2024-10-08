@@ -110,7 +110,7 @@ public class RestaurantGroupService(
                     Longitude = r.Location.Y,
                     Latitude = r.Location.X
                 },
-                Rating = r.Reviews == null ? 0 : r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
+                Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
                 ReservationDeposit = r.ReservationDeposit,
                 NumberReviews = r.Reviews.Count
             }).ToList()
@@ -204,7 +204,7 @@ public class RestaurantGroupService(
                     Longitude = r.Location.Y,
                     Latitude = r.Location.X
                 },
-                Rating = r.Reviews == null ? 0 : r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
+                Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
@@ -282,7 +282,7 @@ public class RestaurantGroupService(
                     Longitude = r.Location.Y,
                     Latitude = r.Location.X
                 },
-                Rating = r.Reviews == null ? 0 : r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
+                Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
                 GroupId = r.GroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,

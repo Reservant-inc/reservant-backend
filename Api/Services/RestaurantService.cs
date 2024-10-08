@@ -594,7 +594,7 @@ namespace Reservant.Api.Services
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
                 IsVerified = restaurant.VerifierId != null,
-                Rating = restaurant.Reviews == null ? 0 : restaurant.Reviews.Count == 0 ? 0 : restaurant.Reviews.Average(rev => (double)rev.Stars),
+                Rating = restaurant.Reviews.Count == 0 ? 0 : restaurant.Reviews.Average(rev => (double)rev.Stars),
                 NumberReviews = restaurant.Reviews.Count
             };
         }
