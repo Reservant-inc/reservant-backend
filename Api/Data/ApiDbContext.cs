@@ -56,8 +56,6 @@ public class ApiDbContext(
 
     public DbSet<Delivery> Deliveries { get; init; } = null!;
 
-    public DbSet<IngredientMenuItem> IngredientMenuItems { get; set; } = null!;
-
     public DbSet<Notification> Notifications { get; set; } = null!;
 
     public DbSet<ParticipationRequest> EventParticipationRequests { get; init; } = null!;
