@@ -183,7 +183,8 @@ public class IngredientService(
     public async Task<Result<IngredientAmountCorrectionVM>> CorrectIngredientAmountAsync(
         int ingredientId, Guid userId, IngredientAmountCorrectionRequest request)
     {
-        var user = await dbContext.Users.FindAsync(userId); //user na pewno jest w bazie, więc nie ma sensu sprawdzać
+        var user = await dbContext.Users.FindAsync(userId)
+                   ?? throw new Exception($"User with ID {userId} not found");
 
         var ingredient = await dbContext.Ingredients
             .Include(i => i.MenuItems)
