@@ -383,7 +383,7 @@ public class ThreadService(
 
         var thread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(t => t.Id == threadId);
         if (thread is null)
         {
             return new ValidationFailure
@@ -451,7 +451,7 @@ public class ThreadService(
     {
         var thread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(t => t.Id == threadId);
         if (thread is null)
         {
             return new ValidationFailure
