@@ -22,12 +22,12 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <returns>The bool returned inside the result does not mean anything</returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied)]
-    public async Task<Result> DeleteEmploymentAsync(int employmentId, string userId)
+    public async Task<Result> DeleteEmploymentAsync(int employmentId, Guid userId)
     {
         var employment = await context.Employments
             .Include(e => e.Restaurant)
             .ThenInclude(r => r.Group)
-            .FirstOrDefaultAsync(e => e.Id == employmentId && e.DateUntil == null);
+            .FirstOrDefaultAsync(e => e.EmploymentId == employmentId && e.DateUntil == null);
 
         if (employment == null)
         {
@@ -69,7 +69,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             var employment = await context.Employments
             .Include(e => e.Restaurant)
             .ThenInclude(r => r.Group)
-            .FirstOrDefaultAsync(e => e.Id == employmentId && e.DateUntil == null);
+            .FirstOrDefaultAsync(e => e.EmploymentId == employmentId && e.DateUntil == null);
 
             if (employment == null)
             {
@@ -118,7 +118,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             }
             var employment = context.Employments.Include(e => e.Restaurant)
                 .ThenInclude(r => r.Group)
-                .FirstOrDefault(e => e.Id == request.EmploymentId && e.Restaurant.Group.OwnerId == user.Id);
+                .FirstOrDefault(e => e.EmploymentId == request.EmploymentId && e.Restaurant.Group.OwnerId == user.Id);
 
             if (employment is null)
             {
@@ -144,7 +144,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <param name="isTerminated">parameter that tells if the search should include terminated xor ongoing employments</param>
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
-    public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(string userId, bool isTerminated)
+    public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(Guid userId, bool isTerminated)
     {
         var employments = context.Employments
             .Where(e => e.EmployeeId == userId);
@@ -160,7 +160,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
 
         var employmentsVM = await employments.Select(e => new EmploymentSummaryVM
         {
-            EmploymentId = e.Id,
+            EmploymentId = e.EmploymentId,
             DateFrom = e.DateFrom,
             DateUntill = e.DateUntil,
             Restaurant = new Dtos.Restaurant.RestaurantSummaryVM

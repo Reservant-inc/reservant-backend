@@ -30,7 +30,7 @@ public class DeliveryVM
     /// <summary>
     /// ID of the user who received the delivery
     /// </summary>
-    public required string? UserId { get; set; } = null!;
+    public required Guid? UserId { get; set; } = null!;
 
     /// <summary>
     /// Ingredients delivered

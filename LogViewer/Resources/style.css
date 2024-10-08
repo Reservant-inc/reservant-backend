@@ -65,6 +65,11 @@ a, a:visited {
     font-size: 1rem;
 }
 
+.status-500 {
+    background-color: #ff4444;
+    color: white;
+}
+
 .status-400 {
     background-color: #ffbbbb;
 }
@@ -79,6 +84,24 @@ a, a:visited {
 
 .status-0 {
     background-color: #bbb;
+}
+
+.request-summary-bubble {
+    font-size: 0.9rem;
+    border-radius: 11px;
+    min-width: 22px;
+    height: 22px;
+    text-align: center;
+    padding: 0 4px;
+}
+
+.request-summary-bubble-errors {
+    background-color: #ff4444;
+    color: white;
+}
+
+.request-summary-bubble-warnings {
+    background-color: #eedd66;
 }
 
 .request-summary-time {

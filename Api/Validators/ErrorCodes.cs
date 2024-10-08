@@ -232,4 +232,8 @@ public static class ErrorCodes
     /// </summary>
     public const string UserAlreadyRejected = "UserAlreadyRejected";
 
+    /// <summary>
+    /// String must be a valid locale identifier
+    /// </summary>
+    public const string MustBeLocaleId = "MustBeLocaleId";
 }

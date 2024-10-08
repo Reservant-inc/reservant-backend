@@ -30,13 +30,13 @@ public class IngredientsController(
     [MethodErrorCodes<IngredientService>(nameof(IngredientService.CreateIngredientAsync))]
     public async Task<ActionResult<IngredientVM>> CreateIngredient([FromBody] CreateIngredientRequest request)
     {
-        var userId = User.GetUserId()!;
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await ingredientService.CreateIngredientAsync(request, userId);
+        var result = await ingredientService.CreateIngredientAsync(request, userId.Value);
         return OkOrErrors(result);
     }
 
@@ -59,7 +59,7 @@ public class IngredientsController(
             return Unauthorized();
         }
 
-        var result = await ingredientService.UpdateIngredientAsync(ingredientId, request, userId);
+        var result = await ingredientService.UpdateIngredientAsync(ingredientId, request, userId.Value);
         return OkOrErrors(result);
     }
 }

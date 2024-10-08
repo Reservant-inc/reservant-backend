@@ -52,7 +52,7 @@ public class VisitVM
     /// <summary>
     /// ID of the client who made the reservation
     /// </summary>
-    public required string ClientId { get; set; }
+    public required Guid ClientId { get; set; }
 
     /// <summary>
     /// ID of the restaurant

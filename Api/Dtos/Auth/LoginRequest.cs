@@ -11,4 +11,9 @@ public class LoginRequest
 
     /// <example>Pa$$w0rd</example>
     public required string Password { get; init; }
+
+    /// <summary>
+    /// Device token used to send push notifications to mobile devices
+    /// </summary>
+    public string? FirebaseDeviceToken { get; init; }
 }

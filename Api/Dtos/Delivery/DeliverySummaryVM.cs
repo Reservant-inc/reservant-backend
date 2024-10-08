@@ -23,7 +23,7 @@ public class DeliverySummaryVM
     /// <summary>
     /// ID of the user who received the delivery
     /// </summary>
-    public required string? UserId { get; set; }
+    public required Guid? UserId { get; set; }
 
     /// <summary>
     /// Full name of the user who received the delivery

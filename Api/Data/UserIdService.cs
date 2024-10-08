@@ -10,7 +10,7 @@ public class UserIdService(IHttpContextAccessor contextAccessor)
     /// <summary>
     /// Get current user's ID
     /// </summary>
-    public string? GetUserId()
+    public Guid? GetUserId()
     {
         return contextAccessor.HttpContext?.User.GetUserId();
     }

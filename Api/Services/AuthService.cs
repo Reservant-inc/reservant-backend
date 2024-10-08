@@ -23,7 +23,7 @@ namespace Reservant.Api.Services
             var claims = new List<Claim>
             {
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(JwtRegisteredClaimNames.Sub, user.Id),
+                new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new(ClaimTypes.Name, user.UserName!)
             };
 

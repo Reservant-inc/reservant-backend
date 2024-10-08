@@ -10,7 +10,7 @@ public class Delivery : ISoftDeletable
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int DeliveryId { get; set; }
 
     /// <summary>
     /// When was ordered
@@ -35,7 +35,7 @@ public class Delivery : ISoftDeletable
     /// <summary>
     /// ID of the user who received the delivery
     /// </summary>
-    public string? UserId { get; set; } = null!;
+    public Guid? UserId { get; set; }
 
     /// <summary>
     /// Navigation property for the user who received the delivery

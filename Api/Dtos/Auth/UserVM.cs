@@ -10,7 +10,7 @@ public class UserVM
     /// <summary>
     /// Unique ID
     /// </summary>
-    public required string UserId { get; init; }
+    public required Guid UserId { get; init; }
 
     /// <summary>
     /// Login

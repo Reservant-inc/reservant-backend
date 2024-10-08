@@ -48,7 +48,7 @@ public class EventVM
     /// <summary>
     /// ID of the user who created the event
     /// </summary>
-    public required string CreatorId { get; set; }
+    public required Guid CreatorId { get; set; }
 
     /// <summary>
     /// Navigational property for the creator

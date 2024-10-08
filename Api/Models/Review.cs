@@ -12,7 +12,7 @@ public class Review : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int ReviewId { get; set; }
 
     /// <summary>
     /// Restaurant ID
@@ -22,8 +22,7 @@ public class Review : ISoftDeletable
     /// <summary>
     /// ID of the user who created the review
     /// </summary>
-    [StringLength(36)]
-    public string AuthorId { get; set; } = null!;
+    public Guid AuthorId { get; set; }
 
     /// <summary>
     /// Number of stars (1-5)

@@ -58,7 +58,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     /// <returns>Path to the saved file</returns>
     [ErrorCode(nameof(UploadRequest.File), ErrorCodes.FileTooBig, "File too large")]
     [ErrorCode(nameof(UploadRequest.File), ErrorCodes.UnacceptedContentType, "File content type not accepted")]
-    public async Task<Result<UploadVM>> SaveFileAsync(UploadRequest request, string userId)
+    public async Task<Result<UploadVM>> SaveFileAsync(UploadRequest request, Guid userId)
     {
         var fileSizeKb = request.File.Length / 1024;
         if (fileSizeKb > options.Value.MaxSizeKb)
@@ -127,7 +127,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     /// <param name="userId">User that has to have access to the file (current user)</param>
     /// <returns>Result containing the file name of the upload</returns>
     public async Task<Result<string>> ProcessUploadNameAsync(
-        string fileName, string userId, FileClass expectedFileClass, string propertyName)
+        string fileName, Guid userId, FileClass expectedFileClass, string propertyName)
     {
         var upload = await context.FileUploads
             .Where(fu => fu.FileName == fileName && fu.UserId == userId)
@@ -167,4 +167,13 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     [return: NotNullIfNotNull(nameof(fileName))]
     public string? GetPathForFileName(string? fileName) =>
         fileName == null ? null : $"{options.Value.ServePath}/{fileName}";
+
+    /// <summary>
+    /// Returns the URL of the uploaded file or null if fileName is null
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    [return: NotNullIfNotNull(nameof(fileName))]
+    public string? GetUrlForFileName(string? fileName) =>
+        fileName == null ? null : $"{options.Value.ServeUrlBase}/{fileName}";
 }

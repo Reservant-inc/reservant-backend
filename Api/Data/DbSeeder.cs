@@ -22,7 +22,7 @@ namespace Reservant.Api.Data;
 /// </summary>
 public class DbSeeder(
     ApiDbContext context,
-    RoleManager<IdentityRole> roleManager,
+    RoleManager<IdentityRole<Guid>> roleManager,
     UserService userService,
     RestaurantService restaurantService,
     VisitService visitService,
@@ -41,44 +41,11 @@ public class DbSeeder(
     /// </summary>
     public async Task SeedDataAsync()
     {
-        await roleManager.CreateAsync(new IdentityRole(Roles.Customer));
-        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantOwner));
-        await roleManager.CreateAsync(new IdentityRole(Roles.RestaurantEmployee));
-        await roleManager.CreateAsync(new IdentityRole(Roles.CustomerSupportAgent));
-        await roleManager.CreateAsync(new IdentityRole(Roles.CustomerSupportManager));
-
-        context.AddRange(
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 29),
-                TemperatureC = -2,
-                Summary = "Scorching"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 30),
-                TemperatureC = 19,
-                Summary = "Hot"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 31),
-                TemperatureC = 45,
-                Summary = "Chilly"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 1),
-                TemperatureC = -13,
-                Summary = "Sweltering"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 2),
-                TemperatureC = 4,
-                Summary = "Freezing"
-            }
-        );
+        await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.Customer));
+        await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.RestaurantOwner));
+        await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.RestaurantEmployee));
+        await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.CustomerSupportAgent));
+        await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.CustomerSupportManager));
 
         var bok1 = (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
         {
@@ -87,7 +54,7 @@ public class DbSeeder(
             FirstName = "Pracownik BOK",
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789"
-        }, "fced96c1-dad9-49ff-a598-05e1c5e433aa")).OrThrow();
+        }, Guid.Parse("fced96c1-dad9-49ff-a598-05e1c5e433aa"))).OrThrow();
 
         var bok2 = (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
         {
@@ -97,7 +64,7 @@ public class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789",
             IsManager = true
-        }, "3f97a9d9-21b5-40ae-b178-bfe071de723c")).OrThrow();
+        }, Guid.Parse("3f97a9d9-21b5-40ae-b178-bfe071de723c"))).OrThrow();
 
         var johnDoe = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -108,7 +75,7 @@ public class DbSeeder(
             PhoneNumber = "+48123456789",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1990, 2, 3)
-        }, "e5779baf-5c9b-4638-b9e7-ec285e57b367")).OrThrow();
+        }, Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(johnDoe.Id);
 
         var anon = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -120,7 +87,7 @@ public class DbSeeder(
             PhoneNumber = "+48987654321",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1989, 1, 2)
-        }, "je4nd6f9-j4bn-9374-n4s3-j3nd85ht0a03")).OrThrow();
+        }, Guid.Parse("28b618d7-2f32-4f0c-823d-e63ffa56e47f"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(anon.Id);
 
         var walter = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -132,7 +99,7 @@ public class DbSeeder(
             PhoneNumber = "+48475927476",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1991, 3, 2)
-        }, "meko2a3d-me2f-0394-me04-jend74t50sj3")).OrThrow();
+        }, Guid.Parse("e20eeb3b-563c-480a-8b8c-85b3afac7c66"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(walter.Id);
 
         var geralt = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -144,7 +111,7 @@ public class DbSeeder(
             PhoneNumber = "+48049586273",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1986, 12, 12)
-        }, "s3ka3ac0-m2ko-2137-ckw0-wmk32knap2ks")).OrThrow();
+        }, Guid.Parse("5ad4c90f-c52a-4b14-a8e5-e12eecfd4c8c"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(geralt.Id);
 
         var muadib = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -156,7 +123,7 @@ public class DbSeeder(
             PhoneNumber = "+48423597532",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1978, 4, 20)
-        }, "emsko2a3-02ms-1376-m0z3-me2kzo2nsk20")).OrThrow();
+        }, Guid.Parse("f1e788f1-523c-4aa9-b26f-5eb43ce59573"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(muadib.Id);
 
         var kowalski = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -168,7 +135,7 @@ public class DbSeeder(
             PhoneNumber = "+48999999999",
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(2002, 1, 1)
-        }, "558614c5-ba9f-4c1a-ba1c-07b2b67c37e9")).OrThrow();
+        }, Guid.Parse("558614c5-ba9f-4c1a-ba1c-07b2b67c37e9"))).OrThrow();
         await userService.MakeRestaurantOwnerAsync(kowalski.Id);
 
         var customer1 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
@@ -180,7 +147,7 @@ public class DbSeeder(
             LastName = "Przykładowski",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        }, "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29")).OrThrow();
+        }, Guid.Parse("e08ff043-f8d2-45d2-b89c-aec4eb6a1f29"))).OrThrow();
 
         var customer2 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -191,7 +158,7 @@ public class DbSeeder(
             LastName = "Przykładowska",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        }, "86a24e58-cb06-4db0-a346-f75125722edd")).OrThrow();
+        }, Guid.Parse("86a24e58-cb06-4db0-a346-f75125722edd"))).OrThrow();
 
         var customer3 = (await userService.RegisterCustomerAsync(new RegisterCustomerRequest
         {
@@ -202,7 +169,7 @@ public class DbSeeder(
             LastName = "Testowy",
             PhoneNumber = "+48123456789",
             BirthDate = new DateOnly(2000, 1, 1)
-        }, "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb")).OrThrow();
+        }, Guid.Parse("a79631a0-a3bf-43fa-8fbe-46e5ee697eeb"))).OrThrow();
 
         johnDoe.IncomingRequests = [
             new FriendRequest
@@ -322,7 +289,7 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = null,
                 Takeaway = true,
-                TableRestaurantId = 1,
+                RestaurantId = 1,
                 TableId = 1,
                 ClientId = johnDoe.Id,
                 Client = customer1,
@@ -339,7 +306,7 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = 10m,
                 Takeaway = false,
-                TableRestaurantId = 1,
+                RestaurantId = 1,
                 TableId = 2,
                 ClientId = johnDoe.Id,
                 Client = customer2,
@@ -356,7 +323,7 @@ public class DbSeeder(
                 ReservationDate = null,
                 Tip = 25m,
                 Takeaway = false,
-                TableRestaurantId = 1,
+                RestaurantId = 1,
                 TableId = 1,
                 ClientId = customer2.Id,
                 Client = customer2,
@@ -492,7 +459,7 @@ public class DbSeeder(
         {
             new Order
             {
-                VisitId = visits.First().Id,
+                VisitId = visits.First().VisitId,
                 IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
@@ -508,7 +475,7 @@ public class DbSeeder(
             },
             new Order
             {
-                VisitId = visits[1].Id,
+                VisitId = visits[1].VisitId,
                 IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
@@ -524,7 +491,7 @@ public class DbSeeder(
             },
             new Order
             {
-                VisitId = visits[2].Id,
+                VisitId = visits[2].VisitId,
                 IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
@@ -661,14 +628,14 @@ public class DbSeeder(
         {
             OrderTime = DateTime.UtcNow,
             DeliveredTime = DateTime.UtcNow.AddDays(2),
-            RestaurantId = johnDoesGroup.Restaurants.First().Id,
+            RestaurantId = johnDoesGroup.Restaurants.First().RestaurantId,
             Restaurant = johnDoesGroup.Restaurants.First(),
             UserId = johnDoe.Id,
             User = johnDoe,
             Ingredients = [
                 new IngredientDelivery
                 {
-                    IngredientId = ingredient.Id,
+                    IngredientId = ingredient.IngredientId,
                     AmountOrdered = ingredient.AmountToOrder ?? 1,
                     AmountDelivered = ingredient.AmountToOrder ?? 1,
                     ExpiryDate = DateTime.UtcNow.AddDays(7),
@@ -703,7 +670,7 @@ public class DbSeeder(
                 .Select(u => u.Id)
                 .FirstOrDefaultAsync();
 
-            if (userId is null)
+            if (userId == Guid.Empty)
             {
                 throw new InvalidOperationException(
                     $"Cannot add example uploads for the user {userLogin}: no such user");
@@ -792,25 +759,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = johnDoes,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -1419,7 +1386,7 @@ public class DbSeeder(
             LastName = "Przykładowski",
             BirthDate = DateOnly.Parse("2001-05-05"),
             PhoneNumber = "+48123456789"
-        }, johnDoe, "22781e02-d83a-44ef-8cf4-735e95d9a0b2")).OrThrow();
+        }, johnDoe, Guid.Parse("22781e02-d83a-44ef-8cf4-735e95d9a0b2"))).OrThrow();
         (await restaurantService.AddEmployeeAsync(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
@@ -1429,7 +1396,7 @@ public class DbSeeder(
                 IsHallEmployee = true
             }
             },
-            johnDoes.Id,
+            johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
 
         var backdoorEmployee = (await userService.RegisterRestaurantEmployeeAsync(new RegisterRestaurantEmployeeRequest
@@ -1440,7 +1407,7 @@ public class DbSeeder(
             LastName = "Przykładowski",
             BirthDate = new DateOnly(2001, 5, 5),
             PhoneNumber = "+48123456789"
-        }, johnDoe, "06c12721-e59e-402f-aafb-2b43a4dd23f2")).OrThrow();
+        }, johnDoe, Guid.Parse("06c12721-e59e-402f-aafb-2b43a4dd23f2"))).OrThrow();
         (await restaurantService.AddEmployeeAsync(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
@@ -1450,7 +1417,7 @@ public class DbSeeder(
                 IsHallEmployee = false
             }
             },
-            johnDoes.Id,
+            johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
     }
 
@@ -1490,25 +1457,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 1,
+                TableId = 1,
                 Capacity = 2
             },
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 2,
+                TableId = 2,
                 Capacity = 2
             },
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = johnDoes2,
-                Id = 4,
+                TableId = 4,
                 Capacity = 4
             }
         };
@@ -1580,7 +1547,7 @@ public class DbSeeder(
             LastName = "Przykładowski",
             BirthDate = new DateOnly(2002, 1, 1),
             PhoneNumber = "+48123456789"
-        }, johnDoe, "f1b1b494-85f2-4dc7-856d-d04d1ce50d65")).OrThrow();
+        }, johnDoe, Guid.Parse("f1b1b494-85f2-4dc7-856d-d04d1ce50d65"))).OrThrow();
         (await restaurantService.AddEmployeeAsync(
             new List<AddEmployeeRequest> {
                 new AddEmployeeRequest
@@ -1589,7 +1556,7 @@ public class DbSeeder(
                 IsBackdoorEmployee = true,
                 IsHallEmployee = true
             } },
-            johnDoes2.Id,
+            johnDoes2.RestaurantId,
             johnDoe.Id)).OrThrow();
     }
 
@@ -1631,13 +1598,13 @@ public class DbSeeder(
             new()
             {
                 Restaurant = kowalskisRestaurant,
-                Id = 1,
+                TableId = 1,
                 Capacity = 3
             },
             new()
             {
                 Restaurant = kowalskisRestaurant,
-                Id = 2,
+                TableId = 2,
                 Capacity = 2
             },
         };
@@ -1925,25 +1892,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = anons,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = anons,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = anons,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = anons,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -2214,25 +2181,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = geralts,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = geralts,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = geralts,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = geralts,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -2477,25 +2444,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = atreides,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = atreides,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = atreides,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = atreides,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };
@@ -2711,25 +2678,25 @@ public class DbSeeder(
             new()
             {
                 Restaurant = walters,
-                Id = 1,
+                TableId = 1,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = walters,
-                Id = 2,
+                TableId = 2,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = walters,
-                Id = 3,
+                TableId = 3,
                 Capacity = 4
             },
             new()
             {
                 Restaurant = walters,
-                Id = 4,
+                TableId = 4,
                 Capacity = 6
             }
         };

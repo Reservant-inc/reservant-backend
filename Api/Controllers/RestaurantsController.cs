@@ -77,7 +77,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.SetVerifiedIdAsync))]
     public async Task<ActionResult> SetVerifiedId(int restaurantId)
     {
-        var result = await service.SetVerifiedIdAsync(User.GetUserId()!, restaurantId);
+        var result = await service.SetVerifiedIdAsync(User.GetUserId()!.Value, restaurantId);
         return OkOrErrors(result);
     }
 
@@ -95,13 +95,13 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int restaurantId, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId is null)
         {
             return Unauthorized();
         }
 
-        var result = await service.GetOrdersAsync(userId, restaurantId, returnFinished, page, perPage, orderBy);
+        var result = await service.GetOrdersAsync(userId.Value, restaurantId, returnFinished, page, perPage, orderBy);
         return OkOrErrors(result);
     }
 
@@ -209,7 +209,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
         return OkOrErrors(result);
     }
-    
+
     /// <summary>
     /// Get list of ingredients for a restaurant
     /// </summary>
@@ -249,7 +249,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     public async Task<ActionResult<Pagination<DeliverySummaryVM>>> GetDeliveries(
         int restaurantId,
         bool returnDelivered,
-        string? userId,
+        Guid? userId,
         string? userName,
         DeliverySorting orderBy,
         int page = 0,
@@ -257,7 +257,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     {
         var result = await service.GetDeliveriesInRestaurantAsync(
             restaurantId, returnDelivered, userId, userName, orderBy,
-            userManager.GetUserId(User)!, page, perPage);
+            User.GetUserId()!.Value, page, perPage);
         if (result.IsError)
         {
             return result.ToValidationProblem();

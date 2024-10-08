@@ -31,7 +31,7 @@ public class RestaurantGroupService(
         //check if all restaurantIds from request exist
         foreach (var id in req.RestaurantIds)
         {
-            if (!await context.Restaurants.AnyAsync(x => x.Id == id))
+            if (!await context.Restaurants.AnyAsync(x => x.RestaurantId == id))
             {
                 return new ValidationFailure
                 {
@@ -45,7 +45,7 @@ public class RestaurantGroupService(
 
 
         var restaurants = await context.Restaurants
-                .Where(r => req.RestaurantIds.Contains(r.Id))
+                .Where(r => req.RestaurantIds.Contains(r.RestaurantId))
                 .Include(r => r.Group)
                 .Include(r => r.Tags)
                 .Include(r => r.Reviews)
@@ -63,7 +63,7 @@ public class RestaurantGroupService(
             {
                 PropertyName = nameof(req.RestaurantIds),
                 ErrorMessage =
-                    $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.Id))}",
+                    $"User is not the owner of restaurants: {String.Join(", ", notOwnedRestaurants.Select(r => r.RestaurantId))}",
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }
@@ -89,17 +89,17 @@ public class RestaurantGroupService(
 
         return new RestaurantGroupVM
         {
-            RestaurantGroupId = group.Id,
+            RestaurantGroupId = group.RestaurantGroupId,
             Name = group.Name,
             Restaurants = restaurants.Select(r => new RestaurantSummaryVM
             {
-                RestaurantId = r.Id,
+                RestaurantId = r.RestaurantId,
                 Name = r.Name,
                 Nip = r.Nip,
                 RestaurantType = r.RestaurantType,
                 Address = r.Address,
                 City = r.City,
-                GroupId = group.Id,
+                GroupId = group.RestaurantGroupId,
                 Logo = uploadService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ProvideDelivery = r.ProvideDelivery,
@@ -153,7 +153,7 @@ public class RestaurantGroupService(
             .Where(r => r.OwnerId == userId)
             .Select(r => new RestaurantGroupSummaryVM
             {
-                RestaurantGroupId = r.Id,
+                RestaurantGroupId = r.RestaurantGroupId,
                 Name = r.Name,
                 RestaurantCount = r.Restaurants.Count
             })
@@ -168,14 +168,14 @@ public class RestaurantGroupService(
     /// <param name="groupId">The ID of the restaurant group.</param>
     /// <param name="userId">The ID of the user requesting the information.</param>
     /// <returns>A <see cref="Task{Result}"/> representing the asynchronous operation, containing the result of the operation.</returns>
-    public async Task<Result<RestaurantGroupVM>> GetRestaurantGroupAsync(int groupId, string userId)
+    public async Task<Result<RestaurantGroupVM>> GetRestaurantGroupAsync(int groupId, Guid userId)
     {
         var restaurantGroup = await context.RestaurantGroups
             .Include(rg => rg.Restaurants)
             .ThenInclude(rg => rg.Tags)
             .Include(rg => rg.Restaurants)
             .ThenInclude(r => r.Reviews)
-            .FirstOrDefaultAsync(rg => rg.Id == groupId && rg.OwnerId == userId);
+            .FirstOrDefaultAsync(rg => rg.RestaurantGroupId == groupId && rg.OwnerId == userId);
 
         if (restaurantGroup == null)
         {
@@ -189,11 +189,11 @@ public class RestaurantGroupService(
 
         return new Result<RestaurantGroupVM>(new RestaurantGroupVM
         {
-            RestaurantGroupId = restaurantGroup.Id,
+            RestaurantGroupId = restaurantGroup.RestaurantGroupId,
             Name = restaurantGroup.Name,
             Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
-                RestaurantId = r.Id,
+                RestaurantId = r.RestaurantId,
                 Name = r.Name,
                 Nip = r.Nip,
                 Address = r.Address,
@@ -223,14 +223,14 @@ public class RestaurantGroupService(
     /// <param name="groupId">The ID of the restaurant group.</param>
     /// <param name="request">Request containing restaurant name.</param>
     /// <param name="userId">Id of user calling the method</param>
-    public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, string userId)
+    public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, Guid userId)
     {
         var restaurantGroup = await context.RestaurantGroups
             .Include(restaurantGroup => restaurantGroup.Restaurants)
             .ThenInclude(restaurant => restaurant.Tags)
             .Include(restaurantGroup => restaurantGroup.Restaurants)
             .ThenInclude(restaurant => restaurant.Reviews)
-            .FirstOrDefaultAsync(rg => rg.Id == groupId);
+            .FirstOrDefaultAsync(rg => rg.RestaurantGroupId == groupId);
 
 
         if (restaurantGroup == null)
@@ -267,11 +267,11 @@ public class RestaurantGroupService(
 
         return new RestaurantGroupVM
         {
-            RestaurantGroupId = restaurantGroup.Id,
+            RestaurantGroupId = restaurantGroup.RestaurantGroupId,
             Name = restaurantGroup.Name,
             Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
             {
-                RestaurantId = r.Id,
+                RestaurantId = r.RestaurantId,
                 Name = r.Name,
                 Nip = r.Nip,
                 Address = r.Address,
@@ -304,7 +304,7 @@ public class RestaurantGroupService(
     public async Task<Result> SoftDeleteRestaurantGroupAsync(int id, User user)
     {
         var group = await context.RestaurantGroups
-            .Where(g => g.Id == id)
+            .Where(g => g.RestaurantGroupId == id)
             .Include(g => g.Restaurants)
             .FirstOrDefaultAsync();
         if (group == null)
@@ -328,13 +328,13 @@ public class RestaurantGroupService(
 
         foreach (Restaurant restaurant in group.Restaurants)
         {
-            var res = await restaurantService.SoftDeleteRestaurantAsync(restaurant.Id, user);
+            var res = await restaurantService.SoftDeleteRestaurantAsync(restaurant.RestaurantId, user);
             if (res.IsError)
             {
                 return res.Errors;
             }
         }
-        var emptyGroup = await context.RestaurantGroups.FindAsync(group.Id);
+        var emptyGroup = await context.RestaurantGroups.FindAsync(group.RestaurantGroupId);
         if (emptyGroup != null)
         {
             group.IsDeleted = true;

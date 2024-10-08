@@ -171,7 +171,7 @@ namespace Reservant.Api.Services
             var nearRestaurants = await query
                 .Select(r => new NearRestaurantVM
                 {
-                    RestaurantId = r.Id,
+                    RestaurantId = r.RestaurantId,
                     Name = r.Name,
                     RestaurantType = r.RestaurantType,
                     Address = r.Address,
@@ -296,7 +296,7 @@ namespace Reservant.Api.Services
 
             return new MyRestaurantVM
             {
-                RestaurantId = restaurant.Id,
+                RestaurantId = restaurant.RestaurantId,
                 Name = restaurant.Name,
                 RestaurantType = restaurant.RestaurantType,
                 Nip = restaurant.Nip,
@@ -339,7 +339,7 @@ namespace Reservant.Api.Services
                 .Where(r => name == null || r.Name.Contains(name.Trim()))
                 .Select(r => new RestaurantSummaryVM
                 {
-                    RestaurantId = r.Id,
+                    RestaurantId = r.RestaurantId,
                     Name = r.Name,
                     Nip = r.Nip,
                     RestaurantType = r.RestaurantType,
@@ -375,10 +375,10 @@ namespace Reservant.Api.Services
             var userId = user.Id;
             var result = await context.Restaurants
                 .Where(r => r.Group.OwnerId == userId)
-                .Where(r => r.Id == id)
+                .Where(r => r.RestaurantId == id)
                 .Select(r => new MyRestaurantVM
                 {
-                    RestaurantId = r.Id,
+                    RestaurantId = r.RestaurantId,
                     Name = r.Name,
                     RestaurantType = r.RestaurantType,
                     Nip = r.Nip,
@@ -390,7 +390,7 @@ namespace Reservant.Api.Services
                         Longitude = r.Location.Y,
                         Latitude = r.Location.X
                     },
-                    GroupId = r.Group.Id,
+                    GroupId = r.Group.RestaurantGroupId,
                     GroupName = r.Group.Name,
                     RentalContract = r.RentalContractFileName == null
                         ? null
@@ -402,7 +402,7 @@ namespace Reservant.Api.Services
                     IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
                     Tables = r.Tables.Select(t => new TableVM
                     {
-                        TableId = t.Id,
+                        TableId = t.TableId,
                         Capacity = t.Capacity
                     }),
                     Photos = r.Photos
@@ -437,15 +437,15 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed,
             "Employee is alredy employed in a restaurant")]
         public async Task<Result> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
-            string employerId)
+            Guid employerId)
         {
             var restaurantOwnerId = await context.Restaurants
-                .Where(r => r.Id == restaurantId)
+                .Where(r => r.RestaurantId == restaurantId)
                 .Select(r => r.Group.OwnerId)
                 .FirstOrDefaultAsync();
 
 
-            if (restaurantOwnerId is null)
+            if (restaurantOwnerId == Guid.Empty)
             {
                 return new ValidationFailure
                 {
@@ -516,7 +516,7 @@ namespace Reservant.Api.Services
                 DateFrom = DateOnly.FromDateTime(DateTime.UtcNow)
             }).Select(x =>
             {
-                Console.WriteLine(x.Id);
+                Console.WriteLine(x.EmploymentId);
                 return x;
             }));
             await context.SaveChangesAsync();
@@ -535,7 +535,7 @@ namespace Reservant.Api.Services
             MoveToGroupRequest request, User user)
         {
             var newRestaurantGroup = await context.RestaurantGroups.Include(rg => rg.Restaurants)
-                .FirstOrDefaultAsync(rg => rg.Id == request.GroupId && rg.OwnerId == user.Id);
+                .FirstOrDefaultAsync(rg => rg.RestaurantGroupId == request.GroupId && rg.OwnerId == user.Id);
             if (newRestaurantGroup == null)
             {
                 return new ValidationFailure
@@ -551,7 +551,7 @@ namespace Reservant.Api.Services
                 .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)
                 .Include(r => r.Reviews)
-                .FirstOrDefaultAsync(r => r.Id == restaurantId && r.Group.OwnerId == user.Id);
+                .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId && r.Group.OwnerId == user.Id);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -576,7 +576,7 @@ namespace Reservant.Api.Services
             await context.SaveChangesAsync();
             return new RestaurantSummaryVM
             {
-                RestaurantId = restaurant.Id,
+                RestaurantId = restaurant.RestaurantId,
                 Name = restaurant.Name,
                 Nip = restaurant.Nip,
                 RestaurantType = restaurant.RestaurantType,
@@ -606,13 +606,13 @@ namespace Reservant.Api.Services
         /// <param name="userId">ID of the current user (to check permissions)</param>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant with ID is not owned by the current user")]
-        public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, string userId)
+        public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, Guid userId)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
                 .Include(r => r.Employments)
                 .ThenInclude(e => e.Employee)
-                .Where(r => r.Id == id)
+                .Where(r => r.RestaurantId == id)
                 .FirstOrDefaultAsync();
 
             if (restaurant == null)
@@ -639,7 +639,7 @@ namespace Reservant.Api.Services
                 .Where(e => e.DateUntil == null)
                 .Select(e => new RestaurantEmployeeVM
                 {
-                    EmploymentId = e.Id,
+                    EmploymentId = e.EmploymentId,
                     EmployeeId = e.EmployeeId,
                     Login = e.Employee.UserName!,
                     FirstName = e.Employee.FirstName,
@@ -673,7 +673,7 @@ namespace Reservant.Api.Services
                 .Include(restaurant => restaurant.Tables)
                 .Include(restaurant => restaurant.Photos)
                 .Include(restaurant => restaurant.Tags)
-                .FirstOrDefaultAsync(r => r.Id == id);
+                .FirstOrDefaultAsync(r => r.RestaurantId == id);
 
             if (restaurant == null)
             {
@@ -740,7 +740,7 @@ namespace Reservant.Api.Services
 
             return new MyRestaurantVM
             {
-                RestaurantId = restaurant.Id,
+                RestaurantId = restaurant.RestaurantId,
                 Name = restaurant.Name,
                 RestaurantType = restaurant.RestaurantType,
                 Nip = restaurant.Nip,
@@ -752,7 +752,7 @@ namespace Reservant.Api.Services
                     Longitude = restaurant.Location.Y,
                     Latitude = restaurant.Location.X
                 },
-                GroupId = restaurant.Group.Id,
+                GroupId = restaurant.Group.RestaurantGroupId,
                 GroupName = restaurant.Group.Name,
                 RentalContract = restaurant.RentalContractFileName == null
                     ? null
@@ -764,7 +764,7 @@ namespace Reservant.Api.Services
                 IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
                 Tables = restaurant.Tables.Select(t => new TableVM
                 {
-                    TableId = t.Id,
+                    TableId = t.TableId,
                     Capacity = t.Capacity
                 }),
                 Photos = restaurant.Photos
@@ -788,12 +788,12 @@ namespace Reservant.Api.Services
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
         [ErrorCode(null, ErrorCodes.Duplicate, "Restaurant already verified")]
-        public async Task<Result> SetVerifiedIdAsync(string userId, int idRestaurant)
+        public async Task<Result> SetVerifiedIdAsync(Guid userId, int idRestaurant)
         {
             var result = await context
                 .Restaurants
                 .Include(r => r.Group)
-                .Where(r => r.Id == idRestaurant)
+                .Where(r => r.RestaurantId == idRestaurant)
                 .FirstOrDefaultAsync();
 
             if (result is null)
@@ -879,7 +879,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
-                .Where(i => i.Id == restaurantId)
+                .Where(i => i.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
             if (restaurant == null)
@@ -895,7 +895,7 @@ namespace Reservant.Api.Services
             var menus = restaurant.Menus
                 .Select(menu => new MenuSummaryVM
                 {
-                    MenuId = menu.Id,
+                    MenuId = menu.MenuId,
                     Name = menu.Name,
                     AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,
@@ -919,7 +919,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
-                .Where(i => i.Id == restaurantId)
+                .Where(i => i.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
             if (restaurant == null)
@@ -936,7 +936,7 @@ namespace Reservant.Api.Services
                 .Where(i => i.RestaurantId == restaurantId)
                 .Select(i => new MenuItemVM()
                 {
-                    MenuItemId = i.Id,
+                    MenuItemId = i.MenuItemId,
                     Name = i.Name,
                     AlternateName = i.AlternateName,
                     Price = i.Price,
@@ -971,7 +971,7 @@ namespace Reservant.Api.Services
                 .Include(restaurant => restaurant.Photos)
                 .Include(restaurant => restaurant.Menus)
                 .Include(restaurant => restaurant.MenuItems)
-                .Where(r => r.Id == id && r.Group.OwnerId == user.Id)
+                .Where(r => r.RestaurantId == id && r.Group.OwnerId == user.Id)
                 .FirstOrDefaultAsync();
             if (restaurant == null)
             {
@@ -1009,10 +1009,10 @@ namespace Reservant.Api.Services
         /// <param name="perPage">Items per page</param>
         /// <param name="orderBy">Sorting order</param>
         /// <returns>Paginated order list</returns>
-        public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(string userId, int restaurantId,
+        public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(Guid userId, int restaurantId,
             bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
                 return new ValidationFailure
@@ -1025,7 +1025,7 @@ namespace Reservant.Api.Services
 
             var restaurant = await context.Restaurants
                 .Include(restaurant => restaurant.Group)
-                .FirstOrDefaultAsync(x => x.Id == restaurantId);
+                .FirstOrDefaultAsync(x => x.RestaurantId == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -1078,7 +1078,7 @@ namespace Reservant.Api.Services
                 .Include(order => order.Visit)
                 .Include(order => order.OrderItems)
                 .ThenInclude(orderItem => orderItem.MenuItem)
-                .Where(order => order.Visit.TableRestaurantId == restaurantId);
+                .Where(order => order.Visit.RestaurantId == restaurantId);
 
             if (returnFinished)
             {
@@ -1095,7 +1095,7 @@ namespace Reservant.Api.Services
 
             var filteredOrders = ordersQuery.Select(order => new OrderSummaryVM
             {
-                OrderId = order.Id,
+                OrderId = order.OrderId,
                 VisitId = order.VisitId,
                 Date = order.Visit.Date,
                 Note = order.Note,
@@ -1141,7 +1141,7 @@ namespace Reservant.Api.Services
                 .OrderBy(e => e.Time)
                 .Select(e => new EventSummaryVM
                 {
-                    EventId = e.Id,
+                    EventId = e.EventId,
                     Name = e.Name,
                     Description = e.Description,
                     Time = e.Time,
@@ -1173,7 +1173,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
-                .Where(r => r.Id == restaurantId)
+                .Where(r => r.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
             if (restaurant == null)
@@ -1218,11 +1218,11 @@ namespace Reservant.Api.Services
             await context.Reviews.AddAsync(newReview);
             await context.SaveChangesAsync();
 
-            await notificationService.NotifyNewRestaurantReview(restaurant.Group.OwnerId, newReview.Id);
+            await notificationService.NotifyNewRestaurantReview(restaurant.Group.OwnerId, newReview.ReviewId);
 
             var reviewVM = new ReviewVM
             {
-                ReviewId = newReview.Id,
+                ReviewId = newReview.ReviewId,
                 RestaurantId = newReview.RestaurantId,
                 AuthorId = newReview.AuthorId,
                 AuthorFullName = newReview.Author.FullName,
@@ -1260,7 +1260,7 @@ namespace Reservant.Api.Services
 
             var reviewVM = reviewsQuery.Select(r => new ReviewVM
             {
-                ReviewId = r.Id,
+                ReviewId = r.ReviewId,
                 RestaurantId = r.RestaurantId,
                 AuthorId = r.AuthorId,
                 AuthorFullName = r.Author.FullName,
@@ -1314,10 +1314,10 @@ namespace Reservant.Api.Services
                 .Include(restaurant => restaurant.Tables)
                 .Include(restaurant => restaurant.Photos)
                 .Include(restaurant => restaurant.Tags)
-                .Where(x => x.Id == restaurantId && x.VerifierId != null)
+                .Where(x => x.RestaurantId == restaurantId && x.VerifierId != null)
                 .Select(restaurant => new RestaurantVM
                 {
-                    RestaurantId = restaurant.Id,
+                    RestaurantId = restaurant.RestaurantId,
                     Name = restaurant.Name,
                     RestaurantType = restaurant.RestaurantType,
                     Address = restaurant.Address,
@@ -1331,7 +1331,7 @@ namespace Reservant.Api.Services
                     Tables = restaurant.Tables.Select(x => new TableVM
                     {
                         Capacity = x.Capacity,
-                        TableId = x.Id
+                        TableId = x.TableId
                     }).ToList(),
                     ProvideDelivery = restaurant.ProvideDelivery,
                     Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
@@ -1395,7 +1395,7 @@ namespace Reservant.Api.Services
                 .Include(x => x.Orders)
                 .ThenInclude(o => o.OrderItems)
                 .ThenInclude(oi => oi.MenuItem)
-                .Where(e => e.TableRestaurantId == restaurantId);
+                .Where(e => e.RestaurantId == restaurantId);
 
             if (dateStart is not null)
             {
@@ -1422,7 +1422,7 @@ namespace Reservant.Api.Services
 
             var result = await query.Select(e => new VisitVM
                 {
-                    VisitId = e.Id,
+                    VisitId = e.VisitId,
                     Date = e.Date,
                     NumberOfGuests = e.NumberOfGuests,
                     PaymentTime = e.PaymentTime,
@@ -1432,7 +1432,7 @@ namespace Reservant.Api.Services
                     Takeaway = e.Takeaway,
                     ClientId = e.ClientId,
                     RestaurantId = e.Table.RestaurantId,
-                    TableId = e.Table.Id,
+                    TableId = e.Table.TableId,
                     Participants = e.Participants.Select(p => new UserSummaryVM
                     {
                         UserId = p.Id,
@@ -1442,7 +1442,7 @@ namespace Reservant.Api.Services
                     }).ToList(),
                     Orders = e.Orders.Select(o => new OrderSummaryVM
                     {
-                        OrderId = o.Id,
+                        OrderId = o.OrderId,
                         VisitId = o.VisitId,
                         Date = o.Visit.Date,
                         Note = o.Note,
@@ -1471,14 +1471,14 @@ namespace Reservant.Api.Services
         public async Task<Result<Pagination<DeliverySummaryVM>>> GetDeliveriesInRestaurantAsync(
             int restaurantId,
             bool returnDelivered,
-            string? userId,
+            Guid? userId,
             string? userName,
             DeliverySorting orderBy,
-            string currentUserId,
+            Guid currentUserId,
             int page = 0,
             int perPage = 10)
         {
-            if (!await context.Restaurants.AnyAsync(r => r.Id == restaurantId))
+            if (!await context.Restaurants.AnyAsync(r => r.RestaurantId == restaurantId))
             {
                 return new ValidationFailure
                 {
@@ -1549,7 +1549,7 @@ namespace Reservant.Api.Services
                 .Where(i => i.RestaurantId == restaurantId)
                 .Select(i => new MenuItemVM()
                 {
-                    MenuItemId = i.Id,
+                    MenuItemId = i.MenuItemId,
                     Name = i.Name,
                     AlternateName = i.AlternateName,
                     Price = i.Price,
@@ -1574,7 +1574,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
-                .Where(i => i.Id == id)
+                .Where(i => i.RestaurantId == id)
                 .FirstOrDefaultAsync();
 
             if (restaurant == null)
@@ -1601,7 +1601,7 @@ namespace Reservant.Api.Services
             var menus = restaurant.Menus
                 .Select(menu => new MenuSummaryVM
                 {
-                    MenuId = menu.Id,
+                    MenuId = menu.MenuId,
                     Name = menu.Name,
                     AlternateName = menu.AlternateName,
                     MenuType = menu.MenuType,
@@ -1629,7 +1629,7 @@ namespace Reservant.Api.Services
             int page,
             int perPage)
         {
-            bool restaurantExists = await context.Restaurants.AnyAsync(r => r.Id == restaurantId);
+            bool restaurantExists = await context.Restaurants.AnyAsync(r => r.RestaurantId == restaurantId);
             if (!restaurantExists)
             {
                 return new ValidationFailure
@@ -1657,15 +1657,17 @@ namespace Reservant.Api.Services
             };
 
             // Paginacja i mapowanie do IngredientVM
-            var paginatedResult = await query.Select(i => new IngredientVM
-            {
-                IngredientId = i.Id,
-                PublicName = i.PublicName,
-                UnitOfMeasurement = i.UnitOfMeasurement,
-                MinimalAmount = i.MinimalAmount,
-                AmountToOrder = i.AmountToOrder,
-                Amount = i.Amount
-            }).PaginateAsync(page, perPage, Enum.GetNames<IngredientSorting>());
+            var paginatedResult = await query
+                .Select(i => new IngredientVM
+                {
+                    IngredientId = i.IngredientId,
+                    PublicName = i.PublicName,
+                    UnitOfMeasurement = i.UnitOfMeasurement,
+                    MinimalAmount = i.MinimalAmount,
+                    AmountToOrder = i.AmountToOrder,
+                    Amount = i.Amount
+                })
+                .PaginateAsync(page, perPage, Enum.GetNames<IngredientSorting>(), maxPerPage: 20);
 
             return paginatedResult;
         }

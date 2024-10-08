@@ -8,10 +8,12 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using Reservant.Api;
 using Reservant.Api.Data;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
 using Reservant.Api.Options;
+using Reservant.Api.Push;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -43,6 +45,7 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter());
     });
 
+builder.Services.AddCustomExceptionHandler();
 builder.Services.AddScoped<GeometryFactory>(_ =>
     NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326));
 builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -52,11 +55,14 @@ builder.Services.AddDbContext<ApiDbContext>();
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddIdentityServices(builder.Configuration);
 
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddPushServices();
 builder.Services.AddBusinessServices();
 
 var app = builder.Build();
 
 await app.EnsureDatabaseCreatedAndSeeded();
+await app.TryInitFirebase();
 
 app.Services.RegisterLogsViewerProvider();
 
@@ -68,6 +74,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpLogging();
+app.UseExceptionHandler();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -81,6 +88,9 @@ using (var scope = app.Services.CreateScope())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseWebSockets();
+app.UsePushMiddleware();
 
 app.MapControllers();
 

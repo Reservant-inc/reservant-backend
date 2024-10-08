@@ -13,7 +13,7 @@ public class Menu : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int MenuId { get; set; }
 
     /// <summary>
     /// Name of the menu

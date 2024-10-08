@@ -5,6 +5,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Dtos.Visit;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Push;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -38,6 +39,16 @@ public class DebugController(
         var result = await dbSeeder.AddFutureVisitAsync();
         return Ok(result);
     }
-    
-    
+
+    /// <summary>
+    /// Send a sample notification to a user
+    /// </summary>
+    [HttpPost("send-test-notification")]
+    public async Task<ActionResult> SendTestNotification([FromServices] NotificationService service)
+    {
+        await service.NotifyNewFriendRequest(
+            Guid.Parse("je4nd6f9-j4bn-9374-n4s3-j3nd85ht0a03"),
+            Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367"));
+        return Ok();
+    }
 }

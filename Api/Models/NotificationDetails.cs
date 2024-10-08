@@ -57,7 +57,7 @@ public class NotificationNewRestaurantReview : NotificationDetails
     /// <summary>
     /// ID of the review author
     /// </summary>
-    public required string AuthorId { get; init; }
+    public required Guid AuthorId { get; init; }
 
     /// <summary>
     /// Name of the review author
@@ -73,8 +73,7 @@ public class NotificationNewFriendRequest : NotificationDetails
     /// <summary>
     /// ID of the sender
     /// </summary>
-    [StringLength(36)]
-    public required string SenderId { get; set; } = null!;
+    public required Guid SenderId { get; set; }
 
     /// <summary>
     /// Name of the sender
@@ -95,7 +94,7 @@ public class NotificationFriendRequestAccepted : NotificationDetails
     /// <summary>
     /// ID of the person that accepted the friend request
     /// </summary>
-    public required string AcceptingUserId { get; init; }
+    public required Guid AcceptingUserId { get; init; }
 
     /// <summary>
     /// FullName of the user that accepted the friend request
@@ -112,8 +111,7 @@ public class NotificationNewParticipationRequest : NotificationDetails
     /// <summary>
     /// ID of the sender
     /// </summary>
-    [StringLength(36)]
-    public required string SenderId { get; set; } = null!;
+    public required Guid SenderId { get; set; }
 
     /// <summary>
     /// Name of the sender
@@ -149,7 +147,7 @@ public class NotificationParticipationRequestResponse : NotificationDetails
     /// <summary>
     /// ID of the creator of the event
     /// </summary>
-    public required string CreatorId { get; set; }
+    public required Guid CreatorId { get; set; }
 
     /// <summary>
     /// Event creator's name

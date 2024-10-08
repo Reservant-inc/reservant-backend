@@ -38,5 +38,5 @@ public class CreateVisitRequest
     /// <summary>
     /// People who visited the restaurant
     /// </summary>
-    public required List<string> Participants { get; init; }
+    public required List<Guid> Participants { get; init; }
 }

@@ -12,7 +12,7 @@ public class Event : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int EventId { get; set; }
 
     /// <summary>
     /// name of the event
@@ -44,8 +44,7 @@ public class Event : ISoftDeletable
     /// <summary>
     /// ID of the user who created the event
     /// </summary>
-    [StringLength(36)]
-    public string CreatorId { get; set; } = null!;
+    public Guid CreatorId { get; set; }
 
     /// <summary>
     /// ID of the restaurant where the event takes place

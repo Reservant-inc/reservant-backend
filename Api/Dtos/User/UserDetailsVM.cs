@@ -11,7 +11,7 @@ public class UserDetailsVM
     /// User ID
     /// </summary>
     /// <example>e5779baf-5c9b-4638-b9e7-ec285e57b367</example>
-    public required string UserId { get; init; }
+    public required Guid UserId { get; init; }
 
     /// <summary>
     /// User's login
@@ -63,7 +63,7 @@ public class UserDetailsVM
     /// ID of the RestaurantOwner who employs the user. For restaurant employees
     /// </summary>
     /// <example>e5779baf-5c9b-4638-b9e7-ec285e57b367</example>
-    public string? EmployerId { get; set; }
+    public Guid? EmployerId { get; set; }
 
     /// <summary>
     /// User's profile picture

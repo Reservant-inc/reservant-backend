@@ -15,7 +15,7 @@ public class DeliveriesController(DeliveryService deliveryService) : StrictContr
 {
 
     /// <summary>
-    /// Gets the delivery with the given id 
+    /// Gets the delivery with the given id
     /// </summary>
     /// <param name="deliveryId"></param>
     /// <returns>OrderVM or NotFound if order wasn't found</returns>
@@ -26,7 +26,7 @@ public class DeliveriesController(DeliveryService deliveryService) : StrictContr
     public async Task<ActionResult<DeliveryVM>> GetDeliveryById(int deliveryId)
     {
         return OkOrErrors(await deliveryService.GetDeliveryById(
-            deliveryId, User.GetUserId()!));
+            deliveryId, User.GetUserId()!.Value));
     }
 
     /// <summary>
@@ -41,6 +41,6 @@ public class DeliveriesController(DeliveryService deliveryService) : StrictContr
     public async Task<ActionResult<DeliveryVM>> PostDelivery(CreateDeliveryRequest request)
     {
         return OkOrErrors(await deliveryService.PostDelivery(
-            request, User.GetUserId()!));
+            request, User.GetUserId()!.Value));
     }
 }

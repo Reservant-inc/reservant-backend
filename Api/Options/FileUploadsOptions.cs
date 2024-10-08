@@ -31,6 +31,15 @@ public class FileUploadsOptions
     public required string ServePath { get; init; }
 
     /// <summary>
+    /// URL base at which the uploaded files are accessible
+    /// </summary>
+    /// <remarks>
+    /// Must not end with /
+    /// </remarks>
+    [Required]
+    public required string ServeUrlBase { get; init; }
+
+    /// <summary>
     /// Maximum file size in kilobytes
     /// </summary>
     [Range(1, int.MaxValue)]

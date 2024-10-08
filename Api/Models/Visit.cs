@@ -13,7 +13,7 @@ public class Visit : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int VisitId { get; set; }
 
     /// <summary>
     /// Date of the visit
@@ -55,18 +55,12 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// ID of the client who made the reservation
     /// </summary>
-    [StringLength(36)]
-    public string ClientId { get; set; } = null!;
+    public Guid ClientId { get; set; }
 
     /// <summary>
     /// ID of the restaurant
     /// </summary>
-    public int TableRestaurantId { get; set; }
-
-    /// <summary>
-    /// ID of the restaurant
-    /// </summary>
-    public int RestaurantId => TableRestaurantId;
+    public int RestaurantId { get; set; }
 
     /// <summary>
     /// ID of the table within the restaurant

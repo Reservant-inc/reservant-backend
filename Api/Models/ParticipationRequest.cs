@@ -11,7 +11,7 @@ public class ParticipationRequest
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int ParticipationRequestId { get; set; }
 
     /// <summary>
     /// Event ID
@@ -26,8 +26,7 @@ public class ParticipationRequest
     /// <summary>
     /// User ID
     /// </summary>
-    [StringLength(36)]
-    public string UserId { get; set; } = null!;
+    public Guid UserId { get; set; }
 
     /// <summary>
     /// User navigation property

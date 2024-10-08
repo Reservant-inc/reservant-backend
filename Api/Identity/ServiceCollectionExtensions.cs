@@ -32,6 +32,14 @@ public static class ServiceCollectionExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(jwtOptions.GetKeyBytes()),
                     ValidateIssuerSigningKey = true
                 };
+
+                o.Events = new JwtBearerEvents();
+                o.Events.OnTokenValidated += context =>
+                {
+                    context.HttpContext.Items.Add(
+                        HttpContextItems.AuthExpiresUtc, context.Properties.ExpiresUtc);
+                    return Task.CompletedTask;
+                };
             });
 
         services.AddAuthorization();
@@ -41,7 +49,7 @@ public static class ServiceCollectionExtensions
                 o.SignIn.RequireConfirmedEmail = false;
                 o.SignIn.RequireConfirmedPhoneNumber = false;
             })
-            .AddRoles<IdentityRole>()
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ApiDbContext>()
             .AddDefaultTokenProviders();
     }

@@ -31,7 +31,7 @@ public class VisitService(
         .Include(r => r.Orders)
             .ThenInclude(o=>o.OrderItems)
                 .ThenInclude(o1=>o1.MenuItem)
-            .Where(x => x.Id == visitId)
+            .Where(x => x.VisitId == visitId)
             .FirstOrDefaultAsync();
 
 
@@ -47,7 +47,7 @@ public class VisitService(
 
         var result = new VisitVM
         {
-            VisitId = visit.Id,
+            VisitId = visit.VisitId,
             Date = visit.Date,
             NumberOfGuests = visit.NumberOfGuests,
             PaymentTime = visit.PaymentTime,
@@ -67,7 +67,7 @@ public class VisitService(
             }).ToList(),
             Orders = visit.Orders.Select(o => new OrderSummaryVM
             {
-                OrderId = o.Id,
+                OrderId = o.OrderId,
                 VisitId = o.VisitId,
                 Date = o.Visit.Date,
                 Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount),
@@ -94,13 +94,13 @@ public class VisitService(
         }
 
         var restaurant = await context.Restaurants
-            .FirstAsync(r => r.Id == request.RestaurantId);
+            .FirstAsync(r => r.RestaurantId == request.RestaurantId);
 
         var participants = new List<User>();
 
         foreach(var userId in request.Participants)
         {
-            var currentUser = await userManager.FindByIdAsync(userId);
+            var currentUser = await userManager.FindByIdAsync(userId.ToString());
             if (currentUser != null) participants.Add(currentUser);
         }
 
@@ -113,7 +113,7 @@ public class VisitService(
             Client = user,
             ClientId = user.Id,
             Takeaway = request.Takeaway,
-            TableRestaurantId = request.RestaurantId,
+            RestaurantId = request.RestaurantId,
             TableId = request.TableId,
             Participants = participants,
             Deposit = restaurant.ReservationDeposit
@@ -130,7 +130,7 @@ public class VisitService(
 
         return new VisitSummaryVM()
         {
-            VisitId = visit.Id,
+            VisitId = visit.VisitId,
             ClientId = visit.ClientId,
             Date = visit.Date,
             Takeaway = visit.Takeaway,

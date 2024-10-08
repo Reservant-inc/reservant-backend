@@ -35,6 +35,7 @@ docker build -t reservant-api -f Api/Dockerfile .
 You will have to provide production configuration by mounting a configuration
 file to `/api/appsettings.Production.json`. Example contents:
 
+![](appsettings.Production.EXAMPLE.json)
 ```json
 {
   "ConnectionStrings": {
@@ -45,6 +46,12 @@ file to `/api/appsettings.Production.json`. Example contents:
     "Audience": "{JWT Audience}",
     "LifetimeHours": 0,
     "Key": "{JWT Secret Key}"
+  },
+  "FileUploads": {
+    "ServeUrlBase": "{https://example.com/uploads}"
+  },
+  "Firebase": {
+    "CredentialsPath": "{Path to the Firebase Service Account Credentials}"
   }
 }
 ```

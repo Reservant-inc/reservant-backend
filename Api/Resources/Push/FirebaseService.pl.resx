@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="NotificationNewFriendRequest.Title" xml:space="preserve">
+        <value>Nowe Zaproszenie do Znajomych</value>
+    </data>
+    <data name="NotificationNewFriendRequest.Details" xml:space="preserve">
+        <value>Masz nowe zaproszenie do znajomych od {SenderName}</value>
+    </data>
+    <data name="NotificationFriendRequestAccepted.Title" xml:space="preserve">
+        <value>Zaproszenie do Znajomych Przyjęte</value>
+    </data>
+    <data name="NotificationFriendRequestAccepted.Details" xml:space="preserve">
+        <value>Zaproszenie dla {AcceptingUserFullName} zostało przyjęte</value>
+    </data>
+    <data name="NotificationNewParticipationRequest.Title" xml:space="preserve">
+        <value>Ktoś Jest Zainteresowany Twoim Wydarzeniem</value>
+    </data>
+    <data name="NotificationNewParticipationRequest.Details" xml:space="preserve">
+        <value>{SenderName} chce uczestniczyć w {EventName}</value>
+    </data>
+    <data name="NotificationNewRestaurantReview.Title" xml:space="preserve">
+        <value>Nowa Opinia o {RestaurantName}: {Stars}</value>
+    </data>
+    <data name="NotificationParticipationRequestResponse.Title" xml:space="preserve">
+        <value>Prośba o Uczestnictwo {IsAccepted:choose:Przyjęta|Odrzucona}</value>
+    </data>
+    <data name="NotificationRestaurantVerified.Title" xml:space="preserve">
+        <value>Restauracja Zweryfikowana</value>
+    </data>
+    <data name="NotificationRestaurantVerified.Details" xml:space="preserve">
+        <value>Twoja restauracja {RestaurantName} została zweryfikowana</value>
+    </data>
+    <data name="NotificationNewRestaurantReview.Details" xml:space="preserve">
+        <value>{AuthorName} piszy: "{Contents}"</value>
+    </data>
+    <data name="NotificationParticipationRequestResponse.Details" xml:space="preserve">
+        <value>Your request to participate in {EventName} has been {IsAccepted:choose:accepted|rejected}</value>
+    </data>
+</root>

@@ -15,7 +15,6 @@ namespace Reservant.Api.Controllers;
 /// </summary>
 [ApiController, Route("/messages")]
 public class MessageController(
-    UserManager<User> userManager,
     MessageService messageService
     ) : StrictController
 {
@@ -30,13 +29,13 @@ public class MessageController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<MessageVM>> UpdateMessage(int messageId, [FromBody] UpdateMessageRequest request)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await messageService.UpdateMessageAsync(messageId, request, userId);
+        var result = await messageService.UpdateMessageAsync(messageId, request, userId.Value);
         return OkOrErrors(result);
     }
 
@@ -50,13 +49,13 @@ public class MessageController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<MessageVM>> MarkMessageAsReadById(int messageId)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await messageService.MarkMessageAsReadByIdAsync(messageId, userId);
+        var result = await messageService.MarkMessageAsReadByIdAsync(messageId, userId.Value);
         return OkOrErrors(result);
     }
 
@@ -70,13 +69,13 @@ public class MessageController(
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult> DeleteMessage(int messageId)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId == null)
         {
             return Unauthorized();
         }
 
-        var result = await messageService.DeleteMessageAsync(messageId, userId);
+        var result = await messageService.DeleteMessageAsync(messageId, userId.Value);
         return OkOrErrors(result);
     }
 
