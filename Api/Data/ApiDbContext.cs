@@ -15,8 +15,6 @@ public class ApiDbContext(
 {
     private readonly Guid? _userId = userIdService.GetUserId();
 
-    public required DbSet<WeatherForecast> WeatherForecasts { get; init; }
-
     public DbSet<FileUpload> FileUploads { get; init; } = null!;
 
     public DbSet<Restaurant> Restaurants { get; init; } = null!;

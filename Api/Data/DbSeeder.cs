@@ -47,39 +47,6 @@ public class DbSeeder(
         await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.CustomerSupportAgent));
         await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.CustomerSupportManager));
 
-        context.AddRange(
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 29),
-                TemperatureC = -2,
-                Summary = "Scorching"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 30),
-                TemperatureC = 19,
-                Summary = "Hot"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 31),
-                TemperatureC = 45,
-                Summary = "Chilly"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 1),
-                TemperatureC = -13,
-                Summary = "Sweltering"
-            },
-            new WeatherForecast
-            {
-                Date = new DateOnly(2024, 1, 2),
-                TemperatureC = 4,
-                Summary = "Freezing"
-            }
-        );
-
         var bok1 = (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
         {
             Email = "support@mail.com",
