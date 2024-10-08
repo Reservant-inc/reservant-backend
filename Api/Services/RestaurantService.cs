@@ -1657,15 +1657,17 @@ namespace Reservant.Api.Services
             };
 
             // Paginacja i mapowanie do IngredientVM
-            var paginatedResult = await query.Select(i => new IngredientVM
-            {
-                IngredientId = i.Id,
-                PublicName = i.PublicName,
-                UnitOfMeasurement = i.UnitOfMeasurement,
-                MinimalAmount = i.MinimalAmount,
-                AmountToOrder = i.AmountToOrder,
-                Amount = i.Amount
-            }).PaginateAsync(page, perPage, Enum.GetNames<IngredientSorting>());
+            var paginatedResult = await query
+                .Select(i => new IngredientVM
+                {
+                    IngredientId = i.Id,
+                    PublicName = i.PublicName,
+                    UnitOfMeasurement = i.UnitOfMeasurement,
+                    MinimalAmount = i.MinimalAmount,
+                    AmountToOrder = i.AmountToOrder,
+                    Amount = i.Amount
+                })
+                .PaginateAsync(page, perPage, Enum.GetNames<IngredientSorting>(), maxPerPage: 20);
 
             return paginatedResult;
         }
