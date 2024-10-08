@@ -5,11 +5,11 @@
         /// <summary>
         /// Amount after correction
         /// </summary>
-        public double NewAmount { get; set; }
+        public required double NewAmount { get; set; }
 
         /// <summary>
         /// Reason for changing the amount of ingredient in stock
         /// </summary>
-        public string Comment { get; set; } = null!;
+        public required string Comment { get; set; }
     }
 }
