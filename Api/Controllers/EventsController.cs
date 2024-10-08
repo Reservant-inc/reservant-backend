@@ -44,7 +44,7 @@ namespace Reservant.Api.Controllers
         /// <returns>Paginated list of users with pending participation requests.</returns>
         [HttpGet("{eventId:int}/interested")]
         [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
-        [Authorize(Roles.Customer)]
+        [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<EventService>(nameof(EventService.GetInterestedUsersAsync))]
         public async Task<ActionResult<Pagination<UserSummaryVM>>> GetInterestedUsers(int eventId, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
         {
