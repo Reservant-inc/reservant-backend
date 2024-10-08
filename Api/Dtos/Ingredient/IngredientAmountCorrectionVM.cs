@@ -1,5 +1,4 @@
-﻿using Reservant.Api.Dtos.Auth;
-using Reservant.Api.Dtos.User;
+﻿using Reservant.Api.Dtos.User;
 
 namespace Reservant.Api.Dtos.Ingredient
 {
@@ -11,17 +10,12 @@ namespace Reservant.Api.Dtos.Ingredient
         /// <summary>
         /// Id of the correction
         /// </summary>
-        public required int Id { get; set; }
+        public required int CorrectionId { get; set; }
 
         /// <summary>
-        /// Id of the ingredient
+        /// The updated ingredient
         /// </summary>
-        public required int IngredientId { get; set; }
-
-        /// <summary>
-        /// Visual model summary of the ingredient
-        /// </summary>
-        public required IngredientVM IngredientVM { get; set; } = null!;
+        public required IngredientVM Ingredient { get; set; } = null!;
 
         /// <summary>
         /// Amount of ingredients in stock before correction
@@ -39,14 +33,9 @@ namespace Reservant.Api.Dtos.Ingredient
         public required DateTime CorrectionDate { get; set; }
 
         /// <summary>
-        /// Id of the user that corrected the amount of ingredients
+        /// The correction author
         /// </summary>
-        public required Guid UserId { get; set; }
-
-        /// <summary>
-        /// Visual model summary of the correction creator
-        /// </summary>
-        public required UserSummaryVM UserSummaryVM { get; set; } = null!;
+        public required UserSummaryVM User { get; set; } = null!;
 
         /// <summary>
         /// Reason for changing the amount of ingredient in stock

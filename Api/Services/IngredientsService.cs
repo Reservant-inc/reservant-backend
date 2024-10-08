@@ -240,9 +240,8 @@ public class IngredientService(
 
         return new IngredientAmountCorrectionVM
         {
-            Id = correction.Id,
-            IngredientId = correction.IngredientId,
-            IngredientVM = new IngredientVM
+            CorrectionId = correction.Id,
+            Ingredient = new IngredientVM
             {
                 Amount = ingredient.Amount,
                 IngredientId = ingredient.IngredientId,
@@ -254,8 +253,7 @@ public class IngredientService(
             OldAmount = correction.OldAmount,
             NewAmount = correction.NewAmount,
             CorrectionDate = correction.CorrectionDate,
-            UserId = correction.UserId,
-            UserSummaryVM = new Dtos.User.UserSummaryVM
+            User = new Dtos.User.UserSummaryVM
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
