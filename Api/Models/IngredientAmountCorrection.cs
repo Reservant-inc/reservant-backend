@@ -1,4 +1,5 @@
-﻿using Reservant.Api.Data;
+﻿using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Models
 {
@@ -50,6 +51,7 @@ namespace Reservant.Api.Models
         /// <summary>
         /// Reason for changing the amount of ingredients in stock
         /// </summary>
+        [StringLength(200)]
         public string Comment { get; set; } = null!;
 
         /// <inheritdoc/>

@@ -1,6 +1,5 @@
 ﻿using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Ingredient;
@@ -178,11 +177,17 @@ public class IngredientService(
     }
 
     [ErrorCode(null, ErrorCodes.NotFound)]
-    [ErrorCode(nameof(request.NewAmount), ErrorCodes.ValueLessThanZero)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
+    [ValidatorErrorCodes<IngredientAmountCorrectionRequest>]
     public async Task<Result<IngredientAmountCorrectionVM>> CorrectIngredientAmountAsync(
         int ingredientId, Guid userId, IngredientAmountCorrectionRequest request)
     {
+        var validationResult = await validationService.ValidateAsync(request, userId);
+        if (!validationResult.IsValid)
+        {
+            return validationResult.Errors;
+        }
+
         var user = await dbContext.Users.FindAsync(userId)
                    ?? throw new Exception($"User with ID {userId} not found");
 
@@ -198,16 +203,6 @@ public class IngredientService(
                 ErrorCode = ErrorCodes.NotFound,
                 ErrorMessage = ErrorCodes.NotFound,
                 PropertyName = null
-            };
-        }
-
-        if (request.NewAmount < 0)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(request.NewAmount),
-                ErrorCode = ErrorCodes.ValueLessThanZero,
-                ErrorMessage = ErrorCodes.ValueLessThanZero
             };
         }
 
