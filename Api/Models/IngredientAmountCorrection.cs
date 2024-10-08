@@ -40,7 +40,7 @@ namespace Reservant.Api.Models
         /// <summary>
         /// Id of user that made the correction
         /// </summary>
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// Navigational property for the user that made the correction

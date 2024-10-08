@@ -12,7 +12,7 @@ public class MessageThread : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int MessageThreadId { get; set; }
 
     /// <summary>
     /// Title of the message thread
@@ -28,8 +28,7 @@ public class MessageThread : ISoftDeletable
     /// <summary>
     /// ID of the user who created the thread
     /// </summary>
-    [StringLength(36)]
-    public string CreatorId { get; set; } = null!;
+    public Guid CreatorId { get; set; }
 
     /// <summary>
     /// Navigational property for the user who created the thread

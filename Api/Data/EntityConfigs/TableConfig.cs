@@ -12,6 +12,6 @@ public class TableConfig : IEntityTypeConfiguration<Table>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Table> builder)
     {
-        builder.HasKey(t => new { t.RestaurantId, t.Id });
+        builder.HasKey(t => new { t.RestaurantId, t.TableId });
     }
 }

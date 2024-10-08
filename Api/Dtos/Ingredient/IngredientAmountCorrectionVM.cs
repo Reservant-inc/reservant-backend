@@ -41,7 +41,7 @@ namespace Reservant.Api.Dtos.Ingredient
         /// <summary>
         /// Id of the user that corrected the amount of ingredients
         /// </summary>
-        public required string UserId { get; set; }
+        public required Guid UserId { get; set; }
 
         /// <summary>
         /// Visual model summary of the correction creator

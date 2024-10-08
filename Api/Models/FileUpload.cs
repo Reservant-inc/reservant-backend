@@ -23,8 +23,7 @@ public class FileUpload : ISoftDeletable
     /// <summary>
     /// ID of the user who uploaded the file
     /// </summary>
-    [StringLength(36)]
-    public required string UserId { get; set; }
+    public required Guid UserId { get; set; }
 
     /// <summary>
     /// Navigation property for the user who uploaded the file

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Data;
 
@@ -7,7 +8,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// One class for all user classes.
 /// </summary>
-public class User : IdentityUser, ISoftDeletable
+public class User : IdentityUser<Guid>, ISoftDeletable
 {
     /// <summary>
     /// Imię.
@@ -38,30 +39,6 @@ public class User : IdentityUser, ISoftDeletable
     public int? Reputation { get; set; }
 
     /// <summary>
-    /// Wiek.
-    /// </summary>
-    public int? Age
-    {
-        get
-        {
-            if (BirthDate is null)
-            {
-                return null;
-            }
-
-            var today = DateTime.Today;
-
-            var age = today.Year - BirthDate.Value.Year;
-            if (today.DayOfYear < BirthDate.Value.DayOfYear)
-            {
-                age -= 1;
-            }
-
-            return age;
-        }
-    }
-
-    /// <summary>
     /// First name + last name
     /// </summary>
     public string FullName => $"{FirstName} {LastName}";
@@ -69,8 +46,7 @@ public class User : IdentityUser, ISoftDeletable
     /// <summary>
     /// ID of the RestaurantOwner who employs the user. For restaurant employees
     /// </summary>
-    [StringLength(36)]
-    public string? EmployerId { get; set; }
+    public Guid? EmployerId { get; set; }
 
     /// <summary>
     /// Employer of the user. For restaurant employees
@@ -98,6 +74,11 @@ public class User : IdentityUser, ISoftDeletable
     /// </remarks>
     [StringLength(170)]
     public string? FirebaseDeviceToken { get; set; }
+
+    /// <summary>
+    /// User's preferred language
+    /// </summary>
+    public CultureInfo Language { get; set; } = CultureInfo.InvariantCulture;
 
     /// <summary>
     /// Navigation property for the photo upload

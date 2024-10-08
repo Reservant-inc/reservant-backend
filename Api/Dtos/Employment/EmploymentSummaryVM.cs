@@ -2,6 +2,9 @@
 
 namespace Reservant.Api.Dtos.Employment
 {
+    /// <summary>
+    /// Info about a user's employment in a restaurant
+    /// </summary>
     public class EmploymentSummaryVM
     {
         /// <summary>

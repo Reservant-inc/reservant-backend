@@ -32,10 +32,10 @@ public class RestaurantMenuService(
     {
         var menu = await context.Menus
             .Include(m => m.MenuItems)
-            .Where(m => m.Id == menuId)
+            .Where(m => m.MenuId == menuId)
             .Select(m => new MenuVM
             {
-                MenuId = m.Id,
+                MenuId = m.MenuId,
                 Name = m.Name,
                 AlternateName = m.AlternateName,
                 MenuType = m.MenuType,
@@ -44,7 +44,7 @@ public class RestaurantMenuService(
                 Photo = uploadService.GetPathForFileName(m.PhotoFileName),
                 MenuItems = m.MenuItems.Select(mi => new MenuItemSummaryVM
                 {
-                    MenuItemId = mi.Id,
+                    MenuItemId = mi.MenuItemId,
                     Name = mi.Name,
                     AlternateName = mi.AlternateName,
                     Price = mi.Price,
@@ -80,7 +80,7 @@ public class RestaurantMenuService(
     {
         var restaurant = await context.Restaurants
             .Include(r => r.Group)
-            .FirstOrDefaultAsync(r => r.Id == req.RestaurantId);
+            .FirstOrDefaultAsync(r => r.RestaurantId == req.RestaurantId);
 
         if (restaurant == null)
         {
@@ -125,7 +125,7 @@ public class RestaurantMenuService(
 
         var menuSummary = new MenuSummaryVM
         {
-            MenuId = newMenu.Id,
+            MenuId = newMenu.MenuId,
             Name = newMenu.Name,
             AlternateName = newMenu.AlternateName,
             MenuType = newMenu.MenuType,
@@ -145,7 +145,7 @@ public class RestaurantMenuService(
     /// <param name="request">Information about the items</param>
     /// <param name="user">Currently logged-in user</param>
     [ErrorCode("<menuId>", ErrorCodes.NotFound)]
-    [ErrorCode(nameof(Menu.Id), ErrorCodes.AccessDenied, "User is not the owner of the restaurant that contains menu ID")]
+    [ErrorCode(nameof(Menu.MenuId), ErrorCodes.AccessDenied, "User is not the owner of the restaurant that contains menu ID")]
     [ErrorCode(nameof(AddItemsRequest.ItemIds), ErrorCodes.BelongsToAnotherRestaurant, "MenuItems with IDs belong to another restaurant")]
     [ErrorCode(nameof(AddItemsRequest.ItemIds), ErrorCodes.NotFound)]
     [ValidatorErrorCodes<Menu>]
@@ -155,7 +155,7 @@ public class RestaurantMenuService(
             .Include(m => m.MenuItems)
             .Include(m => m.Restaurant)
             .ThenInclude(r => r.Group)
-            .FirstOrDefaultAsync(m => m.Id == menuId);
+            .FirstOrDefaultAsync(m => m.MenuId == menuId);
 
         if (menuToUpdate == null)
         {
@@ -173,19 +173,19 @@ public class RestaurantMenuService(
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(menuToUpdate.Id),
-                ErrorMessage = $"User is not the owner of the restaurant that contains menu ID: {menuToUpdate.Id}.",
+                PropertyName = nameof(menuToUpdate.MenuId),
+                ErrorMessage = $"User is not the owner of the restaurant that contains menu ID: {menuToUpdate.MenuId}.",
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
         var menuItemsToAdd = await context.MenuItems
-            .Where(item => request.ItemIds.Contains(item.Id))
+            .Where(item => request.ItemIds.Contains(item.MenuItemId))
             .ToListAsync();
 
         var fromAnotherRestaurant = menuItemsToAdd
             .Where(mi => mi.RestaurantId != menuToUpdate.RestaurantId)
-            .Select(mi => mi.Id)
+            .Select(mi => mi.MenuItemId)
             .ToList();
         if (fromAnotherRestaurant.Count != 0)
         {
@@ -197,7 +197,7 @@ public class RestaurantMenuService(
             };
         }
 
-        var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.Id)).ToList();
+        var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.MenuItemId)).ToList();
         if (nonExistentItemIds.Any())
         {
             return new ValidationFailure
@@ -212,7 +212,7 @@ public class RestaurantMenuService(
         foreach (var item in menuItemsToAdd)
         {
             // Adding only items that are not already in menu
-            if (!menuToUpdate.MenuItems.Any(mi => mi.Id == item.Id))
+            if (!menuToUpdate.MenuItems.Any(mi => mi.MenuItemId == item.MenuItemId))
             {
                 menuToUpdate.MenuItems.Add(item);
             }
@@ -228,7 +228,7 @@ public class RestaurantMenuService(
 
         return new MenuVM
         {
-            MenuId = menuToUpdate.Id,
+            MenuId = menuToUpdate.MenuId,
             Name = menuToUpdate.Name,
             AlternateName = menuToUpdate.AlternateName,
             MenuType = menuToUpdate.MenuType,
@@ -237,7 +237,7 @@ public class RestaurantMenuService(
             Photo = uploadService.GetPathForFileName(menuToUpdate.PhotoFileName),
             MenuItems = menuToUpdate.MenuItems.Select(mi => new MenuItemSummaryVM
             {
-                MenuItemId = mi.Id,
+                MenuItemId = mi.MenuItemId,
                 Name = mi.Name,
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
@@ -261,7 +261,7 @@ public class RestaurantMenuService(
     {
         // Getting menu
         var menu = await context.Menus
-            .Where(m => m.Id == menuId)
+            .Where(m => m.MenuId == menuId)
             .Include(menu => menu.Restaurant)
             .ThenInclude(restaurant => restaurant.Group)
             .Include(menu => menu.MenuItems)
@@ -311,10 +311,10 @@ public class RestaurantMenuService(
             DateFrom = menu.DateFrom,
             DateUntil = menu.DateUntil,
             Photo = uploadService.GetPathForFileName(menu.PhotoFileName),
-            MenuId = menu.Id,
+            MenuId = menu.MenuId,
             MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
             {
-                MenuItemId = mi.Id,
+                MenuItemId = mi.MenuItemId,
                 Name = mi.Name,
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
@@ -334,7 +334,7 @@ public class RestaurantMenuService(
     [ErrorCode(null, ErrorCodes.AccessDenied, "Menu is not owned by user")]
     public async Task<Result> DeleteMenuAsync(int id, User user)
     {
-        var menu = await context.Menus.Where(m => m.Id == id)
+        var menu = await context.Menus.Where(m => m.MenuId == id)
             .Include(m => m.Restaurant)
             .ThenInclude(r => r.Group)
             .FirstOrDefaultAsync();
@@ -374,8 +374,8 @@ public class RestaurantMenuService(
 
         var menu = await context.Menus
             .Include(m => m.MenuItems
-                .Where(item => menuItemIds.Contains(item.Id))
-            ).FirstOrDefaultAsync(m => m.Id == menuId && user.Id == m.Restaurant.Group.OwnerId);
+                .Where(item => menuItemIds.Contains(item.MenuItemId))
+            ).FirstOrDefaultAsync(m => m.MenuId == menuId && user.Id == m.Restaurant.Group.OwnerId);
 
         if (menu == null)
         {
@@ -416,7 +416,7 @@ public class RestaurantMenuService(
         int menuId, int page, int perPage,
         string? name = null, MenuItemSorting orderBy = MenuItemSorting.PriceDesc)
     {
-        var menu = await context.Menus.FirstOrDefaultAsync(x => x.Id == menuId);
+        var menu = await context.Menus.FirstOrDefaultAsync(x => x.MenuId == menuId);
         if (menu is null)
         {
             return new ValidationFailure
@@ -450,7 +450,7 @@ public class RestaurantMenuService(
         return await query
             .Select(mi => new MenuItemSummaryVM
             {
-                MenuItemId = mi.Id,
+                MenuItemId = mi.MenuItemId,
                 Name = mi.Name,
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,

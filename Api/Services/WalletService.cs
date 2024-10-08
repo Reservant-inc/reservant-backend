@@ -78,7 +78,7 @@ public class WalletService(
             .OrderBy(p => p.Time)
             .Select(p => new TransactionVM
             {
-                TransactionId = p.Id,
+                TransactionId = p.PaymentTransactionId,
                 Title = p.Title,
                 Amount = p.Amount,
                 Time = p.Time,

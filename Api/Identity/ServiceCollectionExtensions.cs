@@ -49,7 +49,7 @@ public static class ServiceCollectionExtensions
                 o.SignIn.RequireConfirmedEmail = false;
                 o.SignIn.RequireConfirmedPhoneNumber = false;
             })
-            .AddRoles<IdentityRole>()
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ApiDbContext>()
             .AddDefaultTokenProviders();
     }

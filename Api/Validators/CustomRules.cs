@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -39,9 +40,9 @@ public static class CustomRules
                     return true;
                 }
 
-                var userId = (string)context.RootContextData["UserId"];
+                var userId = (Guid?)context.RootContextData["UserId"];
                 var result = await uploadService.ProcessUploadNameAsync(
-                    value, userId, expectedClass, context.PropertyPath);
+                    value, userId!.Value, expectedClass, context.PropertyPath);
                 return !result.IsError;
             })
             .WithErrorCode($"{ErrorCodes.FileName}.{expectedClass}")
@@ -99,14 +100,14 @@ public static class CustomRules
     /// <summary>
     /// Validates that the user exists in the database.
     /// </summary>
-    public static IRuleBuilderOptions<T, string> CustomerExists<T>(
-        this IRuleBuilder<T, string> builder,
+    public static IRuleBuilderOptions<T, Guid> CustomerExists<T>(
+        this IRuleBuilder<T, Guid> builder,
         UserManager<Models.User> userManager)
     {
         return builder
             .MustAsync(async (userId, _) =>
             {
-                var user = await userManager.FindByIdAsync(userId);
+                var user = await userManager.FindByIdAsync(userId.ToString());
                 return user != null && await userManager.IsInRoleAsync(user, Roles.Customer);
             })
             .WithErrorCode(ErrorCodes.MustBeCustomerId)
@@ -162,22 +163,17 @@ public static class CustomRules
     /// <summary>
     /// Validate that the given ID corresponds to current user's employee
     /// </summary>
-    public static IRuleBuilderOptions<T, string> CurrentUsersEmployee<T>(this IRuleBuilder<T, string> builder, ApiDbContext db)
+    public static IRuleBuilderOptions<T, Guid> CurrentUsersEmployee<T>(this IRuleBuilder<T, Guid> builder, ApiDbContext db)
     {
         return builder.MustAsync(async (_, value, context, _) =>
         {
-            if (value is null)
-            {
-                return false;
-            }
-
             var user = await db.Users.FindAsync(value);
             if (user is null)
             {
                 return false;
             }
 
-            var userId = (string)context.RootContextData["UserId"];
+            var userId = (Guid?)context.RootContextData["UserId"];
             return userId is null || user.EmployerId == userId;
         })
         .WithErrorCode(ErrorCodes.MustBeCurrentUsersEmployee)
@@ -193,7 +189,7 @@ public static class CustomRules
             .MustAsync(async (restaurantId, cancellationToken) =>
             {
                 return await dbContext.Restaurants
-                    .AnyAsync(r => r.Id == restaurantId, cancellationToken);
+                    .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")
             .WithErrorCode(ErrorCodes.RestaurantDoesNotExist);
@@ -213,7 +209,7 @@ public static class CustomRules
                 }
 
                 return await dbContext.Restaurants
-                    .AnyAsync(r => r.Id == restaurantId, cancellationToken);
+                    .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")
             .WithErrorCode(ErrorCodes.RestaurantDoesNotExist);
@@ -229,7 +225,7 @@ public static class CustomRules
             {
                 var (restaurantId, tableId) = tuple;
                 return await dbContext.Tables
-                    .AnyAsync(t => t.Id == tableId && t.RestaurantId == restaurantId, cancellationToken);
+                    .AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.")
             .WithErrorCode(ErrorCodes.TableDoesNotExist);
@@ -245,7 +241,7 @@ public static class CustomRules
             .MustAsync(async (item, cancellationToken) =>
             {
                 var itemExists = await context.MenuItems
-                    .AnyAsync(m => m.Id == item.MenuItemId, cancellationToken);
+                    .AnyAsync(m => m.MenuItemId == item.MenuItemId, cancellationToken);
 
                 return itemExists;
             })
@@ -263,7 +259,7 @@ public static class CustomRules
             .MustAsync(async (visitId, cancellationToken) =>
             {
                 var visitExists = await context.Visits
-                    .AnyAsync(v => v.Id == visitId, cancellationToken);
+                    .AnyAsync(v => v.VisitId == visitId, cancellationToken);
 
                 return visitExists;
             })
@@ -440,5 +436,27 @@ public static class CustomRules
             .Must(date => date == null || date <= DateOnly.FromDateTime(DateTime.UtcNow))
             .WithErrorCode(ErrorCodes.DateMustBeInPast)
             .WithMessage("The date must be today or in the past, or can be null");
+    }
+
+    /// <summary>
+    /// Validates that the string is a valid locale identifier
+    /// </summary>
+    public static IRuleBuilderOptions<T, string> CultureInfoString<T>(this IRuleBuilder<T, string> builder)
+    {
+        return builder
+            .Must(locale =>
+            {
+                try
+                {
+                    _ = CultureInfo.GetCultureInfo(locale);
+                    return true;
+                }
+                catch (CultureNotFoundException)
+                {
+                    return false;
+                }
+            })
+            .WithErrorCode(ErrorCodes.MustBeLocaleId)
+            .WithMessage("Must be a valid locale identifier (e.g. pl, en_GB)");
     }
 }

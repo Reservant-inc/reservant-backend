@@ -11,7 +11,7 @@ public class Ingredient
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int IngredientId { get; set; }
 
     /// <summary>
     /// Name of the ingredient item as shown to the customer

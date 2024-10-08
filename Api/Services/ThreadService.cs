@@ -31,7 +31,7 @@ public class ThreadService(
     /// <param name="request"></param>
     /// <param name="userId">ID of the creator user</param>
     /// <returns></returns>
-    public async Task<Result<ThreadVM>> CreateThreadAsync(CreateThreadRequest request, string userId)
+    public async Task<Result<ThreadVM>> CreateThreadAsync(CreateThreadRequest request, Guid userId)
     {
         var result = await validationService.ValidateAsync(request, userId);
         if (!result.IsValid)
@@ -78,7 +78,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
-            ThreadId = messageThread.Id,
+            ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
             Participants = messageThread.Participants
                 .Select(p => new UserSummaryVM
@@ -99,7 +99,7 @@ public class ThreadService(
     /// <param name="request"></param>
     /// <param name="userId">ID of the user making the request</param>
     /// <returns></returns>
-    public async Task<Result<ThreadVM>> UpdateThreadAsync(int threadId, UpdateThreadRequest request, string userId)
+    public async Task<Result<ThreadVM>> UpdateThreadAsync(int threadId, UpdateThreadRequest request, Guid userId)
     {
         var result = await validationService.ValidateAsync(request, userId);
         if (!result.IsValid)
@@ -109,7 +109,7 @@ public class ThreadService(
 
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
         {
@@ -134,7 +134,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
-            ThreadId = messageThread.Id,
+            ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
             Participants = messageThread.Participants
                 .Select(p => new UserSummaryVM
@@ -154,10 +154,10 @@ public class ThreadService(
     /// <param name="threadId"></param>
     /// <param name="userId">ID of the user making the request</param>
     /// <returns></returns>
-    public async Task<Result> DeleteThreadAsync(int threadId, string userId)
+    public async Task<Result> DeleteThreadAsync(int threadId, Guid userId)
     {
         var messageThread = await dbContext.MessageThreads
-            .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
         {
@@ -182,13 +182,13 @@ public class ThreadService(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<ThreadVM>>> GetUserThreadsAsync(string userId, int page, int perPage)
+    public async Task<Result<Pagination<ThreadVM>>> GetUserThreadsAsync(Guid userId, int page, int perPage)
     {
         var query = dbContext.MessageThreads
             .Where(t => t.Participants.Any(p => p.Id == userId))
             .Select(t => new ThreadVM
             {
-                ThreadId = t.Id,
+                ThreadId = t.MessageThreadId,
                 Title = t.Title,
                 Participants = t.Participants.Select(p => new UserSummaryVM
                 {
@@ -208,11 +208,11 @@ public class ThreadService(
     /// <param name="threadId"></param>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public async Task<Result<ThreadVM>> GetThreadAsync(int threadId, string userId)
+    public async Task<Result<ThreadVM>> GetThreadAsync(int threadId, Guid userId)
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId && t.Participants.Any(p => p.Id == userId));
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId && t.Participants.Any(p => p.Id == userId));
 
         if (messageThread == null)
         {
@@ -226,7 +226,7 @@ public class ThreadService(
 
         return new ThreadVM
         {
-            ThreadId = messageThread.Id,
+            ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
             Participants = messageThread.Participants
                 .Select(p => new UserSummaryVM
@@ -247,11 +247,11 @@ public class ThreadService(
     /// <param name="userId">Request containing message to be passed</param>
     /// <param name="request">Request containing message to be passed</param>
     /// <returns>Adds message to the thread</returns>
-    public async Task<Result<MessageVM>> CreateThreadsMessageAsync(int threadId, string userId, CreateMessageRequest request)
+    public async Task<Result<MessageVM>> CreateThreadsMessageAsync(int threadId, Guid userId, CreateMessageRequest request)
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId);
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId);
 
         if (messageThread == null)
         {
@@ -296,7 +296,7 @@ public class ThreadService(
 
         return new MessageVM
         {
-            MessageId = message.Id,
+            MessageId = message.MessageId,
             Contents = message.Contents,
             DateSent = message.DateSent,
             DateRead = message.DateRead,
@@ -315,11 +315,11 @@ public class ThreadService(
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied)]
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-    public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, String userId, int page, int perPage)
+    public async Task<Result<Pagination<MessageVM>>> GetThreadMessagesByIdAsync(int threadId, Guid userId, int page, int perPage)
     {
         var messageThread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .FirstOrDefaultAsync(t => t.Id == threadId);
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId);
 
         if (messageThread == null)
         {
@@ -348,7 +348,7 @@ public class ThreadService(
             .OrderByDescending(m => m.DateSent)
             .Select(m => new MessageVM
             {
-                MessageId = m.Id,
+                MessageId = m.MessageId,
                 Contents = m.Contents,
                 DateSent = m.DateSent,
                 DateRead = m.DateRead,
@@ -370,7 +370,7 @@ public class ThreadService(
     [ErrorCode(nameof(dto.UserId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(dto.UserId), ErrorCodes.MustBeCustomerId)]
     [ErrorCode(nameof(dto.UserId), ErrorCodes.Duplicate, "User already participates in the thread")]
-    public async Task<Result> AddParticipant(int threadId, AddRemoveParticipantDto dto, string currentUserId)
+    public async Task<Result> AddParticipant(int threadId, AddRemoveParticipantDto dto, Guid currentUserId)
     {
         if (dto.UserId == currentUserId)
         {
@@ -383,7 +383,7 @@ public class ThreadService(
 
         var thread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(t => t.MessageThreadId == threadId);
         if (thread is null)
         {
             return new ValidationFailure
@@ -404,7 +404,7 @@ public class ThreadService(
             };
         }
 
-        var targetUser = await userManager.FindByIdAsync(dto.UserId);
+        var targetUser = await userManager.FindByIdAsync(dto.UserId.ToString());
         if (targetUser is null)
         {
             return new ValidationFailure
@@ -447,11 +447,11 @@ public class ThreadService(
     [ErrorCode(null, ErrorCodes.NotFound, "Thread not found")]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User is not a participant of the thread")]
     [ErrorCode(nameof(dto.UserId), ErrorCodes.NotFound)]
-    public async Task<Result> RemoveParticipant(int threadId, AddRemoveParticipantDto dto, string currentUserId)
+    public async Task<Result> RemoveParticipant(int threadId, AddRemoveParticipantDto dto, Guid currentUserId)
     {
         var thread = await dbContext.MessageThreads
             .Include(t => t.Participants)
-            .SingleOrDefaultAsync();
+            .SingleOrDefaultAsync(t => t.MessageThreadId == threadId);
         if (thread is null)
         {
             return new ValidationFailure

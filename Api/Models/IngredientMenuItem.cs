@@ -5,7 +5,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// Ingredient used to cook a menu item
 /// </summary>
-public class IngredientMenuItem : ISoftDeletable
+public class IngredientMenuItem
 {
     /// <summary>
     /// ID of the menu item
@@ -28,10 +28,7 @@ public class IngredientMenuItem : ISoftDeletable
     public MenuItem MenuItem { get; set; } = null!;
 
     /// <summary>
-    /// Navigation property for the 
+    /// Navigation property for the
     /// </summary>
     public Ingredient Ingredient { get; set; } = null!;
-
-    /// <inheritdoc/>
-    public bool IsDeleted { get; set; }
 }

@@ -29,14 +29,14 @@ public class IngredientService(
     [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(request.MenuItem), ErrorCodes.NotFound)]
     [ErrorCode(nameof(request.MenuItem), ErrorCodes.AccessDenied)]
-    public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, string userId)
+    public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, Guid userId)
     {
         var result = await validationService.ValidateAsync(request, userId);
         if (!result.IsValid)
         {
             return result;
         }
-        var menuItem = await dbContext.MenuItems.Include(m => m.Ingredients).Where(m => m.Id == request.MenuItem.MenuItemId).FirstOrDefaultAsync();
+        var menuItem = await dbContext.MenuItems.Include(m => m.Ingredients).Where(m => m.MenuItemId == request.MenuItem.MenuItemId).FirstOrDefaultAsync();
         if (menuItem is null)
         {
             return new ValidationFailure
@@ -70,8 +70,8 @@ public class IngredientService(
 
         var ingredientMenuItem = new IngredientMenuItem
         {
-            MenuItemId = menuItem.Id,
-            IngredientId = ingredient.Id,
+            MenuItemId = menuItem.MenuItemId,
+            IngredientId = ingredient.IngredientId,
             AmountUsed = ingredient.MinimalAmount,
             MenuItem = menuItem,
             Ingredient = ingredient
@@ -90,7 +90,7 @@ public class IngredientService(
 
         return new IngredientVM
         {
-            IngredientId = ingredient.Id,
+            IngredientId = ingredient.IngredientId,
             PublicName = ingredient.PublicName,
             UnitOfMeasurement = ingredient.UnitOfMeasurement,
             MinimalAmount = ingredient.MinimalAmount,
@@ -103,7 +103,7 @@ public class IngredientService(
     /// <summary>
     /// Update an ingredient.
     /// </summary>
-    /// <param name="ingredientId"></param> 
+    /// <param name="ingredientId"></param>
     /// <param name="request"></param>
     /// <param name="userId">ID of the creator user</param>
     /// <returns></returns>
@@ -111,7 +111,7 @@ public class IngredientService(
     [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(ingredientId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(ingredientId), ErrorCodes.AccessDenied)]
-    public async Task<Result<IngredientVM>> UpdateIngredientAsync(int ingredientId, UpdateIngredientRequest request, String userId)
+    public async Task<Result<IngredientVM>> UpdateIngredientAsync(int ingredientId, UpdateIngredientRequest request, Guid userId)
     {
         var dtoValidationResult = await validationService.ValidateAsync(request, userId);
         if (!dtoValidationResult.IsValid)
@@ -122,7 +122,7 @@ public class IngredientService(
         var ingredient = await dbContext.Ingredients
             .Include(i => i.MenuItems)
                 .ThenInclude(mi => mi.MenuItem)
-            .FirstOrDefaultAsync(i => i.Id == ingredientId);
+            .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient == null)
         {
@@ -168,7 +168,7 @@ public class IngredientService(
 
         return new IngredientVM
         {
-            IngredientId = ingredient.Id,
+            IngredientId = ingredient.IngredientId,
             PublicName = ingredient.PublicName,
             UnitOfMeasurement = ingredient.UnitOfMeasurement,
             MinimalAmount = ingredient.MinimalAmount,
@@ -180,14 +180,15 @@ public class IngredientService(
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(nameof(request.NewAmount), ErrorCodes.ValueLessThanZero)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
-    public async Task<Result<IngredientAmountCorrectionVM>> CorrectIngredientAmountAsync(int ingredientId, string userId, IngredientAmountCorrectionRequest request)
+    public async Task<Result<IngredientAmountCorrectionVM>> CorrectIngredientAmountAsync(
+        int ingredientId, Guid userId, IngredientAmountCorrectionRequest request)
     {
         var user = await dbContext.Users.FindAsync(userId); //user na pewno jest w bazie, więc nie ma sensu sprawdzać
 
         var ingredient = await dbContext.Ingredients
             .Include(i => i.MenuItems)
             .ThenInclude(m => m.MenuItem)
-            .FirstOrDefaultAsync(i => i.Id == ingredientId);
+            .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient is null)
         {
@@ -241,7 +242,7 @@ public class IngredientService(
             IngredientVM = new IngredientVM
             {
                 Amount = ingredient.Amount,
-                IngredientId = ingredient.Id,
+                IngredientId = ingredient.IngredientId,
                 PublicName = ingredient.PublicName,
                 AmountToOrder = ingredient.AmountToOrder,
                 UnitOfMeasurement = ingredient.UnitOfMeasurement,

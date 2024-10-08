@@ -28,13 +28,13 @@ public class EmploymentsController(UserManager<User> userManager, EmploymentServ
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.DeleteEmploymentAsync))]
     public async Task<ActionResult> DeleteEmployment(int employmentId)
     {
-        var userId = userManager.GetUserId(User);
+        var userId = User.GetUserId();
         if (userId is null)
         {
             return Unauthorized();
         }
 
-        var result = await employmentService.DeleteEmploymentAsync(employmentId, userId);
+        var result = await employmentService.DeleteEmploymentAsync(employmentId, userId.Value);
         return OkOrErrors(result);
     }
 

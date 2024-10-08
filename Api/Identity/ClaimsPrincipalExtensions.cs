@@ -10,8 +10,9 @@ public static class ClaimsPrincipalExtensions
     /// <summary>
     /// Get user ID from a ClaimsPrincipal
     /// </summary>
-    public static string? GetUserId(this ClaimsPrincipal user)
+    public static Guid? GetUserId(this ClaimsPrincipal user)
     {
-        return user.FindFirstValue(ClaimTypes.NameIdentifier);
+        var id = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        return id == null ? null : Guid.Parse(id);
     }
 }

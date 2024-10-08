@@ -13,7 +13,7 @@ public class MenuItem : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int MenuItemId { get; set; }
 
     /// <summary>
     /// Cena

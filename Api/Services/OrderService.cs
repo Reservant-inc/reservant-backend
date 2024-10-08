@@ -35,7 +35,7 @@ public class OrderService(
         var order = await context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .FirstOrDefaultAsync(o => o.Id == id);
+            .FirstOrDefaultAsync(o => o.OrderId == id);
 
         if (order == null)
         {
@@ -103,10 +103,10 @@ public class OrderService(
 
         return new OrderVM()
         {
-            OrderId = order.Id,
+            OrderId = order.OrderId,
             VisitId = order.VisitId,
-            Cost = order.Cost,
-            Status = order.Status,
+            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
+            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
             Items = orderItems,
             EmployeeId = order.EmployeeId
         };
@@ -126,7 +126,7 @@ public class OrderService(
             .Orders
             .Include(o => o.Visit)
             .Include(o => o.OrderItems)
-            .Where(o => o.Id == id)
+            .Where(o => o.OrderId == id)
             .FirstOrDefaultAsync();
 
         if (result == null)
@@ -177,8 +177,8 @@ public class OrderService(
 
         var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
         var menuItems = await context.MenuItems
-            .Where(mi => menuItemIds.Contains(mi.Id))
-            .ToDictionaryAsync(mi => mi.Id);
+            .Where(mi => menuItemIds.Contains(mi.MenuItemId))
+            .ToDictionaryAsync(mi => mi.MenuItemId);
 
         if (menuItems.Count != request.Items.Count)
         {
@@ -198,7 +198,7 @@ public class OrderService(
         }
 
         var visit = await context.Visits
-            .Where(v => v.Id == request.VisitId)
+            .Where(v => v.VisitId == request.VisitId)
             .Include(visit => visit.Participants)
             .FirstAsync();
 
@@ -239,10 +239,10 @@ public class OrderService(
 
         return new OrderSummaryVM
         {
-            OrderId = order.Id,
-            Cost = order.Cost,
+            OrderId = order.OrderId,
+            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
             Note = order.Note,
-            Status = order.Status,
+            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
             VisitId = order.VisitId,
             Date = visit.Date
         };
@@ -257,7 +257,7 @@ public class OrderService(
     public async Task<Result<OrderVM>> UpdateOrderStatusAsync(int id, UpdateOrderStatusRequest request, User user)
     {
         var order = await context.Orders
-            .Where(o => o.Id == id)
+            .Where(o => o.OrderId == id)
             .Include(o => o.Employees)
             .Include(o => o.OrderItems)
             .ThenInclude(o => o.MenuItem)
@@ -317,7 +317,7 @@ public class OrderService(
             {
                 return new ValidationFailure
                 {
-                    PropertyName = request.EmployeeIds.ElementAt(i),
+                    PropertyName = request.EmployeeIds.ElementAt(i).ToString(),
                     ErrorCode = ErrorCodes.NotFound,
                     ErrorMessage = "Employee not found"
                 };
@@ -329,7 +329,7 @@ public class OrderService(
             {
                 return new ValidationFailure
                 {
-                    PropertyName = request.EmployeeIds.ElementAt(i),
+                    PropertyName = request.EmployeeIds.ElementAt(i).ToString(),
                     ErrorCode = ErrorCodes.MustBeRestaurantEmployee,
                     ErrorMessage = "The user does not work at the restaurant"
                 };
@@ -343,9 +343,9 @@ public class OrderService(
 
         return new OrderVM
         {
-            OrderId = order.Id,
+            OrderId = order.OrderId,
             VisitId = order.VisitId,
-            Status = order.Status,
+            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
             Items = order.OrderItems.Select(orderItem => new OrderItemVM
             {
                 Amount = orderItem.Amount,
@@ -354,7 +354,7 @@ public class OrderService(
                 MenuItemId = orderItem.MenuItemId,
                 Cost = orderItem.Price * orderItem.Amount
             }).ToList(),
-            Cost = order.Cost,
+            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
             EmployeeId = order.EmployeeId
         };
     }

@@ -12,13 +12,12 @@ public class Employment : ISoftDeletable
     /// Unique identifier for the employment record.
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int EmploymentId { get; set; }
 
     /// <summary>
     /// ID of the employee
     /// </summary>
-    [StringLength(36)]
-    public string EmployeeId { get; set; } = null!;
+    public Guid EmployeeId { get; set; }
 
     /// <summary>
     /// ID of the restaurant

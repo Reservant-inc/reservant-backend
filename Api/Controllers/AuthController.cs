@@ -129,6 +129,7 @@ public class AuthController(
             Login = request.Login,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Language = user.Language.ToString(),
             Roles = roles.ToList()
         });
     }
@@ -238,6 +239,7 @@ public class AuthController(
             Login = user.UserName!,
             FirstName = user.FirstName,
             LastName = user.LastName,
+            Language = user.Language.ToString(),
             Roles = roles.ToList()
         });
     }

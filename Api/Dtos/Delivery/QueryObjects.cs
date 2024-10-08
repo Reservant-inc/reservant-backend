@@ -12,7 +12,7 @@ public static class QueryObjects
     {
         return query.Select(d => new DeliverySummaryVM
         {
-            DeliveryId = d.Id,
+            DeliveryId = d.DeliveryId,
             OrderTime = d.OrderTime,
             DeliveredTime = d.DeliveredTime,
             UserId = d.UserId,

@@ -12,7 +12,7 @@ public class Message : ISoftDeletable
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int MessageId { get; set; }
 
     /// <summary>
     /// Contents of the message
@@ -33,8 +33,7 @@ public class Message : ISoftDeletable
     /// <summary>
     /// ID of the user who sent the message
     /// </summary>
-    [StringLength(36)]
-    public required string AuthorId { get; set; }
+    public required Guid AuthorId { get; set; }
 
     /// <summary>
     /// ID of the message thread

@@ -26,7 +26,7 @@ namespace Reservant.Api.Controllers
 
             var userid = User.GetUserId();
 
-            var result = await reviewService.DeleteReviewAsync(reviewId, userid!);
+            var result = await reviewService.DeleteReviewAsync(reviewId, userid!.Value);
             return OkOrErrors(result);
         }
 
@@ -45,7 +45,7 @@ namespace Reservant.Api.Controllers
             var userid = User.GetUserId();
 
 
-            var result = await reviewService.UpdateReviewAsync(reviewId, userid!, request);
+            var result = await reviewService.UpdateReviewAsync(reviewId, userid!.Value, request);
             return OkOrErrors(result);
         }
 

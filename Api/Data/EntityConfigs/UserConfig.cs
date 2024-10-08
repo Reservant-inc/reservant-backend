@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Reservant.Api.Models;
@@ -14,6 +15,13 @@ public class UserConfig : IEntityTypeConfiguration<User>
     {
         builder.Property(u => u.Id)
             .HasMaxLength(36);
+
+        builder.Property(u => u.Language)
+            .HasConversion<string>(
+                culture => culture.ToString(),
+                langCode => new CultureInfo(langCode))
+            .HasDefaultValue(CultureInfo.InvariantCulture)
+            .HasMaxLength(10);
 
         builder.HasOne<FileUpload>(u => u.Photo)
             .WithOne()

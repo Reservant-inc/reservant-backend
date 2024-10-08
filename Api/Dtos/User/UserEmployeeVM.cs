@@ -10,7 +10,7 @@ public class UserEmployeeVM
     /// <summary>
     /// User ID
     /// </summary>
-    public required string UserId { get; init; }
+    public required Guid UserId { get; init; }
 
     /// <summary>
     /// User login

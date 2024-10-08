@@ -26,7 +26,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.SendFriendRequestAsync))]
-    public async Task<ActionResult> SendFriendRequest(string userId)
+    public async Task<ActionResult> SendFriendRequest(Guid userId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -46,7 +46,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.MarkFriendRequestAsReadAsync))]
-    public async Task<ActionResult> MarkFriendRequestAsRead(string senderId)
+    public async Task<ActionResult> MarkFriendRequestAsRead(Guid senderId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -66,7 +66,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.AcceptFriendRequestAsync))]
-    public async Task<ActionResult> AcceptFriendRequest(string senderId)
+    public async Task<ActionResult> AcceptFriendRequest(Guid senderId)
     {
         var user = await userManager.GetUserAsync(User);
         if (user == null)
@@ -86,9 +86,9 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [ProducesResponseType(204), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.DeleteFriendAsync))]
-    public async Task<ActionResult> DeleteFriend(string otherUserId)
+    public async Task<ActionResult> DeleteFriend(Guid otherUserId)
     {
-        var result = await service.DeleteFriendAsync(otherUserId, User.GetUserId()!);
+        var result = await service.DeleteFriendAsync(otherUserId, User.GetUserId()!.Value);
         return OkOrErrors(result);
     }
 

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Models;
@@ -10,11 +11,9 @@ public class ApiDbContext(
     DbContextOptions<ApiDbContext> options,
     IConfiguration configuration,
     UserIdService userIdService
-    ) : IdentityDbContext<User>(options)
+    ) : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
 {
-    private readonly string? _userId = userIdService.GetUserId();
-
-    public required DbSet<WeatherForecast> WeatherForecasts { get; init; }
+    private readonly Guid? _userId = userIdService.GetUserId();
 
     public DbSet<FileUpload> FileUploads { get; init; } = null!;
 
@@ -55,8 +54,6 @@ public class ApiDbContext(
     public DbSet<Ingredient> Ingredients { get; init; } = null!;
 
     public DbSet<Delivery> Deliveries { get; init; } = null!;
-
-    public DbSet<IngredientMenuItem> IngredientMenuItems { get; set; } = null!;
 
     public DbSet<Notification> Notifications { get; set; } = null!;
 

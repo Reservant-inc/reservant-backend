@@ -19,7 +19,8 @@ public static class ServiceCollectionExtensions
         services.AddSwaggerGen(options =>
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var buildTime = assembly.GetCustomAttribute<BuildTimeAttribute>()?.BuildTime;
+            var buildTime = assembly.GetCustomAttribute<BuildTimeAttribute>()?.BuildTime
+                .ToString("HH:mm:ss, d MMM yyyy") ?? "[unknown]";
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {
@@ -28,7 +29,7 @@ public static class ServiceCollectionExtensions
                 Description = $"""
                     Sekude
 
-                    *Built at {buildTime:HH:mm:ss, d MMM yyyy}*
+                    *Built at {buildTime}*
                     """
             });
 

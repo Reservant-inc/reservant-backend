@@ -10,7 +10,7 @@ public class FriendRequest
     /// <summary>
     /// Unique ID
     /// </summary>
-    public int Id { get; set; }
+    public int FriendRequestId { get; set; }
 
     /// <summary>
     /// Date and time created
@@ -35,14 +35,12 @@ public class FriendRequest
     /// <summary>
     /// ID of the sender
     /// </summary>
-    [StringLength(36)]
-    public string SenderId { get; set; } = null!;
+    public Guid SenderId { get; set; }
 
     /// <summary>
     /// ID of the target user
     /// </summary>
-    [StringLength(36)]
-    public string ReceiverId { get; set; } = null!;
+    public Guid ReceiverId { get; set; }
 
     /// <summary>
     /// Navigational property for the user that sent the request

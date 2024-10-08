@@ -8,7 +8,7 @@ public class RestaurantEmployeeVM
     /// <summary>
     /// Employee ID
     /// </summary>
-    public required string EmployeeId { get; init; }
+    public required Guid EmployeeId { get; init; }
 
     /// <summary>
     /// User login

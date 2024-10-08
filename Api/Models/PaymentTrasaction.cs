@@ -11,7 +11,7 @@ public class PaymentTransaction
     /// Unique ID
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public int PaymentTransactionId { get; set; }
 
     /// <summary>
     /// Transaction title
@@ -32,8 +32,7 @@ public class PaymentTransaction
     /// <summary>
     /// ID of the user
     /// </summary>
-    [StringLength(36)]
-    public string UserId { get; set; } = null!;
+    public Guid UserId { get; set; }
 
     /// <summary>
     /// Navigational property for the user
