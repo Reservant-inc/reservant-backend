@@ -2858,7 +2858,7 @@ public class DbSeeder(
             {
                 Date = DateTime.UtcNow.AddDays(1),
                 NumberOfGuests = 1,
-                Participants = [exampleCustomer.Id],
+                ParticipantIds = [exampleCustomer.Id],
                 RestaurantId = 1,
                 TableId = 1,
                 Takeaway = false,

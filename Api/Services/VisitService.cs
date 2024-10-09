@@ -98,7 +98,7 @@ public class VisitService(
 
         var participants = new List<User>();
 
-        foreach(var userId in request.Participants)
+        foreach(var userId in request.ParticipantIds)
         {
             var currentUser = await userManager.FindByIdAsync(userId.ToString());
             if (currentUser != null) participants.Add(currentUser);
