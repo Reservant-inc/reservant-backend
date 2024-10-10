@@ -129,9 +129,9 @@ public class RestaurantGroupService(
             .ToListAsync();
 
         // Filtracja grup, kt�re s� puste (nie maj� restauracji)
-        var emptyGroups = allGroups.Where(g => !g.Restaurants.Any()).ToList();
+        var emptyGroups = allGroups.Where(g => g.Restaurants.Count == 0).ToList();
 
-        if (emptyGroups.Any())
+        if (emptyGroups.Count != 0)
         {
             context.RestaurantGroups.RemoveRange(emptyGroups);
             await context.SaveChangesAsync();

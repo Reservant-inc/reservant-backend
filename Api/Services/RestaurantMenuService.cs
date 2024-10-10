@@ -198,7 +198,7 @@ public class RestaurantMenuService(
         }
 
         var nonExistentItemIds = request.ItemIds.Except(menuItemsToAdd.Select(item => item.MenuItemId)).ToList();
-        if (nonExistentItemIds.Any())
+        if (nonExistentItemIds.Count != 0)
         {
             return new ValidationFailure
             {
