@@ -174,6 +174,6 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
     /// <param name="fileName"></param>
     /// <returns></returns>
     [return: NotNullIfNotNull(nameof(fileName))]
-    public string? GetUrlForFileName(string? fileName) =>
-        fileName == null ? null : $"{options.Value.ServeUrlBase}/{fileName}";
+    public Uri? GetUrlForFileName(string? fileName) =>
+        fileName == null ? null : new Uri(options.Value.ServeUrlBase, fileName);
 }

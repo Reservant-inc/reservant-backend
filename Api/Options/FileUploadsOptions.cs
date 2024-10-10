@@ -33,11 +33,8 @@ public class FileUploadsOptions
     /// <summary>
     /// URL base at which the uploaded files are accessible
     /// </summary>
-    /// <remarks>
-    /// Must not end with /
-    /// </remarks>
     [Required]
-    public required string ServeUrlBase { get; init; }
+    public required Uri ServeUrlBase { get; init; }
 
     /// <summary>
     /// Maximum file size in kilobytes

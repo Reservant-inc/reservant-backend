@@ -49,7 +49,7 @@ public class StrictController : Controller
     /// Wrapper around the base Created method, but returns an <see cref="ActionResult{T}"/>,
     /// to ensure the declared return type matches the actual returned value's type
     /// </summary>
-    protected ActionResult<T> Created<T>(string? uri, T value) => base.Created(uri, value);
+    protected ActionResult<T> Created<T>(Uri? uri, T value) => base.Created(uri, value);
 
     /// <summary>
     /// Wrapper around the base NoContent method, but returns a wrapped

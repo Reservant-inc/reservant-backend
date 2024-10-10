@@ -67,7 +67,7 @@ public class FirebaseService(
         {
             Title = title,
             Body = body,
-            ImageUrl = uploadService.GetUrlForFileName(notification.PhotoFileName),
+            ImageUrl = uploadService.GetUrlForFileName(notification.PhotoFileName)?.ToString(),
         };
     }
 }
