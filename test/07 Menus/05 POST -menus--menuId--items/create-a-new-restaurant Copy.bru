@@ -1,0 +1,314 @@
+meta {
+  name: create-a-new-restaurant Copy
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/my-restaurants
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{$randomCompanyName}}",
+    "nip": "{{generated_nip}}",
+    "restaurantType": "{{randomRestaurantType}}",
+    "address": "{{$randomStreetAddress}}",
+    "postalIndex": "{{randomPostalCode}}",
+    "city": "{{randomCity}}",
+    "location": {
+      "latitude": {{$randomLatitude}},
+      "longitude": {{$randomLongitude}}
+    },
+    "rentalContract": "test-jd.pdf",
+    "alcoholLicense": "test-jd.pdf",
+    "businessPermission": "test-jd.pdf",
+    "idCard": "test-jd.pdf",
+    "logo": "test-jd.png",
+    "provideDelivery": {{$randomBoolean}},
+    "description": "{{$randomLoremSentence}}",
+    "reservationDeposit": {{ReservationDeposit}},
+    "tags": [
+      "{{randomRestaurantTag}}"
+    ],
+    "photos": [
+      "test-jd.png"
+    ]
+  }
+}
+
+script:pre-request {
+  function generateNIP() {
+      var weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+      
+      // Generate the first 9 digits of NIP
+      var nip_base = [];
+      for (var i = 0; i < 9; i++) {
+          nip_base.push(Math.floor(Math.random() * 10));
+      }
+      
+      // Calculate the control digit
+      var control_sum = 0;
+      for (var i = 0; i < 9; i++) {
+          control_sum += nip_base[i] * weights[i];
+      }
+      var control_digit = control_sum % 11;
+      if (control_digit == 10) {
+          control_digit = 0;
+      }
+      
+      nip_base.push(control_digit);
+      return nip_base.join('');
+  }
+  
+  // Generate NIP and set it as a variable
+  var nip = generateNIP();
+  // postman.setEnvironmentVariable("generated_nip", nip);
+  
+  
+  function generatePostalCode() {
+      function getRandomDigit() {
+          return Math.floor(Math.random() * 10);
+      }
+  
+      var part1 = getRandomDigit().toString() + getRandomDigit().toString();
+      var part2 = getRandomDigit().toString() + getRandomDigit().toString() + getRandomDigit().toString();
+      
+      return part1 + '-' + part2;
+  }
+  
+  //Random Restaurant Tag
+  const choices = ["Asian", "Italian", "OnSite", "Tag1", "Tag2", "Takeaway"];
+  
+  
+  function getRandomChoice(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  const randomChoice = getRandomChoice(choices);
+  
+  bru.setEnvVar("randomRestaurantTag", randomChoice);
+  
+  //Random Restaurant type
+  const choices2 = ["Restaurant", "Bar"];
+  
+  const randomChoice2 = getRandomChoice(choices2);
+  
+  bru.setEnvVar("randomRestaurantType", randomChoice2);
+  
+  //Random Deposit
+  function getRandomDeposit(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  // Losowy wybór dla ReservationDeposit
+  const randomDeposit = getRandomDeposit(0, 500);
+  
+  // Zapisanie wartości jako zmiennej w środowisku Postmana
+  bru.setEnvVar("ReservationDeposit", randomDeposit);
+  
+  // RandomCity
+  const cities = [
+      "Warszawa",
+      "Kraków",
+      "Łódź",
+      "Wrocław",
+      "Poznań",
+      "Gdańsk",
+      "Szczecin",
+      "Bydgoszcz",
+      "Lublin",
+      "Białystok",
+      "Katowice",
+      "Gdynia",
+      "Częstochowa",
+      "Radom",
+      "Sosnowiec"
+  ];
+  
+  
+  function getRandomCity(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  
+  
+  const randomCity = getRandomCity(cities);
+  
+  // Zapisanie miasta jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomCity", randomCity);
+  
+  //Random Postal code
+  function getRandomDigit() {
+      return Math.floor(Math.random() * 10);
+  }
+  
+  // Funkcja generująca polski kod pocztowy w formacie xx-xxx
+  function generateRandomPostalCode() {
+      let postalCode = '';
+      for (let i = 0; i < 2; i++) {
+          postalCode += getRandomDigit();
+      }
+      postalCode += '-';
+      for (let i = 0; i < 3; i++) {
+          postalCode += getRandomDigit();
+      }
+      return postalCode;
+  }
+  
+  // Losowy kod pocztowy
+  const randomPostalCode = generateRandomPostalCode();
+  
+  // Zapisanie kodu pocztowego jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomPostalCode", randomPostalCode);
+  
+  
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Sprawdzenie, czy odpowiedź ma JSON body
+  test("Response has a JSON body", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  // Parsing the request and response body
+  // var requestBody = pm.request.body.raw;
+  var requestData = JSON.parse(requestBody);
+  var responseData = res.getBody();
+  
+  // Check that each expected field is present and non-empty
+  test("name is present and not empty", function () {
+      expect(requestData).to.have.property('name');
+      expect(requestData.name).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("nip is present and not empty", function () {
+      expect(requestData).to.have.property('nip');
+      expect(requestData.nip).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("restaurantType is present and valid", function () {
+      expect(requestData).to.have.property('restaurantType');
+      expect(requestData.restaurantType).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("address is present and not empty", function () {
+      expect(requestData).to.have.property('address');
+      expect(requestData.address).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("postalIndex is present and not empty", function () {
+      expect(requestData).to.have.property('postalIndex');
+      expect(requestData.postalIndex).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("city is present and not empty", function () {
+      expect(requestData).to.have.property('city');
+      expect(requestData.city).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("location is present and valid", function () {
+      expect(requestData).to.have.property('location');
+      expect(requestData.location).to.be.an('object');
+      expect(requestData.location).to.have.property('latitude');
+      expect(requestData.location).to.have.property('longitude');
+  });
+  
+  test("Files are present", function () {
+      expect(requestData).to.have.property('rentalContract');
+      expect(requestData).to.have.property('alcoholLicense');
+      expect(requestData).to.have.property('businessPermission');
+      expect(requestData).to.have.property('idCard');
+      expect(requestData).to.have.property('logo');
+      expect(requestData.rentalContract).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.alcoholLicense).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.businessPermission).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.idCard).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.logo).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("Reservation deposit is valid", function () {
+      expect(requestData).to.have.property('reservationDeposit');
+      expect(requestData.reservationDeposit).to.be.a('number');
+  });
+  
+  test("tags and photos are present and valid", function () {
+      expect(requestData).to.have.property('tags');
+      expect(requestData.tags).to.be.an('array').that.is.not.empty;
+      expect(requestData).to.have.property('photos');
+      expect(requestData.photos).to.be.an('array').that.is.not.empty;
+  });
+  
+  // Validate that the response data structure matches the request data structure
+  test("Response structure is valid", function () {
+      expect(responseData).to.have.property('restaurantId');
+      expect(responseData).to.have.property('name');
+      expect(responseData).to.have.property('restaurantType');
+      expect(responseData).to.have.property('nip');
+      expect(responseData).to.have.property('address');
+      expect(responseData).to.have.property('postalIndex');
+      expect(responseData).to.have.property('city');
+      expect(responseData).to.have.property('location');
+      expect(responseData).to.have.property('groupId');
+      expect(responseData).to.have.property('groupName');
+      expect(responseData).to.have.property('rentalContract');
+      expect(responseData).to.have.property('alcoholLicense');
+      expect(responseData).to.have.property('businessPermission');
+      expect(responseData).to.have.property('idCard');
+      expect(responseData).to.have.property('tables');
+      expect(responseData).to.have.property('provideDelivery');
+      expect(responseData).to.have.property('logo');
+      expect(responseData).to.have.property('photos');
+      expect(responseData).to.have.property('description');
+      expect(responseData).to.have.property('reservationDeposit');
+      expect(responseData).to.have.property('tags');
+      expect(responseData).to.have.property('isVerified');
+  });
+  
+  // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
+  test("Response data matches request data", function () {
+      expect(responseData.name).to.eql(requestData.name);
+      expect(responseData.nip).to.eql(requestData.nip);
+      expect(responseData.restaurantType).to.eql(requestData.restaurantType);
+      expect(responseData.address).to.eql(requestData.address);
+      expect(responseData.postalIndex).to.eql(requestData.postalIndex);
+      expect(responseData.city).to.eql(requestData.city);
+      expect(responseData.location.latitude).to.eql(requestData.location.longitude);
+      expect(responseData.location.longitude).to.eql(requestData.location.latitude);
+      expect(responseData.provideDelivery).to.eql(requestData.provideDelivery);
+      expect(responseData.description).to.eql(requestData.description);
+      expect(responseData.reservationDeposit).to.eql(requestData.reservationDeposit);
+      expect(responseData.tags).to.eql(requestData.tags);
+      expect(responseData.photos).to.have.members(requestData.photos.map(p => `/uploads/${p}`));
+      expect(responseData.rentalContract).to.include(requestData.rentalContract);
+      expect(responseData.alcoholLicense).to.include(requestData.alcoholLicense);
+      expect(responseData.businessPermission).to.include(requestData.businessPermission);
+      expect(responseData.idCard).to.include(requestData.idCard);
+      expect(responseData.logo).to.include(requestData.logo);
+  });
+  
+  
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Sprawdź, czy odpowiedź zawiera restaurantId
+  if (jsonData.restaurantId) {
+      // Zapisz restaurantId do zmiennej środowiskowej temporaryRestaurantId
+      bru.setEnvVar("temporaryRestaurantId", jsonData.restaurantId);
+      console.log("Restaurant ID saved to environment:", jsonData.restaurantId);
+  } else {
+      console.log("Restaurant ID not found in the response.");
+  }
+  
+}

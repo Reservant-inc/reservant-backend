@@ -1,0 +1,194 @@
+meta {
+  name: Updates restaurant info nip error
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{host}}/my-restaurants/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{$randomCompanyName}}",
+    "nip": "123ABC",  // Niepoprawny NIP zawierający litery
+    "restaurantType": "Restaurant",
+    "address": "{{$randomStreetAddress}}",
+    "postalIndex": "{{randomPostalCode}}",
+    "city": "{{randomCity}}",
+    "location": {
+      "latitude": {{$randomLatitude}},
+      "longitude": {{$randomLongitude}}
+    },
+    "rentalContract": "test-jd.pdf",
+    "alcoholLicense": "test-jd.pdf",
+    "businessPermission": "test-jd.pdf",
+    "idCard": "test-jd.pdf",
+    "logo": "test-jd.png",
+    "provideDelivery": {{$randomBoolean}},
+    "description": "{{$randomLoremSentence}}",
+    "reservationDeposit": {{ReservationDeposit}},
+    "tags": [
+      "{{randomRestaurantTag}}"
+    ],
+    "photos": [
+      "test-jd.png"
+    ]
+  }
+  
+}
+
+script:pre-request {
+  function generateNIP() {
+      var weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+      
+      // Generate the first 9 digits of NIP
+      var nip_base = [];
+      for (var i = 0; i < 9; i++) {
+          nip_base.push(Math.floor(Math.random() * 10));
+      }
+      
+      // Calculate the control digit
+      var control_sum = 0;
+      for (var i = 0; i < 9; i++) {
+          control_sum += nip_base[i] * weights[i];
+      }
+      var control_digit = control_sum % 11;
+      if (control_digit == 10) {
+          control_digit = 0;
+      }
+      
+      nip_base.push(control_digit);
+      return nip_base.join('');
+  }
+  
+  // Generate NIP and set it as a variable
+  var nip = generateNIP();
+  // postman.setEnvironmentVariable("generated_nip", nip);
+  
+  
+  function generatePostalCode() {
+      function getRandomDigit() {
+          return Math.floor(Math.random() * 10);
+      }
+  
+      var part1 = getRandomDigit().toString() + getRandomDigit().toString();
+      var part2 = getRandomDigit().toString() + getRandomDigit().toString() + getRandomDigit().toString();
+      
+      return part1 + '-' + part2;
+  }
+  
+  //Random Restaurant Tag
+  const choices = ["Asian", "Italian", "OnSite", "Tag1", "Tag2", "Takeaway"];
+  
+  
+  function getRandomChoice(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  const randomChoice = getRandomChoice(choices);
+  
+  bru.setEnvVar("randomRestaurantTag", randomChoice);
+  
+  //Random Deposit
+  function getRandomDeposit(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  // Losowy wybór dla ReservationDeposit
+  const randomDeposit = getRandomDeposit(0, 500);
+  
+  // Zapisanie wartości jako zmiennej w środowisku Postmana
+  bru.setEnvVar("ReservationDeposit", randomDeposit);
+  
+  // RandomCity
+  const cities = [
+      "Warszawa",
+      "Kraków",
+      "Łódź",
+      "Wrocław",
+      "Poznań",
+      "Gdańsk",
+      "Szczecin",
+      "Bydgoszcz",
+      "Lublin",
+      "Białystok",
+      "Katowice",
+      "Gdynia",
+      "Częstochowa",
+      "Radom",
+      "Sosnowiec"
+  ];
+  
+  
+  function getRandomCity(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  
+  
+  const randomCity = getRandomCity(cities);
+  
+  // Zapisanie miasta jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomCity", randomCity);
+  
+  //Random Postal code
+  function getRandomDigit() {
+      return Math.floor(Math.random() * 10);
+  }
+  
+  // Funkcja generująca polski kod pocztowy w formacie xx-xxx
+  function generateRandomPostalCode() {
+      let postalCode = '';
+      for (let i = 0; i < 2; i++) {
+          postalCode += getRandomDigit();
+      }
+      postalCode += '-';
+      for (let i = 0; i < 3; i++) {
+          postalCode += getRandomDigit();
+      }
+      return postalCode;
+  }
+  
+  // Losowy kod pocztowy
+  const randomPostalCode = generateRandomPostalCode();
+  
+  // Zapisanie kodu pocztowego jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomPostalCode", randomPostalCode);
+  
+  
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 400
+  test("Status code is 400 when 'nip' has invalid format", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'status' i 'errors'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('status');
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Sprawdzenie, czy odpowiedź zawiera błąd dla niepoprawnego pola 'nip'
+  test("Error for invalid 'nip' format is present", function () {
+      var responseData = res.getBody();
+      
+      // Sprawdzamy, czy błąd dotyczy niepoprawnego formatu pola 'nip'
+      expect(responseData.errors).to.have.property('nip');
+      expect(responseData.errors.nip[0]).to.include("Nip must be a valid NIP");
+  });
+  
+}

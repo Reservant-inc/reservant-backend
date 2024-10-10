@@ -1,0 +1,48 @@
+meta {
+  name: my-restaurant-groups--groupId- invalid groupId
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host}}/my-restaurant-groups/:groupId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  groupId: 0
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobierz listę restaurantGroupIds ze zmiennej środowiskowej
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Upewnij się, że restaurantGroupIds to tablica
+  if (restaurantGroupIds && typeof restaurantGroupIds === 'string') {
+      restaurantGroupIds = JSON.parse(restaurantGroupIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantGroupIds && restaurantGroupIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantGroupId = restaurantGroupIds[Math.floor(Math.random() * restaurantGroupIds.length)];
+      
+      // Zapisz wylosowany restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      console.log("Random restaurantGroupId selected:", randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds available.");
+  }
+  
+}
+
+tests {
+  test("Status code is 404", function () {
+      expect(res.getStatus()).to.equal(404);
+  });
+}

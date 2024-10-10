@@ -1,0 +1,37 @@
+meta {
+  name: No Ingredients
+  type: http
+  seq: 18
+}
+
+put {
+  url: {{host}}/menu-items/:menuItemId
+  body: json
+  auth: none
+}
+
+params:path {
+  menuItemId: 1
+}
+
+headers {
+  Authorization: Bearer {{JD}}
+}
+
+body:json {
+  {
+    "menuItemId": 1,
+    "price": 39,
+    "name": "Pizza z mozzarellą",
+    "alternateName": null,
+    "alcoholPercentage": null,
+    "photo": "ResPizza1.jpg",
+    "ingredients": []
+  }
+  
+}
+
+assert {
+  res.body.ingredients: length 0
+  res.status: eq 200
+}

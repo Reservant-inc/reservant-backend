@@ -1,0 +1,35 @@
+meta {
+  name: orders visitIdErr
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/orders
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "visitId": I,
+    "note": "{{$randomAdjective}}",
+    "items": [
+      {
+        "menuItemId": {{randomNumber05}},
+        "amount": {{randomNumber05}}
+      }
+    ]
+  }
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+}

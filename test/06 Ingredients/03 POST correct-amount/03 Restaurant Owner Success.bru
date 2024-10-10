@@ -1,0 +1,29 @@
+meta {
+  name: 03 Restaurant Owner Success
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/ingredients/:ingredientId/correct-amount
+  body: json
+  auth: none
+}
+
+params:path {
+  ingredientId: 1
+}
+
+body:json {
+  {
+    "newAmount": 29,
+    "comment": "First correction"
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body.newAmount: eq 29
+  res.body.comment: eq First correction
+}

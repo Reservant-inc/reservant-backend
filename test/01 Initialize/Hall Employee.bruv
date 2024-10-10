@@ -1,0 +1,46 @@
+meta {
+  name: Hall Employee
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{host}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "login": "JD+hall",
+    "password": "Pa$$w0rd"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has a JSON body", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("Token is present in response", function () {
+      expect(jsonData).to.have.property("token");
+  });
+  
+  test("Response contains userId", function () {
+      expect(jsonData).to.have.property('userId');
+  });
+  
+  test("Login in response is correct", function () {
+      var jsonData = res.getBody();
+  //     var sentLogin = pm.request.body ? JSON.parse(pm.request.body).login : null;
+      expect(jsonData.login).to.eql(sentLogin);
+  });
+  
+  bru.setEnvVar("employee_hall", jsonData.token);
+}

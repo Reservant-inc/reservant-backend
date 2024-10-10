@@ -1,0 +1,34 @@
+meta {
+  name: -events error time
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{host}}/events/:eventId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomEventId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "2024-04-05T16:41:56.276Z",
+    "mustJoinUntil": "{{mustJoinUntil}}",
+    "restaurantId": {{randomRestaurantId}}
+  }
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

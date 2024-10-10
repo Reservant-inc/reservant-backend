@@ -1,0 +1,26 @@
+meta {
+  name: -user--employeeId- error
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{host}}/user/:employeeId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  employeeId: {{$randomInt}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Response status is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+}

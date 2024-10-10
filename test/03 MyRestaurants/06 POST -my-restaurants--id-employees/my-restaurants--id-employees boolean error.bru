@@ -1,0 +1,77 @@
+meta {
+  name: my-restaurants--id-employees boolean error
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/employees
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  [
+    {
+      "employeeId": "{{userId}}",
+      "isHallEmployee": "true",  // Niepoprawny typ danych (string zamiast boolean)
+      "isBackdoorEmployee": {{$randomBoolean}}
+    }
+  ]
+  
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400 dla niepoprawnego typu boolean w 'isHallEmployee'
+  test("Status code is 400 when 'isHallEmployee' is not a boolean", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera wymagane elementy 'status' i 'errors'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'status'
+      expect(jsonData).to.have.property('status');
+      expect(jsonData.status).to.eql(400);
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'errors'
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiedni błąd dla niepoprawnego boolean w 'isHallEmployee'
+  test("Response contains error for non-boolean 'isHallEmployee'", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errors' zawiera błąd dla '$[0].isHallEmployee'
+      expect(jsonData.errors).to.have.property('$[0].isHallEmployee');
+      expect(jsonData.errors["$[0].isHallEmployee"][0]).to.include("The JSON value could not be converted to System.Boolean");
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera błąd dla restaurantId
+  test("Response contains error for restaurantId", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errors' zawiera błąd dla 'restaurantId'
+      expect(jsonData.errors).to.have.property('restaurantId');
+      expect(jsonData.errors.restaurantId).to.be.an('array').that.is.empty;
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera błąd dla 'request'
+  test("Response contains error for 'request' field", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errors' zawiera błąd dla 'request'
+      expect(jsonData.errors).to.have.property('request');
+      expect(jsonData.errors.request[0]).to.include("The request field is required.");
+  });
+  
+}

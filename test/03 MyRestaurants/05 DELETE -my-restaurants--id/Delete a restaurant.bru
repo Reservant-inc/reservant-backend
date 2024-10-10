@@ -1,0 +1,26 @@
+meta {
+  name: Delete a restaurant
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{host}}/my-restaurants/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+}

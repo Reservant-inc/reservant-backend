@@ -1,0 +1,110 @@
+meta {
+  name: Invalid Name 2
+  type: http
+  seq: 10
+}
+
+put {
+  url: {{host}}/menu-items/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{randomMenuItemId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "price": {{randomInt}}, 
+    "name": "@$$$$$$$$NHJKGGHNUI",
+    "alternateName": "{{menuName}}",
+    "alcoholPercentage": {{randomDouble0to3}},
+    "photo": "test-jd.png",
+      "ingredients": []
+  }
+}
+
+script:pre-request {
+  // Pobranie listy 'menuItemIdsList' ze zmiennych środowiskowych
+  let menuItemIdsList = bru.getEnvVar("menuItemIdsList");
+  
+  // Sprawdzenie, czy lista istnieje
+  if (menuItemIdsList) {
+      // Parsowanie listy ze stringa JSON na tablicę
+      menuItemIdsList = JSON.parse(menuItemIdsList);
+      
+      // Sprawdzenie, czy lista nie jest pusta
+      if (menuItemIdsList.length > 0) {
+          // Losowanie indeksu
+          const randomIndex = Math.floor(Math.random() * menuItemIdsList.length);
+          
+          // Pobranie losowego 'menuItemId' z listy
+          const randomMenuItemId = menuItemIdsList[randomIndex];
+          
+          // Zapisanie losowego 'menuItemId' do zmiennej środowiskowej
+          bru.setEnvVar("randomMenuItemId", randomMenuItemId);
+          console.log("Randomly selected menuItemId:", randomMenuItemId);
+      } else {
+          console.log("MenuItemIdsList is empty.");
+      }
+  } else {
+      console.log("MenuItemIdsList does not exist.");
+  }
+  
+  
+  function getRandomMenuName() {
+      var menuNames = ["seafood", "burger", "sushi", "kebab","pasta","pizza"];
+      var randomIndex = Math.floor(Math.random() * menuNames.length);
+      return menuNames[randomIndex];
+  }
+  
+  var randomMenuName = getRandomMenuName();
+  bru.setEnvVar("menuName", randomMenuName);
+  
+  
+  // Funkcja do generowania losowej liczby całkowitej w zakresie od 0 do 500
+  function getRandomInt(max) {
+      return Math.floor(Math.random() * (max + 1)); // max + 1, aby uwzględnić max w zakresie
+  }
+  
+  // Ustawienie zmiennej środowiskowej na losową liczbę całkowitą od 0 do 500
+  bru.setEnvVar("randomInt", getRandomInt(500));
+  console.log("Generated random integer:", bru.getEnvVar("randomInt"));
+  
+  // Funkcja do generowania losowej liczby zmiennoprzecinkowej w zakresie od min do max
+  function getRandomDoubleInRange(min, max) {
+      return Math.random() * (max - min) + min;
+  }
+  
+  // Ustawienie zmiennej środowiskowej na losową liczbę zmiennoprzecinkową od 0 do 3
+  bru.setEnvVar("randomDouble0to3", getRandomDoubleInRange(0, 3).toFixed(2));  // Zaokrąglamy do 2 miejsc po przecinku
+  console.log("Generated random double from 0 to 3:", bru.getEnvVar("randomDouble0to3"));
+  
+  // Funkcja do losowego wyboru pomiędzy 501 a -1
+  function getRandomOutOfRangePrice() {
+      // Losowanie wartości pomiędzy 0 a 1
+      const randomValue = Math.random();
+      
+      // Jeśli wartość jest mniejsza niż 0.5, zwróć 501, w przeciwnym razie zwróć -1
+      return randomValue < 0.5 ? 501 : -1;
+  }
+  
+  // Ustawienie zmiennej środowiskowej z losową wartością
+  const randomOutOfRangePrice = getRandomOutOfRangePrice();
+  bru.setEnvVar("randomOutOfRangePrice", randomOutOfRangePrice);
+  console.log("Generated random out-of-range price:", randomOutOfRangePrice);
+  
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400
+  test("Status code is 400 for 'name' exceeding maximum length", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+}

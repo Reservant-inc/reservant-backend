@@ -1,0 +1,25 @@
+meta {
+  name: my-restaurants--id- notFound error
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/my-restaurants/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 99999999
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 404", function () {
+      expect(res.getStatus()).to.equal(404);
+  });
+}

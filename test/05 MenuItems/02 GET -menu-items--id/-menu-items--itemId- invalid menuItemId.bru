@@ -1,0 +1,65 @@
+meta {
+  name: -menu-items--itemId- invalid menuItemId
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/menu-items/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 0
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobranie listy 'menuItemIdsList' ze zmiennych środowiskowych
+  let menuItemIdsList = bru.getEnvVar("menuItemIdsList");
+  
+  // Sprawdzenie, czy lista istnieje
+  if (menuItemIdsList) {
+      // Parsowanie listy ze stringa JSON na tablicę
+      menuItemIdsList = JSON.parse(menuItemIdsList);
+      
+      // Sprawdzenie, czy lista nie jest pusta
+      if (menuItemIdsList.length > 0) {
+          // Losowanie indeksu
+          const randomIndex = Math.floor(Math.random() * menuItemIdsList.length);
+          
+          // Pobranie losowego 'menuItemId' z listy
+          const randomMenuItemId = menuItemIdsList[randomIndex];
+          
+          // Zapisanie losowego 'menuItemId' do zmiennej środowiskowej
+          bru.setEnvVar("randomMenuItemId", randomMenuItemId);
+          console.log("Randomly selected menuItemId:", randomMenuItemId);
+      } else {
+          console.log("MenuItemIdsList is empty.");
+      }
+  } else {
+      console.log("MenuItemIdsList does not exist.");
+  }
+  
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400
+  test("Status code is 400 when MenuItem is not found", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera pole 'errors' i odpowiedni komunikat błędu dla nieznalezionego 'menuItem'
+  test("Error response contains message for 'MenuItem not found'", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie błędu dla nieznalezionego 'MenuItem'
+      expect(jsonData).to.have.property('errors');
+      expect(jsonData.errors[''][0]).to.include("MenuItem: 0 not found");
+  });
+  
+}

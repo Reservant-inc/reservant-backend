@@ -1,0 +1,42 @@
+meta {
+  name: orders--ordersId--cancel
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/orders/:id/cancel
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{randomNumber010}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  function generateRandomNumber010() {
+      return Math.floor(Math.random() * 11)+1;
+  }
+  var randomNumber010 = generateRandomNumber010();
+  bru.setEnvVar("randomNumber010", randomNumber010);
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  
+  test("Response is not empty", function () {
+      expect(res.getBody()?.toString()).not.to.be.empty;
+  });
+  
+  test("Response has a JSON body", function () {
+  //     expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+  });
+}

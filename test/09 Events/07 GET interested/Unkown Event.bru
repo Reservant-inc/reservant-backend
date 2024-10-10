@@ -1,0 +1,20 @@
+meta {
+  name: Unkown Event
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/events/:eventId/interested
+  body: none
+  auth: none
+}
+
+params:path {
+  eventId: 999
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes.eventId: contains NotFound
+}

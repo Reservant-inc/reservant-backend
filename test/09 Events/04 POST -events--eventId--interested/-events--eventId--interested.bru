@@ -1,0 +1,76 @@
+meta {
+  name: -events--eventId--interested
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/events/:eventId/interested
+  body: none
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomEventId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobierz listę eventIds z środowiska
+  var eventIdsList = bru.getEnvVar("eventIdsList");
+  
+  // Sprawdź, czy lista eventIdsList nie jest pusta
+  if (eventIdsList && eventIdsList.length > 0) {
+      // Parsuj listę (jeśli została zapisana jako string JSON)
+      eventIdsList = JSON.parse(eventIdsList);
+      
+      // Losuj indeks z listy
+      var randomIndex = Math.floor(Math.random() * eventIdsList.length);
+      
+      // Pobierz losowe eventId
+      var randomEventId = eventIdsList[randomIndex];
+      
+      // Zapisz losowe eventId do środowiska
+      bru.setEnvVar("randomEventId", randomEventId);
+      
+      console.log("Losowy eventId: " + randomEventId);
+  } else {
+      console.log("Lista eventIdsList jest pusta lub nie istnieje");
+  }
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  test("Response body is empty", function () {
+  //     pm.response.to.have.body("");
+  });
+  
+  // Pobierz aktualną listę interestedInEventsIdsList ze zmiennej środowiskowej
+  var interestedInEventsIdsList = bru.getEnvVar("interestedInEventsIdsList");
+  
+  // Konwertuj listę na tablicę, jeśli jest w formacie string
+  interestedInEventsIdsList = interestedInEventsIdsList ? interestedInEventsIdsList.split(',') : [];
+  
+  // Pobierz wartość randomEventId
+  var randomEventId = bru.getEnvVar("randomEventId");
+  
+  // Sprawdź, czy randomEventId już nie znajduje się na liście
+  if (!interestedInEventsIdsList.includes(randomEventId)) {
+      // Dodaj randomEventId do listy
+      interestedInEventsIdsList.push(randomEventId);
+  
+      // Zaktualizuj listę w środowisku
+      bru.setEnvVar("interestedInEventsIdsList", interestedInEventsIdsList.join(','));
+  
+      console.log("Added eventId:", randomEventId, "to interestedInEventsIdsList");
+  } else {
+      console.log("EventId", randomEventId, "is already in interestedInEventsIdsList");
+  }
+  
+}

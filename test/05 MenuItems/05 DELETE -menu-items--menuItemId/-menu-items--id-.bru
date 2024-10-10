@@ -1,0 +1,41 @@
+meta {
+  name: -menu-items--id-
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{host}}/menu-items/:menuItemId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  menuItemId: {{menuItemToRemove}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  function generateRandomNumber010() {
+      return Math.floor(Math.random() * 11);
+  }
+  var randomNumber010 = generateRandomNumber010();
+  bru.setEnvVar("randomNumber010", randomNumber010);
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  test("Response body is empty", function () {
+  //     pm.response.to.have.body("");
+  });
+  
+  test("Response time is less than 500ms", function () {
+      expect(res.getResponseTime()).to.be.below(500);
+  });
+}

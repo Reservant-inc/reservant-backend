@@ -1,0 +1,19 @@
+meta {
+  name: Success
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/events/:eventId/interested
+  body: none
+  auth: none
+}
+
+params:path {
+  eventId: 1
+}
+
+assert {
+  res.status: eq 200
+}

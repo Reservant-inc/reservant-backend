@@ -1,0 +1,25 @@
+meta {
+  name: -id--menus other-s restaurant
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{host}}/my-restaurants/:id/menus
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{PA}}
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

@@ -1,0 +1,52 @@
+meta {
+  name: -events error restaurantId
+  type: http
+  seq: 10
+}
+
+put {
+  url: {{host}}/events/:eventId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomEventId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "{{time}}",
+    "mustJoinUntil": "{{mustJoinUntil}}",
+    "restaurantId": 0
+  }
+  
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera błąd "Restaurant with ID 0 not found"
+  test("Restaurant not found error message exists", function () {
+      expect(jsonData.errors.restaurantId).to.include("Restaurant with ID 0 not found");
+  });
+  
+  // Test, czy errorCodes zawiera "RestaurantDoesNotExist"
+  test("ErrorCodes contains 'RestaurantDoesNotExist'", function () {
+      expect(jsonData.errorCodes.restaurantId).to.include("RestaurantDoesNotExist");
+  });
+  
+}

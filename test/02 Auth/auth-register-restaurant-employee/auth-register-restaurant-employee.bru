@@ -1,0 +1,172 @@
+meta {
+  name: auth-register-restaurant-employee
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/auth/register-restaurant-employee
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "login": "{{$randomUserName}}",
+    "firstName": "{{$randomFirstName}}",
+    "lastName": "{{$randomLastName}}",
+    "phoneNumber": "{{randomPhoneNumber}}",
+    "birthDate": "{{formattedDate}}",
+    "password": "{{$randomAlphaNumeric.LENGTH(10)}}"
+  }
+  
+}
+
+script:pre-request {
+  function generateRandomNumberSequence(length) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+          result += Math.floor(Math.random() * 10); 
+      }
+      return result;
+  }
+  
+  function generateFormattedDate() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = ('0' + (today.getMonth() + 1)).slice(-2);
+      const day = ('0' + today.getDate()).slice(-2); 
+      return `${year}-${month}-${day}`;
+  }
+  const formattedDate = generateFormattedDate();
+  bru.setEnvVar("formattedDate", formattedDate);
+  
+  
+  
+  
+  //old
+  const randomNumbers = generateRandomNumberSequence(9);
+  bru.setEnvVar("randomPhoneNumber", randomNumbers);
+  
+  function generateRandomString(length, chars) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+  }
+  
+  const randomLogin = generateRandomString(8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+  const randomFirstName = generateRandomString(6, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+  const randomLastName = generateRandomString(6, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+  const randomPhoneNumber = Math.floor(Math.random() * 900000000) + 100000000;
+  const specialCharacters = '!@#$%^&*()_+[]{}|;:,.<>?';
+  const upperCase = generateRandomString(1, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+  const lowerCase = generateRandomString(6, 'abcdefghijklmnopqrstuvwxyz');
+  const number = generateRandomString(1, '0123456789');
+  const specialChar = generateRandomString(1, specialCharacters);
+  const randomPassword = upperCase + lowerCase + number + specialChar + generateRandomString(3, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+  
+  bru.setVar("random_login", randomLogin);
+  bru.setVar("random_firstName", randomFirstName);
+  bru.setVar("random_lastName", randomLastName);
+  bru.setVar("random_phoneNumber", randomPhoneNumber);
+  bru.setVar("random_password", randomPassword);
+  
+  const employeeData = {
+      login: randomLogin,
+      firstName: randomFirstName,
+      lastName: randomLastName,
+      phoneNumber: randomPhoneNumber.toString(),
+      password: randomPassword
+  };
+  
+  bru.setVar("employee_data", JSON.stringify(employeeData));
+}
+
+tests {
+  // Test to check if the status code is 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test to check if the response has a JSON body
+  test("Response has a JSON body", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  // Parsing the request and response body
+  // var requestBody = pm.request.body.raw;
+  var requestData = JSON.parse(requestBody);
+  var responseData = res.getBody();
+  
+  // Check that each expected field is present and non-empty
+  test("firstName is present and not empty", function () {
+      expect(requestData).to.have.property('firstName');
+      expect(requestData.firstName).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("lastName is present and not empty", function () {
+      expect(requestData).to.have.property('lastName');
+      expect(requestData.lastName).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("login is present and not empty", function () {
+      expect(requestData).to.have.property('login');
+      expect(requestData.login).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("phoneNumber is present and valid", function () {
+      expect(requestData).to.have.property('phoneNumber');
+      expect(requestData.phoneNumber).to.be.a('string').and.to.not.be.empty;
+      expect(Number(requestData.phoneNumber)).to.be.a('number');
+  });
+  
+  test("birthDate is present and valid", function () {
+      expect(requestData).to.have.property('birthDate');
+      expect(requestData.birthDate).to.be.a('string').and.to.not.be.empty;
+      // Optionally, you can add date format validation here
+  });
+  
+  test("Password is present and not empty", function () {
+      expect(requestData).to.have.property('password');
+      expect(requestData.password).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  // Validate that the response data structure matches the request data structure
+  test("Response structure is valid", function () {
+      // Check if the response contains the 'userId' property
+      expect(responseData).to.have.property('userId');
+      expect(responseData.userId).to.be.a('string');
+  
+      // Check if the response contains the 'login' property
+      expect(responseData).to.have.property('login');
+      expect(responseData.login).to.be.a('string');
+  
+      // Check if the response contains the 'roles' property
+      expect(responseData).to.have.property('roles');
+      expect(responseData.roles).to.be.an('array');
+  
+      // Validate that the 'roles' array contains the expected role 'RestaurantEmployee'
+      expect(responseData.roles).to.include.members(["RestaurantEmployee"]);
+  });
+  
+  // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
+  var jsonData = res.getBody();
+  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  
+  test("Response data matches request data", function () {
+      expect(jsonData.Data).to.eql(sentData);
+  });
+  
+  if (jsonData.userId) {
+      bru.setEnvVar("userId", jsonData.userId);
+      console.log("UserId saved to environment: " + jsonData.userId);
+  } else {
+      console.log("UserId not found in response.");
+  }
+}

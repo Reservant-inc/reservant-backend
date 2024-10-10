@@ -1,0 +1,42 @@
+meta {
+  name: Ingredients From Another Restaurant
+  type: http
+  seq: 17
+}
+
+put {
+  url: {{host}}/menu-items/:menuItemId
+  body: json
+  auth: none
+}
+
+params:path {
+  menuItemId: 1
+}
+
+headers {
+  Authorization: Bearer {{JD}}
+}
+
+body:json {
+  {
+    "menuItemId": 1,
+    "price": 39,
+    "name": "Pizza z mozzarellą",
+    "alternateName": null,
+    "alcoholPercentage": null,
+    "photo": "ResPizza1.jpg",
+    "ingredients": [
+      {
+        "ingredientId": 14,
+        "amountUsed": 400
+      }
+    ]
+  }
+  
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes['ingredients']: contains 'NotFound'
+}

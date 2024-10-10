@@ -1,0 +1,56 @@
+meta {
+  name: menus--id- dateUntil - dateFrom
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{host}}/menus/:menuId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{$randomStreetName}}",
+    "alternateName": "{{$randomStreetName}}",
+    "menuType": "{{randomMenuType}}",
+    "dateFrom": "{{randomFutureDate}}", // Przyszła data
+    "dateUntil": "{{formattedDate}}",   // Obecna data lub data wcześniejsza niż dateFrom
+     "photo": "test-jd.png"
+  }
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIds = JSON.parse(bru.getEnvVar("menuIds"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIds && Array.isArray(menuIds) && menuIds.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIds.length);
+      var randomMenuId = menuIds[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+  
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

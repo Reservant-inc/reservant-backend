@@ -1,0 +1,40 @@
+meta {
+  name: -users
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/users?name=e5779baf-5c9b-4638-b9e7-ec285e57b367
+  body: none
+  auth: bearer
+}
+
+params:query {
+  name: e5779baf-5c9b-4638-b9e7-ec285e57b367
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  test("Response body has correct structure and data types", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.have.property('page').that.is.a('number');
+      expect(jsonData).to.have.property('totalPages').that.is.a('number');
+      expect(jsonData).to.have.property('perPage').that.is.a('number');
+      expect(jsonData).to.have.property('orderByOptions').that.is.an('array');
+      expect(jsonData).to.have.property('items').that.is.an('array').that.is.empty;
+  });
+  
+}

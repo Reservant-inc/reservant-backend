@@ -1,0 +1,55 @@
+meta {
+  name: -id--move-to-group unauthorized Copy 4
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/move-to-group
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{employee}}
+}
+
+body:json {
+  {
+    "groupId": {{randomRestaurantGroupId}}
+  }
+}
+
+script:pre-request {
+  // Pobranie listy restaurantGroupIds ze zmiennych środowiskowych
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Parsowanie listy z JSON
+  if (restaurantGroupIds) {
+      var groupIdsArray = JSON.parse(restaurantGroupIds);
+      
+      // Wylosowanie losowego indexu z tablicy
+      var randomIndex = Math.floor(Math.random() * groupIdsArray.length);
+      
+      // Pobranie losowego restaurantGroupId
+      var randomRestaurantGroupId = groupIdsArray[randomIndex];
+      
+      // Zapisanie losowego restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      
+      console.log("Random restaurantGroupId selected: " + randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds found in environment variables.");
+  }
+  
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+}

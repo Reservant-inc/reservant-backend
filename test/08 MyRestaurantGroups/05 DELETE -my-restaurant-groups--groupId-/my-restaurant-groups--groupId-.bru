@@ -1,0 +1,85 @@
+meta {
+  name: my-restaurant-groups--groupId-
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{host}}/my-restaurant-groups/:groupId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  groupId: {{randomRestaurantGroupId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobierz listę restaurantGroupIds ze zmiennej środowiskowej
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Upewnij się, że restaurantGroupIds to tablica
+  if (restaurantGroupIds && typeof restaurantGroupIds === 'string') {
+      restaurantGroupIds = JSON.parse(restaurantGroupIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantGroupIds && restaurantGroupIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantGroupId = restaurantGroupIds[Math.floor(Math.random() * restaurantGroupIds.length)];
+      
+      // Zapisz wylosowany restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      console.log("Random restaurantGroupId selected:", randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds available.");
+  }
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  
+  
+  //usun grupe z listy
+  // Sprawdź, czy status odpowiedzi to 204
+  if (res.getStatus() === 204) {
+      // Pobierz listę restaurantGroupIds ze zmiennej środowiskowej
+      var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+      // Upewnij się, że restaurantGroupIds to tablica liczb
+      if (restaurantGroupIds && typeof restaurantGroupIds === 'string') {
+          restaurantGroupIds = JSON.parse(restaurantGroupIds); // Parsujemy jako tablicę liczb
+      }
+  
+      // Pobierz restaurantGroupId, który chcesz usunąć (powinien być liczbą)
+      var groupIdToRemove = bru.getEnvVar("randomRestaurantGroupId");
+  
+      // Sprawdź, czy lista nie jest pusta
+      if (restaurantGroupIds && restaurantGroupIds.length > 0) {
+          // Znajdź indeks elementu, który chcesz usunąć
+          var index = restaurantGroupIds.indexOf(parseInt(groupIdToRemove)); // Wyszukaj liczbę w tablicy
+          
+          if (index !== -1) {
+              // Usuń element z listy
+              restaurantGroupIds.splice(index, 1);
+              console.log("Removed Restaurant Group ID:", groupIdToRemove);
+          } else {
+              console.log("Restaurant Group ID not found in the list:", groupIdToRemove);
+          }
+  
+          // Zapisz zaktualizowaną listę z powrotem do zmiennej środowiskowej
+          bru.setEnvVar("restaurantGroupIds", JSON.stringify(restaurantGroupIds)); // Zapisujemy jako JSON
+      } else {
+          console.log("No restaurantGroupIds available.");
+      }
+  } else {
+      console.log("Response status is not 204. No action taken.");
+  }
+}

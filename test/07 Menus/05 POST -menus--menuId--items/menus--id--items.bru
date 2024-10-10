@@ -1,0 +1,115 @@
+meta {
+  name: menus--id--items
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/menus/:menuId/items
+  body: json
+  auth: bearer
+}
+
+params:query {
+  ~: 
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "itemIds": [
+      {{randomMenuItemId}}
+    ]
+  }
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+  
+  
+  
+  
+  // Pobranie listy 'menuItemIdsList' ze zmiennych środowiskowych
+  let menuItemIdsList = bru.getEnvVar("menuItemIdsList");
+  
+  // Sprawdzenie, czy lista istnieje
+  if (menuItemIdsList) {
+      // Parsowanie listy ze stringa JSON na tablicę
+      menuItemIdsList = JSON.parse(menuItemIdsList);
+      
+      // Sprawdzenie, czy lista nie jest pusta
+      if (menuItemIdsList.length > 0) {
+          // Losowanie indeksu
+          const randomIndex = Math.floor(Math.random() * menuItemIdsList.length);
+          
+          // Pobranie losowego 'menuItemId' z listy
+          const randomMenuItemId = menuItemIdsList[randomIndex];
+          
+          // Zapisanie losowego 'menuItemId' do zmiennej środowiskowej
+          bru.setEnvVar("randomMenuItemId", randomMenuItemId);
+          console.log("Randomly selected menuItemId:", randomMenuItemId);
+      } else {
+          console.log("MenuItemIdsList is empty.");
+      }
+  } else {
+      console.log("MenuItemIdsList does not exist.");
+  }
+  
+}
+
+tests {
+  // Test: Status code is 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test: Response is in JSON format
+  test("Response is in JSON format", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  // Test: Response contains correct structure
+  test("Response contains expected fields", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('menuId');
+      expect(jsonData).to.have.property('name');
+      expect(jsonData).to.have.property('alternateName');
+      expect(jsonData).to.have.property('menuType');
+      expect(jsonData).to.have.property('dateFrom');
+      expect(jsonData).to.have.property('dateUntil');
+      expect(jsonData).to.have.property('menuItems').that.is.an('array');
+      expect(jsonData.menuItems.length).to.be.greaterThan(0);
+      expect(jsonData.menuItems[0]).to.have.property('menuItemId');
+      expect(jsonData.menuItems[0]).to.have.property('price');
+      expect(jsonData.menuItems[0]).to.have.property('name');
+      expect(jsonData.menuItems[0]).to.have.property('photo');
+  });
+  
+  // Test: Save updated menu ID to environment variable
+  var jsonData = res.getBody();
+  bru.setEnvVar("updatedMenuId", jsonData.menuId);
+  console.log("Updated menu ID saved to environment:", jsonData.menuId);
+  
+}

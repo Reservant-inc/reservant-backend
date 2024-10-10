@@ -1,0 +1,132 @@
+meta {
+  name: -events error descr
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra libero non lorem gravida, ac maximus ligula faucibus. Integer vel libero vel risus commodo gravida. Sed cursus, felis vel consectetur elementum, lorem odio aliquam dui, et dignissim eros libero a nisi. Cras et urna a arcu condimentum imperdiet. Suspendisse potenti. Duis finibus, mi eget varius tempor, ex urna sodales lacus, et faucibus dolor odio vitae nisl. Nulla facilisi. Vivamus sed dolor a erat sodales iaculis ac nec arcu. Donec euismod, elit a luctus efficitur, quam est condimentum lectus, et tincidunt mi lorem nec ante. Fusce euismod feugiat turpis sit amet aliquam. Proin consectetur dolor ut quam ullamcorper sollicitudin aaaaaaa",
+    "time": "{{time}}",
+    "mustJoinUntil": "{{mustJoinUntil}}",
+    "restaurantId": {{randomRestaurantId}}
+  }
+  
+  
+  
+}
+
+script:pre-request {
+  //lorem
+  function getRandomText(maxLength) {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ';
+      let result = '';
+      const randomLength = Math.floor(Math.random() * (maxLength + 1));
+      for (let i = 0; i < randomLength; i++) {
+          result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return result;
+  }
+  const maxLength = 200;
+  const randomText = getRandomText(maxLength);
+  bru.setEnvVar("randomText", randomText);
+  console.log("Random Text: ", randomText);
+  
+  
+  // Pobierz listę restaurantIds ze zmiennej środowiskowej
+  var restaurantIds = bru.getEnvVar("restaurantIds");
+  
+  // Upewnij się, że restaurantIds to tablica
+  if (restaurantIds && typeof restaurantIds === 'string') {
+      restaurantIds = JSON.parse(restaurantIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantIds && restaurantIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantId = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
+      
+      // Zapisz wylosowany restaurantId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantId", randomRestaurantId);
+      console.log("Random restaurantId selected:", randomRestaurantId);
+  } else {
+      console.log("No restaurantIds available.");
+  }
+  
+  
+  
+  
+  // Funkcja do generowania losowej daty w przyszłości
+  function generateFutureDate() {
+      const now = new Date();
+      // Dodaj losowy przedział czasu (1-10 dni) w milisekundach
+      const futureTime = now.getTime() + Math.floor(Math.random() * 10 + 1) * 24 * 60 * 60 * 1000;
+      return new Date(futureTime).toISOString();
+  }
+  
+  // Funkcja do generowania daty przed danym czasem (np. przed `time`)
+  function generatePastDateBefore(futureDate) {
+      const future = new Date(futureDate);
+      // Odejmij losowy czas (1-5 godzin) od futureDate
+      const pastTime = future.getTime() - Math.floor(Math.random() * 5 + 1) * 60 * 60 * 1000;
+      return new Date(pastTime).toISOString();
+  }
+  
+  // Generowanie przyszłej daty dla 'time'
+  const time = generateFutureDate();
+  
+  // Generowanie daty przed 'time' dla 'mustJoinUntil'
+  const mustJoinUntil = generatePastDateBefore(time);
+  
+  // Zapisz wartości w zmiennych środowiskowych
+  bru.setEnvVar("time", time);
+  bru.setEnvVar("mustJoinUntil", mustJoinUntil);
+  
+  console.log("Generated time:", time);
+  console.log("Generated mustJoinUntil:", mustJoinUntil);
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość o zbyt długim opisie
+  test("Error contains description length message", function () {
+      expect(jsonData.errors).to.have.property('description');
+      expect(jsonData.errors.description[0]).to.include("'Description' must be between 0 and 200 characters.");
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errorCodes'
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test, czy 'errorCodes' zawiera odpowiedni kod błędu 'LengthValidator'
+  test("ErrorCodes contains LengthValidator", function () {
+      expect(jsonData.errorCodes).to.have.property('description');
+      expect(jsonData.errorCodes.description[0]).to.eql("LengthValidator");
+  });
+  
+}

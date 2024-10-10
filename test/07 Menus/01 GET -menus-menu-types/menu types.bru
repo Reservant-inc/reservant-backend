@@ -1,0 +1,31 @@
+meta {
+  name: menu types
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/menus/menu-types
+  body: none
+  auth: none
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Sprawdzenie, czy odpowiedź jest w formacie JSON
+  test("Response is a valid JSON array", function () {
+  //     pm.response.to.be.json;
+      var jsonData = res.getBody();
+      expect(jsonData).to.be.an('array');
+  });
+  
+  // Zapisanie listy typów menu do zmiennej środowiskowej
+  var menuTypes = res.getBody();
+  bru.setEnvVar("menuTypesList", JSON.stringify(menuTypes));
+  console.log("Menu types list saved to environment:", menuTypes);
+  
+}

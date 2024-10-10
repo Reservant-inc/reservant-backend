@@ -1,0 +1,21 @@
+meta {
+  name: my-restaurant-groups unauthorized Copy 3
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/my-restaurant-groups
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{employee}}
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+}

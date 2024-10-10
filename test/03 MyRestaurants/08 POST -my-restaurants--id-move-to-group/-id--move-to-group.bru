@@ -1,0 +1,92 @@
+meta {
+  name: -id--move-to-group
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/move-to-group
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "groupId": {{randomRestaurantGroupId}}
+  }
+}
+
+script:pre-request {
+  // Pobranie listy restaurantGroupIds ze zmiennych środowiskowych
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Parsowanie listy z JSON
+  if (restaurantGroupIds) {
+      var groupIdsArray = JSON.parse(restaurantGroupIds);
+      
+      // Wylosowanie losowego indexu z tablicy
+      var randomIndex = Math.floor(Math.random() * groupIdsArray.length);
+      
+      // Pobranie losowego restaurantGroupId
+      var randomRestaurantGroupId = groupIdsArray[randomIndex];
+      
+      // Zapisanie losowego restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      
+      console.log("Random restaurantGroupId selected: " + randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds found in environment variables.");
+  }
+  
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test sprawdzający, czy odpowiedź jest w formacie JSON
+  test("Response is a valid JSON", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  // Test sprawdzający strukturę odpowiedzi i zaktualizowane 'groupId'
+  test("Response has correct structure and updated 'groupId'", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy odpowiedź zawiera klucz 'restaurantId'
+      expect(jsonData).to.have.property('restaurantId').that.is.a('number');
+      
+      // Sprawdzenie, czy odpowiedź zawiera klucz 'groupId'
+      expect(jsonData).to.have.property('groupId').that.is.a('number');
+  
+      // Sprawdzenie, czy 'groupId' w odpowiedzi zgadza się z losowo wybranym 'groupId'
+      var sentGroupId = bru.getEnvVar("randomRestaurantGroupId");
+      expect(jsonData.groupId).to.eql(parseInt(sentGroupId));
+  
+      // Dodatkowe sprawdzenie innych kluczowych właściwości restauracji
+      expect(jsonData).to.have.property('name').that.is.a('string');
+      expect(jsonData).to.have.property('address').that.is.a('string');
+      expect(jsonData).to.have.property('city').that.is.a('string');
+      expect(jsonData).to.have.property('location').that.is.an('object');
+      expect(jsonData.location).to.have.property('latitude').that.is.a('number');
+      expect(jsonData.location).to.have.property('longitude').that.is.a('number');
+  });
+  
+  // Test zapisujący zaktualizowane 'groupId' do środowiska dla przyszłych użyć
+  test("Save updated 'groupId' to environment", function () {
+      var jsonData = res.getBody();
+      bru.setEnvVar("updatedGroupId", jsonData.groupId);
+      console.log("Updated groupId saved to environment: " + jsonData.groupId);
+  });
+  
+}

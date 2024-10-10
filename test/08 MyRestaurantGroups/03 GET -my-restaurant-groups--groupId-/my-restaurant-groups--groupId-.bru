@@ -1,0 +1,90 @@
+meta {
+  name: my-restaurant-groups--groupId-
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/my-restaurant-groups/:groupId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  groupId: {{randomRestaurantGroupId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobierz listę restaurantGroupIds ze zmiennej środowiskowej
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Upewnij się, że restaurantGroupIds to tablica
+  if (restaurantGroupIds && typeof restaurantGroupIds === 'string') {
+      restaurantGroupIds = JSON.parse(restaurantGroupIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantGroupIds && restaurantGroupIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantGroupId = restaurantGroupIds[Math.floor(Math.random() * restaurantGroupIds.length)];
+      
+      // Zapisz wylosowany restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      console.log("Random restaurantGroupId selected:", randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds available.");
+  }
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'restaurantGroupId'
+  test("Response contains restaurantGroupId", function () {
+      expect(jsonData).to.have.property('restaurantGroupId');
+      expect(jsonData.restaurantGroupId).to.be.a('number');
+  });
+  
+  // Sprawdzenie, czy 'restaurants' to tablica
+  test("Response contains restaurants array", function () {
+      expect(jsonData).to.have.property('restaurants');
+      expect(jsonData.restaurants).to.be.an('array');
+      expect(jsonData.restaurants.length).to.be.above(0); // Sprawdzenie, czy lista restauracji nie jest pusta
+  });
+  
+  // Sprawdzenie szczegółów restauracji
+  test("Each restaurant contains correct properties", function () {
+      var restaurant = jsonData.restaurants[0]; // Pobierz pierwszą restaurację
+  
+      expect(restaurant).to.have.property('restaurantId').that.is.a('number');
+      expect(restaurant).to.have.property('name').that.is.a('string');
+      expect(restaurant).to.have.property('nip').that.is.a('string');
+      expect(restaurant).to.have.property('restaurantType').that.is.a('string');
+      expect(restaurant).to.have.property('address').that.is.a('string');
+      expect(restaurant).to.have.property('city').that.is.a('string');
+      expect(restaurant).to.have.property('location').that.is.an('object');
+      expect(restaurant.location).to.have.property('latitude').that.is.a('number');
+      expect(restaurant.location).to.have.property('longitude').that.is.a('number');
+      expect(restaurant).to.have.property('groupId').that.is.a('number');
+      expect(restaurant).to.have.property('logo').that.is.a('string');
+      expect(restaurant).to.have.property('description').that.is.a('string');
+      expect(restaurant).to.have.property('reservationDeposit').that.is.a('number');
+      expect(restaurant).to.have.property('provideDelivery').that.is.a('boolean');
+      expect(restaurant).to.have.property('tags').that.is.an('array');
+      expect(restaurant).to.have.property('isVerified').that.is.a('boolean');
+      expect(restaurant).to.have.property('rating').that.is.a('number');
+      expect(restaurant).to.have.property('numberReviews').that.is.a('number');
+  });
+  
+}

@@ -1,0 +1,33 @@
+meta {
+  name: menus--id- unauthorized Copy 3
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{host}}/menus/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{employee}}
+}
+
+script:pre-request {
+  function generateRandomNumber010() {
+      return Math.floor(Math.random() * 11);
+  }
+  var randomNumber010 = generateRandomNumber010();
+  bru.setEnvVar("randomNumber010", randomNumber010);
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+}

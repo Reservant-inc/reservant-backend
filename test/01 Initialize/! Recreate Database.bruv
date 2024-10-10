@@ -1,0 +1,15 @@
+meta {
+  name: ! Recreate Database
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/debug/recreate-database
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

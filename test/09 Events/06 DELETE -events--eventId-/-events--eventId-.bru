@@ -1,0 +1,73 @@
+meta {
+  name: -events--eventId-
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{host}}/events/:eventId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomEventId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobierz listę eventIds z środowiska
+  var eventIdsList = bru.getEnvVar("eventIdsList");
+  
+  // Sprawdź, czy lista eventIdsList nie jest pusta
+  if (eventIdsList && eventIdsList.length > 0) {
+      // Parsuj listę (jeśli została zapisana jako string JSON)
+      eventIdsList = JSON.parse(eventIdsList);
+      
+      // Losuj indeks z listy
+      var randomIndex = Math.floor(Math.random() * eventIdsList.length);
+      
+      // Pobierz losowe eventId
+      var randomEventId = eventIdsList[randomIndex];
+      
+      // Zapisz losowe eventId do środowiska
+      bru.setEnvVar("randomEventId", randomEventId);
+      
+      console.log("Losowy eventId: " + randomEventId);
+  } else {
+      console.log("Lista eventIdsList jest pusta lub nie istnieje");
+  }
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  
+  // Sprawdź, czy status kod jest 200
+  if (res.getStatus() === 204) {
+      // Pobierz listę eventów ze zmiennej środowiskowej
+      var eventIdsList = bru.getEnvVar("eventIdsList");
+      
+      // Konwertuj listę na tablicę, jeśli jest w formacie string
+      eventIdsList = eventIdsList ? eventIdsList.split(',') : [];
+      
+      // Pobierz wartość randomEventId
+      var randomEventId = bru.getEnvVar("randomEventId");
+      
+      // Usuń randomEventId z listy
+      eventIdsList = eventIdsList.filter(function(eventId) {
+          return eventId !== randomEventId;
+      });
+      
+      // Zaktualizuj listę w środowisku
+      bru.setEnvVar("eventIdsList", eventIdsList.join(','));
+      
+      console.log("Removed eventId:", randomEventId, "from eventIdsList");
+  }
+  
+}

@@ -1,0 +1,84 @@
+meta {
+  name: auth-register-customer firstName error
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/auth/register-customer
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstName": "",
+    "lastName": "Doe",
+    "login": "{{$randomUserName}}",
+    "email": "johndoe@example.com",
+    "phoneNumber": "123456789",
+    "birthDate": "1990-01-01",
+    "password": "Pa$$w0rd123"
+  }
+  
+}
+
+script:pre-request {
+  //phone number
+  function generateRandomNumberSequence(length) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+          result += Math.floor(Math.random() * 10); 
+      }
+      return result;
+  }
+  const randomNumbers = generateRandomNumberSequence(9);
+  bru.setEnvVar("randomPhoneNumber", randomNumbers);
+  
+  //date
+  function generateFormattedDate() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = ('0' + (today.getMonth() + 1)).slice(-2);
+      const day = ('0' + today.getDate()).slice(-2); 
+      return `${year}-${month}-${day}`;
+  }
+  const formattedDate = generateFormattedDate();
+  bru.setEnvVar("formattedDate", formattedDate);
+  
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'status', 'errors' i 'errorCodes'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('status');
+      expect(jsonData).to.have.property('errors');
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test sprawdzający, czy 'firstName' jest pusty i zwraca odpowiedni błąd
+  test("firstName must not be empty", function () {
+      var responseData = res.getBody();
+  
+      expect(responseData.errors).to.have.property('firstName');
+      expect(responseData.errors.firstName[0]).to.include("'First Name' must not be empty.");
+  
+      expect(responseData.errorCodes).to.have.property('firstName');
+      expect(responseData.errorCodes.firstName[0]).to.include("NotEmptyValidator");
+  });
+  
+  // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
+  var jsonData = res.getBody();
+  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  
+  test("Response data matches request data", function () {
+      expect(jsonData.Data).to.eql(sentData);
+  });
+  
+}

@@ -1,0 +1,84 @@
+meta {
+  name: -id--menus
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/my-restaurants/:id/menus
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is not empty", function () {
+      expect(res.getBody()?.toString()).not.to.be.empty;
+  });
+  
+  test("Response Content-Type is application/json", function () {
+  //     expect(pm.response.headers.get('Content-Type')).to.include('application/json');
+  });
+  
+  test("Response is an array", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.be.an('array');
+  });
+  
+  test("Menu structure", function () {
+      var jsonData = res.getBody();
+      jsonData.forEach(item => {
+          expect(item).to.have.property('menuId');
+          expect(item).to.have.property('name');
+          expect(item).to.have.property('alternateName');
+          expect(item).to.have.property('menuType');
+          expect(item).to.have.property('dateFrom');
+          expect(item).to.have.property('dateUntil');
+      });
+  });
+  
+  test("Property types are correct", function () {
+      var jsonData = res.getBody();
+      jsonData.forEach(item => {
+          expect(item.menuId).to.be.a('number');
+          expect(item.name).to.be.a('string');
+          expect(item.alternateName).to.satisfy((value) => value === null || typeof value === 'string');
+          expect(item.menuType).to.be.a('string');
+          expect(item.dateFrom).to.be.a('string');
+          expect(item.dateUntil).to.satisfy((value) => value === null || typeof value === 'string');
+      });
+  });
+  
+  // Pobieranie danych z odpowiedzi
+  var jsonData = res.getBody();
+  
+  // Sprawdzanie, czy odpowiedź zawiera listę
+  test("Response contains a list of menus", function () {
+      expect(jsonData).to.be.an('array');
+      expect(jsonData.length).to.be.above(0);
+  });
+  
+  // Tworzenie listy menuId
+  var menuIds = jsonData.map(function(menu) {
+      return menu.menuId;
+  });
+  
+  // Zapisywanie listy menuId do środowiska Postmana
+  bru.setEnvVar("menuIds", JSON.stringify(menuIds));
+  
+  // Test sprawdzający, czy lista menuId została poprawnie zapisana
+  test("Menu IDs have been saved to environment", function () {
+      expect(bru.getEnvVar("menuIds")).to.eql(JSON.stringify(menuIds));
+  });
+}

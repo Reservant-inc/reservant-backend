@@ -1,0 +1,96 @@
+meta {
+  name: GET menuitems from menu
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/menus/:menuId/items
+  body: none
+  auth: bearer
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Sprawdź, czy status kod jest 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Sprawdź, czy odpowiedź ma strukturę paginacji
+  test("Response has pagination structure", function () {
+      expect(jsonData).to.have.property('page');
+      expect(jsonData).to.have.property('totalPages');
+      expect(jsonData).to.have.property('perPage');
+      expect(jsonData).to.have.property('orderByOptions');
+      expect(jsonData.orderByOptions).to.be.an('array');
+  });
+  
+  // Sprawdź, czy 'orderByOptions' zawiera wszystkie oczekiwane opcje sortowania
+  test("orderByOptions contains correct values", function () {
+      var expectedOptions = ["NameAsc", "NameDesc", "PriceAsc", "PriceDesc", "AlcoholAsc", "AlcoholDesc"];
+      expect(jsonData.orderByOptions).to.eql(expectedOptions);
+  });
+  
+  // Sprawdź, czy odpowiedź ma strukturę 'items'
+  test("Response has items structure", function () {
+      expect(jsonData).to.have.property('items');
+      expect(jsonData.items).to.be.an('array');
+      expect(jsonData.items.length).to.be.above(0); // Upewnij się, że lista nie jest pusta
+  });
+  
+  // Sprawdź, czy każdy element w 'items' ma poprawne właściwości
+  test("Each item has correct properties", function () {
+      jsonData.items.forEach(function(item) {
+          expect(item).to.have.property('menuItemId').that.is.a('number');
+          expect(item).to.have.property('price').that.is.a('number');
+          expect(item).to.have.property('name').that.is.a('string');
+          expect(item).to.have.property('alternateName'); // Może być null lub string
+          expect(item).to.have.property('alcoholPercentage').that.is.a('number');
+          expect(item).to.have.property('photo').that.is.a('string');
+      });
+  });
+  
+  // Sprawdź, czy liczba elementów nie przekracza wartości 'perPage'
+  test("Number of items does not exceed 'perPage' value", function () {
+      expect(jsonData.items.length).to.be.at.most(jsonData.perPage);
+  });
+  
+  // Dodatkowy test na zgodność wartości 'page' i 'totalPages'
+  test("Page and totalPages are consistent", function () {
+      expect(jsonData.page).to.be.a('number');
+      expect(jsonData.totalPages).to.be.a('number');
+      expect(jsonData.page).to.be.at.least(0);
+      expect(jsonData.totalPages).to.be.at.least(jsonData.page);
+  });
+  
+}

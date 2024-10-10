@@ -1,0 +1,39 @@
+meta {
+  name: -auth-login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "login": "JD",
+    "password": "Pa$$w0rd"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has a JSON body", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  var jsonData = res.getBody();
+  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data: null;
+  
+  test("Token is present in response", function () {
+      expect(jsonData).to.have.property("token");
+  });
+  
+  test("Response name matches request name", function () {
+  expect(jsonData.Data).to.eql(sentData);
+  });
+}

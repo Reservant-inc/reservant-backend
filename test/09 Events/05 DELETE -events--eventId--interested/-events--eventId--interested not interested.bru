@@ -1,0 +1,65 @@
+meta {
+  name: -events--eventId--interested not interested
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{host}}/events/:eventId/interested
+  body: none
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomInterestedEventId}}
+}
+
+auth:bearer {
+  token: {{PA}}
+}
+
+script:pre-request {
+  // Pobierz listę interestedInEventsIdsList ze zmiennej środowiskowej
+  var interestedInEventsIdsList = bru.getEnvVar("interestedInEventsIdsList");
+  
+  // Konwertuj listę na tablicę, jeśli jest w formacie string
+  interestedInEventsIdsList = interestedInEventsIdsList ? interestedInEventsIdsList.split(',') : [];
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (interestedInEventsIdsList.length > 0) {
+      // Wylosuj jedną wartość
+      var randomInterestedEventId = interestedInEventsIdsList[Math.floor(Math.random() * interestedInEventsIdsList.length)];
+  
+      // Zapisz wylosowaną wartość do zmiennej środowiskowej
+      bru.setEnvVar("randomInterestedEventId", randomInterestedEventId);
+  
+      console.log("Random interested eventId selected:", randomInterestedEventId);
+  } else {
+      console.log("interestedInEventsIdsList is empty");
+  }
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera błąd "User is not interested in the event"
+  test("'User is not interested in the event' error exists", function () {
+      expect(jsonData.errors[""]).to.include("User is not interested in the event");
+  });
+  
+  // Test, czy errorCodes zawiera "UserNotInterestedInEvent"
+  test("ErrorCodes contains 'UserNotInterestedInEvent'", function () {
+      expect(jsonData.errorCodes[""]).to.include("UserNotInterestedInEvent");
+  });
+  
+  // Nie usuwaj eventId z interestedInEventsIdsList, ponieważ odpowiedź to błąd
+  console.log("User is not interested in the event, eventId not removed from interestedInEventsIdsList");
+  
+}

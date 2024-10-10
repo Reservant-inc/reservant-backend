@@ -1,0 +1,63 @@
+meta {
+  name: GET menuitems from menu search by name
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/menus/:menuId/items?name=kebab
+  body: none
+  auth: bearer
+}
+
+params:query {
+  name: kebab
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy lista nie jest pusta i wszystkie przedmioty mają name równy "kebab"
+  test("If the list is not empty, all items have name 'kebab'", function () {
+      var items = jsonData.items;
+  
+      // Sprawdź, czy lista nie jest pusta
+      if (items.length > 0) {
+          // Przejdź przez każdy element listy i sprawdź, czy 'name' jest równy 'kebab'
+          items.forEach(function(item) {
+              expect(item.name).to.eql("kebab");
+          });
+      } else {
+          console.log("The list is empty, skipping name check.");
+      }
+  });
+  
+}

@@ -1,0 +1,63 @@
+meta {
+  name: GET menuitems from menu AlcDesc
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{host}}/menus/:menuId/items?orderBy=AlcoholDesc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  orderBy: AlcoholDesc
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy elementy są posortowane malejąco według 'alcoholPercentage'
+  test("Items are sorted in descending order by alcoholPercentage", function () {
+      var items = jsonData.items;
+  
+      // Sprawdź, czy lista nie jest pusta
+      if (items.length > 0) {
+          // Przechodzimy przez tablicę i sprawdzamy, czy każda wartość 'alcoholPercentage' jest większa lub równa następnej w kolejności
+          for (var i = 0; i < items.length - 1; i++) {
+              expect(items[i].alcoholPercentage).to.be.at.least(items[i + 1].alcoholPercentage);
+          }
+      } else {
+          console.log("The list is empty, skipping sorting check.");
+      }
+  });
+  
+}

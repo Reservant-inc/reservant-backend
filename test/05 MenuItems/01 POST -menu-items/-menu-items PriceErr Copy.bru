@@ -1,0 +1,78 @@
+meta {
+  name: -menu-items PriceErr Copy
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{host}}/menu-items
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "restaurantId": {{firstRestaurantId}},
+    "price": {{randomOutOfRangePrice}},
+    "name": "{{menuName}}",
+    "alternateName": "{{menuName}}",
+    "alcoholPercentage": {{randomDouble0to3}},
+    "photo": "test-jd.png",
+    "ingredients": []
+  }
+  
+}
+
+script:pre-request {
+  function generateRandomNumber010() {
+      return Math.floor(Math.random() * 11);
+  }
+  var randomNumber010 = generateRandomNumber010();
+  bru.setEnvVar("randomNumber010", randomNumber010);
+  
+  function getRandomMenuName() {
+      var menuNames = ["seafood", "burger", "sushi", "kebab","pasta","pizza"];
+      var randomIndex = Math.floor(Math.random() * menuNames.length);
+      return menuNames[randomIndex];
+  }
+  
+  var randomMenuName = getRandomMenuName();
+  bru.setEnvVar("menuName", randomMenuName);
+  
+  // Funkcja do losowego wyboru pomiędzy 501 a -1
+  function getRandomOutOfRangePrice() {
+      // Losowanie wartości pomiędzy 0 a 1
+      const randomValue = Math.random();
+      
+      // Jeśli wartość jest mniejsza niż 0.5, zwróć 501, w przeciwnym razie zwróć -1
+      return randomValue < 0.5 ? 501 : -1;
+  }
+  
+  // Ustawienie zmiennej środowiskowej z losową wartością
+  const randomOutOfRangePrice = getRandomOutOfRangePrice();
+  bru.setEnvVar("randomOutOfRangePrice", randomOutOfRangePrice);
+  console.log("Generated random out-of-range price:", randomOutOfRangePrice);
+  
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400
+  test("Status code is 400 for price greater than 500", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera pole 'errors' i odpowiedni komunikat błędu dla 'price'
+  test("Error response contains message for price out of allowed range", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie błędu dla 'price' poza zakresem
+      expect(jsonData).to.have.property('errors');
+      expect(jsonData.errors).to.have.property('price');
+      expect(jsonData.errors.price[0]).to.include("'Price' must be between 0 and 500.");
+  });
+  
+}

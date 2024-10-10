@@ -1,0 +1,118 @@
+meta {
+  name: -ingredients unauthorized Copy 3
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/ingredients
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{employee}}
+}
+
+body:json {
+  {
+    "publicName": "{{menuName}}",
+    "unitOfMeasurement": "{{unitOfMeasurement}}",
+    "minimalAmount": {{minimalAmount}},
+    "amountToOrder": {{amountToOrder}},
+    "amount": {{amountToOrder}},
+    "menuItem": {
+      "menuItemId": {{randomMenuItemId}},
+      "amountUsed": {{randomInt}}
+    }
+  }
+  
+}
+
+script:pre-request {
+  function getRandomMenuItemName() {
+      var menuNames = ["sugar", "salt", "peper", "wheat","milk","flour"];
+      var randomIndex = Math.floor(Math.random() * menuNames.length);
+      return menuNames[randomIndex];
+  }
+  
+  var randomMenuName = getRandomMenuItemName();
+  bru.setEnvVar("menuName", randomMenuName);
+  
+  // Funkcja do generowania losowej liczby całkowitej w zakresie od 0 do 500
+  function getRandomInt(max) {
+      return Math.floor(Math.random() * (max + 1)); // max + 1, aby uwzględnić max w zakresie
+  }
+  
+  // Ustawienie zmiennej środowiskowej na losową liczbę całkowitą od 0 do 500
+  bru.setEnvVar("randomInt", getRandomInt(10)+1);
+  console.log("Generated random integer:", bru.getEnvVar("randomInt"));
+  
+  // Pobranie listy 'menuItemIdsList' ze zmiennych środowiskowych
+  let menuItemIdsList = bru.getEnvVar("menuItemIdsList");
+  
+  // Sprawdzenie, czy lista istnieje
+  if (menuItemIdsList) {
+      // Parsowanie listy ze stringa JSON na tablicę
+      menuItemIdsList = JSON.parse(menuItemIdsList);
+      
+      // Sprawdzenie, czy lista nie jest pusta
+      if (menuItemIdsList.length > 0) {
+          // Losowanie indeksu
+          const randomIndex = Math.floor(Math.random() * menuItemIdsList.length);
+          
+          // Pobranie losowego 'menuItemId' z listy
+          const randomMenuItemId = menuItemIdsList[randomIndex];
+          
+          // Zapisanie losowego 'menuItemId' do zmiennej środowiskowej
+          bru.setEnvVar("randomMenuItemId", randomMenuItemId);
+          console.log("Randomly selected menuItemId:", randomMenuItemId);
+      } else {
+          console.log("MenuItemIdsList is empty.");
+      }
+  } else {
+      console.log("MenuItemIdsList does not exist.");
+  }
+  
+  
+  // Funkcja losująca jednostkę miary
+  function getRandomUnitOfMeasurement() {
+      const units = ["Gram", "Unit", "Liter"];
+      const randomIndex = Math.floor(Math.random() * units.length);
+      return units[randomIndex];
+  }
+  
+  // Ustawienie losowej jednostki miary jako zmiennej środowiskowej
+  const unitOfMeasurement = getRandomUnitOfMeasurement();
+  bru.setEnvVar("unitOfMeasurement", unitOfMeasurement);
+  console.log("Generated unitOfMeasurement:", unitOfMeasurement);
+  
+  // Funkcja losująca wartość minimalAmount od 1 do 3
+  function getRandomMinimalAmount() {
+      return Math.floor(Math.random() * 3) + 1; // Losuje 1, 2 lub 3
+  }
+  
+  // Ustawienie losowej wartości minimalAmount jako zmiennej środowiskowej
+  const minimalAmount = getRandomMinimalAmount();
+  bru.setEnvVar("minimalAmount", minimalAmount);
+  console.log("Generated minimalAmount:", minimalAmount);
+  
+  // Funkcja losująca wartość amountToOrder od 0 do 1000
+  function getRandomAmountToOrder() {
+      return Math.floor(Math.random() * 1001); // Losuje liczbę od 0 do 1000
+  }
+  
+  // Ustawienie losowej wartości amountToOrder jako zmiennej środowiskowej
+  const amountToOrder = getRandomAmountToOrder();
+  bru.setEnvVar("amountToOrder", amountToOrder);
+  console.log("Generated amountToOrder:", amountToOrder);
+  
+  
+  
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+}

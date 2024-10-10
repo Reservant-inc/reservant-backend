@@ -1,0 +1,38 @@
+meta {
+  name: -events error mustJoinUntilTime
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{host}}/events/:eventId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomEventId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "{{time}}",
+    "mustJoinUntil": "2024-05-01T16:41:56.276Z",
+    "restaurantId": {{randomRestaurantId}}
+  }
+  
+  
+  
+  
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

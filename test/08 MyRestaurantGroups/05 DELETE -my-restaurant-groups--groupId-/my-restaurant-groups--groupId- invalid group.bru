@@ -1,0 +1,74 @@
+meta {
+  name: my-restaurant-groups--groupId- invalid group
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{host}}/my-restaurant-groups/:groupId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  groupId: 0
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobierz listę restaurantGroupIds ze zmiennej środowiskowej
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Upewnij się, że restaurantGroupIds to tablica
+  if (restaurantGroupIds && typeof restaurantGroupIds === 'string') {
+      restaurantGroupIds = JSON.parse(restaurantGroupIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantGroupIds && restaurantGroupIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantGroupId = restaurantGroupIds[Math.floor(Math.random() * restaurantGroupIds.length)];
+      
+      // Zapisz wylosowany restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      console.log("Random restaurantGroupId selected:", randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds available.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość o nieznalezieniu grupy restauracyjnej
+  test("Error contains group not found message", function () {
+      expect(jsonData.errors).to.have.property('');
+      expect(jsonData.errors[''][0]).to.include("Restaurant group not found");
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errorCodes'
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test, czy 'errorCodes' zawiera odpowiedni kod błędu 'NotFound'
+  test("ErrorCodes contains NotFound", function () {
+      expect(jsonData.errorCodes).to.have.property('');
+      expect(jsonData.errorCodes[''][0]).to.eql("NotFound");
+  });
+  
+}

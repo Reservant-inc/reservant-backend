@@ -1,0 +1,64 @@
+meta {
+  name: GET menuitems from menu NameDesc
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{host}}/menus/:menuId/items?orderBy=NameDesc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  orderBy: NameDesc
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy elementy są posortowane malejąco według nazwy
+  test("Items are sorted in descending order by name", function () {
+      var items = jsonData.items;
+  
+      // Sprawdź, czy lista nie jest pusta
+      if (items.length > 0) {
+          // Przechodzimy przez tablicę i sprawdzamy, czy każda nazwa jest większa lub równa następnej w kolejności
+          for (var i = 0; i < items.length - 1; i++) {
+              // Użyj localeCompare, aby porównać dwa ciągi znaków w sposób alfabetyczny
+              expect(items[i].name.localeCompare(items[i + 1].name)).to.be.at.least(0);
+          }
+      } else {
+          console.log("The list is empty, skipping sorting check.");
+      }
+  });
+  
+}

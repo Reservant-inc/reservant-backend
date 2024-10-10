@@ -1,0 +1,39 @@
+meta {
+  name: Upload File to the server png
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/uploads
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{PA}}
+}
+
+body:multipart-form {
+  File: @file(postman-cloud:///1ef6a496-0b75-4840-9ae4-47aa38d6f52e)
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 200 (lub inny oczekiwany status)
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Parsowanie odpowiedzi JSON
+  var jsonData = res.getBody();
+  
+  // Sprawdzenie, czy odpowiedź zawiera pole 'fileName'
+  test("Response contains 'fileName'", function () {
+      expect(jsonData).to.have.property('fileName');
+  });
+  
+  // Zapisywanie 'fileName' do zmiennej środowiskowej
+  bru.setEnvVar("fileName", jsonData.fileName);
+  console.log("Saved fileName to environment:", jsonData.fileName);
+  
+}

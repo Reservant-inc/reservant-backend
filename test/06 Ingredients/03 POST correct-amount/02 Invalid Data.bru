@@ -1,0 +1,29 @@
+meta {
+  name: 02 Invalid Data
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/ingredients/:ingredientId/correct-amount
+  body: json
+  auth: none
+}
+
+params:path {
+  ingredientId: 1
+}
+
+body:json {
+  {
+    "newAmount": -1,
+    "comment": ""
+  }
+  
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes.comment: contains NotEmptyValidator
+  res.body.errorCodes.newAmount: contains ValueLessThanZero
+}

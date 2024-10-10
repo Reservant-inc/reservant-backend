@@ -1,0 +1,46 @@
+meta {
+  name: JD
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "login": "JD",
+    "password": "Pa$$w0rd"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has a JSON body", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  var jsonData = res.getBody();
+  
+  test("Token is present in response", function () {
+      expect(jsonData).to.have.property("token");
+  });
+  
+  test("Response contains userId", function () {
+      expect(jsonData).to.have.property('userId');
+  });
+  
+  test("Login in response is correct", function () {
+      var jsonData = res.getBody();
+      var sentLogin = req.body?.login;
+      expect(jsonData.login).to.eql(sentLogin);
+  });
+  
+  bru.setEnvVar("JD", jsonData.token);
+}

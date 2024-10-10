@@ -1,0 +1,55 @@
+meta {
+  name: visits
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/visits
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "date": "2025-08-02T17:21:34.311Z",
+    "numberOfGuests": 4,
+    "tip": 0,
+    "takeaway": true,
+    "restaurantId": 1,
+    "tableId": 2,
+    "participants": [
+      "e5779baf-5c9b-4638-b9e7-ec285e57b367"
+    ]
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  
+  test("Response is not empty", function () {
+      expect(res.getBody()?.toString()).not.to.be.empty;
+  });
+  
+  test("Response has a JSON body", function () {
+  //     expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+  });
+  
+  const response = res.getBody();
+  test("Response has correct output types", function () {
+      expect(response).to.have.property("visitId").that.is.a("number");
+      expect(response).to.have.property("date").that.is.a("string");
+      expect(response).to.have.property("numberOfPeople").that.is.a("number");
+      expect(response).to.have.property("deposit").that.is.a("number");
+      expect(response).to.have.property("takeaway").that.is.a("boolean");
+      expect(response).to.have.property("clientId").that.is.a("string");
+      expect(response).to.have.property("restaurantId").that.is.a("number");
+  });
+}

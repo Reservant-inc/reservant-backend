@@ -1,0 +1,106 @@
+meta {
+  name: menus--id--items another restaurant
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/menus/:menuId/items
+  body: json
+  auth: bearer
+}
+
+params:query {
+  ~: 
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "itemIds": [
+      {{temporaryMenuItemId}}
+    ]
+  }
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+  
+  
+  
+  
+  // Pobranie listy 'menuItemIdsList' ze zmiennych środowiskowych
+  let menuItemIdsList = bru.getEnvVar("menuItemIdsList");
+  
+  // Sprawdzenie, czy lista istnieje
+  if (menuItemIdsList) {
+      // Parsowanie listy ze stringa JSON na tablicę
+      menuItemIdsList = JSON.parse(menuItemIdsList);
+      
+      // Sprawdzenie, czy lista nie jest pusta
+      if (menuItemIdsList.length > 0) {
+          // Losowanie indeksu
+          const randomIndex = Math.floor(Math.random() * menuItemIdsList.length);
+          
+          // Pobranie losowego 'menuItemId' z listy
+          const randomMenuItemId = menuItemIdsList[randomIndex];
+          
+          // Zapisanie losowego 'menuItemId' do zmiennej środowiskowej
+          bru.setEnvVar("randomMenuItemId", randomMenuItemId);
+          console.log("Randomly selected menuItemId:", randomMenuItemId);
+      } else {
+          console.log("MenuItemIdsList is empty.");
+      }
+  } else {
+      console.log("MenuItemIdsList does not exist.");
+  }
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Sprawdź, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Sprawdź, czy odpowiedź zawiera błędy
+  test("Response has errors", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Sprawdź, czy odpowiedź zawiera oczekiwany błąd dotyczący itemIds
+  test("Error message is 'MenuItems belong to another restaurant'", function () {
+      expect(jsonData.errors.itemIds[0]).to.include("belong to another restaurant");
+  });
+  
+  // Sprawdź, czy odpowiedź zawiera oczekiwany kod błędu
+  test("Error code is 'BelongsToAnotherRestaurant'", function () {
+      expect(jsonData.errorCodes.itemIds[0]).to.eql("BelongsToAnotherRestaurant");
+  });
+  
+}

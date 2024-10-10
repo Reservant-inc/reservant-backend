@@ -1,0 +1,36 @@
+meta {
+  name: my-restaurants--id-employees unauthorized Copy
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/employees
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{BOKEmployee}}
+}
+
+body:json {
+  [
+    {
+      "employeeId": "{{userId}}",
+      "isHallEmployee": {{$randomBoolean}},
+      "isBackdoorEmployee": {{$randomBoolean}}
+    }
+  ]
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+  
+}

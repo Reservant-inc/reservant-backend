@@ -1,0 +1,49 @@
+meta {
+  name: menus--id-
+  type: http
+  seq: 6
+}
+
+delete {
+  url: {{host}}/menus/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIds = JSON.parse(bru.getEnvVar("menuIds"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIds && Array.isArray(menuIds) && menuIds.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIds.length);
+      var randomMenuId = menuIds[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+  
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  test("Response body is empty", function () {
+  //     pm.response.to.have.body("");
+  });
+}

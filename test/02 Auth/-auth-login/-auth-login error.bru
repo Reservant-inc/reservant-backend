@@ -1,0 +1,39 @@
+meta {
+  name: -auth-login error
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "login": "XD",
+    "password": "XD"
+  }
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 401
+  test("Status code is 401", function () {
+      expect(res.getStatus()).to.equal(401);
+  });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'title' i 'status'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('title');
+      expect(jsonData).to.have.property('status');
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiedni tytuł błędu dla niepoprawnego loginu lub hasła
+  test("Error title is 'Incorrect login or password'", function () {
+      var responseData = res.getBody();
+      expect(responseData.title).to.eql("Incorrect login or password");
+  });
+  
+}

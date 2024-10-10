@@ -1,0 +1,229 @@
+meta {
+  name: create-a-new-restaurant invalid files Error
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{host}}/my-restaurants
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{$randomCompanyName}}",
+    "nip": "{{generated_nip}}",
+    "restaurantType": "Restaurant",
+    "address": "{{$randomStreetAddress}}",
+    "postalIndex": "{{randomPostalCode}}",
+    "city": "{{randomCity}}",
+    "location": {
+      "latitude": {{$randomLatitude}},
+      "longitude": {{$randomLongitude}}
+    },
+    "rentalContract": "invalid-path/test-jd.pdf",  // Niepoprawna ścieżka dla umowy najmu
+    "alcoholLicense": "invalid-path/test-jd.pdf",  // Niepoprawna ścieżka dla licencji alkoholowej
+    "businessPermission": "invalid-path/test-jd.pdf",  // Niepoprawna ścieżka dla pozwolenia biznesowego
+    "idCard": "invalid-path/test-jd.pdf",  // Niepoprawna ścieżka dla dowodu osobistego
+    "logo": "invalid-path/test-jd.png",  // Niepoprawna ścieżka dla logo
+    "provideDelivery": {{$randomBoolean}},
+    "description": "{{$randomLoremSentence}}",
+    "reservationDeposit": {{ReservationDeposit}},
+    "tags": [
+      "{{randomRestaurantTag}}"
+    ],
+    "photos": [
+      "invalid-path/test-jd.png"  // Niepoprawna ścieżka dla zdjęcia
+    ]
+  }
+  
+}
+
+script:pre-request {
+  function generateNIP() {
+      var weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+      
+      // Generate the first 9 digits of NIP
+      var nip_base = [];
+      for (var i = 0; i < 9; i++) {
+          nip_base.push(Math.floor(Math.random() * 10));
+      }
+      
+      // Calculate the control digit
+      var control_sum = 0;
+      for (var i = 0; i < 9; i++) {
+          control_sum += nip_base[i] * weights[i];
+      }
+      var control_digit = control_sum % 11;
+      if (control_digit == 10) {
+          control_digit = 0;
+      }
+      
+      nip_base.push(control_digit);
+      return nip_base.join('');
+  }
+  
+  // Generate NIP and set it as a variable
+  var nip = generateNIP();
+  // postman.setEnvironmentVariable("generated_nip", nip);
+  
+  
+  function generatePostalCode() {
+      function getRandomDigit() {
+          return Math.floor(Math.random() * 10);
+      }
+  
+      var part1 = getRandomDigit().toString() + getRandomDigit().toString();
+      var part2 = getRandomDigit().toString() + getRandomDigit().toString() + getRandomDigit().toString();
+      
+      return part1 + '-' + part2;
+  }
+  
+  //Random Restaurant Tag
+  const choices = ["Asian", "Italian", "OnSite", "Tag1", "Tag2", "Takeaway"];
+  
+  
+  function getRandomChoice(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  const randomChoice = getRandomChoice(choices);
+  
+  bru.setEnvVar("randomRestaurantTag", randomChoice);
+  
+  //Random Deposit
+  function getRandomDeposit(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  // Losowy wybór dla ReservationDeposit
+  const randomDeposit = getRandomDeposit(0, 500);
+  
+  // Zapisanie wartości jako zmiennej w środowisku Postmana
+  bru.setEnvVar("ReservationDeposit", randomDeposit);
+  
+  // RandomCity
+  const cities = [
+      "Warszawa",
+      "Kraków",
+      "Łódź",
+      "Wrocław",
+      "Poznań",
+      "Gdańsk",
+      "Szczecin",
+      "Bydgoszcz",
+      "Lublin",
+      "Białystok",
+      "Katowice",
+      "Gdynia",
+      "Częstochowa",
+      "Radom",
+      "Sosnowiec"
+  ];
+  
+  
+  function getRandomCity(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  
+  
+  const randomCity = getRandomCity(cities);
+  
+  // Zapisanie miasta jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomCity", randomCity);
+  
+  //Random Postal code
+  function getRandomDigit() {
+      return Math.floor(Math.random() * 10);
+  }
+  
+  // Funkcja generująca polski kod pocztowy w formacie xx-xxx
+  function generateRandomPostalCode() {
+      let postalCode = '';
+      for (let i = 0; i < 2; i++) {
+          postalCode += getRandomDigit();
+      }
+      postalCode += '-';
+      for (let i = 0; i < 3; i++) {
+          postalCode += getRandomDigit();
+      }
+      return postalCode;
+  }
+  
+  // Losowy kod pocztowy
+  const randomPostalCode = generateRandomPostalCode();
+  
+  // Zapisanie kodu pocztowego jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomPostalCode", randomPostalCode);
+  
+  
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'status', 'errors', i 'errorCodes'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('status');
+      expect(jsonData).to.have.property('errors');
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Testy dla błędów związanych z niepoprawnymi ścieżkami plików
+  test("Errors for invalid file paths are present", function () {
+      var responseData = res.getBody();
+  
+      // Sprawdzenie błędów dla wszystkich niepoprawnych ścieżek plików
+      expect(responseData.errors).to.have.property('rentalContract');
+      expect(responseData.errors.rentalContract[0]).to.include("Must be a valid Document file upload name");
+  
+      expect(responseData.errors).to.have.property('alcoholLicense');
+      expect(responseData.errors.alcoholLicense[0]).to.include("Must be a valid Document file upload name");
+  
+      expect(responseData.errors).to.have.property('businessPermission');
+      expect(responseData.errors.businessPermission[0]).to.include("Must be a valid Document file upload name");
+  
+      expect(responseData.errors).to.have.property('idCard');
+      expect(responseData.errors.idCard[0]).to.include("Must be a valid Document file upload name");
+  
+      expect(responseData.errors).to.have.property('logo');
+      expect(responseData.errors.logo[0]).to.include("Must be a valid Image file upload name");
+  
+      expect(responseData.errors).to.have.property('photos[0]');
+      expect(responseData.errors["photos[0]"][0]).to.include("Must be a valid Image file upload name");
+  });
+  
+  // Testy dla kodów błędów związanych z niepoprawnymi ścieżkami plików
+  test("Error codes for invalid file paths are present", function () {
+      var responseData = res.getBody();
+  
+      expect(responseData.errorCodes).to.have.property('rentalContract');
+      expect(responseData.errorCodes.rentalContract[0]).to.include("FileName.Document");
+  
+      expect(responseData.errorCodes).to.have.property('alcoholLicense');
+      expect(responseData.errorCodes.alcoholLicense[0]).to.include("FileName.Document");
+  
+      expect(responseData.errorCodes).to.have.property('businessPermission');
+      expect(responseData.errorCodes.businessPermission[0]).to.include("FileName.Document");
+  
+      expect(responseData.errorCodes).to.have.property('idCard');
+      expect(responseData.errorCodes.idCard[0]).to.include("FileName.Document");
+  
+      expect(responseData.errorCodes).to.have.property('logo');
+      expect(responseData.errorCodes.logo[0]).to.include("FileName.Image");
+  
+      expect(responseData.errorCodes).to.have.property('photos[0]');
+      expect(responseData.errorCodes["photos[0]"][0]).to.include("FileName.Image");
+  });
+  
+}

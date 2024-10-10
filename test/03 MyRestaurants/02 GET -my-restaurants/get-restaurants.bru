@@ -1,0 +1,106 @@
+meta {
+  name: get-restaurants
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/my-restaurants
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  // 1. Sprawdzenie statusu odpowiedzi
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // 2. Sprawdzenie, czy odpowiedź zawiera dane w formacie JSON
+  test("Response has a JSON body", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  // 3. Sprawdzenie, czy zwracana odpowiedź jest tablicą
+  test("Response is an array", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.be.an('array');
+  });
+  
+  // 4. Sprawdzenie struktury danych każdej restauracji
+  test("Each restaurant has the correct fields", function () {
+      var jsonData = res.getBody();
+  
+      jsonData.forEach(function(restaurant) {
+          expect(restaurant).to.have.property('restaurantId');
+          expect(restaurant).to.have.property('name');
+          expect(restaurant).to.have.property('nip');
+          expect(restaurant).to.have.property('restaurantType');
+          expect(restaurant).to.have.property('address');
+          expect(restaurant).to.have.property('city');
+          expect(restaurant).to.have.property('location');
+          expect(restaurant.location).to.have.property('latitude');
+          expect(restaurant.location).to.have.property('longitude');
+          expect(restaurant).to.have.property('groupId');
+          expect(restaurant).to.have.property('logo');
+          expect(restaurant).to.have.property('description');
+          expect(restaurant).to.have.property('reservationDeposit');
+          expect(restaurant).to.have.property('provideDelivery');
+          expect(restaurant).to.have.property('tags');
+          expect(restaurant).to.have.property('isVerified');
+          expect(restaurant).to.have.property('rating');
+          expect(restaurant).to.have.property('numberReviews');
+      });
+  });
+  
+  // 5. Sprawdzenie poprawności typu danych poszczególnych pól
+  test("Each restaurant has correct data types", function () {
+      var jsonData = res.getBody();
+  
+      jsonData.forEach(function(restaurant) {
+          expect(restaurant.restaurantId).to.be.a('number');
+          expect(restaurant.name).to.be.a('string');
+          expect(restaurant.nip).to.be.a('string');
+          expect(restaurant.restaurantType).to.be.a('string');
+          expect(restaurant.address).to.be.a('string');
+          expect(restaurant.city).to.be.a('string');
+          expect(restaurant.location.latitude).to.be.a('number');
+          expect(restaurant.location.longitude).to.be.a('number');
+          expect(restaurant.groupId).to.be.a('number');
+          expect(restaurant.logo).to.be.a('string');
+          expect(restaurant.description).to.be.a('string');
+          expect(restaurant.reservationDeposit).to.satisfy(function(val) { return typeof val === 'number' || val === null; });
+          expect(restaurant.provideDelivery).to.be.a('boolean');
+          expect(restaurant.tags).to.be.an('array');
+          expect(restaurant.isVerified).to.be.a('boolean');
+          expect(restaurant.rating).to.be.a('number');
+          expect(restaurant.numberReviews).to.be.a('number');
+      });
+  });
+  
+  var jsonData = res.getBody();
+  if (jsonData.length > 0) {
+      var firstRestaurantId = jsonData[0].restaurantId;
+      bru.setEnvVar("firstRestaurantId", firstRestaurantId);
+      console.log("First restaurant ID saved to environment:", firstRestaurantId);
+  }
+  
+  // Sprawdzamy, czy odpowiedź zawiera dane restauracji
+  if (jsonData.length > 0) {
+      // Tworzymy listę wszystkich restaurantId
+      var restaurantIds = jsonData.map(function(restaurant) {
+          return restaurant.restaurantId;
+      });
+  
+      // Zapisujemy listę restaurantIds do środowiska jako JSON
+      bru.setEnvVar("restaurantIds", JSON.stringify(restaurantIds));
+      console.log("List of restaurant IDs saved to environment:", restaurantIds);
+  } else {
+      console.warn("Response does not contain any restaurant data.");
+  }
+  
+}

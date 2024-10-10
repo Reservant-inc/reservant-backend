@@ -1,0 +1,58 @@
+meta {
+  name: GET menuitems from menu PriceAsc
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/menus/:menuId/items?orderBy=PriceAsc
+  body: none
+  auth: bearer
+}
+
+params:query {
+  orderBy: PriceAsc
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy elementy są posortowane rosnąco według ceny
+  test("Items are sorted in ascending order by price", function () {
+      var items = jsonData.items;
+  
+      // Przechodzimy przez tablicę i sprawdzamy, czy każdy element ma cenę niższą lub równą następnemu
+      for (var i = 0; i < items.length - 1; i++) {
+          expect(items[i].price).to.be.at.most(items[i + 1].price);
+      }
+  });
+  
+}

@@ -1,0 +1,44 @@
+meta {
+  name: -menu-items--id- other-s menuItem
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{host}}/menu-items/:menuItemId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  menuItemId: {{menuItemToRemove}}
+}
+
+auth:bearer {
+  token: {{PA}}
+}
+
+script:pre-request {
+  function generateRandomNumber010() {
+      return Math.floor(Math.random() * 11);
+  }
+  var randomNumber010 = generateRandomNumber010();
+  bru.setEnvVar("randomNumber010", randomNumber010);
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400
+  test("Status code is 400 when the item does not belong to the user", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera pole 'errors' i odpowiedni komunikat błędu dla braku dostępu
+  test("Error response contains message for Access Denied on item", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie błędu dla braku dostępu do 'Item'
+      expect(jsonData).to.have.property('errors');
+      expect(jsonData.errors[''][0]).to.include("Item does not belong to the user.");
+  });
+  
+}

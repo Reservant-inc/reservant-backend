@@ -1,0 +1,31 @@
+meta {
+  name: -user errBirthday
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{host}}/user
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "phoneNumber": "+48123456789",
+    "firstName": "John",
+    "lastName": "Doe",
+    "birthDate": {{$randomDateFuture}},
+    "photo": null
+  }
+}
+
+tests {
+  test("Response status is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

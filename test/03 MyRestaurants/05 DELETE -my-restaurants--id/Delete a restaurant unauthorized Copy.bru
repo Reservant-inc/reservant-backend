@@ -1,0 +1,27 @@
+meta {
+  name: Delete a restaurant unauthorized Copy
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{host}}/my-restaurants/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{employee}}
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+  
+  
+}

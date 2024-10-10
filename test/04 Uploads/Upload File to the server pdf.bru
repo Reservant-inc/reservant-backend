@@ -1,0 +1,25 @@
+meta {
+  name: Upload File to the server pdf
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/uploads
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:multipart-form {
+  File: @file(postman-cloud:///1ef6a50b-a469-4310-83e6-651749386f88)
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+}

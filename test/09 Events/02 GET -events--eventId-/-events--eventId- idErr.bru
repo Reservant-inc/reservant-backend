@@ -1,0 +1,50 @@
+meta {
+  name: -events--eventId- idErr
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/events/:eventId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  eventId: 0
+}
+
+auth:bearer {
+  token: {{JD}}}
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość 'NotFound'
+  test("Error contains 'NotFound' message", function () {
+      expect(jsonData.errors[""]).to.include("NotFound");
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errorCodes'
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test, czy 'errorCodes' zawiera kod 'NotFound'
+  test("ErrorCodes contains 'NotFound'", function () {
+      expect(jsonData.errorCodes[""]).to.include("NotFound");
+  });
+  
+}

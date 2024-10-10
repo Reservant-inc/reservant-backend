@@ -1,0 +1,25 @@
+meta {
+  name: Upload File to the server too large
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/uploads
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:multipart-form {
+  File: @file(postman-cloud:///1ef6a513-adcf-4870-bb45-0c966f96b64c)
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

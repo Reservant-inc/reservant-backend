@@ -1,0 +1,48 @@
+meta {
+  name: my-restaurants--id-employees
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/employees
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  [
+    {
+      "employeeId": "{{userId}}",
+      "isHallEmployee": {{$randomBoolean}},
+      "isBackdoorEmployee": {{$randomBoolean}}
+    }
+  ]
+}
+
+tests {
+  // Test sprawdzający, czy status odpowiedzi to 204 No Content
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  // Test sprawdzający, czy odpowiedź nie zawiera żadnego ciała (no content)
+  test("Response has no content", function () {
+      expect(res.getBody()?.toString()).to.be.empty;
+  });
+  
+  // Test sprawdzający, czy zmienne środowiskowe są poprawnie ustawione przed wysłaniem żądania
+  test("Environment variables are set correctly", function () {
+      expect(bru.getEnvVar("userId")).to.exist;
+      expect(bru.getEnvVar("userId")).to.not.be.empty;
+  });
+  
+}

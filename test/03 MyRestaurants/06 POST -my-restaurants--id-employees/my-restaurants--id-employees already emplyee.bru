@@ -1,0 +1,62 @@
+meta {
+  name: my-restaurants--id-employees already emplyee
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/employees
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  [
+    {
+      "employeeId": "{{userId}}",
+      "isHallEmployee": {{$randomBoolean}},
+      "isBackdoorEmployee": {{$randomBoolean}}
+    }
+  ]
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400 dla zatrudnienia już istniejącego użytkownika
+  test("Status code is 400 when trying to employ an existing user", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera wymagane elementy 'status' i 'errors'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'status'
+      expect(jsonData).to.have.property('status');
+      expect(jsonData.status).to.eql(400);
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'errors'
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiedni błąd dla 'employeeId'
+  test("Response contains error for already employed user", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errors' zawiera błąd dla 'employeeId'
+      expect(jsonData.errors).to.have.property('employeeId');
+      expect(jsonData.errors.employeeId).to.be.an('array').that.includes(null);
+  
+      // Sprawdzenie, czy pole 'errorCodes' zawiera odpowiedni kod błędu dla 'employeeId'
+      expect(jsonData.errorCodes).to.have.property('employeeId');
+      expect(jsonData.errorCodes.employeeId).to.be.an('array').that.includes("EmployeeAlreadyEmployed");
+  });
+  
+}

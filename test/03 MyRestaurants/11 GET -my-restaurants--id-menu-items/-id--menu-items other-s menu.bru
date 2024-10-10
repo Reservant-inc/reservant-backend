@@ -1,0 +1,78 @@
+meta {
+  name: -id--menu-items other-s menu
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host}}/my-restaurants/:id/menu-items
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{PA}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIds = JSON.parse(bru.getEnvVar("menuIds"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIds && Array.isArray(menuIds) && menuIds.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIds.length);
+      var randomMenuId = menuIds[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+  
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400, gdy użytkownik nie jest właścicielem restauracji
+  test("Status code is 400 when user is not the owner of the restaurant", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera wymagane elementy 'status', 'errors' i 'errorCodes'
+  test("Error response contains required elements when user is not the owner", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'status'
+      expect(jsonData).to.have.property('status');
+      expect(jsonData.status).to.eql(400);
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'errors'
+      expect(jsonData).to.have.property('errors');
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'errorCodes'
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiedni błąd dla braku uprawnień użytkownika
+  test("Response contains error message for access denied", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errors' zawiera odpowiedni komunikat błędu
+      expect(jsonData.errors[""]).to.include("User is not the owner of the restaurant.");
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiedni kod błędu 'AccessDenied'
+  test("Response contains error code 'AccessDenied' for non-owner user", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errorCodes' zawiera odpowiedni kod błędu
+      expect(jsonData.errorCodes[""]).to.include("AccessDenied");
+  });
+  
+}

@@ -1,0 +1,75 @@
+meta {
+  name: my-restaurant-groups--groupId-
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{host}}/my-restaurant-groups/:groupId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  groupId: {{randomRestaurantGroupId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{groupName}}"
+  }
+}
+
+script:pre-request {
+  function generateRandomString(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+      const charactersLength = characters.length;
+      for (let i = 0; i < length; i++) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+      return result;
+  }
+  
+  const randomName = "Grupa_" + generateRandomString(10);
+  bru.setEnvVar("groupName", randomName);
+  
+  
+  // Pobierz listę restaurantGroupIds ze zmiennej środowiskowej
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Upewnij się, że restaurantGroupIds to tablica
+  if (restaurantGroupIds && typeof restaurantGroupIds === 'string') {
+      restaurantGroupIds = JSON.parse(restaurantGroupIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantGroupIds && restaurantGroupIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantGroupId = restaurantGroupIds[Math.floor(Math.random() * restaurantGroupIds.length)];
+      
+      // Zapisz wylosowany restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      console.log("Random restaurantGroupId selected:", randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds available.");
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is not empty", function () {
+      expect(res.getBody()?.toString()).not.to.be.empty;
+  });
+  
+  test("Response has a JSON body", function () {
+  //     expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+  });
+}

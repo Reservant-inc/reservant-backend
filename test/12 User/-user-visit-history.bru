@@ -1,0 +1,41 @@
+meta {
+  name: -user-visit-history
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{host}}/user/visit-history
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  test("Response body has correct structure and data types", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.have.property('page').that.is.a('number');
+      expect(jsonData).to.have.property('totalPages').that.is.a('number');
+      expect(jsonData).to.have.property('perPage').that.is.a('number');
+      expect(jsonData).to.have.property('orderByOptions').that.is.an('array');
+      expect(jsonData).to.have.property('items').that.is.an('array');
+  });
+  
+  test("Items array is empty", function () {
+      const jsonData = res.getBody();
+      expect(jsonData.items).to.be.an('array').that.is.empty;
+  });
+  
+}

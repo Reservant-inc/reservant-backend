@@ -1,0 +1,25 @@
+meta {
+  name: Upload File to the server txt
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/uploads
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:multipart-form {
+  File: @file(postman-cloud:///1ef6a50f-eb4e-4290-b523-4c0deb51b5a4)
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

@@ -1,0 +1,67 @@
+meta {
+  name: my-restaurants--id-employees empty emplyee
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/employees
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  [
+    {
+      "employeeId": "",
+      "isHallEmployee": {{$randomBoolean}},
+      "isBackdoorEmployee": {{$randomBoolean}}
+    }
+  ]
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 400 dla pustego employeeId
+  test("Status code is 400 when 'employeeId' is empty", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera wymagane elementy 'status' i 'errors'
+  test("Error response contains required elements for empty 'employeeId'", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'status'
+      expect(jsonData).to.have.property('status');
+      expect(jsonData.status).to.eql(400);
+      
+      // Sprawdzenie, czy odpowiedź zawiera pole 'errors'
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiedni błąd dla pustego 'employeeId'
+  test("Response contains error for empty 'employeeId'", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errors' zawiera błąd dla '[0].employeeId'
+      expect(jsonData.errors).to.have.property('[0].employeeId');
+      expect(jsonData.errors["[0].employeeId"][0]).to.be.a('string').that.includes("The EmployeeId field is required.");
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera błąd dla restaurantId
+  test("Response contains error for restaurantId", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie, czy pole 'errors' zawiera błąd dla 'restaurantId'
+      expect(jsonData.errors).to.have.property('restaurantId');
+      expect(jsonData.errors.restaurantId).to.be.an('array').that.is.empty;
+  });
+  
+}

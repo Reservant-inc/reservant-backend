@@ -1,0 +1,84 @@
+meta {
+  name: my-restaurants-group empty groupName
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/my-restaurant-groups
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "",
+    "restaurantIds": [
+      {{randomRestaurantId}}
+    ]
+  }
+  
+}
+
+script:pre-request {
+  function generateRandomString(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+      const charactersLength = characters.length;
+      for (let i = 0; i < length; i++) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+      return result;
+  }
+  
+  const randomName = "Grupa_" + generateRandomString(10);
+  bru.setEnvVar("groupName", randomName);
+  
+  
+  // Pobierz listę restaurantIds ze zmiennej środowiskowej
+  var restaurantIds = bru.getEnvVar("restaurantIds");
+  
+  // Upewnij się, że restaurantIds to tablica
+  if (restaurantIds && typeof restaurantIds === 'string') {
+      restaurantIds = JSON.parse(restaurantIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantIds && restaurantIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantId = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
+      
+      // Zapisz wylosowany restaurantId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantId", randomRestaurantId);
+      console.log("Random restaurantId selected:", randomRestaurantId);
+  } else {
+      console.log("No restaurantIds available.");
+  }
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera pole 'name' i czy ma poprawną wartość
+  test("Error contains name with correct message", function () {
+      expect(jsonData.errors).to.have.property('name');
+      expect(jsonData.errors.name[0]).to.include("The Name field is required.");
+  });
+  
+}

@@ -1,0 +1,65 @@
+meta {
+  name: -events error mustJoinUntilTime - time
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{host}}/events/:eventId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomEventId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "{{mustJoinUntil}}",
+    "mustJoinUntil": "{{time}}",
+    "restaurantId": {{randomRestaurantId}}
+  }
+  
+  
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera błąd dla 'mustJoinUntil'
+  test("MustJoinUntil error message exists", function () {
+      expect(jsonData.errors).to.have.property('mustJoinUntil');
+      expect(jsonData.errors.mustJoinUntil[0]).to.include("must be less than");
+  });
+  
+  // Test, czy odpowiedź zawiera błąd dla 'time'
+  test("Time error message exists", function () {
+      expect(jsonData.errors).to.have.property('time');
+      expect(jsonData.errors.time[0]).to.include("must be greater than");
+  });
+  
+  // Test, czy errorCodes zawiera 'MustJoinUntilMustBeBeforeEventTime' dla 'mustJoinUntil'
+  test("ErrorCodes contains 'MustJoinUntilMustBeBeforeEventTime' for mustJoinUntil", function () {
+      expect(jsonData.errorCodes.mustJoinUntil).to.include("MustJoinUntilMustBeBeforeEventTime");
+  });
+  
+  // Test, czy errorCodes zawiera 'MustJoinUntilMustBeBeforeEventTime' dla 'time'
+  test("ErrorCodes contains 'MustJoinUntilMustBeBeforeEventTime' for time", function () {
+      expect(jsonData.errorCodes.time).to.include("MustJoinUntilMustBeBeforeEventTime");
+  });
+  
+}

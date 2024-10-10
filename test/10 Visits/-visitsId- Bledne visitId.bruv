@@ -1,0 +1,27 @@
+meta {
+  name: -visitsId- Bledne visitId
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{host}}/visits/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 1000
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  
+}

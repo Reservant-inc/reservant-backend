@@ -1,0 +1,60 @@
+meta {
+  name: -events error id
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{host}}/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "{{time}}",
+    "mustJoinUntil": "{{mustJoinUntil}}",
+    "restaurantId": 0
+  }
+  
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość o nieistniejącym 'restaurantId'
+  test("Error contains message for non-existent 'restaurantId'", function () {
+      expect(jsonData.errors).to.have.property('restaurantId');
+      expect(jsonData.errors.restaurantId[0]).to.include("The specified Restaurant ID does not exist.");
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errorCodes'
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test, czy 'errorCodes' zawiera odpowiedni kod błędu 'RestaurantDoesNotExist'
+  test("ErrorCodes contains RestaurantDoesNotExist for 'restaurantId'", function () {
+      expect(jsonData.errorCodes).to.have.property('restaurantId');
+      expect(jsonData.errorCodes.restaurantId[0]).to.eql("RestaurantDoesNotExist");
+  });
+  
+}

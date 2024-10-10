@@ -1,0 +1,33 @@
+meta {
+  name: Not Found
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/orders/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 97811
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  function generateRandomNumber05() {
+      return Math.floor(Math.random() * 6)+1;
+  }
+  var randomNumber05 = generateRandomNumber05();
+  bru.setEnvVar("randomNumber05", randomNumber05);
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

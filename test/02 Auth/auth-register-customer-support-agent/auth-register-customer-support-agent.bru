@@ -1,0 +1,106 @@
+meta {
+  name: auth-register-customer-support-agent
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/auth/register-customer-support-agent
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstName": "{{$randomFirstName}}",
+    "lastName": "{{$randomLastName}}",
+    "email": "{{$randomEmail}}",
+    "phoneNumber": "{{randomPhoneNumber}}",
+    "password": "{{$randomAlphaNumeric.LENGTH(10)}}",
+    "isManager": {{$randomBoolean}}
+  }
+}
+
+script:pre-request {
+  function generateRandomNumberSequence(length) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+          result += Math.floor(Math.random() * 10); 
+      }
+      return result;
+  }
+  const randomNumbers = generateRandomNumberSequence(9);
+  bru.setEnvVar("randomPhoneNumber", randomNumbers);
+}
+
+tests {
+  // Test to check if the status code is 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test to check if the response has a JSON body
+  test("Response has a JSON body", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  // Parsing the request and response body
+  // var requestBody = pm.request.body.raw;
+  var requestData = JSON.parse(requestBody);
+  var responseData = res.getBody();
+  
+  // Check that each expected field is present and non-empty
+  test("firstName is present and not empty", function () {
+      expect(requestData).to.have.property('firstName');
+      expect(requestData.firstName).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("lastName is present and not empty", function () {
+      expect(requestData).to.have.property('lastName');
+      expect(requestData.lastName).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("Email is present and not empty", function () {
+      expect(requestData).to.have.property('email');
+      expect(requestData.email).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("phoneNumber is present and valid", function () {
+      expect(requestData).to.have.property('phoneNumber');
+      expect(requestData.phoneNumber).to.be.a('string').and.to.not.be.empty;
+      expect(Number(requestData.phoneNumber)).to.be.a('number');
+  });
+  
+  test("Password is present and not empty", function () {
+      expect(requestData).to.have.property('password');
+      expect(requestData.password).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("isManager is present and is a boolean", function () {
+      expect(requestData).to.have.property('isManager');
+      expect(requestData.isManager).to.be.a('boolean');
+  });
+  
+  // Validate that the response data structure matches the request data structure
+  test("Response structure is valid", function () {
+      // Sprawdzamy, czy odpowiedź zawiera właściwość 'userId'
+      expect(responseData).to.have.property('userId');
+      expect(responseData.userId).to.be.a('string');
+  
+      // Sprawdzamy, czy odpowiedź zawiera właściwość 'login'
+      expect(responseData).to.have.property('login');
+      expect(responseData.login).to.be.a('string');
+  
+      // Sprawdzamy, czy odpowiedź zawiera właściwość 'roles'
+      expect(responseData).to.have.property('roles');
+      expect(responseData.roles).to.be.an('array');
+  
+      // Sprawdzenie ról w zależności od wartości isManager
+      if (requestData.isManager) {
+          expect(responseData.roles).to.have.members(["CustomerSupportAgent", "CustomerSupportManager"]);
+      } else {
+          expect(responseData.roles).to.have.members(["CustomerSupportAgent"]);
+      }
+  });
+  
+}

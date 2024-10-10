@@ -1,0 +1,104 @@
+meta {
+  name: my-restaurants--id-
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/my-restaurants/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  // 1. Sprawdzenie statusu odpowiedzi
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // 2. Sprawdzenie, czy odpowiedź zawiera dane w formacie JSON
+  test("Response has a JSON body", function () {
+  //     pm.response.to.be.json;
+  });
+  
+  // 3. Sprawdzenie struktury danych restauracji
+  test("Restaurant has the correct fields", function () {
+      var jsonData = res.getBody();
+  
+      expect(jsonData).to.have.property('restaurantId');
+      expect(jsonData).to.have.property('name');
+      expect(jsonData).to.have.property('nip');
+      expect(jsonData).to.have.property('restaurantType');
+      expect(jsonData).to.have.property('address');
+      expect(jsonData).to.have.property('postalIndex');
+      expect(jsonData).to.have.property('city');
+      expect(jsonData).to.have.property('location');
+      expect(jsonData.location).to.have.property('latitude');
+      expect(jsonData.location).to.have.property('longitude');
+      expect(jsonData).to.have.property('groupId');
+      expect(jsonData).to.have.property('groupName');
+      expect(jsonData).to.have.property('rentalContract');
+      expect(jsonData).to.have.property('alcoholLicense');
+      expect(jsonData).to.have.property('businessPermission');
+      expect(jsonData).to.have.property('idCard');
+      expect(jsonData).to.have.property('tables');
+      expect(jsonData).to.have.property('provideDelivery');
+      expect(jsonData).to.have.property('logo');
+      expect(jsonData).to.have.property('photos');
+      expect(jsonData).to.have.property('description');
+      expect(jsonData).to.have.property('reservationDeposit');
+      expect(jsonData).to.have.property('tags');
+      expect(jsonData).to.have.property('isVerified');
+  });
+  
+  // 4. Sprawdzenie poprawności typu danych poszczególnych pól
+  test("Restaurant has correct data types", function () {
+      var jsonData = res.getBody();
+  
+      expect(jsonData.restaurantId).to.be.a('number');
+      expect(jsonData.name).to.be.a('string');
+      expect(jsonData.nip).to.be.a('string');
+      expect(jsonData.restaurantType).to.be.a('string');
+      expect(jsonData.address).to.be.a('string');
+      expect(jsonData.postalIndex).to.be.a('string');
+      expect(jsonData.city).to.be.a('string');
+      expect(jsonData.location.latitude).to.be.a('number');
+      expect(jsonData.location.longitude).to.be.a('number');
+      expect(jsonData.groupId).to.be.a('number');
+      expect(jsonData.groupName).to.be.a('string');
+      expect(jsonData.rentalContract).to.be.a('string');
+      expect(jsonData.alcoholLicense).to.be.a('string');
+      expect(jsonData.businessPermission).to.be.a('string');
+      expect(jsonData.idCard).to.be.a('string');
+      expect(jsonData.tables).to.be.an('array');
+      expect(jsonData.provideDelivery).to.be.a('boolean');
+      expect(jsonData.logo).to.be.a('string');
+      expect(jsonData.photos).to.be.an('array');
+      expect(jsonData.description).to.be.a('string');
+      expect(jsonData.reservationDeposit).to.be.a('number');
+      expect(jsonData.tags).to.be.an('array');
+      expect(jsonData.isVerified).to.be.a('boolean');
+  });
+  
+  // 5. Sprawdzenie liczby i struktury stołów (tables)
+  test("Tables have correct structure", function () {
+      var jsonData = res.getBody();
+      
+      expect(jsonData.tables).to.be.an('array');
+      jsonData.tables.forEach(function(table) {
+          expect(table).to.have.property('tableId');
+          expect(table).to.have.property('capacity');
+          expect(table.tableId).to.be.a('number');
+          expect(table.capacity).to.be.a('number');
+      });
+  });
+  
+}

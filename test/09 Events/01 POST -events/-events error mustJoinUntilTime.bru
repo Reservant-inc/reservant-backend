@@ -1,0 +1,61 @@
+meta {
+  name: -events error mustJoinUntilTime
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "{{time}}",
+    "mustJoinUntil": "2024-05-01T16:41:56.276Z",
+    "restaurantId": {{randomRestaurantId}}
+  }
+  
+  
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość o nieprawidłowej dacie w polu 'mustJoinUntil'
+  test("Error contains invalid date message for 'mustJoinUntil'", function () {
+      expect(jsonData.errors).to.have.property('mustJoinUntil');
+      expect(jsonData.errors.mustJoinUntil[0]).to.include("The date must be today or in the future.");
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errorCodes'
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test, czy 'errorCodes' zawiera kod błędu 'DateMustBeInFuture' dla 'mustJoinUntil'
+  test("ErrorCodes contains DateMustBeInFuture for 'mustJoinUntil'", function () {
+      expect(jsonData.errorCodes).to.have.property('mustJoinUntil');
+      expect(jsonData.errorCodes.mustJoinUntil[0]).to.eql("DateMustBeInFuture");
+  });
+  
+}

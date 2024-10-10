@@ -1,0 +1,36 @@
+meta {
+  name: visits GuestsErr
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/visits
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "date": "2025-08-02T17:21:34.311Z",
+    "numberOfGuests": -15,
+    "tip": 0,
+    "takeaway": true,
+    "restaurantId": 1,
+    "tableId": 2,
+    "participants": [
+      "e5779baf-5c9b-4638-b9e7-ec285e57b367"
+    ]
+  }
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+}

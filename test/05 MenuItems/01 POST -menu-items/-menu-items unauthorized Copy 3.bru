@@ -1,0 +1,62 @@
+meta {
+  name: -menu-items unauthorized Copy 3
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/menu-items
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{employee}}
+}
+
+body:json {
+  {
+    "restaurantId": {{firstRestaurantId}},
+    "price": {{randomInt}},
+    "name": "{{menuName}}",
+    "alternateName": "{{menuName}}",
+    "alcoholPercentage": {{randomDouble0to3}},
+    "photo": "test-jd.png",
+      "ingredients": []
+  }
+}
+
+script:pre-request {
+  function getRandomMenuItemName() {
+      var menuNames = ["seafood", "burger", "sushi", "kebab","pasta","pizza"];
+      var randomIndex = Math.floor(Math.random() * menuNames.length);
+      return menuNames[randomIndex];
+  }
+  
+  var randomMenuName = getRandomMenuItemName();
+  bru.setEnvVar("menuName", randomMenuName);
+  
+  // Funkcja do generowania losowej liczby całkowitej w zakresie od 0 do 500
+  function getRandomInt(max) {
+      return Math.floor(Math.random() * (max + 1)); // max + 1, aby uwzględnić max w zakresie
+  }
+  
+  // Ustawienie zmiennej środowiskowej na losową liczbę całkowitą od 0 do 500
+  bru.setEnvVar("randomInt", getRandomInt(500));
+  console.log("Generated random integer:", bru.getEnvVar("randomInt"));
+  
+  // Funkcja do generowania losowej liczby zmiennoprzecinkowej w zakresie od min do max
+  function getRandomDoubleInRange(min, max) {
+      return Math.random() * (max - min) + min;
+  }
+  
+  // Ustawienie zmiennej środowiskowej na losową liczbę zmiennoprzecinkową od 0 do 3
+  bru.setEnvVar("randomDouble0to3", getRandomDoubleInRange(0, 3).toFixed(2));  // Zaokrąglamy do 2 miejsc po przecinku
+  console.log("Generated random double from 0 to 3:", bru.getEnvVar("randomDouble0to3"));
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+}

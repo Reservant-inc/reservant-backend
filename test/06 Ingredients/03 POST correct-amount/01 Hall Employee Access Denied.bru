@@ -1,0 +1,32 @@
+meta {
+  name: 01 Hall Employee Access Denied
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/ingredients/:ingredientId/correct-amount
+  body: json
+  auth: bearer
+}
+
+params:path {
+  ingredientId: 1
+}
+
+auth:bearer {
+  token: {{employee_hall}}
+}
+
+body:json {
+  {
+    "newAmount": 999,
+    "comment": "First correction"
+  }
+  
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes[""]: contains AccessDenied
+}

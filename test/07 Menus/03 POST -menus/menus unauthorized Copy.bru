@@ -1,0 +1,108 @@
+meta {
+  name: menus unauthorized Copy
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/menus
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BOKEmployee}}
+}
+
+body:json {
+  {
+    "restaurantId": {{randomRestaurantId}},
+    "name": "{{$randomStreetName}}",
+    "alternateName": "{{$randomStreetName}}",
+    "menuType": "{{randomMenuType}}",
+    "dateFrom": "{{formattedDate}}",
+    "dateUntil": "{{randomFutureDate}}",
+     "photo": "test-jd.png"
+  }
+}
+
+script:pre-request {
+  // Pobieranie listy restaurantIds z środowiska
+  var restaurantIds = JSON.parse(bru.getEnvVar("restaurantIds"));
+  
+  // Sprawdzenie, czy lista restaurantIds jest prawidłowa i zawiera elementy
+  if (restaurantIds && Array.isArray(restaurantIds) && restaurantIds.length > 0) {
+      // Losowanie jednego restaurantId z listy
+      var randomIndex = Math.floor(Math.random() * restaurantIds.length);
+      var randomRestaurantId = restaurantIds[randomIndex];
+  
+      // Zapisywanie wylosowanego restaurantId do środowiska
+      bru.setEnvVar("randomRestaurantId", randomRestaurantId);
+  
+      console.log("Wylosowane restaurant ID:", randomRestaurantId);
+  } else {
+      console.error("Lista restaurantIds jest pusta lub nie została znaleziona.");
+  }
+  
+  
+  // Definiowanie dostępnych wartości menuType
+  var menuTypes = ["Food", "Alcohol"];
+  
+  // Losowanie indeksu w zakresie od 0 do długości tablicy menuTypes - 1
+  var randomIndex = Math.floor(Math.random() * menuTypes.length);
+  
+  // Pobranie losowej wartości menuType
+  var randomMenuType = menuTypes[randomIndex];
+  
+  // Zapisywanie losowego menuType do środowiska
+  bru.setEnvVar("randomMenuType", randomMenuType);
+  
+  console.log("Wylosowane menuType:", randomMenuType);
+  
+  
+  //date
+  function generateFormattedDate() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = ('0' + (today.getMonth() + 1)).slice(-2);
+      const day = ('0' + today.getDate()).slice(-2); 
+      return `${year}-${month}-${day}`;
+  }
+  const formattedDate = generateFormattedDate();
+  bru.setEnvVar("formattedDate", formattedDate);
+  
+  
+  
+  function generateRandomFutureDate(daysAhead) {
+      const today = new Date();
+      
+      // Generowanie losowej liczby dni do dodania
+      const randomDaysToAdd = Math.floor(Math.random() * daysAhead) + 1; // Zakres od 1 do daysAhead
+      
+      // Tworzenie nowej daty z dodanymi losowymi dniami
+      today.setDate(today.getDate() + randomDaysToAdd);
+      
+      // Formatujemy datę w formacie YYYY-MM-DD
+      const year = today.getFullYear();
+      const month = ('0' + (today.getMonth() + 1)).slice(-2);
+      const day = ('0' + today.getDate()).slice(-2);
+      
+      return `${year}-${month}-${day}`;
+  }
+  
+  // Generowanie losowej daty w ciągu najbliższych 30 dni
+  const randomDateFuture = generateRandomFutureDate(180);
+  
+  // Zapisywanie losowej daty przyszłości do środowiska
+  bru.setEnvVar("randomFutureDate", randomDateFuture);
+  
+  console.log("Losowa data w przyszłości:", randomDateFuture);
+  
+  
+}
+
+tests {
+  test("Status code is 403", function () {
+      expect(res.getStatus()).to.equal(403);
+  });
+}

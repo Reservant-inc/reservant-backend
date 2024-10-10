@@ -1,0 +1,89 @@
+meta {
+  name: my-restaurant-groups--groupId- empty name
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{host}}/my-restaurant-groups/:groupId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  groupId: {{randomRestaurantGroupId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": ""
+  }
+}
+
+script:pre-request {
+  function generateRandomString(length) {
+      let result = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+      const charactersLength = characters.length;
+      for (let i = 0; i < length; i++) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+      return result;
+  }
+  
+  const randomName = "Grupa_" + generateRandomString(10);
+  bru.setEnvVar("groupName", randomName);
+  
+  
+  // Pobierz listę restaurantGroupIds ze zmiennej środowiskowej
+  var restaurantGroupIds = bru.getEnvVar("restaurantGroupIds");
+  
+  // Upewnij się, że restaurantGroupIds to tablica
+  if (restaurantGroupIds && typeof restaurantGroupIds === 'string') {
+      restaurantGroupIds = JSON.parse(restaurantGroupIds);
+  }
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (restaurantGroupIds && restaurantGroupIds.length > 0) {
+      // Losuj jeden element z listy
+      var randomRestaurantGroupId = restaurantGroupIds[Math.floor(Math.random() * restaurantGroupIds.length)];
+      
+      // Zapisz wylosowany restaurantGroupId do zmiennej środowiskowej
+      bru.setEnvVar("randomRestaurantGroupId", randomRestaurantGroupId);
+      console.log("Random restaurantGroupId selected:", randomRestaurantGroupId);
+  } else {
+      console.log("No restaurantGroupIds available.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera pole 'name' i czy ma odpowiednią wiadomość
+  test("Error contains name with correct message", function () {
+      expect(jsonData.errors).to.have.property('name');
+      expect(jsonData.errors.name[0]).to.include("The Name field is required.");
+  });
+  
+  // Test, czy 'errors' zawiera pole 'groupId' i jest ono puste
+  test("Error contains empty groupId field", function () {
+      expect(jsonData.errors).to.have.property('groupId');
+      expect(jsonData.errors.groupId).to.be.an('array').that.is.empty;
+  });
+  
+}

@@ -1,0 +1,52 @@
+meta {
+  name: -events error eventId
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{host}}/events/:eventId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventId: 0
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "{{time}}",
+    "mustJoinUntil": "{{mustJoinUntil}}",
+    "restaurantId": {{randomRestaurantId}}
+  }
+  
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera błąd "Event not found"
+  test("Event not found error message exists", function () {
+      expect(jsonData.errors[""]).to.include("Event not found");
+  });
+  
+  // Test, czy errorCodes zawiera "NotFound"
+  test("ErrorCodes contains 'NotFound'", function () {
+      expect(jsonData.errorCodes[""]).to.include("NotFound");
+  });
+  
+}

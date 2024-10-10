@@ -1,0 +1,73 @@
+meta {
+  name: -events error mustJoinUntilTime - time
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "{{mustJoinUntil}}",
+    "mustJoinUntil": "{{time}}",
+    "restaurantId": {{randomRestaurantId}}
+  }
+  
+  
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość o nieprawidłowej relacji dat dla 'mustJoinUntil'
+  test("Error contains message for 'mustJoinUntil' being before 'time'", function () {
+      expect(jsonData.errors).to.have.property('mustJoinUntil');
+      expect(jsonData.errors.mustJoinUntil[0]).to.include("'Must Join Until' must be less than");
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość o nieprawidłowej relacji dat dla 'time'
+  test("Error contains message for 'time' being after 'mustJoinUntil'", function () {
+      expect(jsonData.errors).to.have.property('time');
+      expect(jsonData.errors.time[0]).to.include("'Time' must be greater than");
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errorCodes'
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test, czy 'errorCodes' zawiera odpowiedni kod błędu 'MustJoinUntilMustBeBeforeEventTime' dla 'mustJoinUntil'
+  test("ErrorCodes contains MustJoinUntilMustBeBeforeEventTime for 'mustJoinUntil'", function () {
+      expect(jsonData.errorCodes).to.have.property('mustJoinUntil');
+      expect(jsonData.errorCodes.mustJoinUntil[0]).to.eql("MustJoinUntilMustBeBeforeEventTime");
+  });
+  
+  // Test, czy 'errorCodes' zawiera odpowiedni kod błędu 'MustJoinUntilMustBeBeforeEventTime' dla 'time'
+  test("ErrorCodes contains MustJoinUntilMustBeBeforeEventTime for 'time'", function () {
+      expect(jsonData.errorCodes).to.have.property('time');
+      expect(jsonData.errorCodes.time[0]).to.eql("MustJoinUntilMustBeBeforeEventTime");
+  });
+  
+}

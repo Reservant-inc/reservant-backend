@@ -1,0 +1,84 @@
+meta {
+  name: auth-register-customer email error
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/auth/register-customer
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstName": "John",
+    "lastName": "Doe",
+    "login": "{{$randomUserName}}",
+    "email": "invalidemail",  // Niepoprawny format e-maila
+    "phoneNumber": "123456789",
+    "birthDate": "1990-01-01",
+    "password": "Pa$$w0rd123"
+  }
+  
+}
+
+script:pre-request {
+  //phone number
+  function generateRandomNumberSequence(length) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+          result += Math.floor(Math.random() * 10); 
+      }
+      return result;
+  }
+  const randomNumbers = generateRandomNumberSequence(9);
+  bru.setEnvVar("randomPhoneNumber", randomNumbers);
+  
+  //date
+  function generateFormattedDate() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = ('0' + (today.getMonth() + 1)).slice(-2);
+      const day = ('0' + today.getDate()).slice(-2); 
+      return `${year}-${month}-${day}`;
+  }
+  const formattedDate = generateFormattedDate();
+  bru.setEnvVar("formattedDate", formattedDate);
+  
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'status', 'errors' i 'errorCodes'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('status');
+      expect(jsonData).to.have.property('errors');
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test sprawdzający, czy 'email' ma niepoprawny format i zwraca odpowiedni błąd
+  test("email format is invalid", function () {
+      var responseData = res.getBody();
+  
+      expect(responseData.errors).to.have.property('email');
+      expect(responseData.errors.email[0]).to.include("'Email' is not a valid email address.");
+  
+      expect(responseData.errorCodes).to.have.property('email');
+      expect(responseData.errorCodes.email[0]).to.include("EmailValidator");
+  });
+  
+  // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
+  var jsonData = res.getBody();
+  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  
+  test("Response data matches request data", function () {
+      expect(jsonData.Data).to.eql(sentData);
+  });
+  
+}

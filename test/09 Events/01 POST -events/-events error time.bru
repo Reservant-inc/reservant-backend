@@ -1,0 +1,61 @@
+meta {
+  name: -events error time
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "description": "{{groupName}}",
+    "time": "2024-04-05T16:41:56.276Z",
+    "mustJoinUntil": "{{mustJoinUntil}}",
+    "restaurantId": {{randomRestaurantId}}
+  }
+  
+  
+  
+  
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Test, czy 'errors' zawiera wiadomość o nieprawidłowej dacie w polu 'time'
+  test("Error contains invalid date message for 'time'", function () {
+      expect(jsonData.errors).to.have.property('time');
+      expect(jsonData.errors.time[0]).to.include("The date must be today or in the future.");
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errorCodes'
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test, czy 'errorCodes' zawiera kod błędu 'DateMustBeInFuture' dla 'time'
+  test("ErrorCodes contains DateMustBeInFuture for 'time'", function () {
+      expect(jsonData.errorCodes).to.have.property('time');
+      expect(jsonData.errorCodes.time[0]).to.eql("DateMustBeInFuture");
+  });
+  
+}

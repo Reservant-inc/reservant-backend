@@ -1,0 +1,58 @@
+meta {
+  name: GET menuitems from menu perpage
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/menus/:menuId/items?perPage=1
+  body: none
+  auth: bearer
+}
+
+params:query {
+  perPage: 1
+}
+
+params:path {
+  menuId: {{randomMenuId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobieranie listy menuIds z środowiska
+  var menuIdsList = JSON.parse(bru.getEnvVar("menuIdsList"));
+  
+  // Sprawdzenie, czy lista menuIds jest prawidłowa i zawiera elementy
+  if (menuIdsList && Array.isArray(menuIdsList) && menuIdsList.length > 0) {
+      // Losowanie jednego menuId z listy
+      var randomIndex = Math.floor(Math.random() * menuIdsList.length);
+      var randomMenuId = menuIdsList[randomIndex];
+  
+      // Zapisywanie wylosowanego menuId do środowiska
+      bru.setEnvVar("randomMenuId", randomMenuId);
+  
+      console.log("Wylosowane menuId:", randomMenuId);
+  } else {
+      console.error("Lista menuIds jest pusta lub nie została znaleziona.");
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy wartość 'perPage' wynosi 1
+  test("perPage is 1", function () {
+      expect(jsonData.perPage).to.eql(1);
+  });
+  
+  // Test, czy 'items' zawiera dokładnie jeden obiekt
+  test("Items array has exactly one object", function () {
+      expect(jsonData.items).to.be.an('array').that.has.lengthOf(1);
+  });
+  
+}

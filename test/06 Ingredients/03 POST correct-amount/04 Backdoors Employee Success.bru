@@ -1,0 +1,34 @@
+meta {
+  name: 04 Backdoors Employee Success
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/ingredients/:ingredientId/correct-amount
+  body: json
+  auth: bearer
+}
+
+params:path {
+  ingredientId: 1
+}
+
+auth:bearer {
+  token: {{employee_backdoors}}
+}
+
+body:json {
+  {
+    "newAmount": 999,
+    "comment": "Second correction"
+  }
+  
+}
+
+assert {
+  res.status: eq 200
+  res.body.oldAmount: eq 29
+  res.body.newAmount: eq 999
+  res.body.comment: eq Second correction
+}

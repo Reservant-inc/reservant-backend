@@ -1,0 +1,72 @@
+meta {
+  name: -events--eventId--interested
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{host}}/events/:eventId/interested
+  body: none
+  auth: bearer
+}
+
+params:path {
+  eventId: {{randomInterestedEventId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  // Pobierz listę interestedInEventsIdsList ze zmiennej środowiskowej
+  var interestedInEventsIdsList = bru.getEnvVar("interestedInEventsIdsList");
+  
+  // Konwertuj listę na tablicę, jeśli jest w formacie string
+  interestedInEventsIdsList = interestedInEventsIdsList ? interestedInEventsIdsList.split(',') : [];
+  
+  // Sprawdź, czy lista nie jest pusta
+  if (interestedInEventsIdsList.length > 0) {
+      // Wylosuj jedną wartość
+      var randomInterestedEventId = interestedInEventsIdsList[Math.floor(Math.random() * interestedInEventsIdsList.length)];
+  
+      // Zapisz wylosowaną wartość do zmiennej środowiskowej
+      bru.setEnvVar("randomInterestedEventId", randomInterestedEventId);
+  
+      console.log("Random interested eventId selected:", randomInterestedEventId);
+  } else {
+      console.log("interestedInEventsIdsList is empty");
+  }
+  
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  // Sprawdź, czy status kod jest 204
+  if (res.getStatus() === 204) {
+      // Pobierz listę interestedInEventsIdsList ze zmiennej środowiskowej
+      var interestedInEventsIdsList = bru.getEnvVar("interestedInEventsIdsList");
+  
+      // Konwertuj listę na tablicę, jeśli jest w formacie string
+      interestedInEventsIdsList = interestedInEventsIdsList ? interestedInEventsIdsList.split(',') : [];
+  
+      // Pobierz wartość randomInterestedEventId
+      var randomInterestedEventId = bru.getEnvVar("randomInterestedEventId");
+  
+      // Usuń randomInterestedEventId z listy
+      interestedInEventsIdsList = interestedInEventsIdsList.filter(function(eventId) {
+          return eventId !== randomInterestedEventId;
+      });
+  
+      // Zaktualizuj listę w środowisku
+      bru.setEnvVar("interestedInEventsIdsList", interestedInEventsIdsList.join(','));
+  
+      console.log("Removed randomInterestedEventId:", randomInterestedEventId, "from interestedInEventsIdsList");
+  } else {
+      console.log("Response is not 204, no event removed from interestedInEventsIdsList");
+  }
+  
+}

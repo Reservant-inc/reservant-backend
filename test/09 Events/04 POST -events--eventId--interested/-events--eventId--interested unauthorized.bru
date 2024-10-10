@@ -1,0 +1,46 @@
+meta {
+  name: -events--eventId--interested unauthorized
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/events/:eventId/interested
+  body: none
+  auth: none
+}
+
+params:path {
+  eventId: {{randomEventId}}
+}
+
+script:pre-request {
+  // Pobierz listę eventIds z środowiska
+  var eventIdsList = bru.getEnvVar("eventIdsList");
+  
+  // Sprawdź, czy lista eventIdsList nie jest pusta
+  if (eventIdsList && eventIdsList.length > 0) {
+      // Parsuj listę (jeśli została zapisana jako string JSON)
+      eventIdsList = JSON.parse(eventIdsList);
+      
+      // Losuj indeks z listy
+      var randomIndex = Math.floor(Math.random() * eventIdsList.length);
+      
+      // Pobierz losowe eventId
+      var randomEventId = eventIdsList[randomIndex];
+      
+      // Zapisz losowe eventId do środowiska
+      bru.setEnvVar("randomEventId", randomEventId);
+      
+      console.log("Losowy eventId: " + randomEventId);
+  } else {
+      console.log("Lista eventIdsList jest pusta lub nie istnieje");
+  }
+}
+
+tests {
+  test("Status code is 401", function () {
+      expect(res.getStatus()).to.equal(401);
+  });
+  
+}

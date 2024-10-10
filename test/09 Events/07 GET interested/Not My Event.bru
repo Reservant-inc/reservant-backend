@@ -1,0 +1,20 @@
+meta {
+  name: Not My Event
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/events/:eventId/interested
+  body: none
+  auth: none
+}
+
+params:path {
+  eventId: 2
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes.eventId: contains AccessDenied
+}
