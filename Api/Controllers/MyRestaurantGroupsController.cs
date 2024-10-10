@@ -84,7 +84,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         }
         catch (InvalidOperationException ex)
         {
-            if (ex.Message.Contains("not found"))
+            if (ex.Message.Contains("not found", StringComparison.InvariantCultureIgnoreCase))
             {
                 return NotFound();
             }
