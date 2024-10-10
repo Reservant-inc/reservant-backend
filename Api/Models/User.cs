@@ -136,5 +136,5 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// <summary>
     /// Property that indicates if the user was deleted
     /// </summary>
-    public bool IsArchived { get; set; } = false;
+    public bool IsArchived { get; set; }
 }
