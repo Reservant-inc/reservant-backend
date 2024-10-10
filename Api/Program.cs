@@ -94,4 +94,4 @@ app.UsePushMiddleware();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
