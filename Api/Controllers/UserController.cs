@@ -52,7 +52,7 @@ public class UserController(
     [HttpGet]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(401)]
-    public async Task<ActionResult<UserDetailsVM>> GetUser()
+    public async Task<ActionResult<UserDetailsVM>> GetCurrentUser()
     {
 
         var user = await userManager.GetUserAsync(User);
