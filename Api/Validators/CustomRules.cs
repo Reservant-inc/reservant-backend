@@ -63,6 +63,8 @@ public static class CustomRules
             .WithMessage("Must be a valid restaurant tag");
     }
 
+    private static readonly int[] NipWeights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+
     /// <summary>
     /// Validates that the property contains a valid
     /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a>.
@@ -77,21 +79,17 @@ public static class CustomRules
                     return false;
                 }
 
-                int[] weights = { 6, 5, 7, 2, 3, 4, 5, 6, 7 };
-                int sum = 0;
+                var sum = NipWeights.Zip(value)
+                    .Select(vals => vals.First * vals.Second)
+                    .Sum();
 
-                for (int i = 0; i < weights.Length; i++)
-                {
-                    sum += weights[i] * (value[i] - '0');
-                }
-
-                int checksum = sum % 11;
+                var checksum = sum % 11;
                 if (checksum == 10)
                 {
                     checksum = 0;
                 }
 
-                return checksum == (value[9] - '0');
+                return checksum == value[9] - '0';
             })
             .WithErrorCode(ErrorCodes.Nip)
             .WithMessage("Must be a valid NIP");
