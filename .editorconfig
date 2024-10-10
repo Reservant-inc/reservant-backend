@@ -1,0 +1,24 @@
+[*.{cs,vb}]
+
+resharper_csharp_trailing_comma_in_multiline_lists = true
+csharp_style_namespace_declarations = file_scoped
+resharper_csharp_namespace_body = file_scoped
+
+# ---
+# Disable warnings
+# ---
+
+# Do not directly await a Task
+dotnet_diagnostic.CA2007.severity = none
+
+# Identifiers should not match keywords
+dotnet_diagnostic.CA1716.severity = none
+
+# Collection properties should be read only
+dotnet_diagnostic.CA2227.severity = none
+
+# Do not expose generic lists
+dotnet_diagnostic.CA1002.severity = none
+
+# Validate arguments of public methods
+dotnet_diagnostic.CA1062.severity = none

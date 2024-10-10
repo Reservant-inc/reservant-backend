@@ -4,8 +4,12 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <AnalysisLevel>latest-Recommended</AnalysisLevel>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
         <InvariantGlobalization>false</InvariantGlobalization>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+
         <RootNamespace>Reservant.Api</RootNamespace>
         <AssemblyName>Reservant.Api</AssemblyName>
         <UserSecretsId>71abd42b-36f0-4f9f-9166-bf4b4ee57b99</UserSecretsId>
