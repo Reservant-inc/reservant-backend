@@ -196,7 +196,7 @@ public class IngredientService(
         }
 
         var user = await dbContext.Users.FindAsync(userId)
-                   ?? throw new Exception($"User with ID {userId} not found");
+                   ?? throw new InvalidOperationException($"User with ID {userId} not found");
 
         var ingredient = await dbContext.Ingredients
             .Include(i => i.MenuItems)
