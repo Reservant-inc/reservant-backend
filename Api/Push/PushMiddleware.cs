@@ -117,11 +117,11 @@ public class PushMiddleware(
         {
             if (ex.WebSocketErrorCode is WebSocketError.ConnectionClosedPrematurely)
             {
-                logger.LogInformation(ex, "Client connection closed prematurely");
+                logger.WebSocketConnectionClosedPrematurely(ex);
             }
             else
             {
-                logger.LogError(ex, "Unexpected WebSocket error");
+                logger.WebSocketUnexpectedError(ex);
             }
         }
     }

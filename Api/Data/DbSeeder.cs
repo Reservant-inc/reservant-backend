@@ -31,8 +31,6 @@ public class DbSeeder(
     IOptions<FileUploadsOptions> fileUploadsOptions,
     GeometryFactory geometryFactory)
 {
-    private static readonly EventId EventSeedUpload = new(10000, $"{typeof(DbSeeder).FullName}.SeedUpload");
-
     private const string ExampleUploadsPath = "./example-uploads";
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
@@ -692,10 +690,7 @@ public class DbSeeder(
                     ContentType = contentType
                 });
 
-                logger.LogInformation(
-                    EventSeedUpload,
-                    "Added example upload {fileName} for user {userLogin} (Id: {userId})",
-                    fileName, userLogin, userId);
+                logger.ExampleUploadAdded(fileName, userLogin, userId);
             }
         }
 

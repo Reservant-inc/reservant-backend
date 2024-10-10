@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,8 @@ public static class FirebaseStartupHelpers
     /// Try to initialize Firebase SDK. If the credentials path is not provided,
     /// log a warning and do nothing.
     /// </summary>
+    [SuppressMessage("Performance", "CA1848:Use the LoggerMessage delegates",
+        Justification = "This method is called just once at startup")]
     public static async Task TryInitFirebase(this IApplicationBuilder app)
     {
         var options = app.ApplicationServices.GetRequiredService<IOptions<FirebaseOptions>>();
