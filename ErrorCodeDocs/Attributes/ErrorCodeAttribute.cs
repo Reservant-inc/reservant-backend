@@ -7,7 +7,7 @@
 /// <param name="errorCode">The error code returned</param>
 /// <param name="description">Optional description of the reason the error code might be returned</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class ErrorCodeAttribute(string? propertyName, string errorCode, string? description = null) : Attribute
+public sealed class ErrorCodeAttribute(string? propertyName, string errorCode, string? description = null) : Attribute
 {
     /// <summary>
     /// Property name for which the error code is returned

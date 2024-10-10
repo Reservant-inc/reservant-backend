@@ -1,12 +1,15 @@
-﻿namespace Reservant.ErrorCodeDocs.Attributes;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Reservant.ErrorCodeDocs.Attributes;
 
 /// <summary>
 /// Documents that an endpoint (or a method) can return error codes produced by the specified method
 /// </summary>
 /// <param name="containingType">Type that contains the method</param>
-/// <param name="method">Name of the method</param>
+/// <param name="methodName">Name of the method</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class MethodErrorCodesAttribute(Type containingType, string method) : Attribute
+[SuppressMessage("Performance", "CA1813:Avoid unsealed attributes")]
+public class MethodErrorCodesAttribute(Type containingType, string methodName) : Attribute
 {
     /// <summary>
     /// Name of the class containing the referenced method
@@ -16,14 +19,14 @@ public class MethodErrorCodesAttribute(Type containingType, string method) : Att
     /// <summary>
     /// Name of the referenced method
     /// </summary>
-    public string MethodName { get; } = method;
+    public string MethodName { get; } = methodName;
 }
 
 /// <summary>
 /// Documents that an endpoint (or a method) can return error codes produced by the specified method
 /// </summary>
 /// <typeparam name="TContaining">Type that contains the method</typeparam>
-/// <param name="method">Name of the method</param>
+/// <param name="methodName">Name of the method</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public class MethodErrorCodesAttribute<TContaining>(string method)
-    : MethodErrorCodesAttribute(typeof(TContaining), method);
+public sealed class MethodErrorCodesAttribute<TContaining>(string methodName)
+    : MethodErrorCodesAttribute(typeof(TContaining), methodName);

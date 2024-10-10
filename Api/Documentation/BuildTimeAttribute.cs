@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace Reservant.Api.Documentation;
@@ -7,7 +8,10 @@ namespace Reservant.Api.Documentation;
 /// </summary>
 /// <param name="time">String representation of the build time</param>
 [AttributeUsage(AttributeTargets.Assembly)]
-public class BuildTimeAttribute(string time) : Attribute
+public sealed class BuildTimeAttribute(
+    [SuppressMessage("Design", "CA1019:Define accessors for attribute arguments",
+        Justification = "Available through BuildTime")] string time
+    ) : Attribute
 {
     /// <summary>
     /// Build time
