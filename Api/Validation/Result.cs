@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation.Results;
 
 namespace Reservant.Api.Validation;
@@ -5,6 +6,9 @@ namespace Reservant.Api.Validation;
 /// <summary>
 /// Used to indicate validation errors if any.
 /// </summary>
+[SuppressMessage("Usage", "CA2225:Operator overloads have named alternates",
+    Justification = "Designed to be invisible")]
+[SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types")]
 public readonly struct Result
 {
     /// <summary>
@@ -88,6 +92,9 @@ public readonly struct Result
 /// Used to return a value in case of success OR validation errors if any.
 /// </summary>
 /// <typeparam name="TValue">The value type in case of success.</typeparam>
+[SuppressMessage("Usage", "CA2225:Operator overloads have named alternates",
+    Justification = "Designed to be invisible")]
+[SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types")]
 public readonly struct Result<TValue>
 {
     /// <summary>

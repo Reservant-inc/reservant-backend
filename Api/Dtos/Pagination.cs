@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Reservant.Api.Dtos;
 
 /// <summary>
@@ -24,6 +26,7 @@ public class Pagination<T>
     /// <summary>
     /// Available orderBy options
     /// </summary>
+    [SuppressMessage("Performance", "CA1819:Properties should not return arrays")]
     public required string[] OrderByOptions { get; init; }
 
     /// <summary>

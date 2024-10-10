@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Validation;
 
@@ -13,6 +14,9 @@ public class StrictController : Controller
     /// <see cref="ActionResult"/>, and not to an <see cref="ActionResult{T}"/>
     /// to enforce the correct declared return type.
     /// </summary>
+    [SuppressMessage("Usage", "CA2225:Operator overloads have named alternates",
+        Justification = "Designed to be invisible")]
+    [SuppressMessage("Design", "CA1034:Nested types should not be visible")]
     public class StrictEmptyActionResult(ActionResult inner)
     {
         private readonly ActionResult _inner = inner;
