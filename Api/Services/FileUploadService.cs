@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
@@ -38,19 +39,19 @@ public enum FileClass
 /// </summary>
 public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContext context)
 {
-    private static readonly Dictionary<string, string> FileExtensions = new()
+    private static readonly ReadOnlyDictionary<string, string> FileExtensions = new(new Dictionary<string, string>
     {
         { "image/png", ".png" },
         { "image/jpeg", ".jpg" },
-        { "application/pdf", ".pdf" }
-    };
+        { "application/pdf", ".pdf" },
+    });
 
-    private static readonly Dictionary<string, FileClass> FileClasses = new()
+    private static readonly ReadOnlyDictionary<string, FileClass> FileClasses = new(new Dictionary<string, FileClass>
     {
         { ".png", FileClass.Image },
         { ".jpg", FileClass.Image },
-        { ".pdf", FileClass.Document }
-    };
+        { ".pdf", FileClass.Document },
+    });
 
     /// <summary>
     /// Saves the given file to disk.
@@ -99,11 +100,17 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
         {
             await context.SaveChangesAsync();
         }
-        catch (DbUpdateException)
+        catch
         {
             try
             {
+// Suppress CA3003 : Potential file path injection vulnerability
+// The part of filePath that is controlled by user input is the
+// extension, which is selected from FileExtensions which is known
+// and constant.
+#pragma warning disable CA3003
                 File.Delete(filePath);
+#pragma warning restore CA3003
             }
             catch (IOException) { }
 
