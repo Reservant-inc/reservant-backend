@@ -163,9 +163,9 @@ public static class CustomRules
     /// </summary>
     public static IRuleBuilderOptions<T, Guid> CurrentUsersEmployee<T>(this IRuleBuilder<T, Guid> builder, ApiDbContext db)
     {
-        return builder.MustAsync(async (_, value, context, _) =>
+        return builder.MustAsync(async (_, value, context, cancelToken) =>
         {
-            var user = await db.Users.FindAsync(value);
+            var user = await db.Users.FindAsync([value], cancelToken);
             if (user is null)
             {
                 return false;
