@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.Wallet;
+using Reservant.Api.Dtos.Wallets;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 

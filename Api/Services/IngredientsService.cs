@@ -2,7 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Dtos.Ingredient;
+using Reservant.Api.Dtos.Ingredients;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -253,7 +253,7 @@ public class IngredientService(
             OldAmount = correction.OldAmount,
             NewAmount = correction.NewAmount,
             CorrectionDate = correction.CorrectionDate,
-            User = new Dtos.User.UserSummaryVM
+            User = new Dtos.Users.UserSummaryVM
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,

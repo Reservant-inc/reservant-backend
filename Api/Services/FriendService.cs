@@ -6,7 +6,7 @@ using FluentValidation.Results;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.FriendRequest;
+using Reservant.Api.Dtos.FriendRequests;
 
 namespace Reservant.Api.Services;
 
@@ -241,14 +241,14 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
                 OtherUser = fr.ReceiverId == userId
-                    ? new Dtos.User.UserSummaryVM
+                    ? new Dtos.Users.UserSummaryVM
                     {
                         UserId = fr.SenderId,
                         FirstName = fr.Sender.FirstName,
                         LastName = fr.Sender.LastName,
                         Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
                     }
-                    : new Dtos.User.UserSummaryVM
+                    : new Dtos.Users.UserSummaryVM
                     {
                         UserId = fr.ReceiverId,
                         FirstName = fr.Receiver.FirstName,
@@ -279,7 +279,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                OtherUser = new Dtos.User.UserSummaryVM
+                OtherUser = new Dtos.Users.UserSummaryVM
                 {
                     UserId = fr.SenderId,
                     FirstName = fr.Sender.FirstName,
@@ -309,7 +309,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
                 DateAccepted = fr.DateAccepted,
-                OtherUser = new Dtos.User.UserSummaryVM
+                OtherUser = new Dtos.Users.UserSummaryVM
                 {
                     UserId = fr.ReceiverId,
                     FirstName = fr.Receiver.FirstName,

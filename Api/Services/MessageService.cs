@@ -1,7 +1,7 @@
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Dtos.Message;
+using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 

@@ -1,7 +1,7 @@
 ﻿using Reservant.ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Reservant.Api.Dtos.Delivery;
+using Reservant.Api.Dtos.Deliveries;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
 

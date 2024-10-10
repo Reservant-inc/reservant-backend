@@ -4,7 +4,7 @@ using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
-using Reservant.Api.Dtos.FileUpload;
+using Reservant.Api.Dtos.FileUploads;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
 using Reservant.Api.Validation;

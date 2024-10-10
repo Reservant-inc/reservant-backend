@@ -6,8 +6,8 @@ using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.Event;
-using Reservant.Api.Dtos.User;
+using Reservant.Api.Dtos.Events;
+using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Services
 {

@@ -1,4 +1,4 @@
-namespace Reservant.Api.Dtos.Wallet;
+namespace Reservant.Api.Dtos.Wallets;
 
 /// <summary>
 /// Information about wallet status

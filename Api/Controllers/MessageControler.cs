@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
-using Reservant.Api.Dtos.Message;
+using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Validators;
 
 

@@ -4,8 +4,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
-using Reservant.Api.Dtos.RestaurantGroup;
-using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.RestaurantGroups;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Location;
 
 namespace Reservant.Api.Services;

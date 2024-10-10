@@ -7,15 +7,15 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.Delivery;
-using Reservant.Api.Dtos.Event;
-using Reservant.Api.Dtos.Ingredient;
-using Reservant.Api.Dtos.Menu;
-using Reservant.Api.Dtos.MenuItem;
-using Reservant.Api.Dtos.Order;
-using Reservant.Api.Dtos.Restaurant;
-using Reservant.Api.Dtos.Review;
-using Reservant.Api.Dtos.Visit;
+using Reservant.Api.Dtos.Deliveries;
+using Reservant.Api.Dtos.Events;
+using Reservant.Api.Dtos.Ingredients;
+using Reservant.Api.Dtos.Menus;
+using Reservant.Api.Dtos.MenuItems;
+using Reservant.Api.Dtos.Orders;
+using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Dtos.Reviews;
+using Reservant.Api.Dtos.Visits;
 namespace Reservant.Api.Controllers;
 
 

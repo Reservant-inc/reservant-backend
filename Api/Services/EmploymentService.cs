@@ -2,7 +2,7 @@ using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Dtos.Employment;
+using Reservant.Api.Dtos.Employments;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -163,7 +163,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             EmploymentId = e.EmploymentId,
             DateFrom = e.DateFrom,
             DateUntill = e.DateUntil,
-            Restaurant = new Dtos.Restaurant.RestaurantSummaryVM
+            Restaurant = new Dtos.Restaurants.RestaurantSummaryVM
             {
                 Address = e.Restaurant.Address,
                 Tags = e.Restaurant.Tags.Select(t => t.Name).ToList(),

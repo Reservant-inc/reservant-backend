@@ -6,11 +6,11 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.Employment;
-using Reservant.Api.Dtos.Event;
-using Reservant.Api.Dtos.Thread;
-using Reservant.Api.Dtos.User;
-using Reservant.Api.Dtos.Visit;
+using Reservant.Api.Dtos.Employments;
+using Reservant.Api.Dtos.Events;
+using Reservant.Api.Dtos.Threads;
+using Reservant.Api.Dtos.Users;
+using Reservant.Api.Dtos.Visits;
 using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;

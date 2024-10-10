@@ -6,8 +6,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.Message;
-using Reservant.Api.Dtos.Thread;
+using Reservant.Api.Dtos.Messages;
+using Reservant.Api.Dtos.Threads;
 using Reservant.ErrorCodeDocs.Attributes;
 
 

@@ -4,7 +4,7 @@ using Reservant.ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.Notification;
+using Reservant.Api.Dtos.Notifications;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Swashbuckle.AspNetCore.SwaggerGen;

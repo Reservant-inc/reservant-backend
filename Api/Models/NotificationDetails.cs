@@ -1,6 +1,6 @@
 namespace Reservant.Api.Models;
 
-using Reservant.Api.Dtos.User;
+using Dtos.Users;
 using System.ComponentModel.DataAnnotations;
 
 /// <summary>

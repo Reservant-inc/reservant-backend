@@ -5,8 +5,8 @@ using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
-using Reservant.Api.Dtos.MenuItem;
-using Reservant.Api.Dtos.Ingredient;
+using Reservant.Api.Dtos.MenuItems;
+using Reservant.Api.Dtos.Ingredients;
 
 namespace Reservant.Api.Services
 {

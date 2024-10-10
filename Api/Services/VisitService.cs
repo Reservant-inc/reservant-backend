@@ -5,9 +5,9 @@ using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
-using Reservant.Api.Dtos.Visit;
-using Reservant.Api.Dtos.Order;
-using Reservant.Api.Dtos.User;
+using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Dtos.Orders;
+using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Services;
 

@@ -2,7 +2,7 @@
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
-using Reservant.Api.Dtos.Notification;
+using Reservant.Api.Dtos.Notifications;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;

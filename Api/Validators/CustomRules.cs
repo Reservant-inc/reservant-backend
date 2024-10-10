@@ -7,7 +7,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Reservant.Api.Dtos.OrderItem;
+using Reservant.Api.Dtos.OrderItems;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
 using System.Text.RegularExpressions;

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Dtos;
@@ -6,6 +7,10 @@ using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api;
+
+// Utils conflicts with the namespace Microsoft.Identity.Client.Utils
+// which can be just ignored
+#pragma warning disable CA1724
 
 /// <summary>
 /// Utility functions

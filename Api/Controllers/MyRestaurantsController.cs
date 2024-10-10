@@ -7,9 +7,9 @@ using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
-using Reservant.Api.Dtos.Menu;
-using Reservant.Api.Dtos.MenuItem;
-using Reservant.Api.Dtos.Restaurant;
+using Reservant.Api.Dtos.Menus;
+using Reservant.Api.Dtos.MenuItems;
+using Reservant.Api.Dtos.Restaurants;
 
 
 namespace Reservant.Api.Controllers
