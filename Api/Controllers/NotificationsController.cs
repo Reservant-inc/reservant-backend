@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using Reservant.ErrorCodeDocs.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -85,12 +86,12 @@ public class NotificationsController(NotificationService service) : StrictContro
 
         foreach (var notificationType in types)
         {
-            htmlBuilder.AppendLine($"<h2>{notificationType.Name}</h2>");
+            htmlBuilder.AppendLine(CultureInfo.InvariantCulture, $"<h2>{notificationType.Name}</h2>");
             htmlBuilder.AppendLine("<ul>");
 
             foreach (var (name, type) in notificationType.DetailsFields)
             {
-                htmlBuilder.AppendLine($"<li>{name} : {type}</li>");
+                htmlBuilder.AppendLine(CultureInfo.InvariantCulture, $"<li>{name} : {type}</li>");
             }
 
             htmlBuilder.AppendLine("</ul>");

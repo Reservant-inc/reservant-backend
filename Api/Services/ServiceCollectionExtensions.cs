@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
     public static void AddBusinessServices(this IServiceCollection services)
     {
         var types = typeof(ServiceCollectionExtensions).Assembly
-            .GetTypes().Where(t => t.Name.EndsWith("Service"));
+            .GetTypes().Where(t => t.Name.EndsWith("Service", StringComparison.InvariantCulture));
         foreach (var type in types)
         {
             services.TryAddScoped(type);

@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using System.Globalization;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
@@ -21,7 +22,7 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
 
         var hasTitle = false;
         var description = new StringBuilder(operation.Description);
-        
+
         foreach (var errorCode in errorCodes)
         {
             if (!hasTitle)
@@ -34,11 +35,11 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
                 errorCode.PropertyName is null ? null : PropertyPathToCamelCase(errorCode.PropertyName));
             var codeDescription = HttpUtility.HtmlEncode(errorCode.Description);
 
-            description.Append(
+            description.Append(CultureInfo.InvariantCulture,
                 $"- **\"{propertyName}\": {errorCode.ErrorCode}**");
             if (errorCode.Description is not null)
             {
-                description.Append($"<br>_{codeDescription}_");
+                description.Append(CultureInfo.InvariantCulture, $"<br>_{codeDescription}_");
             }
 
             description.AppendLine();
@@ -60,5 +61,5 @@ internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : I
             str.Split('.')
                 .Select(name => name.Length == 0
                     ? name
-                    : char.ToLower(name[0]) + name[1..]));
+                    : char.ToLowerInvariant(name[0]) + name[1..]));
 }

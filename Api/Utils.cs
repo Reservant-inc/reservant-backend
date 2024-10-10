@@ -21,7 +21,7 @@ public static class Utils
             str.Split('.')
                 .Select(name => name.Length == 0
                     ? name
-                    : char.ToLower(name[0]) + name[1..]));
+                    : char.ToLowerInvariant(name[0]) + name[1..]));
 
     /// <summary>
     /// Return a single page of the query

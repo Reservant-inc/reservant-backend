@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Reservant.Api.Documentation;
 
 /// <summary>
@@ -10,5 +12,5 @@ public class BuildTimeAttribute(string time) : Attribute
     /// <summary>
     /// Build time
     /// </summary>
-    public DateTime BuildTime { get; } = DateTime.Parse(time);
+    public DateTime BuildTime { get; } = DateTime.Parse(time, CultureInfo.InvariantCulture);
 }

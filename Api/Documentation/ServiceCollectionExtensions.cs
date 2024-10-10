@@ -1,4 +1,5 @@
-﻿using Reservant.ErrorCodeDocs.SwaggerGen;
+﻿using System.Globalization;
+using Reservant.ErrorCodeDocs.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -20,7 +21,7 @@ public static class ServiceCollectionExtensions
         {
             var assembly = Assembly.GetExecutingAssembly();
             var buildTime = assembly.GetCustomAttribute<BuildTimeAttribute>()?.BuildTime
-                .ToString("HH:mm:ss, d MMM yyyy") ?? "[unknown]";
+                .ToString("HH:mm:ss, d MMM yyyy", CultureInfo.InvariantCulture) ?? "[unknown]";
 
             options.SwaggerDoc("v1", new OpenApiInfo
             {

@@ -13,7 +13,7 @@
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
         <AssemblyAttribute Include="Reservant.Api.Documentation.BuildTime">
-            <_Parameter1>$([System.DateTime]::Now.ToString("s"))</_Parameter1>
+            <_Parameter1>$([System.DateTime]::UtcNow.ToString("s"))</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
 

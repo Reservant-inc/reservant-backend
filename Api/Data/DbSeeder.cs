@@ -1384,7 +1384,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Pracownik Sali",
             LastName = "Przykładowski",
-            BirthDate = DateOnly.Parse("2001-05-05"),
+            BirthDate = new DateOnly(2001, 5, 5),
             PhoneNumber = "+48123456789"
         }, johnDoe, Guid.Parse("22781e02-d83a-44ef-8cf4-735e95d9a0b2"))).OrThrow();
         (await restaurantService.AddEmployeeAsync(
