@@ -137,7 +137,7 @@ public class ErrorCodesAggregator
     /// Return property name for a validation rule as it is returned
     /// when the rule has failed
     /// </summary>
-    private string GetPropertyNameForRule(IValidationRule rule)
+    private static string GetPropertyNameForRule(IValidationRule rule)
     {
         var propertyName = rule.PropertyName;
         var isRuleForEach = rule.GetType()

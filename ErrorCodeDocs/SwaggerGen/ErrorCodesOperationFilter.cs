@@ -11,7 +11,7 @@ namespace Reservant.ErrorCodeDocs.SwaggerGen;
 /// Operation filter that adds error code information to Swagger
 /// </summary>
 /// <param name="getValidatorsFromAssembly">Assembly to get validators from</param>
-internal class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : IOperationFilter
+internal sealed class ErrorCodesOperationFilter(Assembly getValidatorsFromAssembly) : IOperationFilter
 {
     private readonly ErrorCodesAggregator _aggregator = new(getValidatorsFromAssembly);
 

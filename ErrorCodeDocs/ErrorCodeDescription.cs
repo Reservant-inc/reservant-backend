@@ -15,7 +15,7 @@ public readonly record struct ErrorCodeDescription(
     /// <summary>
     /// Construct an instance based on an <see cref="ErrorCodeAttribute"/>
     /// </summary>
-    public ErrorCodeDescription(ErrorCodeAttribute attribute)
+    internal ErrorCodeDescription(ErrorCodeAttribute attribute)
         : this(attribute.PropertyName, attribute.ErrorCode, attribute.Description) { }
 
     public override string ToString()
@@ -39,5 +39,25 @@ public readonly record struct ErrorCodeDescription(
         }
 
         return string.Compare(Description, other.Description, StringComparison.Ordinal);
+    }
+
+    public static bool operator <(ErrorCodeDescription left, ErrorCodeDescription right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(ErrorCodeDescription left, ErrorCodeDescription right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(ErrorCodeDescription left, ErrorCodeDescription right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(ErrorCodeDescription left, ErrorCodeDescription right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }
