@@ -47,7 +47,7 @@ public class DebugController(
     public async Task<ActionResult> SendTestNotification([FromServices] NotificationService service)
     {
         await service.NotifyNewFriendRequest(
-            Guid.Parse("je4nd6f9-j4bn-9374-n4s3-j3nd85ht0a03"),
+            Guid.Parse("28b618d7-2f32-4f0c-823d-e63ffa56e47f"),
             Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367"));
         return Ok();
     }
