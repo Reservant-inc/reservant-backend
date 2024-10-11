@@ -268,7 +268,7 @@ public class NotificationService(
     /// <summary>
     /// Notify a user that their visit request was accepted/rejected
     /// </summary>
-    public async Task NotifyVisitConsiderationRequestResponse(Guid receiver, int visitId, bool isAccepted)
+    public async Task NotifyVisitConsiderationRequestResponse(Guid receiver, int visitId)
     {
         var visitData = await context.Visits
             .Where(v => v.VisitId == visitId)
@@ -277,6 +277,7 @@ public class NotificationService(
                 photoFileName =  v.Restaurant.LogoFileName,
                 AnsweredById = v.AnsweredById,
                 AnsweredByName = v.AnsweredBy.FirstName + " " + v.AnsweredBy.LastName,
+                IsAccepted = v.IsAccepted
             })
             .FirstOrDefaultAsync();
 
@@ -287,7 +288,7 @@ public class NotificationService(
                 new NotificationVisitConsiderationRequestResponse
                 {
                     VisitId = visitId,
-                    IsAccepted = isAccepted,
+                    IsAccepted = visitData.IsAccepted ?? false,
                     AnsweredById = visitData.AnsweredById ?? Guid.Empty,
                     AnsweredByName = visitData.AnsweredByName,
                 },

@@ -55,4 +55,43 @@ public class VisitsController(
         var result = await visitService.CreateVisitAsync(request, user);
         return OkOrErrors(result);
     }
+
+
+    /// <summary>
+    /// Approves visit
+    /// </summary>
+    [HttpPost("{visitId}/approve")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    public async Task<ActionResult> ApproveVisitRequest(int visitId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        return OkOrErrors(await visitService.ApproveVisitRequestAsync(visitId, user));
+        
+    }
+
+    /// <summary>
+    /// Decline visit
+    /// </summary>
+    [HttpPost("{visitId}/decline")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    public async Task<ActionResult> DeclineVisitRequest(int visitId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        return OkOrErrors(await visitService.DeclineVisitRequestAsync(visitId, user));
+        
+    }
 }

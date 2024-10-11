@@ -68,7 +68,7 @@ public class Visit : ISoftDeletable
     public int TableId { get; set; }
 
     /// <summary>
-    /// ID of the restaurant employee that considered reservation
+    /// ID of the restaurant owner/hall employee that considered reservation
     /// </summary>
     public Guid? AnsweredById { get; set;}
 
@@ -106,7 +106,7 @@ public class Visit : ISoftDeletable
     public Restaurant Restaurant { get; set; } = null!;
 
     /// <summary>
-    /// restaurant employee that considered reservationn
+    /// restaurant restaurant owner/hall employee that considered reservationn
     /// </summary>
     public User AnsweredBy { get; set; } = null!;
 }

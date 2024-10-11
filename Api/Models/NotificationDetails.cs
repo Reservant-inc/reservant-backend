@@ -177,7 +177,7 @@ public class NotificationVisitConsiderationRequestResponse : NotificationDetails
 
     
     /// <summary>
-    /// ID of the emplyee that considereed visit
+    /// ID of the restaurant owner/hall employee that considereed visit
     /// </summary>
     public required Guid AnsweredById { get; set; }
 

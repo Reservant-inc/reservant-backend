@@ -236,4 +236,9 @@ public static class ErrorCodes
     /// String must be a valid locale identifier
     /// </summary>
     public const string MustBeLocaleId = "MustBeLocaleId";
+
+    /// <summary>
+    /// request was already considered
+    /// </summary>
+    public const string AlreadyConsidered = "AlreadyConsidered";
 }

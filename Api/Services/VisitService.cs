@@ -8,6 +8,9 @@ using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Users;
+using Reservant.ErrorCodeDocs.Attributes;
+
+
 
 namespace Reservant.Api.Services;
 
@@ -18,7 +21,9 @@ public class VisitService(
     ApiDbContext context,
     UserManager<User> userManager,
     ValidationService validationService,
-    FileUploadService uploadService)
+    FileUploadService uploadService,
+    NotificationService notificationService,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Gets the visit with the provided ID
@@ -138,5 +143,115 @@ public class VisitService(
             NumberOfPeople = visit.NumberOfGuests,
             Deposit = visit.Deposit
         };
+    }
+
+    /// <summary>
+    /// Reject a visit request as resturant owner or employee
+    /// </summary>
+    /// <param name="visitId">ID of the event</param>
+    /// <param name="currentUser">Current user for permission checking</param>
+    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Event not found")]
+    [ErrorCode(nameof(visitId), ErrorCodes.UserAlreadyRejected, "User already considered")]
+    [ErrorCode(nameof(currentUser), ErrorCodes.UserAlreadyRejected, "User not qualified to reject")]
+    public async Task<Result> ApproveVisitRequestAsync(int visitId,User currentUser)
+    {
+        var visitFound = await context.Visits
+            .FirstOrDefaultAsync(e => e.VisitId == visitId);
+
+        if (visitFound == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(visitId),
+                ErrorMessage = "Event not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        var result1 = await authorizationService.VerifyOwnerRole(visitFound.RestaurantId, currentUser);
+        var result2 = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
+
+        if(result1.IsError && result2.IsError)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(currentUser.Id),
+                ErrorMessage = "User not qualified to reject",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        if(visitFound.IsAccepted!=null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(visitId),
+                ErrorMessage = "User already considered",
+                ErrorCode = ErrorCodes.AlreadyConsidered
+            };
+        }
+
+        visitFound.AnsweredBy = currentUser;
+        visitFound.IsAccepted = true;
+
+        await context.SaveChangesAsync();
+        await notificationService.NotifyVisitConsiderationRequestResponse(visitFound.ClientId,visitId);
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// Reject a visit request as resturant owner or employee
+    /// </summary>
+    /// <param name="visitId">ID of the event</param>
+    /// <param name="currentUser">Current user for permission checking</param>
+    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Event not found")]
+    [ErrorCode(nameof(visitId), ErrorCodes.UserAlreadyRejected, "User already considered")]
+    [ErrorCode(nameof(currentUser), ErrorCodes.UserAlreadyRejected, "User not qualified to reject")]
+    public async Task<Result> DeclineVisitRequestAsync(int visitId,User currentUser)
+    {
+        var visitFound = await context.Visits
+            .FirstOrDefaultAsync(e => e.VisitId == visitId);
+
+        if (visitFound == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(visitId),
+                ErrorMessage = "Event not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        var result1 = await authorizationService.VerifyOwnerRole(visitFound.RestaurantId, currentUser);
+        var result2 = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
+
+        if(result1.IsError && result2.IsError)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(currentUser.Id),
+                ErrorMessage = "User not qualified to reject",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        if(visitFound.IsAccepted!=null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(visitId),
+                ErrorMessage = "User already considered",
+                ErrorCode = ErrorCodes.AlreadyConsidered
+            };
+        }
+
+        visitFound.AnsweredBy = currentUser;
+        visitFound.IsAccepted = false;
+
+        await context.SaveChangesAsync();
+        await notificationService.NotifyVisitConsiderationRequestResponse(visitFound.ClientId,visitId);
+
+        return Result.Success;
     }
 }

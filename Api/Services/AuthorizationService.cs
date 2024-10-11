@@ -67,6 +67,35 @@ public class AuthorizationService(
     }
 
     /// <summary>
+    /// Verify that the user is a hall employee or the owner of the restaurant.
+    /// Return a validation error if not.
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="userId">ID of the user</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    public async Task<Result> VerifyRestaurantHallAccess(int restaurantId, Guid userId)
+    {
+        var userHasBackdoorsAccess = await context.Restaurants
+            .Where(r => r.RestaurantId == restaurantId)
+            .Select(r => r.Group.OwnerId == userId
+                || r.Employments.Any(e =>
+                    e.DateUntil == null && e.EmployeeId == userId && e.IsHallEmployee))
+            .SingleOrDefaultAsync();
+        if (!userHasBackdoorsAccess)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User must either be a backdoor employee or the owner of the restaurant",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        return Result.Success;
+    }
+
+    /// <summary>
     /// Verify that the user is the visit's participant
     /// </summary>
     /// <param name="visitId">ID of the visit</param>
