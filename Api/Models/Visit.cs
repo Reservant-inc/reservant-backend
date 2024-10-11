@@ -68,6 +68,16 @@ public class Visit : ISoftDeletable
     public int TableId { get; set; }
 
     /// <summary>
+    /// ID of the restaurant employee that considered reservation
+    /// </summary>
+    public Guid? AnsweredById { get; set;}
+
+    /// <summary>
+    /// The decison about reservation
+    /// </summary>
+    public Boolean? IsAccepted  { get; set;}
+
+    /// <summary>
     /// Navigational property for the client who made the reservation
     /// </summary>
     public User Client { get; set; } = null!;
@@ -94,4 +104,9 @@ public class Visit : ISoftDeletable
     /// Navigational property for restaurant
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
+
+    /// <summary>
+    /// restaurant employee that considered reservationn
+    /// </summary>
+    public User AnsweredBy { get; set; } = null!;
 }
