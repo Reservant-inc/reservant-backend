@@ -41,7 +41,6 @@ public class RestaurantMenuService(
                 MenuType = m.MenuType,
                 DateFrom = m.DateFrom,
                 DateUntil = m.DateUntil,
-                Photo = uploadService.GetPathForFileName(m.PhotoFileName),
                 MenuItems = m.MenuItems.Select(mi => new MenuItemSummaryVM
                 {
                     MenuItemId = mi.MenuItemId,
@@ -109,7 +108,6 @@ public class RestaurantMenuService(
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
-            PhotoFileName = req.Photo,
             RestaurantId = req.RestaurantId
         };
 
@@ -129,7 +127,6 @@ public class RestaurantMenuService(
             Name = newMenu.Name,
             AlternateName = newMenu.AlternateName,
             MenuType = newMenu.MenuType,
-            Photo = uploadService.GetPathForFileName(newMenu.PhotoFileName),
             DateFrom = newMenu.DateFrom,
             DateUntil = newMenu.DateUntil
         };
@@ -234,7 +231,6 @@ public class RestaurantMenuService(
             MenuType = menuToUpdate.MenuType,
             DateFrom = menuToUpdate.DateFrom,
             DateUntil = menuToUpdate.DateUntil,
-            Photo = uploadService.GetPathForFileName(menuToUpdate.PhotoFileName),
             MenuItems = menuToUpdate.MenuItems.Select(mi => new MenuItemSummaryVM
             {
                 MenuItemId = mi.MenuItemId,
@@ -292,7 +288,6 @@ public class RestaurantMenuService(
         menu.Name = request.Name.Trim();
         menu.AlternateName = request.AlternateName?.Trim();
         menu.MenuType = request.MenuType;
-        menu.PhotoFileName = request.Photo.Trim();
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
 
@@ -310,7 +305,6 @@ public class RestaurantMenuService(
             AlternateName = menu.AlternateName,
             DateFrom = menu.DateFrom,
             DateUntil = menu.DateUntil,
-            Photo = uploadService.GetPathForFileName(menu.PhotoFileName),
             MenuId = menu.MenuId,
             MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
             {

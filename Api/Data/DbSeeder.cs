@@ -885,8 +885,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("pizza.png", johnDoe),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = johnDoes,
             MenuItems = new List<MenuItem>
@@ -901,8 +899,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("piwo.png", johnDoe),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = johnDoes,
             MenuItems = new List<MenuItem>
@@ -1481,8 +1477,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe 2",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("pierogi.png", johnDoe),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = johnDoes2,
             MenuItems =
@@ -1636,8 +1630,6 @@ public class DbSeeder(
             Name = "Menu jedzenie",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("menu.png", kowalski),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = kowalskisRestaurant,
             MenuItems =
@@ -2031,8 +2023,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("wege.png", anon),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = anons,
             MenuItems =
@@ -2074,8 +2064,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("woda.png", anon),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = anons,
             MenuItems =
@@ -2305,8 +2293,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("ramen.png", geralt),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = geralts,
             MenuItems =
@@ -2345,8 +2331,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("owner2.png", geralt),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = geralts,
             MenuItems =
@@ -2561,8 +2545,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("makarony.png", paul),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = atreides,
             MenuItems =
@@ -2601,8 +2583,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("human2.png", paul),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = atreides,
             MenuItems =
@@ -2756,8 +2736,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("kebab.png", walter),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = walters,
             MenuItems =
@@ -2788,8 +2766,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("drinki.png", walter),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = walters,
             MenuItems =

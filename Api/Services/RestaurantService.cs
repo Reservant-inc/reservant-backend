@@ -901,7 +901,6 @@ namespace Reservant.Api.Services
                     MenuType = menu.MenuType,
                     DateFrom = menu.DateFrom,
                     DateUntil = menu.DateUntil,
-                    Photo = uploadService.GetPathForFileName(menu.PhotoFileName)
                 })
                 .ToList();
 
@@ -1607,7 +1606,6 @@ namespace Reservant.Api.Services
                     MenuType = menu.MenuType,
                     DateFrom = menu.DateFrom,
                     DateUntil = menu.DateUntil,
-                    Photo = uploadService.GetPathForFileName(menu.PhotoFileName)
                 })
                 .ToList();
 
