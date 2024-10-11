@@ -159,3 +159,30 @@ public class NotificationParticipationRequestResponse : NotificationDetails
     /// </summary>
     public required bool IsAccepted { get; set; }
 }
+
+/// <summary>
+/// Details for a new participation requests response notification
+/// </summary>
+public class NotificationVisitConsiderationRequestResponse : NotificationDetails
+{
+    /// <summary>
+    /// Visit ID
+    /// </summary>
+    public required int VisitId { get; set; }
+
+    /// <summary>
+    /// Bool determining if its accepted
+    /// </summary>
+    public required bool IsAccepted { get; set; }
+
+    
+    /// <summary>
+    /// ID of the emplyee that considereed visit
+    /// </summary>
+    public required Guid AnsweredById { get; set; }
+
+    /// <summary>
+    /// emplyee that considereed visit
+    /// </summary>
+    public required string AnsweredByName { get; set; }
+}
