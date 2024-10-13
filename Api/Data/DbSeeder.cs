@@ -826,7 +826,8 @@ public class DbSeeder(
             PublicName = "Dough",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 500,
-            AmountToOrder = 1000
+            AmountToOrder = 1000,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var tomatoSauce = new Ingredient
@@ -834,7 +835,8 @@ public class DbSeeder(
             PublicName = "Tomato sauce",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 0.5,
-            AmountToOrder = 1
+            AmountToOrder = 1,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var mozzarella = new Ingredient
@@ -842,7 +844,8 @@ public class DbSeeder(
             PublicName = "Mozzarella",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 200,
-            AmountToOrder = 500
+            AmountToOrder = 500,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var olives = new Ingredient
@@ -850,7 +853,8 @@ public class DbSeeder(
             PublicName = "Olives",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 100,
-            AmountToOrder = 200
+            AmountToOrder = 200,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var orderedBeer = new Ingredient
@@ -858,7 +862,8 @@ public class DbSeeder(
             PublicName = "ordered beer",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
-            AmountToOrder = 5
+            AmountToOrder = 5,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         pizzaMozzarella.Ingredients = new List<IngredientMenuItem>
@@ -1410,6 +1415,123 @@ public class DbSeeder(
             },
             johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
+        
+        var corrections = new List<IngredientAmountCorrection>
+        {
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 1000,
+                NewAmount = 950,
+                CorrectionDate = DateTime.UtcNow.AddDays(-12),
+                User = johnDoe,
+                Comment = "Adjusted inventory after delivery"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 950,
+                NewAmount = 900,
+                CorrectionDate = DateTime.UtcNow.AddDays(-11),
+                User = backdoorEmployee,
+                Comment = "Used for special catering order"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 900,
+                NewAmount = 850,
+                CorrectionDate = DateTime.UtcNow.AddDays(-10),
+                User = hallEmployee,
+                Comment = "Prepared extra dough for weekend rush"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 850,
+                NewAmount = 800,
+                CorrectionDate = DateTime.UtcNow.AddDays(-9),
+                User = johnDoe,
+                Comment = "Adjusted inventory after spoilage"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 800,
+                NewAmount = 750,
+                CorrectionDate = DateTime.UtcNow.AddDays(-8),
+                User = backdoorEmployee,
+                Comment = "Used for testing new recipe"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 750,
+                NewAmount = 700,
+                CorrectionDate = DateTime.UtcNow.AddDays(-7),
+                User = hallEmployee,
+                Comment = "Prepared dough for special event"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 700,
+                NewAmount = 650,
+                CorrectionDate = DateTime.UtcNow.AddDays(-6),
+                User = johnDoe,
+                Comment = "Adjusted inventory after staff meal"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 650,
+                NewAmount = 600,
+                CorrectionDate = DateTime.UtcNow.AddDays(-5),
+                User = backdoorEmployee,
+                Comment = "Used for charity event"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 600,
+                NewAmount = 550,
+                CorrectionDate = DateTime.UtcNow.AddDays(-4),
+                User = hallEmployee,
+                Comment = "Prepared dough for school workshop"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 550,
+                NewAmount = 500,
+                CorrectionDate = DateTime.UtcNow.AddDays(-3),
+                User = johnDoe,
+                Comment = "Adjusted inventory after stocktake"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 500,
+                NewAmount = 450,
+                CorrectionDate = DateTime.UtcNow.AddDays(-2),
+                User = backdoorEmployee,
+                Comment = "Used for experimental dish"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 450,
+                NewAmount = 400,
+                CorrectionDate = DateTime.UtcNow.AddDays(-1),
+                User = hallEmployee,
+                Comment = "Prepared dough for family gathering"
+            }
+        };
+        foreach (var correction in corrections)
+        {
+            dough.Corrections.Add(correction);
+        }
+        await context.SaveChangesAsync();
     }
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
@@ -2870,4 +2992,5 @@ public class DbSeeder(
             VisitId = visitResult.VisitId
         };
     }
+    
 }
