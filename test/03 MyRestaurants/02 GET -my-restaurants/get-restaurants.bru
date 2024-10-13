@@ -22,7 +22,7 @@ tests {
   
   // 2. Sprawdzenie, czy odpowiedź zawiera dane w formacie JSON
   test("Response has a JSON body", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   // 3. Sprawdzenie, czy zwracana odpowiedź jest tablicą

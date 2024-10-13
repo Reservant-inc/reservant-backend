@@ -14,9 +14,9 @@ body:json {
   {
     "firstName": "",
     "lastName": "Doe",
-    "login": "{{$randomUserName}}",
+    "login": "{{randomLogin}}",
     "email": "johndoe@example.com",
-    "phoneNumber": "123456789",
+    "phoneNumber": "+12123456789",
     "birthDate": "1990-01-01",
     "password": "Pa$$w0rd123"
   }
@@ -75,7 +75,7 @@ tests {
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);

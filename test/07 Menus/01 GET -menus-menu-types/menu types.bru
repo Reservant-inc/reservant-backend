@@ -18,7 +18,7 @@ tests {
   
   // Sprawdzenie, czy odpowiedź jest w formacie JSON
   test("Response is a valid JSON array", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
       var jsonData = res.getBody();
       expect(jsonData).to.be.an('array');
   });

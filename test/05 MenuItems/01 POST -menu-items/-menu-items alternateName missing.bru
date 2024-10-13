@@ -63,7 +63,7 @@ tests {
   
   // Sprawdzenie, czy odpowiedź jest w formacie JSON
   test("Response is a valid JSON", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   // Parsowanie odpowiedzi JSON

@@ -16,7 +16,7 @@ body:json {
     "lastName": "Doe",
     "login": "john#doe!",  // Login zawiera niepoprawne znaki specjalne
     "email": "johndoe@example.com",
-    "phoneNumber": "123456789",
+    "phoneNumber": "+12123456789",
     "birthDate": "1990-01-01",
     "password": "Pa$$w0rd123"
   }
@@ -66,16 +66,16 @@ tests {
   test("login contains invalid characters", function () {
       var responseData = res.getBody();
   
-      expect(responseData.errors).to.have.property('');
-      expect(responseData.errors[""][0]).to.include("Username 'john#doe!' is invalid, can only contain letters or digits.");
+      expect(responseData.errors).to.have.property("login");
+      expect(responseData.errors.login[0]).to.include("The login must contain only ASCII letters, numbers, '-', and '_'.");
   
-      expect(responseData.errorCodes).to.have.property('');
-      expect(responseData.errorCodes[""][0]).to.include("IdentityError");
+      expect(responseData.errorCodes).to.have.property("login");
+      expect(responseData.errorCodes.login[0]).to.include("MustBeValidLogin");
   });
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);
