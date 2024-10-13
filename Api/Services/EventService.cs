@@ -8,6 +8,8 @@ using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Events;
 using Reservant.Api.Dtos.Users;
+using NetTopologySuite.Geometries;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Services
 {
@@ -18,7 +20,9 @@ namespace Reservant.Api.Services
         ApiDbContext context,
         ValidationService validationService,
         FileUploadService uploadService,
-        NotificationService notificationService
+        NotificationService notificationService,
+        GeometryFactory geometryFactory,
+        FileUploadService fileUploadService
         )
     {
         /// <summary>
@@ -602,6 +606,77 @@ namespace Reservant.Api.Services
             await context.SaveChangesAsync();
 
             return Result.Success;
+        }
+
+        /// <summary>
+        /// Returns events with specified optional parameters
+        /// </summary>
+        /// <param name="request">parameters of the request</param>
+        /// <returns>list of events that fulfill the requirements</returns>
+        public async Task<Result<List<EventVM>>> GetEventsAsync(GetEventsRequest request)
+        {
+            var events = context.Events.Where(e => e.EventId == e.EventId);
+            if (request.Name is not null)
+            {
+                events = events.Where(e => e.Name.Contains(request.Name.Trim()));
+            }
+            if (request.DateFrom is not null)
+            {
+                events = events.Where(e => e.Time > request.DateFrom);
+            }
+            if (request.DateUntil is not null)
+            {
+                events = events.Where(e => e.Time < request.DateUntil);
+            }
+            if (request.EventStatus is not null)
+            {
+                switch (request.EventStatus)
+                {
+                    case EventStatus.Future:
+                        events = events.Where(e => e.MustJoinUntil > DateTime.UtcNow);
+                        break;
+                    case EventStatus.Past:
+                        events = events.Where(e => e.Time < DateTime.UtcNow);
+                        break;
+                    default:
+                        events = events.Where(e => (e.MustJoinUntil < DateTime.UtcNow && e.Time > DateTime.UtcNow) || e.MaxPeople == e.ParticipationRequests.Count);
+                        break;
+                }
+            }
+            if (request.RestaurantId is not null)
+            {
+                events = events.Where(e => e.RestaurantId == request.RestaurantId);
+            }
+
+            events = events.OrderByDescending(e => e.Time);
+
+            if (request.OrigLon is not null && request.OrigLat is not null)
+            {
+                var origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLon!.Value, request.OrigLat!.Value));
+                events = events.OrderBy(e => origin.Distance(e.Restaurant!.Location));
+            }
+
+            return await events.Select(e => new EventVM { 
+                CreatedAt = e.CreatedAt,
+                VisitId = e.VisitId,
+                Time = e.Time,
+                RestaurantId = e.RestaurantId,
+                RestaurantName = e.Restaurant!.Name,
+                Participants = e.ParticipationRequests.Select(p => new UserSummaryVM { 
+                    FirstName = p.User!.FirstName,
+                    LastName = p.User!.LastName,
+                    UserId = p.User!.Id,
+                    Photo = fileUploadService.GetPathForFileName(p.User.PhotoFileName)
+                }).ToList(),
+                Name = e.Name,
+                MustJoinUntil = e.MustJoinUntil,
+                MaxPeople = e.MaxPeople,
+                EventId = e.EventId,
+                Description = e.Description,
+                CreatorId = e.CreatorId,
+                CreatorFullName = e.Creator.FullName
+            })
+                .ToListAsync();
         }
     }
 }

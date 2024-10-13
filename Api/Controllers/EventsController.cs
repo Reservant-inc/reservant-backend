@@ -184,5 +184,23 @@ namespace Reservant.Api.Controllers
 
             return OkOrErrors(await service.DeleteEventAsync(eventId, user));
         }
+
+        /// <summary>
+        /// Get all events that fulfill the requirements
+        /// </summary>
+        /// <param name="request">dto with requirements</param>
+        /// <returns>list of events</returns>
+        [HttpGet]
+        [ProducesResponseType(200), ProducesResponseType(401)]
+        public async Task<ActionResult<List<EventVM>>> GetEvents(GetEventsRequest request)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            return OkOrErrors(await service.GetEventsAsync(request));
+        }
     }
 }
