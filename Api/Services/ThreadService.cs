@@ -1,16 +1,14 @@
-﻿using System.Security.Claims;
+﻿using AutoMapper;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Dtos.Threads;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
-using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -23,8 +21,8 @@ namespace Reservant.Api.Services;
 public class ThreadService(
     ApiDbContext dbContext,
     ValidationService validationService,
-    UrlService urlService,
-    UserManager<User> userManager)
+    UserManager<User> userManager,
+    IMapper mapper)
 {
     /// <summary>
     /// Creates a new message thread.
@@ -81,15 +79,7 @@ public class ThreadService(
         {
             ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
-            Participants = messageThread.Participants
-                .Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = urlService.GetPathForFileName(p.PhotoFileName),
-                })
-                .ToList()
+            Participants = mapper.Map<List<UserSummaryVM>>(messageThread.Participants),
         };
     }
 
@@ -137,15 +127,7 @@ public class ThreadService(
         {
             ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
-            Participants = messageThread.Participants
-                .Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = urlService.GetPathForFileName(p.PhotoFileName),
-                })
-                .ToList()
+            Participants = mapper.Map<List<UserSummaryVM>>(messageThread.Participants),
         };
     }
 
@@ -191,13 +173,7 @@ public class ThreadService(
             {
                 ThreadId = t.MessageThreadId,
                 Title = t.Title,
-                Participants = t.Participants.Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = urlService.GetPathForFileName(p.PhotoFileName)
-                }).ToList()
+                Participants = mapper.Map<List<UserSummaryVM>>(t.Participants),
             });
 
         return await query.PaginateAsync(page, perPage, []);
@@ -229,15 +205,7 @@ public class ThreadService(
         {
             ThreadId = messageThread.MessageThreadId,
             Title = messageThread.Title,
-            Participants = messageThread.Participants
-                .Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = urlService.GetPathForFileName(p.PhotoFileName),
-                })
-                .ToList()
+            Participants = mapper.Map<List<UserSummaryVM>>(messageThread.Participants),
         };
     }
 

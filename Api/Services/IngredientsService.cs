@@ -1,10 +1,11 @@
-﻿using Reservant.ErrorCodeDocs.Attributes;
+﻿using AutoMapper;
+using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Ingredients;
-using Reservant.Api.Mapping;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -18,7 +19,7 @@ public class IngredientService(
     ApiDbContext dbContext,
     ValidationService validationService,
     AuthorizationService authorizationService,
-    UrlService urlService)
+    IMapper mapper)
 {
     /// <summary>
     /// Creates a new ingredient.
@@ -338,13 +339,7 @@ public class IngredientService(
             OldAmount = correction.OldAmount,
             NewAmount = correction.NewAmount,
             CorrectionDate = correction.CorrectionDate,
-            User = new Dtos.Users.UserSummaryVM
-            {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                UserId = user.Id,
-                Photo = urlService.GetPathForFileName(user.PhotoFileName)
-            },
+            User = mapper.Map<UserSummaryVM>(correction.User),
             Comment = correction.Comment
         };
     }

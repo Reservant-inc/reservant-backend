@@ -1,4 +1,6 @@
-﻿using FluentValidation.Results;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
@@ -8,7 +10,6 @@ using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Events;
 using Reservant.Api.Dtos.Users;
-using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services
 {
@@ -18,8 +19,8 @@ namespace Reservant.Api.Services
     public class EventService(
         ApiDbContext context,
         ValidationService validationService,
-        UrlService urlService,
-        NotificationService notificationService
+        NotificationService notificationService,
+        IMapper mapper
         )
     {
         /// <summary>
@@ -74,22 +75,7 @@ namespace Reservant.Api.Services
             await context.Events.AddAsync(newEvent);
             await context.SaveChangesAsync();
 
-            return new EventVM
-            {
-                Name = request.Name,
-                CreatedAt = newEvent.CreatedAt,
-                Description = newEvent.Description,
-                Time = newEvent.Time,
-                MaxPeople = newEvent.MaxPeople,
-                EventId = newEvent.EventId,
-                MustJoinUntil = newEvent.MustJoinUntil,
-                CreatorId = newEvent.CreatorId,
-                CreatorFullName = user.FullName,
-                RestaurantId = newEvent.RestaurantId,
-                RestaurantName = newEvent.Restaurant?.Name,
-                VisitId = newEvent.VisitId,
-                Participants = [],
-            };
+            return mapper.Map<EventVM>(newEvent);
         }
 
         /// <summary>
@@ -99,29 +85,7 @@ namespace Reservant.Api.Services
         public async Task<Result<EventVM>> GetEventAsync(int id)
         {
             var checkedEvent = await context.Events
-                .Select(e => new EventVM
-                {
-                    Name = e.Name,
-                    CreatedAt = e.CreatedAt,
-                    Description = e.Description,
-                    Time = e.Time,
-                    MaxPeople = e.MaxPeople,
-                    EventId = e.EventId,
-                    MustJoinUntil = e.MustJoinUntil,
-                    CreatorId = e.CreatorId,
-                    CreatorFullName = e.Creator.FullName,
-                    RestaurantId = e.RestaurantId,
-                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
-                    VisitId = e.VisitId,
-                    Participants = e.ParticipationRequests
-                        .Select(i => new UserSummaryVM
-                        {
-                            FirstName = i.User.FirstName,
-                            LastName = i.User.LastName,
-                            UserId = i.UserId,
-                            Photo = urlService.GetPathForFileName(i.User.PhotoFileName),
-                        }).ToList()
-                })
+                .ProjectTo<EventVM>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(e => e.EventId == id);
             if (checkedEvent is null)
             {
@@ -143,20 +107,7 @@ namespace Reservant.Api.Services
         {
             return await context.Events
                 .Where(e => e.CreatorId == user.Id)
-                .Select(e => new EventSummaryVM
-                {
-                    Name=e.Name,
-                    CreatorFullName = e.Creator.FullName,
-                    Time = e.Time,
-                    MaxPeople = e.MaxPeople,
-                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
-                    RestaurantId = e.RestaurantId,
-                    NumberInterested = e.ParticipationRequests.Count,
-                    MustJoinUntil = e.MustJoinUntil,
-                    EventId = e.EventId,
-                    Description = e.Description,
-                    CreatorId = e.CreatorId,
-                })
+                .ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider)
                 .ToListAsync();
         }
 
@@ -246,13 +197,7 @@ namespace Reservant.Api.Services
             var query = context.EventParticipationRequests
                 .Where(pr => pr.EventId == eventId && pr.DateAccepted == null && pr.DateDeleted == null)
                 .OrderByDescending(pr => pr.DateSent)
-                .Select(pr => new UserSummaryVM
-                {
-                    UserId = pr.UserId,
-                    FirstName = pr.User.FirstName,
-                    LastName = pr.User.LastName,
-                    Photo = urlService.GetPathForFileName(pr.User.PhotoFileName)
-                });
+                .ProjectTo<UserSummaryVM>(mapper.ConfigurationProvider);
 
             return await query.PaginateAsync(page, perPage, []);
         }
@@ -423,20 +368,7 @@ namespace Reservant.Api.Services
                 .SelectMany(u => u.EventParticipations.Select(e => e.Event))
                 .Where(u => u.Time > DateTime.UtcNow)
                 .OrderBy(u => u.Time)
-                .Select(e => new EventSummaryVM
-                {
-                    EventId = e.EventId,
-                    Name = e.Name,
-                    Description = e.Description,
-                    Time = e.Time,
-                    MaxPeople = e.MaxPeople,
-                    MustJoinUntil = e.MustJoinUntil,
-                    CreatorId = e.CreatorId,
-                    CreatorFullName = e.Creator.FullName,
-                    RestaurantId = e.RestaurantId,
-                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
-                    NumberInterested = e.ParticipationRequests.Count,
-                });
+                .ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
 
             return await query.PaginateAsync(page, perPage, []);
         }
@@ -537,32 +469,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new EventVM
-            {
-                EventId = eventToUpdate.EventId,
-                Name = eventToUpdate.Name,
-                CreatedAt = eventToUpdate.CreatedAt,
-                Description = eventToUpdate.Description,
-                Time = eventToUpdate.Time,
-                MaxPeople = eventToUpdate.MaxPeople,
-                MustJoinUntil = eventToUpdate.MustJoinUntil,
-                CreatorId = eventToUpdate.CreatorId,
-                CreatorFullName = eventToUpdate.Creator.FullName,
-                RestaurantId = eventToUpdate.RestaurantId,
-                RestaurantName = eventToUpdate.Restaurant?.Name,
-                VisitId = eventToUpdate.VisitId,
-                Participants = eventToUpdate
-                    .ParticipationRequests
-                    .Where(r => r.DateAccepted != null)
-                    .Select(i => new UserSummaryVM
-                    {
-                        FirstName = i.User.FirstName,
-                        LastName = i.User.LastName,
-                        UserId = i.UserId,
-                        Photo = urlService.GetPathForFileName(i.User.PhotoFileName),
-                    })
-                    .ToList()
-            };
+            return mapper.Map<EventVM>(eventToUpdate);
         }
 
 

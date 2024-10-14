@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,6 @@ using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Users;
-using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services;
 
@@ -19,7 +19,7 @@ public class VisitService(
     ApiDbContext context,
     UserManager<User> userManager,
     ValidationService validationService,
-    UrlService urlService)
+    IMapper mapper)
 {
     /// <summary>
     /// Gets the visit with the provided ID
@@ -59,13 +59,7 @@ public class VisitService(
             ClientId = visit.ClientId,
             RestaurantId = visit.RestaurantId,
             TableId = visit.TableId,
-            Participants = visit.Participants.Select(p => new UserSummaryVM
-            {
-                UserId = p.Id,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                Photo = urlService.GetPathForFileName(p.PhotoFileName),
-            }).ToList(),
+            Participants = mapper.Map<List<UserSummaryVM>>(visit.Participants),
             Orders = visit.Orders.Select(o => new OrderSummaryVM
             {
                 OrderId = o.OrderId,

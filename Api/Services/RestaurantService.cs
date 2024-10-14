@@ -1005,20 +1005,7 @@ namespace Reservant.Api.Services
             var query = context.Events
                 .Where(e => e.RestaurantId == restaurantId && e.Time > DateTime.UtcNow)
                 .OrderBy(e => e.Time)
-                .Select(e => new EventSummaryVM
-                {
-                    EventId = e.EventId,
-                    Name = e.Name,
-                    Description = e.Description,
-                    Time = e.Time,
-                    MaxPeople = e.MaxPeople,
-                    MustJoinUntil = e.MustJoinUntil,
-                    CreatorId = e.CreatorId,
-                    CreatorFullName = e.Creator.FullName,
-                    RestaurantId = e.RestaurantId,
-                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
-                    NumberInterested = e.ParticipationRequests.Count
-                });
+                .ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
 
             return await query.PaginateAsync(page, perPage, []);
         }
