@@ -598,7 +598,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            context.Events.Remove(eventToDelete);
+            eventToDelete.IsDeleted = true;
             await context.SaveChangesAsync();
 
             return Result.Success;

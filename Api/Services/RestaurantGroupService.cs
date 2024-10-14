@@ -133,7 +133,10 @@ public class RestaurantGroupService(
 
         if (emptyGroups.Count != 0)
         {
-            context.RestaurantGroups.RemoveRange(emptyGroups);
+            foreach (var emptyGroup in emptyGroups)
+            {
+                emptyGroup.IsDeleted = true;
+            }
             await context.SaveChangesAsync();
         }
     }

@@ -169,7 +169,7 @@ public class ThreadService(
             };
         }
 
-        dbContext.MessageThreads.Remove(messageThread);
+        messageThread.IsDeleted = true;
         await dbContext.SaveChangesAsync();
 
         return Result.Success;

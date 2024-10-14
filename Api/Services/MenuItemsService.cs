@@ -332,7 +332,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            context.Remove(menuItem);
+            menuItem.IsDeleted = true;
             await context.SaveChangesAsync();
             return Result.Success;
         }

@@ -170,7 +170,7 @@ public class MessageService(
             };
         }
 
-        dbContext.Messages.Remove(message);
+        message.IsDeleted = true;
         await dbContext.SaveChangesAsync();
 
         return Result.Success;

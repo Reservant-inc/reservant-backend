@@ -351,8 +351,7 @@ public class RestaurantMenuService(
             };
         }
 
-        context.Remove(menu);
-        await context.SaveChangesAsync();
+        menu.IsDeleted = true;
         return Result.Success;
     }
 

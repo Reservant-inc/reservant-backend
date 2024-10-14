@@ -566,7 +566,7 @@ namespace Reservant.Api.Services
             oldGroup.Restaurants.Remove(restaurant);
             if (oldGroup.Restaurants.Count == 0)
             {
-                context.Remove(oldGroup);
+                oldGroup.IsDeleted = true;
             }
 
             restaurant.GroupId = request.GroupId;
@@ -982,16 +982,32 @@ namespace Reservant.Api.Services
                 };
             }
 
-            context.RemoveRange(restaurant.Tables);
-            context.RemoveRange(restaurant.Employments);
-            context.RemoveRange(restaurant.MenuItems);
-            context.RemoveRange(restaurant.Menus);
+            foreach (var table in restaurant.Tables)
+            {
+                table.IsDeleted = true;
+            }
 
-            context.Remove(restaurant);
+            foreach (var employment in restaurant.Employments)
+            {
+                employment.IsDeleted = true;
+            }
+
+            foreach (var menuItem in restaurant.MenuItems)
+            {
+                menuItem.IsDeleted = true;
+            }
+
+            foreach (var menu in restaurant.Menus)
+            {
+                menu.IsDeleted = true;
+            }
+
+            restaurant.IsDeleted = true;
+
             // We check if the restaurant was the last one (the collection was loaded before we deleted it)
             if (restaurant.Group.Restaurants.Count == 1)
             {
-                context.Remove(restaurant.Group);
+                restaurant.Group.IsDeleted = true;
             }
 
             await context.SaveChangesAsync();
