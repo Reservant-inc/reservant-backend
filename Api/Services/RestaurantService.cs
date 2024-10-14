@@ -987,9 +987,10 @@ namespace Reservant.Api.Services
                 table.IsDeleted = true;
             }
 
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
             foreach (var employment in restaurant.Employments)
             {
-                employment.IsDeleted = true;
+                employment.DateUntil = today;
             }
 
             foreach (var menuItem in restaurant.MenuItems)
