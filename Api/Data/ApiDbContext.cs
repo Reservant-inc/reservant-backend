@@ -102,15 +102,13 @@ public class ApiDbContext(
             .HasQueryFilter(n => n.TargetUserId == _userId);
 
         var softDeletableEntities =
-            from prop in GetType().GetProperties()
-            where prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
-            let entity = prop.PropertyType.GenericTypeArguments[0]
-            where entity.IsAssignableTo(typeof(ISoftDeletable))
+            from entity in Model.GetEntityTypes()
+            where entity.ClrType.IsAssignableTo(typeof(ISoftDeletable))
             select entity;
         foreach (var entity in softDeletableEntities)
         {
             SetSoftDeletableQueryFilterMethod
-                .MakeGenericMethod(entity)
+                .MakeGenericMethod(entity.ClrType)
                 .Invoke(null, [builder]);
         }
 
