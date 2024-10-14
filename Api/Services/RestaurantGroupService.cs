@@ -7,6 +7,7 @@ using Reservant.Api.Validators;
 using Reservant.Api.Dtos.RestaurantGroups;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Location;
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services;
 
@@ -15,7 +16,7 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class RestaurantGroupService(
     ApiDbContext context,
-    FileUploadService uploadService,
+    UrlService urlService,
     RestaurantService restaurantService,
     ValidationService validationService)
 {
@@ -100,7 +101,7 @@ public class RestaurantGroupService(
                 Address = r.Address,
                 City = r.City,
                 GroupId = group.RestaurantGroupId,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Logo = urlService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ProvideDelivery = r.ProvideDelivery,
                 Tags = r.Tags.Select(t => t.Name).ToList(),
@@ -209,7 +210,7 @@ public class RestaurantGroupService(
                 },
                 Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
                 GroupId = r.GroupId,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Logo = urlService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,
@@ -287,7 +288,7 @@ public class RestaurantGroupService(
                 },
                 Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
                 GroupId = r.GroupId,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                Logo = urlService.GetPathForFileName(r.LogoFileName),
                 Description = r.Description,
                 ReservationDeposit = r.ReservationDeposit,
                 ProvideDelivery = r.ProvideDelivery,

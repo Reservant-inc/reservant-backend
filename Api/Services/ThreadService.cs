@@ -10,6 +10,7 @@ using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Dtos.Threads;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
+using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -22,7 +23,7 @@ namespace Reservant.Api.Services;
 public class ThreadService(
     ApiDbContext dbContext,
     ValidationService validationService,
-    FileUploadService uploadService,
+    UrlService urlService,
     UserManager<User> userManager)
 {
     /// <summary>
@@ -86,7 +87,7 @@ public class ThreadService(
                     UserId = p.Id,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                    Photo = urlService.GetPathForFileName(p.PhotoFileName),
                 })
                 .ToList()
         };
@@ -142,7 +143,7 @@ public class ThreadService(
                     UserId = p.Id,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                    Photo = urlService.GetPathForFileName(p.PhotoFileName),
                 })
                 .ToList()
         };
@@ -195,7 +196,7 @@ public class ThreadService(
                     UserId = p.Id,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName)
+                    Photo = urlService.GetPathForFileName(p.PhotoFileName)
                 }).ToList()
             });
 
@@ -234,7 +235,7 @@ public class ThreadService(
                     UserId = p.Id,
                     FirstName = p.FirstName,
                     LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                    Photo = urlService.GetPathForFileName(p.PhotoFileName),
                 })
                 .ToList()
         };

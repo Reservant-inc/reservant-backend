@@ -23,7 +23,7 @@ using Reservant.Api.Dtos.Location;
 using Reservant.Api.Dtos.Tables;
 using Reservant.Api.Dtos.Users;
 using System.Text.Json;
-
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services
 {
@@ -32,7 +32,7 @@ namespace Reservant.Api.Services
     /// </summary>
     public class RestaurantService(
         ApiDbContext context,
-        FileUploadService uploadService,
+        UrlService urlService,
         UserManager<User> userManager,
         ValidationService validationService,
         GeometryFactory geometryFactory,
@@ -182,7 +182,7 @@ namespace Reservant.Api.Services
                         Longitude = r.Location.X
                     },
                     ProvideDelivery = r.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Logo = urlService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
@@ -305,14 +305,14 @@ namespace Reservant.Api.Services
                 City = restaurant.City,
                 GroupId = restaurant.GroupId,
                 GroupName = group.Name,
-                RentalContract = uploadService.GetPathForFileName(restaurant.RentalContractFileName),
-                AlcoholLicense = uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
-                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
-                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
+                RentalContract = urlService.GetPathForFileName(restaurant.RentalContractFileName),
+                AlcoholLicense = urlService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
+                BusinessPermission = urlService.GetPathForFileName(restaurant.BusinessPermissionFileName),
+                IdCard = urlService.GetPathForFileName(restaurant.IdCardFileName),
                 Tables = [], //restaurantVM ma required pole Tables, ale nie dodajemy Tables powyżej
                 ProvideDelivery = restaurant.ProvideDelivery,
-                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-                Photos = restaurant.Photos.Select(p => uploadService.GetPathForFileName(p.PhotoFileName)).ToList(),
+                Logo = urlService.GetPathForFileName(restaurant.LogoFileName),
+                Photos = restaurant.Photos.Select(p => urlService.GetPathForFileName(p.PhotoFileName)).ToList(),
                 Description = restaurant.Description,
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 IsVerified = restaurant.VerifierId is not null,
@@ -352,7 +352,7 @@ namespace Reservant.Api.Services
                     },
                     GroupId = r.GroupId,
                     ProvideDelivery = r.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Logo = urlService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
@@ -394,12 +394,12 @@ namespace Reservant.Api.Services
                     GroupName = r.Group.Name,
                     RentalContract = r.RentalContractFileName == null
                         ? null
-                        : uploadService.GetPathForFileName(r.RentalContractFileName),
+                        : urlService.GetPathForFileName(r.RentalContractFileName),
                     AlcoholLicense = r.AlcoholLicenseFileName == null
                         ? null
-                        : uploadService.GetPathForFileName(r.AlcoholLicenseFileName),
-                    BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
-                    IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
+                        : urlService.GetPathForFileName(r.AlcoholLicenseFileName),
+                    BusinessPermission = urlService.GetPathForFileName(r.BusinessPermissionFileName),
+                    IdCard = urlService.GetPathForFileName(r.IdCardFileName),
                     Tables = r.Tables.Select(t => new TableVM
                     {
                         TableId = t.TableId,
@@ -407,10 +407,10 @@ namespace Reservant.Api.Services
                     }),
                     Photos = r.Photos
                         .OrderBy(rp => rp.Order)
-                        .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
+                        .Select(rp => urlService.GetPathForFileName(rp.PhotoFileName))
                         .ToList(),
                     ProvideDelivery = r.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Logo = urlService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
@@ -590,7 +590,7 @@ namespace Reservant.Api.Services
                 GroupId = restaurant.GroupId,
                 Description = restaurant.Description,
                 ReservationDeposit = restaurant.ReservationDeposit,
-                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Logo = urlService.GetPathForFileName(restaurant.LogoFileName),
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
                 IsVerified = restaurant.VerifierId != null,
@@ -756,12 +756,12 @@ namespace Reservant.Api.Services
                 GroupName = restaurant.Group.Name,
                 RentalContract = restaurant.RentalContractFileName == null
                     ? null
-                    : uploadService.GetPathForFileName(restaurant.RentalContractFileName),
+                    : urlService.GetPathForFileName(restaurant.RentalContractFileName),
                 AlcoholLicense = restaurant.AlcoholLicenseFileName == null
                     ? null
-                    : uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
-                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
-                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
+                    : urlService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
+                BusinessPermission = urlService.GetPathForFileName(restaurant.BusinessPermissionFileName),
+                IdCard = urlService.GetPathForFileName(restaurant.IdCardFileName),
                 Tables = restaurant.Tables.Select(t => new TableVM
                 {
                     TableId = t.TableId,
@@ -769,10 +769,10 @@ namespace Reservant.Api.Services
                 }),
                 Photos = restaurant.Photos
                     .OrderBy(rp => rp.Order)
-                    .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
+                    .Select(rp => urlService.GetPathForFileName(rp.PhotoFileName))
                     .ToList(),
                 ProvideDelivery = restaurant.ProvideDelivery,
-                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                Logo = urlService.GetPathForFileName(restaurant.LogoFileName),
                 Description = restaurant.Description,
                 ReservationDeposit = restaurant.ReservationDeposit,
                 Tags = restaurant.Tags.Select(t => t.Name).ToList(),
@@ -940,7 +940,7 @@ namespace Reservant.Api.Services
                     AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
+                    Photo = urlService.GetPathForFileName(i.PhotoFileName),
                     Ingredients = i.Ingredients
                         .Select(mii => new MenuItemIngredientVM
                         {
@@ -1350,9 +1350,9 @@ namespace Reservant.Api.Services
                         TableId = x.TableId
                     }).ToList(),
                     ProvideDelivery = restaurant.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
+                    Logo = urlService.GetPathForFileName(restaurant.LogoFileName),
                     Photos = restaurant.Photos
-                    .Select(x => uploadService.GetPathForFileName(x.PhotoFileName))
+                    .Select(x => urlService.GetPathForFileName(x.PhotoFileName))
                     .ToList(),
                     Description = restaurant.Description,
                     ReservationDeposit = restaurant.ReservationDeposit,
@@ -1454,7 +1454,7 @@ namespace Reservant.Api.Services
                         UserId = p.Id,
                         FirstName = p.FirstName,
                         LastName = p.LastName,
-                        Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                        Photo = urlService.GetPathForFileName(p.PhotoFileName),
                     }).ToList(),
                     Orders = e.Orders.Select(o => new OrderSummaryVM
                     {
@@ -1570,7 +1570,7 @@ namespace Reservant.Api.Services
                     AlternateName = i.AlternateName,
                     Price = i.Price,
                     AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
+                    Photo = urlService.GetPathForFileName(i.PhotoFileName),
                     Ingredients = i.Ingredients.Select(i => new MenuItemIngredientVM
                     {
                         PublicName = i.Ingredient.PublicName,

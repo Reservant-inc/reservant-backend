@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Ingredients;
+using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -17,7 +18,7 @@ public class IngredientService(
     ApiDbContext dbContext,
     ValidationService validationService,
     AuthorizationService authorizationService,
-    FileUploadService fileUploadService)
+    UrlService urlService)
 {
     /// <summary>
     /// Creates a new ingredient.
@@ -342,7 +343,7 @@ public class IngredientService(
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 UserId = user.Id,
-                Photo = fileUploadService.GetPathForFileName(user.PhotoFileName)
+                Photo = urlService.GetPathForFileName(user.PhotoFileName)
             },
             Comment = correction.Comment
         };

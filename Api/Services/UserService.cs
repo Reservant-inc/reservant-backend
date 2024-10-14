@@ -11,6 +11,7 @@ using Reservant.Api.Dtos.Employments;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
+using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -24,7 +25,7 @@ public class UserService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService,
-    FileUploadService uploadService)
+    UrlService urlService)
 {
     /// <summary>
     /// Used to generate restaurant employee's logins:
@@ -215,7 +216,7 @@ public class UserService(
                         DateFrom = e.DateFrom
                     })
                     .ToList(),
-                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
+                Photo = urlService.GetPathForFileName(u.PhotoFileName),
                 FriendStatus =
                     (from fr in dbContext.FriendRequests
                      let isOutgoing = fr.SenderId == userId && fr.ReceiverId == u.Id
@@ -478,7 +479,7 @@ public class UserService(
                 UserId = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
-                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
+                Photo = urlService.GetPathForFileName(u.PhotoFileName),
                 FriendStatus =
                     (from fr in dbContext.FriendRequests
                      let isOutgoing = fr.SenderId == currentUserId && fr.ReceiverId == u.Id
@@ -558,7 +559,7 @@ public class UserService(
                         DateFrom = e.DateFrom
                     })
                     .ToList(),
-                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
+                Photo = urlService.GetPathForFileName(requestedUser.PhotoFileName),
                 FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id)
             };
         }
@@ -571,7 +572,7 @@ public class UserService(
                 FirstName = requestedUser.FirstName,
                 LastName = requestedUser.LastName,
                 BirthDate = requestedUser.BirthDate!.Value,
-                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
+                Photo = urlService.GetPathForFileName(requestedUser.PhotoFileName),
                 FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id),
                 Login = null,
                 PhoneNumber = null,

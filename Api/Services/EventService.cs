@@ -8,6 +8,7 @@ using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Events;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services
 {
@@ -17,7 +18,7 @@ namespace Reservant.Api.Services
     public class EventService(
         ApiDbContext context,
         ValidationService validationService,
-        FileUploadService uploadService,
+        UrlService urlService,
         NotificationService notificationService
         )
     {
@@ -118,7 +119,7 @@ namespace Reservant.Api.Services
                             FirstName = i.User.FirstName,
                             LastName = i.User.LastName,
                             UserId = i.UserId,
-                            Photo = uploadService.GetPathForFileName(i.User.PhotoFileName),
+                            Photo = urlService.GetPathForFileName(i.User.PhotoFileName),
                         }).ToList()
                 })
                 .FirstOrDefaultAsync(e => e.EventId == id);
@@ -250,7 +251,7 @@ namespace Reservant.Api.Services
                     UserId = pr.UserId,
                     FirstName = pr.User.FirstName,
                     LastName = pr.User.LastName,
-                    Photo = uploadService.GetPathForFileName(pr.User.PhotoFileName)
+                    Photo = urlService.GetPathForFileName(pr.User.PhotoFileName)
                 });
 
             return await query.PaginateAsync(page, perPage, []);
@@ -558,7 +559,7 @@ namespace Reservant.Api.Services
                         FirstName = i.User.FirstName,
                         LastName = i.User.LastName,
                         UserId = i.UserId,
-                        Photo = uploadService.GetPathForFileName(i.User.PhotoFileName),
+                        Photo = urlService.GetPathForFileName(i.User.PhotoFileName),
                     })
                     .ToList()
             };

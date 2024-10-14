@@ -6,6 +6,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Menus;
 using Reservant.Api.Dtos.MenuItems;
+using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -18,7 +19,7 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class RestaurantMenuService(
     ApiDbContext context,
-    FileUploadService uploadService,
+    UrlService urlService,
     ValidationService validationService)
 {
 
@@ -48,7 +49,7 @@ public class RestaurantMenuService(
                     AlternateName = mi.AlternateName,
                     Price = mi.Price,
                     AlcoholPercentage = mi.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
+                    Photo = urlService.GetPathForFileName(mi.PhotoFileName)
                 }).ToList()
             })
             .FirstOrDefaultAsync();
@@ -238,7 +239,7 @@ public class RestaurantMenuService(
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
+                Photo = urlService.GetPathForFileName(mi.PhotoFileName)
             }).ToList()
         };
     }
@@ -313,7 +314,7 @@ public class RestaurantMenuService(
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
+                Photo = urlService.GetPathForFileName(mi.PhotoFileName)
             }).ToList(),
             MenuType = menu.MenuType
         };
@@ -448,7 +449,7 @@ public class RestaurantMenuService(
                 AlternateName = mi.AlternateName,
                 Price = mi.Price,
                 AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
+                Photo = urlService.GetPathForFileName(mi.PhotoFileName)
             })
             .PaginateAsync(page, perPage, Enum.GetNames<MenuItemSorting>(), maxPerPage: 20);
     }

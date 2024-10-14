@@ -8,6 +8,7 @@ using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services;
 
@@ -18,7 +19,7 @@ public class VisitService(
     ApiDbContext context,
     UserManager<User> userManager,
     ValidationService validationService,
-    FileUploadService uploadService)
+    UrlService urlService)
 {
     /// <summary>
     /// Gets the visit with the provided ID
@@ -63,7 +64,7 @@ public class VisitService(
                 UserId = p.Id,
                 FirstName = p.FirstName,
                 LastName = p.LastName,
-                Photo = uploadService.GetPathForFileName(p.PhotoFileName),
+                Photo = urlService.GetPathForFileName(p.PhotoFileName),
             }).ToList(),
             Orders = visit.Orders.Select(o => new OrderSummaryVM
             {

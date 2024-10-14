@@ -7,6 +7,7 @@ using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Ingredients;
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services
 {
@@ -15,7 +16,7 @@ namespace Reservant.Api.Services
     /// </summary>
     public class MenuItemsService(
         ApiDbContext context,
-        FileUploadService uploadService,
+        UrlService urlService,
         ValidationService validationService,
         AuthorizationService authorizationService)
     {
@@ -144,7 +145,7 @@ namespace Reservant.Api.Services
                 AlternateName = item.AlternateName,
                 Price = item.Price,
                 AlcoholPercentage = item.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(item.PhotoFileName),
+                Photo = urlService.GetPathForFileName(item.PhotoFileName),
                 Ingredients = item.Ingredients.Select(i => new MenuItemIngredientVM
                 {
                     IngredientId = i.Ingredient.IngredientId,
