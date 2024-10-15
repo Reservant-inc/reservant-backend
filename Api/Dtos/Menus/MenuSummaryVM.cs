@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using AutoMapper;
+using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.Menus;
@@ -6,6 +7,7 @@ namespace Reservant.Api.Dtos.Menus;
 /// <summary>
 /// Basic info about a Menu
 /// </summary>
+[AutoMap(typeof(Menu))]
 public class MenuSummaryVM
 {
     /// <summary>

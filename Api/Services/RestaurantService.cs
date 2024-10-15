@@ -742,19 +742,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var menus = restaurant.Menus
-                .Select(menu => new MenuSummaryVM
-                {
-                    MenuId = menu.MenuId,
-                    Name = menu.Name,
-                    AlternateName = menu.AlternateName,
-                    MenuType = menu.MenuType,
-                    DateFrom = menu.DateFrom,
-                    DateUntil = menu.DateUntil,
-                })
-                .ToList();
-
-            return menus;
+            return mapper.Map<List<MenuSummaryVM>>(restaurant.Menus);
         }
 
 
@@ -783,23 +771,8 @@ namespace Reservant.Api.Services
 
             return await context.MenuItems
                 .Where(i => i.RestaurantId == restaurantId)
-                .Select(i => new MenuItemVM()
-                {
-                    MenuItemId = i.MenuItemId,
-                    Name = i.Name,
-                    AlternateName = i.AlternateName,
-                    Price = i.Price,
-                    AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = urlService.GetPathForFileName(i.PhotoFileName),
-                    Ingredients = i.Ingredients
-                        .Select(mii => new MenuItemIngredientVM
-                        {
-                            IngredientId = mii.IngredientId,
-                            PublicName = mii.Ingredient.PublicName,
-                            AmountUsed = mii.AmountUsed,
-                        })
-                        .ToList(),
-                }).ToListAsync();
+                .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -1333,21 +1306,8 @@ namespace Reservant.Api.Services
 
             return await context.MenuItems
                 .Where(i => i.RestaurantId == restaurantId)
-                .Select(i => new MenuItemVM()
-                {
-                    MenuItemId = i.MenuItemId,
-                    Name = i.Name,
-                    AlternateName = i.AlternateName,
-                    Price = i.Price,
-                    AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = urlService.GetPathForFileName(i.PhotoFileName),
-                    Ingredients = i.Ingredients.Select(i => new MenuItemIngredientVM
-                    {
-                        PublicName = i.Ingredient.PublicName,
-                        IngredientId = i.IngredientId,
-                        AmountUsed = i.AmountUsed,
-                    }).ToList(),
-                }).ToListAsync();
+                .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -1384,19 +1344,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var menus = restaurant.Menus
-                .Select(menu => new MenuSummaryVM
-                {
-                    MenuId = menu.MenuId,
-                    Name = menu.Name,
-                    AlternateName = menu.AlternateName,
-                    MenuType = menu.MenuType,
-                    DateFrom = menu.DateFrom,
-                    DateUntil = menu.DateUntil,
-                })
-                .ToList();
-
-            return new Result<List<MenuSummaryVM>>(menus);
+            return mapper.Map<List<MenuSummaryVM>>(restaurant.Menus);
         }
 
         /// <summary>

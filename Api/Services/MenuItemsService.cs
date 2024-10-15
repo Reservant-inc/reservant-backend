@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
@@ -6,8 +7,6 @@ using FluentValidation.Results;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos.MenuItems;
-using Reservant.Api.Dtos.Ingredients;
-using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services
 {
@@ -16,9 +15,9 @@ namespace Reservant.Api.Services
     /// </summary>
     public class MenuItemsService(
         ApiDbContext context,
-        UrlService urlService,
         ValidationService validationService,
-        AuthorizationService authorizationService)
+        AuthorizationService authorizationService,
+        IMapper mapper)
     {
         /// <summary>
         /// Validates and creates given menuItems
@@ -98,21 +97,7 @@ namespace Reservant.Api.Services
             await context.MenuItems.AddRangeAsync(menuItem);
             await context.SaveChangesAsync();
 
-            return new MenuItemVM()
-            {
-                MenuItemId = menuItem.MenuItemId,
-                Name = menuItem.Name,
-                AlternateName = menuItem.AlternateName,
-                Price = menuItem.Price,
-                AlcoholPercentage = menuItem.AlcoholPercentage,
-                Photo = menuItem.PhotoFileName,
-                Ingredients = menuItem.Ingredients.Select(i => new MenuItemIngredientVM
-                {
-                    IngredientId = i.Ingredient.IngredientId,
-                    PublicName = i.Ingredient.PublicName,
-                    AmountUsed = i.AmountUsed
-                }).ToList()
-            };
+            return mapper.Map<MenuItemVM>(menuItem);
         }
 
 
@@ -138,21 +123,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            return new MenuItemVM()
-            {
-                MenuItemId = item.MenuItemId,
-                Name = item.Name,
-                AlternateName = item.AlternateName,
-                Price = item.Price,
-                AlcoholPercentage = item.AlcoholPercentage,
-                Photo = urlService.GetPathForFileName(item.PhotoFileName),
-                Ingredients = item.Ingredients.Select(i => new MenuItemIngredientVM
-                {
-                    IngredientId = i.Ingredient.IngredientId,
-                    PublicName = i.Ingredient.PublicName,
-                    AmountUsed = i.AmountUsed,
-                }).ToList()
-            };
+            return mapper.Map<MenuItemVM>(item);
         }
 
 
@@ -282,21 +253,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new MenuItemVM()
-            {
-                MenuItemId = item.MenuItemId,
-                Name = item.Name,
-                AlternateName = item.AlternateName,
-                Price = item.Price,
-                AlcoholPercentage = item.AlcoholPercentage,
-                Photo = item.PhotoFileName,
-                Ingredients = item.Ingredients.Select(i => new MenuItemIngredientVM
-                {
-                    IngredientId = i.Ingredient.IngredientId,
-                    PublicName = i.Ingredient.PublicName,
-                    AmountUsed = i.AmountUsed
-                }).ToList()
-            };
+            return mapper.Map<MenuItemVM>(item);
         }
 
 
