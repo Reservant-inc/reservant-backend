@@ -130,6 +130,16 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// </summary>
     public ICollection<IngredientAmountCorrection> IngredientCorrections { get; set; } = null!;
 
+    /// <summary>
+    /// Visits created by the user
+    /// </summary>
+    public ICollection<Visit> VisitsCreated { get; set; } = null!;
+
+    /// <summary>
+    /// Visits that the user participated in
+    /// </summary>
+    public ICollection<Visit> VisitParticipations { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 
