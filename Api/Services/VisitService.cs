@@ -86,6 +86,27 @@ public class VisitService(
     /// <returns></returns>
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
+        // Walidacja czy godziny rezerwacji s¹ na pe³ne godziny lub pó³godzinne
+        if (request.Date.Minute != 0 && request.Date.Minute != 30)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Date),
+                ErrorMessage = "Reservations can only be made for full hours or half hours",
+                ErrorCode = ErrorCodes.InvalidTimeSlot
+            };
+        }
+
+        if (request.EndTime.Minute != 0 && request.EndTime.Minute != 30)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.EndTime),
+                ErrorMessage = "Reservations can only be made for full hours or half hours",
+                ErrorCode = ErrorCodes.InvalidTimeSlot
+            };
+        }
+
         // Validate the request
         var validationResult = await validationService.ValidateAsync(request, user.Id);
         if (!validationResult.IsValid)
@@ -125,7 +146,7 @@ public class VisitService(
             };
         }
 
-        // £¹czna liczba ludzi to liczba goœci którzy nie maj¹ konta + liczba goœci któzy maj¹ konto i je podaliœmy + osoba sk³¹daj¹ca zamówienie
+        // £¹czna liczba ludzi to liczba goœci którzy nie maj¹ konta + liczba goœci którzy maj¹ konto i je podaliœmy + osoba sk³adaj¹ca zamówienie
         var numberOfPeople = request.NumberOfGuests + request.ParticipantIds.Count + 1;
 
         // Find the smallest table that can accommodate the guests and is not reserved during the time slot
