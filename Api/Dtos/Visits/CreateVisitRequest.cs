@@ -6,9 +6,14 @@ namespace Reservant.Api.Dtos.Visits;
 public class CreateVisitRequest
 {
     /// <summary>
-    /// Date of the visit
+    /// Start time of the reservation
     /// </summary>
     public required DateTime Date { get; init; }
+
+    /// <summary>
+    /// End time of the reservation
+    /// </summary>
+    public required DateTime EndTime { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account
@@ -29,11 +34,6 @@ public class CreateVisitRequest
     /// ID of the restaurant
     /// </summary>
     public required int RestaurantId { get; init; }
-
-    /// <summary>
-    /// ID of the table within the restaurant
-    /// </summary>
-    public required int TableId { get; init; }
 
     /// <summary>
     /// People who visited the restaurant

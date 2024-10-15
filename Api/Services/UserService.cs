@@ -360,6 +360,7 @@ public class UserService(
         {
             VisitId = visit.VisitId,
             Date = visit.Date,
+            EndTime = visit.EndTime,
             NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
             Takeaway = visit.Takeaway,
             ClientId = visit.ClientId,
@@ -392,6 +393,7 @@ public class UserService(
         {
             VisitId = visit.VisitId,
             Date = visit.Date,
+            EndTime= visit.EndTime,
             NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
             Takeaway = visit.Takeaway,
             ClientId = visit.ClientId,

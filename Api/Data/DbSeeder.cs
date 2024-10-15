@@ -2828,10 +2828,10 @@ public class DbSeeder(
             new CreateVisitRequest
             {
                 Date = DateTime.UtcNow.AddDays(1),
+                EndTime = DateTime.UtcNow.AddDays(1).AddHours(2),
                 NumberOfGuests = 1,
                 ParticipantIds = [exampleCustomer.Id],
                 RestaurantId = 1,
-                TableId = 1,
                 Takeaway = false,
                 Tip = new decimal(1.50)
             },
@@ -2863,6 +2863,7 @@ public class DbSeeder(
         {
             ClientId = exampleCustomer.Id,
             Date = visitResult.Date,
+            EndTime = visitResult.EndTime,
             Deposit = visitResult.Deposit,
             NumberOfPeople = visitResult.NumberOfPeople,
             RestaurantId = visitResult.RestaurantId,
