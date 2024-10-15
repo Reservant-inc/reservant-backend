@@ -1703,6 +1703,7 @@ namespace Reservant.Api.Services
                 .Where(v => v.RestaurantId == restaurantId && DateOnly.FromDateTime(v.Date) == date)
                 .ToListAsync();
 
+            //TODO
             // Tworzymy zakres godzin do sprawdzenia dostępności
             var openingTime = TimeSpan.FromHours(8);  // przykładowa godzina otwarcia
             var closingTime = TimeSpan.FromHours(22); // przykładowa godzina zamknięcia
