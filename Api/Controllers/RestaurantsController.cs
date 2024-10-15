@@ -300,4 +300,21 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
         return OkOrErrors(res);
     }
+
+    /// <summary>
+    /// Zwraca dostêpne godziny dla restauracji dla danego dnia i liczby goœci.
+    /// </summary>
+    /// <param name="restaurantId">ID restauracji</param>
+    /// <param name="date">Data rezerwacji</param>
+    /// <param name="numberOfGuests">Liczba goœci</param>
+    /// <returns>Lista dostêpnych godzin</returns>
+    [HttpGet("{restaurantId:int}/available-hours")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<AvailableHoursVM>> GetAvailableHours(int restaurantId, [FromQuery] DateOnly date, [FromQuery] int numberOfGuests)
+    {
+        var availableHours = await service.GetAvailableHoursAsync(restaurantId, date, numberOfGuests);
+        return OkOrErrors(availableHours);
+    }
+    
+
 }

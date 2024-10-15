@@ -16,9 +16,14 @@ public class Visit : ISoftDeletable
     public int VisitId { get; set; }
 
     /// <summary>
-    /// Date of the visit
+    /// Start time of the reservation
     /// </summary>
     public DateTime Date { get; set; }
+
+    /// <summary>
+    /// End time of the reservation
+    /// </summary>
+    public DateTime EndTime { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account
