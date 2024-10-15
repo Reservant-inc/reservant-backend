@@ -1669,5 +1669,109 @@ namespace Reservant.Api.Services
 
             return paginatedResult;
         }
+
+        /// <summary>
+        /// Zwraca dostępne godziny dla restauracji dla podanej daty i liczby gości
+        /// </summary>
+        /// <param name="restaurantId">ID restauracji</param>
+        /// <param name="date">Data rezerwacji</param>
+        /// <param name="numberOfGuests">Liczba gości</param>
+        /// <returns>Lista dostępnych godzin</returns>
+        public async Task<Result<AvailableHoursVM>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
+        {
+            var restaurant = await context.Restaurants
+                .Include(r => r.Tables)
+                .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restauracja o ID {restaurantId} nie została znaleziona",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            // Pobieramy stoliki odpowiednie do liczby gości
+            var availableTables = await context.Tables
+                .Where(t => t.RestaurantId == restaurantId && t.Capacity >= numberOfGuests)
+                .ToListAsync();
+
+            // Pobieramy rezerwacje, które kolidują z danym dniem
+            var reservations = await context.Visits
+                .Where(v => v.RestaurantId == restaurantId && DateOnly.FromDateTime(v.Date) == date)
+                .ToListAsync();
+
+            // Tworzymy zakres godzin do sprawdzenia dostępności
+            var openingTime = TimeSpan.FromHours(8);  // przykładowa godzina otwarcia
+            var closingTime = TimeSpan.FromHours(22); // przykładowa godzina zamknięcia
+
+            var availableHours = new List<AvailableHours>();
+
+            // Sprawdzamy dostępność godzin dla każdego stolika
+            for (var time = openingTime; time < closingTime; time += TimeSpan.FromMinutes(30))
+            {
+                var timeSlotAvailable = availableTables.Any(table =>
+                    // Check if there are no reservations for this table that overlap with the current time slot
+                    !reservations.Any(r =>
+                        r.TableId == table.TableId &&                         // Same table
+                        r.Date.TimeOfDay <= time &&                           // Reservation starts before or at the current time (compare times only)
+                        r.EndTime.TimeOfDay > time                            // Reservation ends after the current time slot starts (compare times only)
+                    )
+                );
+
+                if (timeSlotAvailable)
+                {
+                    availableHours.Add(new AvailableHours
+                    {
+                        From = time,
+                        Until = time.Add(TimeSpan.FromMinutes(30))
+                    });
+                }
+            }
+
+            // Łączenie sąsiadujących przedziałów czasowych
+            var mergedAvailableHours = new List<AvailableHours>();
+            AvailableHours? currentSlot = null;
+
+            foreach (var slot in availableHours)
+            {
+                if (currentSlot == null)
+                {
+                    currentSlot = slot;
+                }
+                else if (currentSlot.Until == slot.From)
+                {
+                    // Przedziały sąsiadują, więc łączymy je
+                    currentSlot.Until = slot.Until;
+                }
+                else
+                {
+                    // Zapisujemy połączony przedział i zaczynamy nowy
+                    mergedAvailableHours.Add(currentSlot);
+                    currentSlot = slot;
+                }
+            }
+
+            // Dodajemy ostatni połączony przedział (jeśli istnieje)
+            if (currentSlot != null)
+            {
+                mergedAvailableHours.Add(currentSlot);
+            }
+
+            if (mergedAvailableHours.Count == 0)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Brak dostępnych godzin dla wybranej liczby gości i daty",
+                    ErrorCode = ErrorCodes.NoAvailableSlots
+                };
+            }
+
+            return new AvailableHoursVM { AvailableHours = mergedAvailableHours };
+        }
+
     }
 }
