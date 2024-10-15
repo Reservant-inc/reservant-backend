@@ -189,10 +189,12 @@ namespace Reservant.Api.Controllers
         /// Get all events that fulfill the requirements
         /// </summary>
         /// <param name="request">dto with requirements</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
         /// <returns>list of events</returns>
         [HttpGet]
         [ProducesResponseType(200), ProducesResponseType(401)]
-        public async Task<ActionResult<List<EventVM>>> GetEvents(GetEventsRequest request)
+        public async Task<ActionResult<Pagination<EventVM>>> GetEvents([FromQuery] GetEventsRequest request, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -200,7 +202,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            return OkOrErrors(await service.GetEventsAsync(request));
+            return OkOrErrors(await service.GetEventsAsync(request, page, perPage));
         }
     }
 }

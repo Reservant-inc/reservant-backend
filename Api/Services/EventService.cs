@@ -37,13 +37,14 @@ namespace Reservant.Api.Services
         public async Task<Result<EventVM>> CreateEventAsync(CreateEventRequest request, User user)
         {
             var result = await validationService.ValidateAsync(request, user.Id);
-            if (!result.IsValid) {
+            if (!result.IsValid)
+            {
                 return result;
             }
 
             var newEvent = new Event
             {
-                Name=request.Name,
+                Name = request.Name,
                 CreatedAt = DateTime.UtcNow,
                 Description = request.Description,
                 Time = request.Time,
@@ -148,7 +149,7 @@ namespace Reservant.Api.Services
                 .Where(e => e.CreatorId == user.Id)
                 .Select(e => new EventSummaryVM
                 {
-                    Name=e.Name,
+                    Name = e.Name,
                     CreatorFullName = e.Creator.FullName,
                     Time = e.Time,
                     MaxPeople = e.MaxPeople,
@@ -207,7 +208,7 @@ namespace Reservant.Api.Services
             context.EventParticipationRequests.Add(participationRequest);
             await context.SaveChangesAsync();
 
-            await notificationService.NotifyNewParticipationRequest(eventFound.CreatorId,user.Id,eventId);
+            await notificationService.NotifyNewParticipationRequest(eventFound.CreatorId, user.Id, eventId);
 
             return Result.Success;
         }
@@ -323,7 +324,7 @@ namespace Reservant.Api.Services
 
             request.DateAccepted = DateTime.Now;
             await context.SaveChangesAsync();
-            await notificationService.NotifyParticipationRequestResponse(userId,eventId,true);
+            await notificationService.NotifyParticipationRequestResponse(userId, eventId, true);
 
             return Result.Success;
         }
@@ -366,7 +367,7 @@ namespace Reservant.Api.Services
 
             request.DateDeleted = DateTime.Now;
             await context.SaveChangesAsync();
-            await notificationService.NotifyParticipationRequestResponse(userId,eventId,false);
+            await notificationService.NotifyParticipationRequestResponse(userId, eventId, false);
 
             return Result.Success;
         }
@@ -381,9 +382,9 @@ namespace Reservant.Api.Services
         {
             var eventFound = await context.Events
                 .Include(e => e.ParticipationRequests)
-                .Where(e=>e.EventId==id)
+                .Where(e => e.EventId == id)
                 .FirstOrDefaultAsync();
-            if(eventFound==null)
+            if (eventFound == null)
             {
                 return new ValidationFailure
                 {
@@ -592,7 +593,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if(eventToDelete.CreatorId != user.Id)
+            if (eventToDelete.CreatorId != user.Id)
             {
                 return new ValidationFailure
                 {
@@ -612,10 +613,15 @@ namespace Reservant.Api.Services
         /// Returns events with specified optional parameters
         /// </summary>
         /// <param name="request">parameters of the request</param>
+        /// <param name="page">Page number to return.</param>
+        /// <param name="perPage">Items per page.</param>
         /// <returns>list of events that fulfill the requirements</returns>
-        public async Task<Result<List<EventVM>>> GetEventsAsync(GetEventsRequest request)
+        [ErrorCode(nameof(GetEventsRequest.OrigLon), ErrorCodes.InvalidSearchParameters)]
+        [ErrorCode(nameof(GetEventsRequest.OrigLat), ErrorCodes.InvalidSearchParameters)]
+        [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
+        public async Task<Result<Pagination<EventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage)
         {
-            var events = context.Events.Where(e => e.EventId == e.EventId);
+            IQueryable<Event> events = context.Events;
             if (request.Name is not null)
             {
                 events = events.Where(e => e.Name.Contains(request.Name.Trim()));
@@ -633,13 +639,13 @@ namespace Reservant.Api.Services
                 switch (request.EventStatus)
                 {
                     case EventStatus.Future:
-                        events = events.Where(e => e.MustJoinUntil > DateTime.UtcNow);
+                        events = events.Where(e => e.MustJoinUntil > DateTime.UtcNow && e.MaxPeople > e.ParticipationRequests.Count);
                         break;
                     case EventStatus.Past:
                         events = events.Where(e => e.Time < DateTime.UtcNow);
                         break;
-                    default:
-                        events = events.Where(e => (e.MustJoinUntil < DateTime.UtcNow && e.Time > DateTime.UtcNow) || e.MaxPeople == e.ParticipationRequests.Count);
+                    case EventStatus.NonJoinable:
+                        events = events.Where(e => (e.MustJoinUntil < DateTime.UtcNow || e.MaxPeople == e.ParticipationRequests.Count) && e.Time > DateTime.UtcNow);
                         break;
                 }
             }
@@ -648,21 +654,40 @@ namespace Reservant.Api.Services
                 events = events.Where(e => e.RestaurantId == request.RestaurantId);
             }
 
-            events = events.OrderByDescending(e => e.Time);
-
+            events = events.OrderByDescending(e => e.CreatedAt);
+            if (request.OrigLon is null && request.OrigLat is not null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.OrigLon),
+                    ErrorCode = ErrorCodes.InvalidSearchParameters,
+                    ErrorMessage = ErrorCodes.InvalidSearchParameters
+                };
+            }
+            if (request.OrigLon is not null && request.OrigLat is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(request.OrigLat),
+                    ErrorMessage = ErrorCodes.InvalidSearchParameters,
+                    ErrorCode = ErrorCodes.InvalidSearchParameters
+                };
+            }
             if (request.OrigLon is not null && request.OrigLat is not null)
             {
                 var origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLon!.Value, request.OrigLat!.Value));
                 events = events.OrderBy(e => origin.Distance(e.Restaurant!.Location));
             }
 
-            return await events.Select(e => new EventVM { 
+            return await events.Select(e => new EventVM
+            {
                 CreatedAt = e.CreatedAt,
                 VisitId = e.VisitId,
                 Time = e.Time,
                 RestaurantId = e.RestaurantId,
                 RestaurantName = e.Restaurant!.Name,
-                Participants = e.ParticipationRequests.Select(p => new UserSummaryVM { 
+                Participants = e.ParticipationRequests.Select(p => new UserSummaryVM
+                {
                     FirstName = p.User!.FirstName,
                     LastName = p.User!.LastName,
                     UserId = p.User!.Id,
@@ -676,7 +701,7 @@ namespace Reservant.Api.Services
                 CreatorId = e.CreatorId,
                 CreatorFullName = e.Creator.FullName
             })
-                .ToListAsync();
+                .PaginateAsync(page, perPage, []);
         }
     }
 }
