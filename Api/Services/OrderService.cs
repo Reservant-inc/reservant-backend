@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Orders;
-using Reservant.Api.Dtos.OrderItems;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Security.Claims;
-using Reservant.Api.Dtos.Users;
+using AutoMapper;
 
 namespace Reservant.Api.Services;
 
@@ -23,7 +22,7 @@ public class OrderService(
     ApiDbContext context,
     ValidationService validationService,
     AuthorizationService authorizationService,
-    FileUploadService uploadService)
+    IMapper mapper)
 {
     /// <summary>
     /// Gets the order with the given id
@@ -95,32 +94,7 @@ public class OrderService(
             }
         }
 
-        var orderItems = order.OrderItems.Select(i => new OrderItemVM()
-        {
-            MenuItemId = i.MenuItemId,
-            Amount = i.Amount,
-            Price = i.Price,
-            Cost = i.Amount * i.Price,
-            Status = i.Status,
-        }).ToList();
-
-        return new OrderVM()
-        {
-            OrderId = order.OrderId,
-            VisitId = order.VisitId,
-            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
-            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
-            Items = orderItems,
-            Employees = order.Employees
-                .Select(employee => new UserSummaryVM
-                {
-                    UserId = employee.Id,
-                    FirstName = employee.FirstName,
-                    LastName = employee.LastName,
-                    Photo =  uploadService.GetPathForFileName(employee.PhotoFileName),
-                })
-                .ToList(),
-        };
+        return mapper.Map<OrderVM>(order);
     }
 
     /// <summary>
@@ -247,16 +221,7 @@ public class OrderService(
         context.Add(order);
         await context.SaveChangesAsync();
 
-
-        return new OrderSummaryVM
-        {
-            OrderId = order.OrderId,
-            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
-            Note = order.Note,
-            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
-            VisitId = order.VisitId,
-            Date = visit.Date
-        };
+        return mapper.Map<OrderSummaryVM>(order);
     }
     /// <summary>
     /// Update status of the order by updating the list of states of included menu items
@@ -352,29 +317,6 @@ public class OrderService(
         }
         await context.SaveChangesAsync();
 
-        return new OrderVM
-        {
-            OrderId = order.OrderId,
-            VisitId = order.VisitId,
-            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
-            Items = order.OrderItems.Select(orderItem => new OrderItemVM
-            {
-                Amount = orderItem.Amount,
-                Price = orderItem.Price,
-                Status = orderItem.Status,
-                MenuItemId = orderItem.MenuItemId,
-                Cost = orderItem.Price * orderItem.Amount
-            }).ToList(),
-            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
-            Employees = order.Employees
-                .Select(employee => new UserSummaryVM
-                {
-                    UserId = employee.Id,
-                    FirstName = employee.FirstName,
-                    LastName = employee.LastName,
-                    Photo =  uploadService.GetPathForFileName(employee.PhotoFileName),
-                })
-                .ToList(),
-        };
+        return mapper.Map<OrderVM>(order);
     }
 }

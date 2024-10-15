@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using System.Security.Claims;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +27,8 @@ public class UserService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService,
-    UrlService urlService)
+    UrlService urlService,
+    IMapper mapper)
 {
     /// <summary>
     /// Used to generate restaurant employee's logins:
@@ -357,17 +360,9 @@ public class UserService(
             .Where(x => x.Date > DateTime.UtcNow)
             .OrderBy(x => x.Date);
 
-        var result = await query.Select(visit => new VisitSummaryVM
-        {
-            VisitId = visit.VisitId,
-            Date = visit.Date,
-            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId,
-            Deposit = visit.Deposit
-        })
-        .PaginateAsync(page, perPage, [], maxPerPage: 10);
+        var result = await query
+            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, [], maxPerPage: 10);
 
         return result;
     }
@@ -389,17 +384,9 @@ public class UserService(
             .Where(x => x.Date < DateTime.UtcNow)
             .OrderByDescending(x => x.Date);
 
-        var result = await query.Select(visit => new VisitSummaryVM
-        {
-            VisitId = visit.VisitId,
-            Date = visit.Date,
-            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId,
-            Deposit = visit.Deposit
-        })
-        .PaginateAsync(page, perPage, [], maxPerPage: 10);
+        var result = await query
+            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, [], maxPerPage: 10);
 
         return result;
     }

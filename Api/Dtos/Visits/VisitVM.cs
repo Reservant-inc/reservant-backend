@@ -1,12 +1,14 @@
-using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Visits;
 
 /// <summary>
 /// Info about a Visit
 /// </summary>
+[AutoMap(typeof(Visit))]
 public class VisitVM
 {
     /// <summary>

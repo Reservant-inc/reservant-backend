@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Auth;
-using Reservant.Api.Dtos.Ingredients;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.OrderItems;
 using Reservant.Api.Dtos.Restaurants;
@@ -2981,16 +2980,7 @@ public class DbSeeder(
             exampleCustomer
         )).OrThrow();
 
-        return new VisitSummaryVM
-        {
-            ClientId = exampleCustomer.Id,
-            Date = visitResult.Date,
-            Deposit = visitResult.Deposit,
-            NumberOfPeople = visitResult.NumberOfPeople,
-            RestaurantId = visitResult.RestaurantId,
-            Takeaway = visitResult.Takeaway,
-            VisitId = visitResult.VisitId
-        };
+        return visitResult;
     }
 
 }

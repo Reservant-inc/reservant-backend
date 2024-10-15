@@ -959,15 +959,7 @@ namespace Reservant.Api.Services
                     order.OrderItems.Max(oi => oi.Status) == OrderStatus.Ready);
             }
 
-            var filteredOrders = ordersQuery.Select(order => new OrderSummaryVM
-            {
-                OrderId = order.OrderId,
-                VisitId = order.VisitId,
-                Date = order.Visit.Date,
-                Note = order.Note,
-                Cost = order.OrderItems.Sum(oi => oi.MenuItem.Price * oi.Amount),
-                Status = order.OrderItems.Max(oi => oi.Status)
-            });
+            var filteredOrders = ordersQuery.ProjectTo<OrderSummaryVM>(mapper.ConfigurationProvider);
 
             filteredOrders = orderBy switch
             {
@@ -1242,36 +1234,8 @@ namespace Reservant.Api.Services
                     break;
             }
 
-            var result = await query.Select(e => new VisitVM
-                {
-                    VisitId = e.VisitId,
-                    Date = e.Date,
-                    NumberOfGuests = e.NumberOfGuests,
-                    PaymentTime = e.PaymentTime,
-                    Deposit = e.Deposit,
-                    ReservationDate = e.ReservationDate,
-                    Tip = e.Tip,
-                    Takeaway = e.Takeaway,
-                    ClientId = e.ClientId,
-                    RestaurantId = e.Table.RestaurantId,
-                    TableId = e.Table.TableId,
-                    Participants = e.Participants.Select(p => new UserSummaryVM
-                    {
-                        UserId = p.Id,
-                        FirstName = p.FirstName,
-                        LastName = p.LastName,
-                        Photo = urlService.GetPathForFileName(p.PhotoFileName),
-                    }).ToList(),
-                    Orders = e.Orders.Select(o => new OrderSummaryVM
-                    {
-                        OrderId = o.OrderId,
-                        VisitId = o.VisitId,
-                        Date = o.Visit.Date,
-                        Note = o.Note,
-                        Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount), // This now safely computes Cost
-                        Status = o.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s)
-                    }).ToList()
-                })
+            var result = await query
+                .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
                 .PaginateAsync(page, perPage, Enum.GetNames<VisitSorting>());
 
             return result;

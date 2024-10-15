@@ -7,8 +7,6 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
-using Reservant.Api.Dtos.Orders;
-using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Services;
 
@@ -46,31 +44,7 @@ public class VisitService(
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
 
-        var result = new VisitVM
-        {
-            VisitId = visit.VisitId,
-            Date = visit.Date,
-            NumberOfGuests = visit.NumberOfGuests,
-            PaymentTime = visit.PaymentTime,
-            Deposit = visit.Deposit,
-            ReservationDate = visit.ReservationDate,
-            Tip = visit.Tip,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId,
-            TableId = visit.TableId,
-            Participants = mapper.Map<List<UserSummaryVM>>(visit.Participants),
-            Orders = visit.Orders.Select(o => new OrderSummaryVM
-            {
-                OrderId = o.OrderId,
-                VisitId = o.VisitId,
-                Date = o.Visit.Date,
-                Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount),
-                Status = o.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s)
-            }).ToList()
-        };
-
-        return result;
+        return mapper.Map<VisitVM>(visit);
     }
 
     /// <summary>
@@ -123,15 +97,6 @@ public class VisitService(
         context.Add(visit);
         await context.SaveChangesAsync();
 
-        return new VisitSummaryVM()
-        {
-            VisitId = visit.VisitId,
-            ClientId = visit.ClientId,
-            Date = visit.Date,
-            Takeaway = visit.Takeaway,
-            RestaurantId = visit.RestaurantId,
-            NumberOfPeople = visit.NumberOfGuests,
-            Deposit = visit.Deposit
-        };
+        return mapper.Map<VisitSummaryVM>(visit);
     }
 }
