@@ -138,7 +138,7 @@ public class IngredientService(
         // Check if the user has access to the restaurant
         var restaurantId = ingredient.MenuItems.First().MenuItem.RestaurantId;
         
-        var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId.Value, userId);
+        var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, userId);
         if (access.IsError)
         {
             return access.Errors;
