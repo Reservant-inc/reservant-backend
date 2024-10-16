@@ -11,6 +11,7 @@ using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Security.Claims;
+using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Services;
 
@@ -21,7 +22,8 @@ public class OrderService(
     UserManager<User> userManager,
     ApiDbContext context,
     ValidationService validationService,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    FileUploadService uploadService)
 {
     /// <summary>
     /// Gets the order with the given id
@@ -35,6 +37,7 @@ public class OrderService(
         var order = await context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
+            .Include(o => o.Employees)
             .FirstOrDefaultAsync(o => o.OrderId == id);
 
         if (order == null)
@@ -108,7 +111,15 @@ public class OrderService(
             Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
             Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
             Items = orderItems,
-            EmployeeId = order.EmployeeId
+            Employees = order.Employees
+                .Select(employee => new UserSummaryVM
+                {
+                    UserId = employee.Id,
+                    FirstName = employee.FirstName,
+                    LastName = employee.LastName,
+                    Photo =  uploadService.GetPathForFileName(employee.PhotoFileName),
+                })
+                .ToList(),
         };
     }
 
@@ -355,7 +366,15 @@ public class OrderService(
                 Cost = orderItem.Price * orderItem.Amount
             }).ToList(),
             Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
-            EmployeeId = order.EmployeeId
+            Employees = order.Employees
+                .Select(employee => new UserSummaryVM
+                {
+                    UserId = employee.Id,
+                    FirstName = employee.FirstName,
+                    LastName = employee.LastName,
+                    Photo =  uploadService.GetPathForFileName(employee.PhotoFileName),
+                })
+                .ToList(),
         };
     }
 }
