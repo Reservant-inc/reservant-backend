@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
@@ -7,7 +8,6 @@ using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Dtos.Threads;
-using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
@@ -75,12 +75,7 @@ public class ThreadService(
         dbContext.MessageThreads.Add(messageThread);
         await dbContext.SaveChangesAsync();
 
-        return new ThreadVM
-        {
-            ThreadId = messageThread.MessageThreadId,
-            Title = messageThread.Title,
-            Participants = mapper.Map<List<UserSummaryVM>>(messageThread.Participants),
-        };
+        return mapper.Map<ThreadVM>(messageThread);
     }
 
     /// <summary>
@@ -123,12 +118,7 @@ public class ThreadService(
         dbContext.MessageThreads.Update(messageThread);
         await dbContext.SaveChangesAsync();
 
-        return new ThreadVM
-        {
-            ThreadId = messageThread.MessageThreadId,
-            Title = messageThread.Title,
-            Participants = mapper.Map<List<UserSummaryVM>>(messageThread.Participants),
-        };
+        return mapper.Map<ThreadVM>(messageThread);
     }
 
     /// <summary>
@@ -169,12 +159,7 @@ public class ThreadService(
     {
         var query = dbContext.MessageThreads
             .Where(t => t.Participants.Any(p => p.Id == userId))
-            .Select(t => new ThreadVM
-            {
-                ThreadId = t.MessageThreadId,
-                Title = t.Title,
-                Participants = mapper.Map<List<UserSummaryVM>>(t.Participants),
-            });
+            .ProjectTo<ThreadVM>(mapper.ConfigurationProvider);
 
         return await query.PaginateAsync(page, perPage, []);
     }
@@ -201,12 +186,7 @@ public class ThreadService(
             };
         }
 
-        return new ThreadVM
-        {
-            ThreadId = messageThread.MessageThreadId,
-            Title = messageThread.Title,
-            Participants = mapper.Map<List<UserSummaryVM>>(messageThread.Participants),
-        };
+        return mapper.Map<ThreadVM>(messageThread);
     }
 
     /// <summary>

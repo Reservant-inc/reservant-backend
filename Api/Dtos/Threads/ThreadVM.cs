@@ -1,3 +1,4 @@
+using AutoMapper;
 using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Dtos.Threads;
@@ -5,6 +6,7 @@ namespace Reservant.Api.Dtos.Threads;
 /// <summary>
 /// Information about a message thread
 /// </summary>
+[AutoMap(typeof(Thread))]
 public class ThreadVM
 {
     /// <summary>
