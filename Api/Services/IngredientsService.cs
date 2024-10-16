@@ -136,16 +136,7 @@ public class IngredientService(
         }
         
         // Check if the user has access to the restaurant
-        var restaurantId = ingredient.MenuItems.FirstOrDefault()?.MenuItem.RestaurantId;
-        if (restaurantId == null)
-        {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = ErrorCodes.AccessDenied,
-                PropertyName = nameof(restaurantId)
-            };
-        }
+        var restaurantId = ingredient.MenuItems.First().MenuItem.RestaurantId;
         
         var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId.Value, userId);
         if (access.IsError)
