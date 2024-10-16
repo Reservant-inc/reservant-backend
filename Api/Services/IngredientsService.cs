@@ -131,7 +131,7 @@ public class IngredientService(
             {
                 ErrorCode = ErrorCodes.NotFound,
                 ErrorMessage = ErrorCodes.NotFound,
-                PropertyName = nameof(ingredientId)
+                PropertyName = null,
             };
         }
         
