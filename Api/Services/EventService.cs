@@ -85,6 +85,8 @@ namespace Reservant.Api.Services
         public async Task<Result<EventVM>> GetEventAsync(int id)
         {
             var checkedEvent = await context.Events
+                .IgnoreQueryFilters()
+                .Where(e => !e.IsDeleted)
                 .ProjectTo<EventVM>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(e => e.EventId == id);
             if (checkedEvent is null)
@@ -390,6 +392,7 @@ namespace Reservant.Api.Services
         public async Task<Result<EventVM>> UpdateEventAsync(int eventId, UpdateEventRequest request, User user)
         {
             var eventToUpdate = await context.Events
+                .IgnoreQueryFilters()
                 .Include(e => e.Creator)
                 .Include(e => e.Restaurant)
                 .Include(e => e.ParticipationRequests)
