@@ -15,7 +15,7 @@ public class UserEmployeeVM
     /// <summary>
     /// User login
     /// </summary>
-    public required string? Login { get; init; }
+    public required string? Login { get; set; }
 
     /// <summary>
     /// First name
@@ -35,12 +35,12 @@ public class UserEmployeeVM
     /// <summary>
     /// User's phone number
     /// </summary>
-    public required string? PhoneNumber { get; init; }
+    public required string? PhoneNumber { get; set; }
 
     /// <summary>
     /// Employee's employments
     /// </summary>
-    public required List<EmploymentVM>? Employments { get; init; }
+    public required List<EmploymentVM>? Employments { get; set; }
 
     /// <summary>
     /// User's photo path

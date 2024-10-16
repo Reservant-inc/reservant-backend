@@ -199,28 +199,7 @@ public class UserService(
             .Where(u => u.EmployerId == userId)
             .Include(u => u.Employments)
             .ThenInclude(e => e.Restaurant)
-            .Select(u => new UserEmployeeVM
-            {
-                UserId = u.Id,
-                Login = u.UserName!,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                BirthDate = u.BirthDate!.Value,
-                PhoneNumber = u.PhoneNumber!,
-                Employments = u.Employments
-                    .Where(e => e.DateUntil == null)
-                    .Select(e => new EmploymentVM
-                    {
-                        EmploymentId = e.EmploymentId,
-                        RestaurantId = e.RestaurantId,
-                        IsBackdoorEmployee = e.IsBackdoorEmployee,
-                        IsHallEmployee = e.IsHallEmployee,
-                        RestaurantName = e.Restaurant.Name,
-                        DateFrom = e.DateFrom
-                    })
-                    .ToList(),
-                Photo = urlService.GetPathForFileName(u.PhotoFileName),
-            })
+            .ProjectTo<UserEmployeeVM>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return employeeVMs;
@@ -509,47 +488,22 @@ public class UserService(
             };
         }
 
+        var viewModel = mapper.Map<UserEmployeeVM>(requestedUser);
+
         // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
         if (requestedUser.EmployerId == currentUserId)
         {
             // Zwrót pełnych danych dla pracownika
-            return new UserEmployeeVM
-            {
-                UserId = requestedUser.Id,
-                Login = requestedUser.UserName,
-                FirstName = requestedUser.FirstName,
-                LastName = requestedUser.LastName,
-                BirthDate = requestedUser.BirthDate!.Value,
-                PhoneNumber = requestedUser.PhoneNumber,
-                Employments = requestedUser.Employments
-                    .Where(e => e.DateUntil == null)
-                    .Select(e => new EmploymentVM
-                    {
-                        EmploymentId = e.EmploymentId,
-                        RestaurantId = e.RestaurantId,
-                        IsBackdoorEmployee = e.IsBackdoorEmployee,
-                        IsHallEmployee = e.IsHallEmployee,
-                        RestaurantName = e.Restaurant.Name,
-                        DateFrom = e.DateFrom
-                    })
-                    .ToList(),
-                Photo = urlService.GetPathForFileName(requestedUser.PhotoFileName),
-            };
+            return viewModel;
         }
 
         // Jeżeli użytkownik nie jest pracownikiem, zwróć ograniczone dane
-        if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer)) {
-            return new UserEmployeeVM
-            {
-                UserId = requestedUser.Id,
-                FirstName = requestedUser.FirstName,
-                LastName = requestedUser.LastName,
-                BirthDate = requestedUser.BirthDate!.Value,
-                Photo = urlService.GetPathForFileName(requestedUser.PhotoFileName),
-                Login = null,
-                PhoneNumber = null,
-                Employments = null
-            };
+        if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer))
+        {
+            viewModel.Login = null;
+            viewModel.PhoneNumber = null;
+            viewModel.Employments = null;
+            return viewModel;
         }
 
         return new ValidationFailure

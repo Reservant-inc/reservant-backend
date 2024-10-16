@@ -15,5 +15,11 @@ public class Mappings : Profile
         CreateMap<User, UserSummaryVM>()
             .MapMemberFrom(dto => dto.UserId, user => user.Id)
             .MapUploadPath(dto => dto.Photo, user => user.PhotoFileName, urlService);
+
+        CreateMap<User, UserEmployeeVM>()
+            .MapUploadPath(dto => dto.Photo, user => user.PhotoFileName, urlService)
+            .MapMemberFrom(dto => dto.Login, user => user.UserName)
+            .MapMemberFrom(dto => dto.Employments,
+                user => user.Employments.Where(employment => employment.DateUntil == null));
     }
 }

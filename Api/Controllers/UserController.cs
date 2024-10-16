@@ -252,7 +252,7 @@ public class UserController(
     [Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.GetCurrentUsersEmploymentsAsync))]
-    public async Task<ActionResult<List<EmploymentSummaryVM>>> GetCurrentUsersEmployments(
+    public async Task<ActionResult<List<EmploymentVM>>> GetCurrentUsersEmployments(
         [FromQuery] bool returnTerminated, [FromServices] EmploymentService employmentService)
     {
         var result = await employmentService.GetCurrentUsersEmploymentsAsync(User.GetUserId()!.Value, returnTerminated);

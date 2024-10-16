@@ -1,8 +1,12 @@
+using AutoMapper;
+using Reservant.Api.Dtos.Restaurants;
+
 namespace Reservant.Api.Dtos.Employments;
 
 /// <summary>
 /// Information about a user's employment at a restaurant
 /// </summary>
+[AutoMap(typeof(EmploymentVM))]
 public class EmploymentVM
 {
     /// <summary>
@@ -11,9 +15,9 @@ public class EmploymentVM
     public required int EmploymentId { get; init; }
 
     /// <summary>
-    /// ID of the restaurant
+    /// Summary of the restaurant details
     /// </summary>
-    public required int RestaurantId { get; init; }
+    public required RestaurantSummaryVM Restaurant { get; init; }
 
     /// <summary>
     /// Whether the employee is a backdoor employee
@@ -34,4 +38,9 @@ public class EmploymentVM
     /// Date from which employment started
     /// </summary>
     public required DateOnly DateFrom { get; init; }
+
+    /// <summary>
+    /// Date until the employment was active, null if it still is
+    /// </summary>
+    public required DateOnly? DateUntil { get; init; }
 }
