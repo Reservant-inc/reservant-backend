@@ -168,10 +168,9 @@ public class VisitService(
             };
         }
 
-        var result1 = await authorizationService.VerifyOwnerRole(visitFound.RestaurantId, currentUser);
-        var result2 = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
+        var result = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
 
-        if(result1.IsError && result2.IsError)
+        if(result.IsError)
         {
             return new ValidationFailure
             {
@@ -187,7 +186,7 @@ public class VisitService(
             {
                 PropertyName = nameof(visitId),
                 ErrorMessage = "User already considered",
-                ErrorCode = ErrorCodes.AlreadyConsidered
+                ErrorCode = ErrorCodes.Duplicate
             };
         }
 
@@ -195,7 +194,7 @@ public class VisitService(
         visitFound.IsAccepted = true;
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitConsiderationRequestResponse(visitFound.ClientId,visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId,visitId);
 
         return Result.Success;
     }
@@ -217,16 +216,15 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(visitId),
+                PropertyName = null,
                 ErrorMessage = "Event not found",
                 ErrorCode = ErrorCodes.NotFound
             };
         }
 
-        var result1 = await authorizationService.VerifyOwnerRole(visitFound.RestaurantId, currentUser);
-        var result2 = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
+        var result = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
 
-        if(result1.IsError && result2.IsError)
+        if(result.IsError)
         {
             return new ValidationFailure
             {
@@ -240,9 +238,9 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(visitId),
+                PropertyName = null,
                 ErrorMessage = "User already considered",
-                ErrorCode = ErrorCodes.AlreadyConsidered
+                ErrorCode = ErrorCodes.Duplicate
             };
         }
 
@@ -250,7 +248,7 @@ public class VisitService(
         visitFound.IsAccepted = false;
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitConsiderationRequestResponse(visitFound.ClientId,visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId,visitId);
 
         return Result.Success;
     }

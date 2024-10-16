@@ -108,5 +108,5 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// restaurant restaurant owner/hall employee that considered reservationn
     /// </summary>
-    public User AnsweredBy { get; set; } = null!;
+    public User? AnsweredBy { get; set; }
 }

@@ -163,7 +163,7 @@ public class NotificationParticipationRequestResponse : NotificationDetails
 /// <summary>
 /// Details for a new participation requests response notification
 /// </summary>
-public class NotificationVisitConsiderationRequestResponse : NotificationDetails
+public class NotificationVisitApprovedDeclined  : NotificationDetails
 {
     /// <summary>
     /// Visit ID
@@ -177,12 +177,12 @@ public class NotificationVisitConsiderationRequestResponse : NotificationDetails
 
     
     /// <summary>
-    /// ID of the restaurant owner/hall employee that considereed visit
+    /// Name of the restaurant in which visit takes place
     /// </summary>
-    public required Guid AnsweredById { get; set; }
+    public required string RestaurantName { get; set; }
 
     /// <summary>
-    /// emplyee that considereed visit
+    /// Time of the visit
     /// </summary>
-    public required string AnsweredByName { get; set; }
+    public required DateTime Date { get; set; }
 }
