@@ -186,7 +186,7 @@ public class VisitService(
             {
                 PropertyName = nameof(visitId),
                 ErrorMessage = "User already considered",
-                ErrorCode = ErrorCodes.Duplicate
+                ErrorCode = ErrorCodes.AlreadyConsidered
             };
         }
 
@@ -240,7 +240,7 @@ public class VisitService(
             {
                 PropertyName = null,
                 ErrorMessage = "User already considered",
-                ErrorCode = ErrorCodes.Duplicate
+                ErrorCode = ErrorCodes.AlreadyConsidered
             };
         }
 
