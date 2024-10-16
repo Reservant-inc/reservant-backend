@@ -15,5 +15,7 @@ public class Mappings : Profile
         CreateMap<Visit, VisitSummaryVM>()
             .MapMemberFrom(dto => dto.NumberOfPeople,
                 visit => visit.NumberOfGuests + visit.Participants.Count + 1);
+
+        CreateMap<Visit, VisitVM>();
     }
 }

@@ -8,7 +8,6 @@ namespace Reservant.Api.Dtos.Visits;
 /// <summary>
 /// Info about a Visit
 /// </summary>
-[AutoMap(typeof(Visit))]
 public class VisitVM
 {
     /// <summary>

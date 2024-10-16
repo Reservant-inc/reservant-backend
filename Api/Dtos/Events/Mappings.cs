@@ -1,4 +1,5 @@
 using AutoMapper;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 
@@ -24,5 +25,8 @@ public class Mappings : Profile
                 @event => $"{@event.Creator.FirstName} {@event.Creator.LastName}")
             .MapMemberFrom(dto => dto.NumberInterested,
                 @event => @event.ParticipationRequests.Count);
+
+        CreateMap<ParticipationRequest, UserSummaryVM>()
+            .IncludeMembers(request => request.User);
     }
 }

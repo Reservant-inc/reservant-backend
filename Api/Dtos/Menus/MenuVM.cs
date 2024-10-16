@@ -1,6 +1,4 @@
-using AutoMapper;
 using Reservant.Api.Dtos.MenuItems;
-using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.Menus;
@@ -8,7 +6,6 @@ namespace Reservant.Api.Dtos.Menus;
 /// <summary>
 /// Info about a Menu
 /// </summary>
-[AutoMap(typeof(Menu))]
 public class MenuVM
 {
     /// <summary>

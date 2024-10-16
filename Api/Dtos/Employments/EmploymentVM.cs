@@ -1,4 +1,3 @@
-using AutoMapper;
 using Reservant.Api.Dtos.Restaurants;
 
 namespace Reservant.Api.Dtos.Employments;
@@ -6,7 +5,6 @@ namespace Reservant.Api.Dtos.Employments;
 /// <summary>
 /// Information about a user's employment at a restaurant
 /// </summary>
-[AutoMap(typeof(EmploymentVM))]
 public class EmploymentVM
 {
     /// <summary>

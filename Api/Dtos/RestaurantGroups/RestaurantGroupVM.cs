@@ -1,14 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AutoMapper;
-using Reservant.Api.Dtos.Restaurants;
-using Reservant.Api.Models;
+﻿using Reservant.Api.Dtos.Restaurants;
 
 namespace Reservant.Api.Dtos.RestaurantGroups;
 
 /// <summary>
 /// Information about a RestaurantGroup
 /// </summary>
-[AutoMap(typeof(RestaurantGroup))]
 public class RestaurantGroupVM
 {
     /// <summary>

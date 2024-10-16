@@ -14,5 +14,7 @@ public class Mappings : Profile
     {
         CreateMap<RestaurantGroup, RestaurantGroupSummaryVM>()
             .MapMemberFrom(dto => dto.RestaurantCount, group => group.Restaurants.Count);
+
+        CreateMap<RestaurantGroup, RestaurantGroupVM>();
     }
 }
