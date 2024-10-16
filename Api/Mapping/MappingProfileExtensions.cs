@@ -20,11 +20,12 @@ internal static class MappingProfileExtensions
     /// <typeparam name="TSource">Type of the source class</typeparam>
     /// <typeparam name="TDestination">Type of the destination class</typeparam>
     /// <typeparam name="TMemberDestination">Type of the destination member</typeparam>
+    /// <typeparam name="TExpression">Type of the map expression</typeparam>
     /// <returns>The mapping configuration expression to continue the method chain</returns>
-    internal static IMappingExpression<TSource, TDestination> MapMemberFrom<TSource, TDestination, TMemberDestination>(
+    internal static IMappingExpression<TSource, TDestination> MapMemberFrom<TSource, TDestination, TMemberDestination, TExpression>(
         this IMappingExpression<TSource, TDestination> mapping,
         Expression<Func<TDestination, TMemberDestination>> destinationMember,
-        Expression<Func<TSource, TMemberDestination>> mapExpression)
+        Expression<Func<TSource, TExpression>> mapExpression)
     {
         return mapping.ForMember(destinationMember, b =>
         {
