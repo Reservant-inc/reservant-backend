@@ -243,15 +243,7 @@ public class ThreadService(
         dbContext.Add(message);
         await dbContext.SaveChangesAsync();
 
-        return new MessageVM
-        {
-            MessageId = message.MessageId,
-            Contents = message.Contents,
-            DateSent = message.DateSent,
-            DateRead = message.DateRead,
-            AuthorId = message.AuthorId,
-            MessageThreadId = message.MessageThreadId
-        };
+        return mapper.Map<MessageVM>(message);
     }
 
     /// <summary>
@@ -295,15 +287,7 @@ public class ThreadService(
 
         return await query
             .OrderByDescending(m => m.DateSent)
-            .Select(m => new MessageVM
-            {
-                MessageId = m.MessageId,
-                Contents = m.Contents,
-                DateSent = m.DateSent,
-                DateRead = m.DateRead,
-                AuthorId = m.AuthorId,
-                MessageThreadId = m.MessageThreadId
-            })
+            .ProjectTo<MessageVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 100);
     }
 

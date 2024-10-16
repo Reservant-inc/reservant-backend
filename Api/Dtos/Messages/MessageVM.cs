@@ -1,9 +1,12 @@
+using AutoMapper;
+using Reservant.Api.Models;
+
 namespace Reservant.Api.Dtos.Messages;
 
 /// <summary>
 /// Request to create a message
 /// </summary>
-
+[AutoMap(typeof(Message))]
 public class MessageVM
 {
     /// <summary>

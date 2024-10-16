@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
@@ -12,7 +13,8 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class MessageService(
     ApiDbContext dbContext,
-    ValidationService validationService)
+    ValidationService validationService,
+    IMapper mapper)
 {
      /// <summary>
     /// Updates a message by Id.
@@ -57,15 +59,7 @@ public class MessageService(
         dbContext.Messages.Update(message);
         await dbContext.SaveChangesAsync();
 
-        return new MessageVM
-        {
-            MessageId = message.MessageId,
-            Contents = message.Contents,
-            DateSent = message.DateSent,
-            DateRead = message.DateRead,
-            AuthorId = message.AuthorId,
-            MessageThreadId = message.MessageThreadId
-        };
+        return mapper.Map<MessageVM>(message);
     }
 
 
@@ -127,15 +121,7 @@ public class MessageService(
             await dbContext.SaveChangesAsync();
         }
 
-        return new MessageVM
-        {
-            MessageId = message.MessageId,
-            Contents = message.Contents,
-            DateSent = message.DateSent,
-            DateRead = message.DateRead,
-            AuthorId = message.AuthorId,
-            MessageThreadId = message.MessageThreadId
-        };
+        return mapper.Map<MessageVM>(message);
     }
 
 
