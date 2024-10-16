@@ -46,9 +46,4 @@ public class UserEmployeeVM
     /// User's photo path
     /// </summary>
     public required string? Photo { get; init; }
-
-    /// <summary>
-    /// Friend status
-    /// </summary>
-    public required FriendStatus FriendStatus { get; init; }
 }

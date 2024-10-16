@@ -220,19 +220,6 @@ public class UserService(
                     })
                     .ToList(),
                 Photo = urlService.GetPathForFileName(u.PhotoFileName),
-                FriendStatus =
-                    (from fr in dbContext.FriendRequests
-                     let isOutgoing = fr.SenderId == userId && fr.ReceiverId == u.Id
-                     let isIncoming = fr.SenderId == u.Id && fr.ReceiverId == userId
-                     let isAccepted = fr.DateAccepted != null
-                     where isOutgoing || isIncoming
-                     select isAccepted
-                        ? FriendStatus.Friend
-                        : isIncoming
-                        ? FriendStatus.IncomingRequest
-                        : isOutgoing
-                        ? FriendStatus.OutgoingRequest
-                        : FriendStatus.Stranger).FirstOrDefault()
             })
             .ToListAsync();
 
@@ -547,7 +534,6 @@ public class UserService(
                     })
                     .ToList(),
                 Photo = urlService.GetPathForFileName(requestedUser.PhotoFileName),
-                FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id)
             };
         }
 
@@ -560,7 +546,6 @@ public class UserService(
                 LastName = requestedUser.LastName,
                 BirthDate = requestedUser.BirthDate!.Value,
                 Photo = urlService.GetPathForFileName(requestedUser.PhotoFileName),
-                FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id),
                 Login = null,
                 PhoneNumber = null,
                 Employments = null
