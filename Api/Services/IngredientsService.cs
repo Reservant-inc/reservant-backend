@@ -110,6 +110,7 @@ public class IngredientService(
     /// <returns>Paginated list of ingredient amount corrections</returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
     public async Task<Result<Pagination<IngredientAmountCorrectionVM>>> GetIngredientHistoryAsync(
         IngredientHistoryRequest request,
         int ingredientId,
