@@ -1415,7 +1415,7 @@ public class DbSeeder(
             },
             johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
-        
+
         var corrections = new List<IngredientAmountCorrection>
         {
             new IngredientAmountCorrection
@@ -1442,7 +1442,7 @@ public class DbSeeder(
                 OldAmount = 900,
                 NewAmount = 850,
                 CorrectionDate = DateTime.UtcNow.AddDays(-10),
-                User = hallEmployee,
+                User = johnDoe,
                 Comment = "Prepared extra dough for weekend rush"
             },
             new IngredientAmountCorrection
@@ -1469,7 +1469,7 @@ public class DbSeeder(
                 OldAmount = 750,
                 NewAmount = 700,
                 CorrectionDate = DateTime.UtcNow.AddDays(-7),
-                User = hallEmployee,
+                User = backdoorEmployee,
                 Comment = "Prepared dough for special event"
             },
             new IngredientAmountCorrection
@@ -1496,7 +1496,7 @@ public class DbSeeder(
                 OldAmount = 600,
                 NewAmount = 550,
                 CorrectionDate = DateTime.UtcNow.AddDays(-4),
-                User = hallEmployee,
+                User = johnDoe,
                 Comment = "Prepared dough for school workshop"
             },
             new IngredientAmountCorrection
@@ -1523,7 +1523,7 @@ public class DbSeeder(
                 OldAmount = 450,
                 NewAmount = 400,
                 CorrectionDate = DateTime.UtcNow.AddDays(-1),
-                User = hallEmployee,
+                User = backdoorEmployee,
                 Comment = "Prepared dough for family gathering"
             }
         };
@@ -2992,5 +2992,5 @@ public class DbSeeder(
             VisitId = visitResult.VisitId
         };
     }
-    
+
 }
