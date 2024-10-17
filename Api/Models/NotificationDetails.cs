@@ -159,3 +159,30 @@ public class NotificationParticipationRequestResponse : NotificationDetails
     /// </summary>
     public required bool IsAccepted { get; set; }
 }
+
+/// <summary>
+/// Details for a new participation requests response notification
+/// </summary>
+public class NotificationVisitApprovedDeclined  : NotificationDetails
+{
+    /// <summary>
+    /// Visit ID
+    /// </summary>
+    public required int VisitId { get; set; }
+
+    /// <summary>
+    /// Bool determining if its accepted
+    /// </summary>
+    public required bool IsAccepted { get; set; }
+
+    
+    /// <summary>
+    /// Name of the restaurant in which visit takes place
+    /// </summary>
+    public required string RestaurantName { get; set; }
+
+    /// <summary>
+    /// Time of the visit
+    /// </summary>
+    public required DateTime Date { get; set; }
+}

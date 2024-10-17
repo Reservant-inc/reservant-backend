@@ -264,4 +264,35 @@ public class NotificationService(
                 eventData.PhotoFileName);
         }
     }
+
+    /// <summary>
+    /// Notify a user that their visit request was accepted/rejected
+    /// </summary>
+    public async Task NotifyVisitApprovedDeclined(Guid receiver, int visitId)
+    {
+        var visitData = await context.Visits
+            .Where(v => v.VisitId == visitId)
+            .Select(v => new
+            {
+                photoFileName =  v.Client.PhotoFileName,
+                IsAccepted = v.IsAccepted,
+                RestaurantName = v.Restaurant.Name,
+                Date = v.Date
+            })
+            .FirstOrDefaultAsync();
+
+        if (visitData != null)
+        {
+            await NotifyUser(
+                receiver,
+                new NotificationVisitApprovedDeclined 
+                {
+                    VisitId = visitId,
+                    IsAccepted = visitData.IsAccepted ?? false,
+                    RestaurantName = visitData.RestaurantName,
+                    Date = visitData.Date
+                },
+                visitData.photoFileName);
+        }
+    }
 }
