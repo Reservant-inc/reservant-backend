@@ -649,35 +649,38 @@ namespace Reservant.Api.Services
                         break;
                 }
             }
+
             if (request.RestaurantId is not null)
             {
                 events = events.Where(e => e.RestaurantId == request.RestaurantId);
             }
+            else if (request.OrigLon is not null || request.OrigLat is not null)
+            {
+                if (request.OrigLon is null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.OrigLon),
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                        ErrorMessage = "Either both origLon and origLat must be specified or none",
+                    };
+                }
 
-            events = events.OrderByDescending(e => e.CreatedAt);
-            if (request.OrigLon is null && request.OrigLat is not null)
-            {
-                return new ValidationFailure
+                if (request.OrigLat is null)
                 {
-                    PropertyName = nameof(request.OrigLon),
-                    ErrorCode = ErrorCodes.InvalidSearchParameters,
-                    ErrorMessage = "Either both origLon and origLat must be specified or none",
-                };
-            }
-            if (request.OrigLon is not null && request.OrigLat is null)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(request.OrigLat),
-                    ErrorCode = ErrorCodes.InvalidSearchParameters,
-                    ErrorMessage = "Either both origLon and origLat must be specified or none",
-                };
-            }
-            if (request.OrigLon is not null && request.OrigLat is not null)
-            {
-                var origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLon!.Value, request.OrigLat!.Value));
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.OrigLat),
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                        ErrorMessage = "Either both origLon and origLat must be specified or none",
+                    };
+                }
+
+                var origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLon.Value, request.OrigLat.Value));
                 events = events.OrderBy(e => origin.Distance(e.Restaurant!.Location));
             }
+
+            events = events.OrderByDescending(e => e.CreatedAt);
 
             return await events.Select(e => new EventVM
             {
