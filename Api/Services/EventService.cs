@@ -529,7 +529,7 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(GetEventsRequest.OrigLon), ErrorCodes.InvalidSearchParameters)]
         [ErrorCode(nameof(GetEventsRequest.OrigLat), ErrorCodes.InvalidSearchParameters)]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-        public async Task<Result<Pagination<EventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage)
+        public async Task<Result<Pagination<NearEventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage)
         {
             IQueryable<Event> events = context.Events;
             if (request.Name is not null)
@@ -560,6 +560,8 @@ namespace Reservant.Api.Services
                 }
             }
 
+            var origin = geometryFactory.CreatePoint();
+
             if (request.RestaurantId is not null)
             {
                 events = events.Where(e => e.RestaurantId == request.RestaurantId);
@@ -586,34 +588,14 @@ namespace Reservant.Api.Services
                     };
                 }
 
-                var origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLat.Value, request.OrigLon.Value));
+                origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLat.Value, request.OrigLon.Value));
                 events = events.OrderBy(e => origin.Distance(e.Restaurant!.Location));
             }
 
             events = events.OrderByDescending(e => e.CreatedAt);
 
-            return await events.Select(e => new EventVM
-            {
-                CreatedAt = e.CreatedAt,
-                VisitId = e.VisitId,
-                Time = e.Time,
-                RestaurantId = e.RestaurantId,
-                RestaurantName = e.Restaurant!.Name,
-                Participants = e.ParticipationRequests.Select(p => new UserSummaryVM
-                {
-                    FirstName = p.User!.FirstName,
-                    LastName = p.User!.LastName,
-                    UserId = p.User!.Id,
-                    Photo = fileUploadService.GetPathForFileName(p.User.PhotoFileName)
-                }).ToList(),
-                Name = e.Name,
-                MustJoinUntil = e.MustJoinUntil,
-                MaxPeople = e.MaxPeople,
-                EventId = e.EventId,
-                Description = e.Description,
-                CreatorId = e.CreatorId,
-                CreatorFullName = e.Creator.FullName
-            })
+            return await events
+                .ProjectTo<NearEventVM>(mapper.ConfigurationProvider, new { origin })
                 .PaginateAsync(page, perPage, []);
         }
     }

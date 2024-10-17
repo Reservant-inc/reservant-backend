@@ -1,4 +1,5 @@
 using AutoMapper;
+using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Mapping;
 using Reservant.Api.Models;
@@ -28,5 +29,15 @@ public class Mappings : Profile
 
         CreateMap<ParticipationRequest, UserSummaryVM>()
             .IncludeMembers(request => request.User);
+
+        Point? origin = null;
+        CreateMap<Event, NearEventVM>()
+            .MapMemberFrom(dto => dto.NumberInterested,
+                @event => @event.ParticipationRequests.Count)
+            .MapMemberFrom(dto => dto.NumberParticipants,
+                @event => @event.ParticipationRequests.Count(request => request.DateAccepted != null))
+            .MapMemberFrom(dto => dto.Distance,
+                @event => @event.Restaurant == null || origin == null
+                    ? null : (double?)@event.Restaurant.Location.Distance(origin));
     }
 }

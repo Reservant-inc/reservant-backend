@@ -195,7 +195,7 @@ namespace Reservant.Api.Controllers
         [HttpGet]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<EventService>(nameof(EventService.GetEventsAsync))]
-        public async Task<ActionResult<Pagination<EventVM>>> GetEvents([FromQuery] GetEventsRequest request, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+        public async Task<ActionResult<Pagination<NearEventVM>>> GetEvents([FromQuery] GetEventsRequest request, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
