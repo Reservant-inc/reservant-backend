@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +14,10 @@ namespace Reservant.Api.Services;
 /// <summary>
 /// Service for managing employmnets
 /// </summary>
-public class EmploymentService(ApiDbContext context, ValidationService validationService)
+public class EmploymentService(
+    ApiDbContext context,
+    ValidationService validationService,
+    IMapper mapper)
 {
     /// <summary>
     /// Terminates an employee's employment by setting the end date to the current date.
@@ -144,7 +149,7 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
     /// <param name="isTerminated">parameter that tells if the search should include terminated xor ongoing employments</param>
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
-    public async Task<Result<List<EmploymentSummaryVM>>> GetCurrentUsersEmploymentsAsync(Guid userId, bool isTerminated)
+    public async Task<Result<List<EmploymentVM>>> GetCurrentUsersEmploymentsAsync(Guid userId, bool isTerminated)
     {
         var employments = context.Employments
             .Where(e => e.EmployeeId == userId);
@@ -158,38 +163,8 @@ public class EmploymentService(ApiDbContext context, ValidationService validatio
             employments = employments.Where(e => e.DateUntil == null);
         }
 
-        var employmentsVM = await employments.Select(e => new EmploymentSummaryVM
-        {
-            EmploymentId = e.EmploymentId,
-            DateFrom = e.DateFrom,
-            DateUntill = e.DateUntil,
-            Restaurant = new Dtos.Restaurants.RestaurantSummaryVM
-            {
-                Address = e.Restaurant.Address,
-                Tags = e.Restaurant.Tags.Select(t => t.Name).ToList(),
-                Name = e.Restaurant.Name,
-                Nip = e.Restaurant.Nip,
-                RestaurantType = e.Restaurant.RestaurantType,
-                City = e.Restaurant.City,
-                Location = new Dtos.Location.Geolocation
-                {
-                    Longitude = e.Restaurant.Location.PointOnSurface.X,
-                    Latitude = e.Restaurant.Location.PointOnSurface.Y
-                },
-                GroupId = e.Restaurant.GroupId,
-                Logo = e.Restaurant.Logo.FileName,
-                Description = e.Restaurant.Description,
-                ReservationDeposit = e.Restaurant.ReservationDeposit,
-                ProvideDelivery = e.Restaurant.ProvideDelivery,
-                IsVerified = e.Restaurant.VerifierId != null,
-                RestaurantId = e.RestaurantId,
-                Rating = e.Restaurant.Reviews.Average(r => (double?)r.Stars) ?? 0,
-                NumberReviews = e.Restaurant.Reviews.Count
-            },
-            IsBackdoorEmployee = e.IsBackdoorEmployee,
-            IsHallEmployee = e.IsHallEmployee
-        }).ToListAsync();
-
-        return employmentsVM;
+        return await employments
+            .ProjectTo<EmploymentVM>(mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 }
