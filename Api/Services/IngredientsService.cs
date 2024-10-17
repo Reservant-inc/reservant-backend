@@ -115,7 +115,7 @@ public class IngredientService(
         IngredientHistoryRequest request,
         int ingredientId,
         Guid userId,
-        int page, 
+        int page,
         int perPage
 )
     {
@@ -124,7 +124,7 @@ public class IngredientService(
             .Include(i => i.MenuItems)
             .ThenInclude(mi => mi.MenuItem)
             .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
-        
+
         if (ingredient == null)
         {
             return new ValidationFailure
@@ -134,16 +134,16 @@ public class IngredientService(
                 PropertyName = null,
             };
         }
-        
+
         // Check if the user has access to the restaurant
         var restaurantId = ingredient.MenuItems.First().MenuItem.RestaurantId;
-        
+
         var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, userId);
         if (access.IsError)
         {
             return access.Errors;
         }
-        
+
         var query = dbContext.Entry(ingredient)
             .Collection(i => i.Corrections)
             .Query()
@@ -169,21 +169,12 @@ public class IngredientService(
         {
             query = query.Where(c => c.Comment.Contains(request.Comment));
         }
-        
+
         query = query.OrderByDescending(c => c.CorrectionDate);
-        
+
         var mappedQuery = query.Select(c => new IngredientAmountCorrectionVM
         {
             CorrectionId = c.Id,
-            Ingredient = new IngredientVM
-            {
-                Amount = c.NewAmount,
-                IngredientId = ingredient.IngredientId,
-                PublicName = ingredient.PublicName,
-                AmountToOrder = ingredient.AmountToOrder,
-                UnitOfMeasurement = ingredient.UnitOfMeasurement,
-                MinimalAmount = ingredient.MinimalAmount
-            },
             OldAmount = c.OldAmount,
             NewAmount = c.NewAmount,
             CorrectionDate = c.CorrectionDate,
@@ -196,7 +187,7 @@ public class IngredientService(
             },
             Comment = c.Comment
         });
-        
+
         return await mappedQuery.PaginateAsync(page, perPage, []);
     }
 
@@ -343,15 +334,6 @@ public class IngredientService(
         return new IngredientAmountCorrectionVM
         {
             CorrectionId = correction.Id,
-            Ingredient = new IngredientVM
-            {
-                Amount = ingredient.Amount,
-                IngredientId = ingredient.IngredientId,
-                PublicName = ingredient.PublicName,
-                AmountToOrder = ingredient.AmountToOrder,
-                UnitOfMeasurement = ingredient.UnitOfMeasurement,
-                MinimalAmount = ingredient.MinimalAmount
-            },
             OldAmount = correction.OldAmount,
             NewAmount = correction.NewAmount,
             CorrectionDate = correction.CorrectionDate,
