@@ -14,5 +14,8 @@ public class Mappings : Profile
     {
         CreateMap<IngredientMenuItem, MenuItemIngredientVM>()
             .MapMemberFrom(dto => dto.PublicName, imi => imi.Ingredient.PublicName);
+
+        CreateMap<IngredientAmountCorrection, IngredientAmountCorrectionVM>()
+            .MapMemberFrom(dto => dto.CorrectionId, correction => correction.Id);
     }
 }

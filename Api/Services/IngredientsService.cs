@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Ingredients;
-using Reservant.Api.Dtos.Users;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -174,23 +174,9 @@ public class IngredientService(
 
         query = query.OrderByDescending(c => c.CorrectionDate);
 
-        var mappedQuery = query.Select(c => new IngredientAmountCorrectionVM
-        {
-            CorrectionId = c.Id,
-            OldAmount = c.OldAmount,
-            NewAmount = c.NewAmount,
-            CorrectionDate = c.CorrectionDate,
-            User = new Dtos.Users.UserSummaryVM
-            {
-                FirstName = c.User.FirstName,
-                LastName = c.User.LastName,
-                UserId = c.User.Id,
-                Photo = fileUploadService.GetPathForFileName(c.User.PhotoFileName)
-            },
-            Comment = c.Comment
-        });
-
-        return await mappedQuery.PaginateAsync(page, perPage, []);
+        return await query
+            .ProjectTo<IngredientAmountCorrectionVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, []);
     }
 
 
@@ -333,14 +319,6 @@ public class IngredientService(
 
         await dbContext.SaveChangesAsync();
 
-        return new IngredientAmountCorrectionVM
-        {
-            CorrectionId = correction.Id,
-            OldAmount = correction.OldAmount,
-            NewAmount = correction.NewAmount,
-            CorrectionDate = correction.CorrectionDate,
-            User = mapper.Map<UserSummaryVM>(correction.User),
-            Comment = correction.Comment
-        };
+        return mapper.Map<IngredientAmountCorrectionVM>(correction);
     }
 }
