@@ -661,7 +661,7 @@ namespace Reservant.Api.Services
                 {
                     PropertyName = nameof(request.OrigLon),
                     ErrorCode = ErrorCodes.InvalidSearchParameters,
-                    ErrorMessage = ErrorCodes.InvalidSearchParameters
+                    ErrorMessage = "Either both origLon and origLat must be specified or none",
                 };
             }
             if (request.OrigLon is not null && request.OrigLat is null)
@@ -669,8 +669,8 @@ namespace Reservant.Api.Services
                 return new ValidationFailure
                 {
                     PropertyName = nameof(request.OrigLat),
-                    ErrorMessage = ErrorCodes.InvalidSearchParameters,
-                    ErrorCode = ErrorCodes.InvalidSearchParameters
+                    ErrorCode = ErrorCodes.InvalidSearchParameters,
+                    ErrorMessage = "Either both origLon and origLat must be specified or none",
                 };
             }
             if (request.OrigLon is not null && request.OrigLat is not null)

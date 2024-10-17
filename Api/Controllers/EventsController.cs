@@ -193,7 +193,8 @@ namespace Reservant.Api.Controllers
         /// <param name="perPage">Items per page.</param>
         /// <returns>list of events</returns>
         [HttpGet]
-        [ProducesResponseType(200), ProducesResponseType(401)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<EventService>(nameof(EventService.GetEventsAsync))]
         public async Task<ActionResult<Pagination<EventVM>>> GetEvents([FromQuery] GetEventsRequest request, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
         {
             var user = await userManager.GetUserAsync(User);
