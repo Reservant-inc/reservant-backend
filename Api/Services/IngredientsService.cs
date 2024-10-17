@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Ingredients;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
@@ -96,6 +97,98 @@ public class IngredientService(
             AmountToOrder = ingredient.AmountToOrder,
             Amount = ingredient.Amount
         };
+    }
+
+    /// <summary>
+    /// Gets the change history of an ingredient with optional filters and pagination.
+    /// </summary>
+    /// <param name="request">Request with parameters</param>
+    /// <param name="ingredientId">Ingredient id</param>
+    /// <param name="userId">ID of the current user</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Records per page</param>
+    /// <returns>Paginated list of ingredient amount corrections</returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
+    public async Task<Result<Pagination<IngredientAmountCorrectionVM>>> GetIngredientHistoryAsync(
+        IngredientHistoryRequest request,
+        int ingredientId,
+        Guid userId,
+        int page,
+        int perPage
+)
+    {
+        // Check if the ingredient exists
+        var ingredient = await dbContext.Ingredients
+            .Include(i => i.MenuItems)
+            .ThenInclude(mi => mi.MenuItem)
+            .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
+
+        if (ingredient == null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound,
+                PropertyName = null,
+            };
+        }
+
+        // Check if the user has access to the restaurant
+        var restaurantId = ingredient.MenuItems.First().MenuItem.RestaurantId;
+
+        var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, userId);
+        if (access.IsError)
+        {
+            return access.Errors;
+        }
+
+        var query = dbContext.Entry(ingredient)
+            .Collection(i => i.Corrections)
+            .Query()
+            .Include(c => c.User)
+            .AsQueryable();
+
+        if (request.DateFrom.HasValue)
+        {
+            query = query.Where(c => c.CorrectionDate >= request.DateFrom.Value);
+        }
+
+        if (request.DateUntil.HasValue)
+        {
+            query = query.Where(c => c.CorrectionDate <= request.DateUntil.Value);
+        }
+
+        if (request.UserId.HasValue)
+        {
+            query = query.Where(c => c.UserId == request.UserId.Value);
+        }
+
+        if (!string.IsNullOrEmpty(request.Comment))
+        {
+            query = query.Where(c => c.Comment.Contains(request.Comment));
+        }
+
+        query = query.OrderByDescending(c => c.CorrectionDate);
+
+        var mappedQuery = query.Select(c => new IngredientAmountCorrectionVM
+        {
+            CorrectionId = c.Id,
+            OldAmount = c.OldAmount,
+            NewAmount = c.NewAmount,
+            CorrectionDate = c.CorrectionDate,
+            User = new Dtos.Users.UserSummaryVM
+            {
+                FirstName = c.User.FirstName,
+                LastName = c.User.LastName,
+                UserId = c.User.Id,
+                Photo = fileUploadService.GetPathForFileName(c.User.PhotoFileName)
+            },
+            Comment = c.Comment
+        });
+
+        return await mappedQuery.PaginateAsync(page, perPage, []);
     }
 
 
@@ -241,15 +334,6 @@ public class IngredientService(
         return new IngredientAmountCorrectionVM
         {
             CorrectionId = correction.Id,
-            Ingredient = new IngredientVM
-            {
-                Amount = ingredient.Amount,
-                IngredientId = ingredient.IngredientId,
-                PublicName = ingredient.PublicName,
-                AmountToOrder = ingredient.AmountToOrder,
-                UnitOfMeasurement = ingredient.UnitOfMeasurement,
-                MinimalAmount = ingredient.MinimalAmount
-            },
             OldAmount = correction.OldAmount,
             NewAmount = correction.NewAmount,
             CorrectionDate = correction.CorrectionDate,
