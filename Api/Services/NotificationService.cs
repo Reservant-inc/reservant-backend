@@ -274,7 +274,7 @@ public class NotificationService(
             .Where(v => v.VisitId == visitId)
             .Select(v => new
             {
-                photoFileName =  v.Restaurant.LogoFileName,
+                photoFileName =  v.Client.PhotoFileName,
                 IsAccepted = v.IsAccepted,
                 RestaurantName = v.Restaurant.Name,
                 Date = v.Date

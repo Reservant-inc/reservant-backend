@@ -150,9 +150,9 @@ public class VisitService(
     /// </summary>
     /// <param name="visitId">ID of the event</param>
     /// <param name="currentUser">Current user for permission checking</param>
-    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Event not found")]
-    [ErrorCode(nameof(visitId), ErrorCodes.UserAlreadyRejected, "User already considered")]
-    [ErrorCode(nameof(currentUser), ErrorCodes.UserAlreadyRejected, "User not qualified to reject")]
+    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
+    [ErrorCode(nameof(visitId), ErrorCodes.AlreadyConsidered, "User already considered")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User not qualified to reject")]
     public async Task<Result> ApproveVisitRequestAsync(int visitId,User currentUser)
     {
         var visitFound = await context.Visits
@@ -174,7 +174,7 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(currentUser.Id),
+                PropertyName = null,
                 ErrorMessage = "User not qualified to reject",
                 ErrorCode = ErrorCodes.AccessDenied
             };
@@ -204,9 +204,9 @@ public class VisitService(
     /// </summary>
     /// <param name="visitId">ID of the event</param>
     /// <param name="currentUser">Current user for permission checking</param>
-    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Event not found")]
-    [ErrorCode(nameof(visitId), ErrorCodes.UserAlreadyRejected, "User already considered")]
-    [ErrorCode(nameof(currentUser), ErrorCodes.UserAlreadyRejected, "User not qualified to reject")]
+    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
+    [ErrorCode(nameof(visitId), ErrorCodes.AlreadyConsidered, "User already considered")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User not qualified to reject")]
     public async Task<Result> DeclineVisitRequestAsync(int visitId,User currentUser)
     {
         var visitFound = await context.Visits
@@ -216,7 +216,7 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = null,
+                PropertyName = nameof(visitId),
                 ErrorMessage = "Event not found",
                 ErrorCode = ErrorCodes.NotFound
             };
@@ -228,7 +228,7 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(currentUser.Id),
+                PropertyName = null,
                 ErrorMessage = "User not qualified to reject",
                 ErrorCode = ErrorCodes.AccessDenied
             };
@@ -238,7 +238,7 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = null,
+                PropertyName = nameof(visitId),
                 ErrorMessage = "User already considered",
                 ErrorCode = ErrorCodes.AlreadyConsidered
             };
