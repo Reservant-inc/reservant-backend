@@ -586,7 +586,7 @@ namespace Reservant.Api.Services
                     };
                 }
 
-                var origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLon.Value, request.OrigLat.Value));
+                var origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLat.Value, request.OrigLon.Value));
                 events = events.OrderBy(e => origin.Distance(e.Restaurant!.Location));
             }
 
