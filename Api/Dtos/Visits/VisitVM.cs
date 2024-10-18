@@ -21,6 +21,11 @@ public class VisitVM
     public required DateTime Date { get; set; }
 
     /// <summary>
+    /// End time of the visit
+    /// </summary>
+    public required DateTime EndTime { get; set; }
+
+    /// <summary>
     /// Number of people who do not have an account
     /// </summary>
     public required int NumberOfGuests { get; set; }
