@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,8 +7,6 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
-using Reservant.Api.Dtos.Orders;
-using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Services;
 
@@ -18,7 +17,7 @@ public class VisitService(
     ApiDbContext context,
     UserManager<User> userManager,
     ValidationService validationService,
-    FileUploadService uploadService)
+    IMapper mapper)
 {
     /// <summary>
     /// Gets the visit with the provided ID
@@ -45,37 +44,7 @@ public class VisitService(
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
 
-        var result = new VisitVM
-        {
-            VisitId = visit.VisitId,
-            Date = visit.Date,
-            NumberOfGuests = visit.NumberOfGuests,
-            PaymentTime = visit.PaymentTime,
-            Deposit = visit.Deposit,
-            ReservationDate = visit.ReservationDate,
-            Tip = visit.Tip,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId,
-            TableId = visit.TableId,
-            Participants = visit.Participants.Select(p => new UserSummaryVM
-            {
-                UserId = p.Id,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                Photo = uploadService.GetPathForFileName(p.PhotoFileName),
-            }).ToList(),
-            Orders = visit.Orders.Select(o => new OrderSummaryVM
-            {
-                OrderId = o.OrderId,
-                VisitId = o.VisitId,
-                Date = o.Visit.Date,
-                Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount),
-                Status = o.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s)
-            }).ToList()
-        };
-
-        return result;
+        return mapper.Map<VisitVM>(visit);
     }
 
     /// <summary>
@@ -86,7 +55,7 @@ public class VisitService(
     /// <returns></returns>
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
-        // Walidacja czy godziny rezerwacji s¹ na pe³ne godziny lub pó³godzinne
+        // Walidacja czy godziny rezerwacji sï¿½ na peï¿½ne godziny lub pï¿½godzinne
         if (request.Date.Minute != 0 && request.Date.Minute != 30)
         {
             return new ValidationFailure
@@ -146,7 +115,7 @@ public class VisitService(
             };
         }
 
-        // £¹czna liczba ludzi to liczba goœci którzy nie maj¹ konta + liczba goœci którzy maj¹ konto i je podaliœmy + osoba sk³adaj¹ca zamówienie
+        // ï¿½ï¿½czna liczba ludzi to liczba goï¿½ci ktï¿½rzy nie majï¿½ konta + liczba goï¿½ci ktï¿½rzy majï¿½ konto i je podaliï¿½my + osoba skï¿½adajï¿½ca zamï¿½wienie
         var numberOfPeople = request.NumberOfGuests + request.ParticipantIds.Count + 1;
 
         // Find the smallest table that can accommodate the guests and is not reserved during the time slot
@@ -205,17 +174,7 @@ public class VisitService(
         context.Add(visit);
         await context.SaveChangesAsync();
 
-        return new VisitSummaryVM
-        {
-            VisitId = visit.VisitId,
-            ClientId = visit.ClientId,
-            Date = visit.Date,
-            EndTime = visit.EndTime,
-            Takeaway = visit.Takeaway,
-            RestaurantId = visit.RestaurantId,
-            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
-            Deposit = visit.Deposit
-        };
+        return mapper.Map<VisitSummaryVM>(visit);
     }
 
 

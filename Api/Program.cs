@@ -12,6 +12,7 @@ using Reservant.Api;
 using Reservant.Api.Data;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
+using Reservant.Api.Mapping;
 using Reservant.Api.Options;
 using Reservant.Api.Push;
 using Reservant.Api.Services;
@@ -55,6 +56,7 @@ builder.Services.AddDbContext<ApiDbContext>();
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddIdentityServices(builder.Configuration);
 
+builder.Services.AddMappingServices();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddPushServices();
 builder.Services.AddBusinessServices();
