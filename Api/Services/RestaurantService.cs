@@ -785,7 +785,7 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result> SoftDeleteRestaurantAsync(int id, User user)
+        public async Task<Result> ArchiveRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
@@ -829,7 +829,7 @@ namespace Reservant.Api.Services
                 menu.IsDeleted = true;
             }
 
-            restaurant.IsDeleted = true;
+            restaurant.IsArchived = true;
 
             // We check if the restaurant was the last one (the collection was loaded before we deleted it)
             if (restaurant.Group.Restaurants.Count == 1)

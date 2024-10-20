@@ -232,13 +232,13 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
-        /// Delete restaurant
+        /// Archive restaurant
         /// </summary>
         /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
         [HttpDelete("{restaurantId:int}")]
         [ProducesResponseType(204), ProducesResponseType(404)]
-        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.SoftDeleteRestaurantAsync))]
-        public async Task<ActionResult> SoftDeleteRestaurant(int restaurantId)
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ArchiveRestaurantAsync))]
+        public async Task<ActionResult> ArchiveRestaurant(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -246,7 +246,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.SoftDeleteRestaurantAsync(restaurantId, user);
+            var result = await restaurantService.ArchiveRestaurantAsync(restaurantId, user);
             return OkOrErrors(result);
         }
     }

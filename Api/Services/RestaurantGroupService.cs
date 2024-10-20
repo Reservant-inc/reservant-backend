@@ -246,7 +246,7 @@ public class RestaurantGroupService(
 
         foreach (Restaurant restaurant in group.Restaurants)
         {
-            var res = await restaurantService.SoftDeleteRestaurantAsync(restaurant.RestaurantId, user);
+            var res = await restaurantService.ArchiveRestaurantAsync(restaurant.RestaurantId, user);
             if (res.IsError)
             {
                 return res.Errors;
