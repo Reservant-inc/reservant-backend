@@ -25,5 +25,8 @@ public class VisitConfig : IEntityTypeConfiguration<Visit>
 
         builder.HasMany<User>(v => v.Participants)
             .WithMany(u => u.VisitParticipations);
+
+        builder.HasOne<User>(v => v.AnsweredBy)
+            .WithMany();
     }
 }
