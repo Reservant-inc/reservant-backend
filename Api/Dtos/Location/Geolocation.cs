@@ -5,7 +5,6 @@
 /// </summary>
 public class Geolocation
 {
-
     /// <summary>
     /// Restaurant Latitude
     /// </summary>

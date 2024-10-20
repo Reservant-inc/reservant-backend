@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AutoMapper;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Tables;
 

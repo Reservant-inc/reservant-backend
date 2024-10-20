@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Dtos.Events;
@@ -56,14 +56,9 @@ public class EventVM
     public required string CreatorFullName { get; set; }
 
     /// <summary>
-    /// ID of the restaurant where the event takes place
+    /// Restaurant where the event takes place
     /// </summary>
-    public required int? RestaurantId { get; set; }
-
-    /// <summary>
-    /// Restaurant name
-    /// </summary>
-    public required string? RestaurantName { get; set; }
+    public required RestaurantSummaryVM Restaurant { get; set; }
 
     /// <summary>
     /// ID of the actual visit

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Reservant.Api.Dtos.Restaurants;
+﻿using Reservant.Api.Dtos.Restaurants;
 
 namespace Reservant.Api.Dtos.RestaurantGroups;
 

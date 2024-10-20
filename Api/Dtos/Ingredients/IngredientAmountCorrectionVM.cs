@@ -13,11 +13,6 @@ namespace Reservant.Api.Dtos.Ingredients
         public required int CorrectionId { get; set; }
 
         /// <summary>
-        /// The updated ingredient
-        /// </summary>
-        public required IngredientVM Ingredient { get; set; } = null!;
-
-        /// <summary>
         /// Amount of ingredients in stock before correction
         /// </summary>
         public required double OldAmount { get; set; }

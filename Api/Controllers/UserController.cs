@@ -11,6 +11,7 @@ using Reservant.Api.Dtos.Events;
 using Reservant.Api.Dtos.Threads;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Mapping;
 using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;
@@ -23,7 +24,7 @@ namespace Reservant.Api.Controllers;
 public class UserController(
     UserManager<User> userManager,
     UserService userService,
-    FileUploadService uploadService,
+    UrlService urlService,
     EventService eventService,
     ThreadService threadService
     ) : StrictController
@@ -73,7 +74,7 @@ public class UserController(
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
-            Photo = uploadService.GetPathForFileName(user.PhotoFileName),
+            Photo = urlService.GetPathForFileName(user.PhotoFileName),
         });
     }
     /// <summary>
@@ -112,7 +113,7 @@ public class UserController(
             BirthDate = user.BirthDate,
             Roles = await userService.GetRolesAsync(User),
             EmployerId = user.EmployerId,
-            Photo = uploadService.GetPathForFileName(user.PhotoFileName),
+            Photo = urlService.GetPathForFileName(user.PhotoFileName),
         });
     }
 
@@ -251,7 +252,7 @@ public class UserController(
     [Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<EmploymentService>(nameof(EmploymentService.GetCurrentUsersEmploymentsAsync))]
-    public async Task<ActionResult<List<EmploymentSummaryVM>>> GetCurrentUsersEmployments(
+    public async Task<ActionResult<List<EmploymentVM>>> GetCurrentUsersEmployments(
         [FromQuery] bool returnTerminated, [FromServices] EmploymentService employmentService)
     {
         var result = await employmentService.GetCurrentUsersEmploymentsAsync(User.GetUserId()!.Value, returnTerminated);

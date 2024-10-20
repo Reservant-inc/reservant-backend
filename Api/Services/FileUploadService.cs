@@ -10,6 +10,7 @@ using Reservant.Api.Options;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Diagnostics.CodeAnalysis;
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services;
 
@@ -37,7 +38,7 @@ public enum FileClass
 /// <summary>
 /// Service for managing file uploads.
 /// </summary>
-public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContext context)
+public class FileUploadService(IOptions<FileUploadsOptions> options, UrlService urlService, ApiDbContext context)
 {
     private static readonly ReadOnlyDictionary<string, string> FileExtensions = new(new Dictionary<string, string>
     {
@@ -119,7 +120,7 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
 
         return new UploadVM
         {
-            Path = GetPathForFileName(fileName),
+            Path = urlService.GetPathForFileName(fileName),
             FileName = fileName,
             ContentType = contentType
         };
@@ -165,22 +166,4 @@ public class FileUploadService(IOptions<FileUploadsOptions> options, ApiDbContex
 
     private static FileClass GetFileClass(string extension) =>
         FileClasses.GetValueOrDefault(extension, FileClass.Unknown);
-
-    /// <summary>
-    /// Returns the URL path of the uploaded file or null if fileName is null
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    [return: NotNullIfNotNull(nameof(fileName))]
-    public string? GetPathForFileName(string? fileName) =>
-        fileName == null ? null : $"{options.Value.ServePath}/{fileName}";
-
-    /// <summary>
-    /// Returns the URL of the uploaded file or null if fileName is null
-    /// </summary>
-    /// <param name="fileName"></param>
-    /// <returns></returns>
-    [return: NotNullIfNotNull(nameof(fileName))]
-    public Uri? GetUrlForFileName(string? fileName) =>
-        fileName == null ? null : new Uri(options.Value.ServeUrlBase, fileName);
 }

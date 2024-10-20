@@ -1,14 +1,13 @@
-﻿using System.Security.Claims;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Dtos.Threads;
-using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
@@ -22,8 +21,8 @@ namespace Reservant.Api.Services;
 public class ThreadService(
     ApiDbContext dbContext,
     ValidationService validationService,
-    FileUploadService uploadService,
-    UserManager<User> userManager)
+    UserManager<User> userManager,
+    IMapper mapper)
 {
     /// <summary>
     /// Creates a new message thread.
@@ -76,20 +75,7 @@ public class ThreadService(
         dbContext.MessageThreads.Add(messageThread);
         await dbContext.SaveChangesAsync();
 
-        return new ThreadVM
-        {
-            ThreadId = messageThread.MessageThreadId,
-            Title = messageThread.Title,
-            Participants = messageThread.Participants
-                .Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
-                })
-                .ToList()
-        };
+        return mapper.Map<ThreadVM>(messageThread);
     }
 
     /// <summary>
@@ -132,20 +118,7 @@ public class ThreadService(
         dbContext.MessageThreads.Update(messageThread);
         await dbContext.SaveChangesAsync();
 
-        return new ThreadVM
-        {
-            ThreadId = messageThread.MessageThreadId,
-            Title = messageThread.Title,
-            Participants = messageThread.Participants
-                .Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
-                })
-                .ToList()
-        };
+        return mapper.Map<ThreadVM>(messageThread);
     }
 
     /// <summary>
@@ -169,7 +142,7 @@ public class ThreadService(
             };
         }
 
-        dbContext.MessageThreads.Remove(messageThread);
+        messageThread.IsDeleted = true;
         await dbContext.SaveChangesAsync();
 
         return Result.Success;
@@ -186,18 +159,7 @@ public class ThreadService(
     {
         var query = dbContext.MessageThreads
             .Where(t => t.Participants.Any(p => p.Id == userId))
-            .Select(t => new ThreadVM
-            {
-                ThreadId = t.MessageThreadId,
-                Title = t.Title,
-                Participants = t.Participants.Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName)
-                }).ToList()
-            });
+            .ProjectTo<ThreadVM>(mapper.ConfigurationProvider);
 
         return await query.PaginateAsync(page, perPage, []);
     }
@@ -224,20 +186,7 @@ public class ThreadService(
             };
         }
 
-        return new ThreadVM
-        {
-            ThreadId = messageThread.MessageThreadId,
-            Title = messageThread.Title,
-            Participants = messageThread.Participants
-                .Select(p => new UserSummaryVM
-                {
-                    UserId = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Photo = uploadService.GetPathForFileName(p.PhotoFileName),
-                })
-                .ToList()
-        };
+        return mapper.Map<ThreadVM>(messageThread);
     }
 
     /// <summary>
@@ -294,15 +243,7 @@ public class ThreadService(
         dbContext.Add(message);
         await dbContext.SaveChangesAsync();
 
-        return new MessageVM
-        {
-            MessageId = message.MessageId,
-            Contents = message.Contents,
-            DateSent = message.DateSent,
-            DateRead = message.DateRead,
-            AuthorId = message.AuthorId,
-            MessageThreadId = message.MessageThreadId
-        };
+        return mapper.Map<MessageVM>(message);
     }
 
     /// <summary>
@@ -346,15 +287,7 @@ public class ThreadService(
 
         return await query
             .OrderByDescending(m => m.DateSent)
-            .Select(m => new MessageVM
-            {
-                MessageId = m.MessageId,
-                Contents = m.Contents,
-                DateSent = m.DateSent,
-                DateRead = m.DateRead,
-                AuthorId = m.AuthorId,
-                MessageThreadId = m.MessageThreadId
-            })
+            .ProjectTo<MessageVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 100);
     }
 

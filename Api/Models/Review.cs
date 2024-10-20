@@ -35,6 +35,11 @@ public class Review : ISoftDeletable
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
+    /// When the review was edited
+    /// </summary>
+    public DateTime? DateEdited { get; set; }
+
+    /// <summary>
     /// Optional comment
     /// </summary>
     [StringLength(200)]

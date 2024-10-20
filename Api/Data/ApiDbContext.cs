@@ -102,15 +102,13 @@ public class ApiDbContext(
             .HasQueryFilter(n => n.TargetUserId == _userId);
 
         var softDeletableEntities =
-            from prop in GetType().GetProperties()
-            where prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
-            let entity = prop.PropertyType.GenericTypeArguments[0]
-            where entity.IsAssignableTo(typeof(ISoftDeletable))
+            from entity in builder.Model.GetEntityTypes()
+            where entity.ClrType.IsAssignableTo(typeof(ISoftDeletable))
             select entity;
         foreach (var entity in softDeletableEntities)
         {
             SetSoftDeletableQueryFilterMethod
-                .MakeGenericMethod(entity)
+                .MakeGenericMethod(entity.ClrType)
                 .Invoke(null, [builder]);
         }
 
@@ -132,43 +130,5 @@ public class ApiDbContext(
     {
         builder.Entity<TEntity>()
             .HasQueryFilter(e => !e.IsDeleted);
-    }
-
-    public override int SaveChanges()
-    {
-        SetIsDeletedOnDeletedEntries();
-        return base.SaveChanges();
-    }
-
-    public override int SaveChanges(bool acceptAllChangesOnSuccess)
-    {
-        SetIsDeletedOnDeletedEntries();
-        return base.SaveChanges(acceptAllChangesOnSuccess);
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
-    {
-        SetIsDeletedOnDeletedEntries();
-        return base.SaveChangesAsync(cancellationToken);
-    }
-
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new())
-    {
-        SetIsDeletedOnDeletedEntries();
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-    }
-
-    private void SetIsDeletedOnDeletedEntries()
-    {
-        ChangeTracker.DetectChanges();
-        var deleted = ChangeTracker.Entries()
-            .Where(e => e is { State: EntityState.Deleted, Entity: ISoftDeletable });
-
-        foreach (var entry in deleted)
-        {
-            var entity = (ISoftDeletable)entry.Entity;
-            entity.IsDeleted = true;
-            entry.State = EntityState.Modified;
-        }
     }
 }

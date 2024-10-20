@@ -3,7 +3,6 @@ namespace Reservant.Api.Dtos.Messages;
 /// <summary>
 /// Request to create a message
 /// </summary>
-
 public class MessageVM
 {
     /// <summary>

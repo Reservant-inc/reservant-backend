@@ -6,6 +6,7 @@ using Reservant.Api.Dtos.Notifications;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Mapping;
 using Reservant.Api.Push;
 
 namespace Reservant.Api.Services;
@@ -15,7 +16,7 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class NotificationService(
     ApiDbContext context,
-    FileUploadService uploadService,
+    UrlService urlService,
     PushService pushService,
     FirebaseService firebaseService)
 {
@@ -48,7 +49,7 @@ public class NotificationService(
                 NotificationId = n.NotificationId,
                 DateCreated = n.DateCreated,
                 DateRead = n.DateRead,
-                Photo = uploadService.GetPathForFileName(n.PhotoFileName),
+                Photo = urlService.GetPathForFileName(n.PhotoFileName),
                 NotificationType = n.Details.GetType().Name,
                 Details = n.Details,
             })
@@ -151,7 +152,7 @@ public class NotificationService(
             NotificationId = notification.NotificationId,
             DateCreated = notification.DateCreated,
             DateRead = notification.DateRead,
-            Photo = uploadService.GetPathForFileName(notification.PhotoFileName),
+            Photo = urlService.GetPathForFileName(notification.PhotoFileName),
             NotificationType = notification.Details.GetType().Name,
             Details = notification.Details,
         }, JsonOptions));

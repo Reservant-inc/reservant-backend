@@ -1,3 +1,5 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
@@ -5,8 +7,6 @@ using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.RestaurantGroups;
-using Reservant.Api.Dtos.Restaurants;
-using Reservant.Api.Dtos.Location;
 
 namespace Reservant.Api.Services;
 
@@ -15,11 +15,10 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class RestaurantGroupService(
     ApiDbContext context,
-    FileUploadService uploadService,
     RestaurantService restaurantService,
-    ValidationService validationService)
+    ValidationService validationService,
+    IMapper mapper)
 {
-
     /// <summary>
     /// Create restaurant group for the current user
     /// </summary>
@@ -87,34 +86,7 @@ public class RestaurantGroupService(
 
         await DeleteEmptyRestaurantGroups();
 
-        return new RestaurantGroupVM
-        {
-            RestaurantGroupId = group.RestaurantGroupId,
-            Name = group.Name,
-            Restaurants = restaurants.Select(r => new RestaurantSummaryVM
-            {
-                RestaurantId = r.RestaurantId,
-                Name = r.Name,
-                Nip = r.Nip,
-                RestaurantType = r.RestaurantType,
-                Address = r.Address,
-                City = r.City,
-                GroupId = group.RestaurantGroupId,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                Description = r.Description,
-                ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags.Select(t => t.Name).ToList(),
-                IsVerified = r.VerifierId is not null,
-                Location = new Geolocation
-                {
-                    Longitude = r.Location.Y,
-                    Latitude = r.Location.X
-                },
-                Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
-                ReservationDeposit = r.ReservationDeposit,
-                NumberReviews = r.Reviews.Count
-            }).ToList()
-        };
+        return mapper.Map<RestaurantGroupVM>(group);
     }
 
     /// <summary>
@@ -133,7 +105,10 @@ public class RestaurantGroupService(
 
         if (emptyGroups.Count != 0)
         {
-            context.RestaurantGroups.RemoveRange(emptyGroups);
+            foreach (var emptyGroup in emptyGroups)
+            {
+                emptyGroup.IsDeleted = true;
+            }
             await context.SaveChangesAsync();
         }
     }
@@ -151,12 +126,7 @@ public class RestaurantGroupService(
         var result = await context
             .RestaurantGroups
             .Where(r => r.OwnerId == userId)
-            .Select(r => new RestaurantGroupSummaryVM
-            {
-                RestaurantGroupId = r.RestaurantGroupId,
-                Name = r.Name,
-                RestaurantCount = r.Restaurants.Count
-            })
+            .ProjectTo<RestaurantGroupSummaryVM>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return result;
@@ -187,34 +157,7 @@ public class RestaurantGroupService(
             };
         }
 
-        return new Result<RestaurantGroupVM>(new RestaurantGroupVM
-        {
-            RestaurantGroupId = restaurantGroup.RestaurantGroupId,
-            Name = restaurantGroup.Name,
-            Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
-            {
-                RestaurantId = r.RestaurantId,
-                Name = r.Name,
-                Nip = r.Nip,
-                Address = r.Address,
-                RestaurantType = r.RestaurantType,
-                City = r.City,
-                Location = new Geolocation()
-                {
-                    Longitude = r.Location.Y,
-                    Latitude = r.Location.X
-                },
-                Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
-                GroupId = r.GroupId,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                Description = r.Description,
-                ReservationDeposit = r.ReservationDeposit,
-                ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags.Select(t => t.Name).ToList(),
-                IsVerified = r.VerifierId != null,
-                NumberReviews = r.Reviews.Count
-            }).ToList()
-        });
+        return new Result<RestaurantGroupVM>(mapper.Map<RestaurantGroupVM>(restaurantGroup));
     }
 
     /// <summary>
@@ -265,34 +208,7 @@ public class RestaurantGroupService(
 
         await context.SaveChangesAsync();
 
-        return new RestaurantGroupVM
-        {
-            RestaurantGroupId = restaurantGroup.RestaurantGroupId,
-            Name = restaurantGroup.Name,
-            Restaurants = restaurantGroup.Restaurants.Select(r => new RestaurantSummaryVM
-            {
-                RestaurantId = r.RestaurantId,
-                Name = r.Name,
-                Nip = r.Nip,
-                Address = r.Address,
-                RestaurantType = r.RestaurantType,
-                City = r.City,
-                Location = new Geolocation()
-                {
-                    Longitude = r.Location.Y,
-                    Latitude = r.Location.X
-                },
-                Rating = r.Reviews.Count == 0 ? 0 : r.Reviews.Average(rev => (double)rev.Stars),
-                GroupId = r.GroupId,
-                Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                Description = r.Description,
-                ReservationDeposit = r.ReservationDeposit,
-                ProvideDelivery = r.ProvideDelivery,
-                Tags = r.Tags.Select(t => t.Name).ToList(),
-                IsVerified = r.VerifierId != null,
-                NumberReviews = r.Reviews.Count
-            }).ToList()
-        };
+        return mapper.Map<RestaurantGroupVM>(restaurantGroup);
     }
 
     /// <summary>

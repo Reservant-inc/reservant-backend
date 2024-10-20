@@ -1,4 +1,5 @@
 using Reservant.Api.Dtos.OrderItems;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.Orders;
@@ -36,5 +37,5 @@ public class OrderVM
     /// <summary>
     /// Serving employee's ID
     /// </summary>
-    public string? EmployeeId { get; set; }
+    public required List<UserSummaryVM> Employees { get; set; }
 }

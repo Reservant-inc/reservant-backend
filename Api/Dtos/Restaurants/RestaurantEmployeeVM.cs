@@ -1,3 +1,5 @@
+using AutoMapper;
+
 namespace Reservant.Api.Dtos.Restaurants;
 
 /// <summary>

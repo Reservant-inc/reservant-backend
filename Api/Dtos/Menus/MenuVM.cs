@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Models.Enums;
 

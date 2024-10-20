@@ -26,12 +26,6 @@ public class Order : ISoftDeletable
     public string? Note { get; set; }
 
     /// <summary>
-    /// Serving employee ID
-    /// </summary>
-    [StringLength(36)]
-    public string? EmployeeId { get; set; }
-
-    /// <summary>
     /// Navigational collection for the visit
     /// </summary>
     public Visit Visit { get; set; } = null!;

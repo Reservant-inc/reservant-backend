@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
+using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
@@ -15,7 +16,7 @@ namespace Reservant.Api.Controllers
     /// Fetching information about other users and managing employees
     /// </summary>
     [ApiController, Route("/users")]
-    public class UsersController(UserService userService, FileUploadService uploadService) : StrictController
+    public class UsersController(UserService userService, UrlService urlService) : StrictController
     {
         /// <summary>
         /// Find users
@@ -86,7 +87,7 @@ namespace Reservant.Api.Controllers
                 BirthDate = emp.BirthDate,
                 Roles = await userService.GetRolesAsync(emp),
                 EmployerId = emp.EmployerId,
-                Photo = uploadService.GetPathForFileName(emp.PhotoFileName),
+                Photo = urlService.GetPathForFileName(emp.PhotoFileName),
             });
         }
 
