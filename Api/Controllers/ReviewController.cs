@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
+using Reservant.Api.Models;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace Reservant.Api.Controllers
 {
@@ -11,7 +14,10 @@ namespace Reservant.Api.Controllers
     /// Managing reviews
     /// </summary>
     [ApiController, Route("/reviews")]
-    public class ReviewController(ReviewService reviewService) : StrictController
+    public class ReviewController(
+        ReviewService reviewService,
+        UserManager<User> userManager
+        ) : StrictController
     {
         /// <summary>
         /// Deletes a review with a given id, great for censorship
@@ -63,5 +69,50 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(result);
         }
 
+        /// <summary>
+        /// Adds or updates a restaurant response to a review with a given id
+        /// </summary>
+        /// <param name="reviewId">id of the review</param>
+        /// <param name="restaurnatResponse">the restaurant response</param>
+        /// <returns>a visual model of the updated review</returns>
+        [HttpPut("{reviewId:int}/restaurant-response")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [MethodErrorCodes<ReviewService>(nameof(ReviewService.UpdateRestaurantResponseAsync))]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<ReviewVM>> UpdateRestaurantResponse(int reviewId, string restaurnatResponse)
+        {
+            var userId = User.GetUserId();
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await reviewService.UpdateRestaurantResponseAsync(reviewId, user, userId!.Value, restaurnatResponse);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Deletes a restaurant response from a review with a given id
+        /// </summary>
+        /// <param name="reviewId">id of the review</param>
+        /// <returns>confirmation of the action's status</returns>
+        [HttpDelete("{reviewId:int}/restaurant-response")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [MethodErrorCodes<ReviewService>(nameof(ReviewService.DeleteRestaurantResponseAsync))]
+        [ProducesResponseType(204), ProducesResponseType(400)]
+        public async Task<ActionResult> DeleteRestaurantResponse(int reviewId)
+        {
+            var userid = User.GetUserId();
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await reviewService.DeleteRestaurantResponseAsync(reviewId, user);
+            return OkOrErrors(result);
+        }
+    
     }
 }

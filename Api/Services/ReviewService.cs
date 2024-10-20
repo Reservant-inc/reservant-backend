@@ -15,7 +15,8 @@ namespace Reservant.Api.Services
     /// </summary>
     public class ReviewService(
         ApiDbContext context,
-        ValidationService validationService)
+        ValidationService validationService,
+        AuthorizationService authorizationService)
     {
         /// <summary>
         /// Delete review by ID
@@ -86,6 +87,7 @@ namespace Reservant.Api.Services
 
             review.Stars = request.Stars;
             review.Contents = request.Contents;
+            review.DateEdited = DateTime.Now;
 
             res = await validationService.ValidateAsync(review, userid);
             if (!res.IsValid)
@@ -97,11 +99,11 @@ namespace Reservant.Api.Services
             return new ReviewVM
             {
                 ReviewId = review.ReviewId,
-                RestaurantId = review.ReviewId,
+                RestaurantId = review.RestaurantId,
                 Stars = review.Stars,
                 AuthorId = review.AuthorId,
                 AuthorFullName = review.Author.FullName,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = review.CreatedAt,
                 DateEdited = review.DateEdited,
                 Contents = review.Contents,
                 AnsweredAt = review.AnsweredAt,
@@ -121,7 +123,7 @@ namespace Reservant.Api.Services
                 .Select(review => new ReviewVM
                 {
                     ReviewId = review.ReviewId,
-                    RestaurantId = review.ReviewId,
+                    RestaurantId = review.RestaurantId,
                     Stars = review.Stars,
                     AuthorId = review.AuthorId,
                     AuthorFullName = review.Author.FullName,
@@ -141,6 +143,96 @@ namespace Reservant.Api.Services
             }
 
             return review;
+        }
+    
+        /// <summary>
+        /// Update restaurant response by review ID
+        /// </summary>
+        /// <param name="reviewId">ID of the review</param>
+        /// <param name="user">Current user for permission checking</param>
+        /// <param name="userId">Id of the current user for permission checking</param>
+        /// <param name="restaurnatResponse">New restaurant response</param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied)]
+        [ValidatorErrorCodes<Review>]
+        public async Task<Result<ReviewVM>> UpdateRestaurantResponseAsync(int reviewId, User user,Guid userId, string restaurnatResponse)
+        {
+            // var res = await validationService.ValidateAsync(request, userid);
+            // if (!res.IsValid)
+            // {
+            //     return res.Errors;
+            // }
+            
+            var review = await context.Reviews.FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+            if (review == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var authResult = await authorizationService.VerifyOwnerRole(review.RestaurantId, user);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
+            }
+
+            review.RestaurantResponse = restaurnatResponse;
+            review.AnsweredAt = DateTime.Now;
+
+            var res = await validationService.ValidateAsync(review, userId);
+            if (!res.IsValid)
+            {
+                return res.Errors;
+            }
+
+            await context.SaveChangesAsync();
+            return new ReviewVM
+            {
+                ReviewId = review.ReviewId,
+                RestaurantId = review.RestaurantId,
+                Stars = review.Stars,
+                AuthorId = review.AuthorId,
+                AuthorFullName = review.Author.FullName,
+                CreatedAt = review.CreatedAt,
+                DateEdited = review.DateEdited,
+                Contents = review.Contents,
+                AnsweredAt = review.AnsweredAt,
+                RestaurantResponse = review.RestaurantResponse
+            };
+        }
+
+        /// <summary>
+        /// Delete restaurant response by review ID
+        /// </summary>
+        /// <param name="reviewId">ID of the review</param>
+        /// <param name="user">Current user for permission checking</param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.AccessDenied)]
+        public async Task<Result> DeleteRestaurantResponseAsync(int reviewId, User user)
+        {
+            var review = await context.Reviews.FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+            if (review == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var authResult = await authorizationService.VerifyOwnerRole(review.RestaurantId, user);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
+            }
+
+            review.RestaurantResponse = null;
+            review.AnsweredAt = null;
+            await context.SaveChangesAsync();
+            return Result.Success;
         }
     }
 }
