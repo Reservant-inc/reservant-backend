@@ -102,6 +102,7 @@ namespace Reservant.Api.Services
                 AuthorId = review.AuthorId,
                 AuthorFullName = review.Author.FullName,
                 CreatedAt = DateTime.UtcNow,
+                DateEdited = review.DateEdited,
                 Contents = review.Contents,
                 AnsweredAt = review.AnsweredAt,
                 RestaurantResponse = review.RestaurantResponse
@@ -125,6 +126,7 @@ namespace Reservant.Api.Services
                     AuthorId = review.AuthorId,
                     AuthorFullName = review.Author.FullName,
                     CreatedAt = review.CreatedAt,
+                    DateEdited = review.DateEdited,
                     Contents = review.Contents,
                     AnsweredAt = review.AnsweredAt,
                     RestaurantResponse = review.RestaurantResponse

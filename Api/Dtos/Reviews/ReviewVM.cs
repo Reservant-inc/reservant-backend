@@ -36,6 +36,11 @@ public class ReviewVM
     public required DateTime CreatedAt { get; set; }
 
     /// <summary>
+    /// When the review was edited
+    /// </summary>
+    public DateTime? DateEdited { get; set; }
+
+    /// <summary>
     /// Optional comment
     /// </summary>
     public required string? Contents { get; set; }

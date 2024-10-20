@@ -1046,6 +1046,7 @@ namespace Reservant.Api.Services
                 AuthorFullName = newReview.Author.FullName,
                 Stars = newReview.Stars,
                 CreatedAt = newReview.CreatedAt,
+                DateEdited = newReview.DateEdited,
                 Contents = newReview.Contents,
                 AnsweredAt = newReview.AnsweredAt,
                 RestaurantResponse = newReview.RestaurantResponse
@@ -1084,6 +1085,7 @@ namespace Reservant.Api.Services
                 AuthorFullName = r.Author.FullName,
                 Stars = r.Stars,
                 CreatedAt = r.CreatedAt,
+                DateEdited = r.DateEdited,
                 Contents = r.Contents,
                 AnsweredAt = r.AnsweredAt,
                 RestaurantResponse = r.RestaurantResponse
