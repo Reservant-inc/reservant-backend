@@ -66,7 +66,7 @@ namespace Reservant.Api.Services
             int page, int perPage)
         {
             IQueryable<Restaurant> query = context.Restaurants
-                .Where(r => r.VerifierId != null);
+                .OnlyActiveRestaurants();
 
             if (name is not null)
             {
@@ -729,6 +729,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
+                .OnlyActiveRestaurants()
                 .Where(i => i.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
@@ -756,6 +757,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
+                .OnlyActiveRestaurants()
                 .Where(i => i.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
@@ -956,7 +958,9 @@ namespace Reservant.Api.Services
         public async Task<Result<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurantAsync(int restaurantId,
             int page, int perPage)
         {
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .OnlyActiveRestaurants()
+                .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -991,6 +995,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
+                .OnlyActiveRestaurants()
                 .Where(r => r.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
@@ -1061,7 +1066,9 @@ namespace Reservant.Api.Services
         public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId,
             ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .OnlyActiveRestaurants()
+                .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
 
             if (restaurant == null)
             {
@@ -1129,7 +1136,8 @@ namespace Reservant.Api.Services
         public async Task<Result<RestaurantVM>> GetRestaurantByIdAsync(int restaurantId)
         {
             var restaurant = await context.Restaurants
-                .Where(x => x.RestaurantId == restaurantId && x.VerifierId != null)
+                .OnlyActiveRestaurants()
+                .Where(x => x.RestaurantId == restaurantId)
                 .ProjectTo<RestaurantVM>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
             if (restaurant is null)
@@ -1164,7 +1172,9 @@ namespace Reservant.Api.Services
             int page,
             int perPage)
         {
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .OnlyActiveRestaurants()
+                .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -1237,16 +1247,6 @@ namespace Reservant.Api.Services
             int page = 0,
             int perPage = 10)
         {
-            if (!await context.Restaurants.AnyAsync(r => r.RestaurantId == restaurantId))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
-                };
-            }
-
             var access = await authorizationService
                 .VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
             if (access.IsError)
@@ -1362,7 +1362,9 @@ namespace Reservant.Api.Services
             int page,
             int perPage)
         {
-            bool restaurantExists = await context.Restaurants.AnyAsync(r => r.RestaurantId == restaurantId);
+            bool restaurantExists = await context.Restaurants
+                .OnlyActiveRestaurants()
+                .AnyAsync(r => r.RestaurantId == restaurantId);
             if (!restaurantExists)
             {
                 return new ValidationFailure
@@ -1416,6 +1418,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Tables)
+                .OnlyActiveRestaurants()
                 .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
 
             if (restaurant == null)

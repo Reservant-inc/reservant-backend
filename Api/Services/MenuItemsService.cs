@@ -7,6 +7,7 @@ using FluentValidation.Results;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos.MenuItems;
+using Reservant.Api.Dtos.Restaurants;
 
 namespace Reservant.Api.Services
 {
@@ -32,6 +33,7 @@ namespace Reservant.Api.Services
         public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
         {
             var restaurant = await context.Restaurants
+                .OnlyActiveRestaurants()
                 .FirstOrDefaultAsync(r => r.RestaurantId == req.RestaurantId);
 
             if (restaurant is null)
@@ -135,6 +137,7 @@ namespace Reservant.Api.Services
         public async Task<Result> ValidateRestaurant(User user, int restaurantId)
         {
             var restaurant = await context.Restaurants
+                .OnlyActiveRestaurants()
                 .Include(r => r.Group)
                 .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
 

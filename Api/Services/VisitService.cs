@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -89,6 +90,7 @@ public class VisitService(
         // Fetch restaurant information
         var restaurant = await context.Restaurants
             .Include(r => r.Tables)
+            .OnlyActiveRestaurants()
             .FirstOrDefaultAsync(r => r.RestaurantId == request.RestaurantId);
 
         if (restaurant == null)

@@ -10,7 +10,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// Lokal
 /// </summary>
-public class Restaurant : ISoftDeletable
+public class Restaurant
 {
     /// <summary>
     /// Unique ID
@@ -186,6 +186,9 @@ public class Restaurant : ISoftDeletable
     /// </summary>
     public ICollection<Event> Events { get; set; } = null!;
 
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
+    /// <summary>
+    /// Archived restaurants cannot be searched for or interacted with. They are only
+    /// visible to the owner and through existing visits, events or orders.
+    /// </summary>
+    public bool IsArchived { get; set; }
 }

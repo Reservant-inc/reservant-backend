@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Ingredients;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -49,7 +50,10 @@ public class IngredientService(
             };
         }
 
-        var restaurant = await dbContext.Restaurants.Where(r => r.Group.OwnerId == userId && r.MenuItems.Contains(menuItem)).AnyAsync();
+        var restaurant = await dbContext.Restaurants
+            .OnlyActiveRestaurants()
+            .Where(r => r.Group.OwnerId == userId && r.MenuItems.Contains(menuItem))
+            .AnyAsync();
 
         if (!restaurant)
         {

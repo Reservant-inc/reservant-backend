@@ -11,6 +11,7 @@ using Reservant.Api.Dtos.OrderItems;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
 using System.Text.RegularExpressions;
+using Reservant.Api.Dtos.Restaurants;
 
 namespace Reservant.Api.Validators;
 
@@ -187,6 +188,7 @@ public static class CustomRules
             .MustAsync(async (restaurantId, cancellationToken) =>
             {
                 return await dbContext.Restaurants
+                    .OnlyActiveRestaurants()
                     .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")
@@ -207,6 +209,7 @@ public static class CustomRules
                 }
 
                 return await dbContext.Restaurants
+                    .OnlyActiveRestaurants()
                     .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")

@@ -11,6 +11,7 @@ using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Events;
 using Reservant.Api.Dtos.Users;
 using NetTopologySuite.Geometries;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Services
@@ -59,7 +60,9 @@ namespace Reservant.Api.Services
 
             if (request.RestaurantId is not null)
             {
-                newEvent.Restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
+                newEvent.Restaurant = await context.Restaurants
+                    .OnlyActiveRestaurants()
+                    .SingleAsync(restaurant => restaurant.RestaurantId == request.RestaurantId);
                 if (newEvent.Restaurant is null)
                 {
                     return new ValidationFailure
@@ -89,8 +92,6 @@ namespace Reservant.Api.Services
         public async Task<Result<EventVM>> GetEventAsync(int id)
         {
             var checkedEvent = await context.Events
-                .IgnoreQueryFilters()
-                .Where(e => !e.IsDeleted)
                 .ProjectTo<EventVM>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(e => e.EventId == id);
             if (checkedEvent is null)
@@ -396,7 +397,6 @@ namespace Reservant.Api.Services
         public async Task<Result<EventVM>> UpdateEventAsync(int eventId, UpdateEventRequest request, User user)
         {
             var eventToUpdate = await context.Events
-                .IgnoreQueryFilters()
                 .Include(e => e.Creator)
                 .Include(e => e.Restaurant)
                 .Include(e => e.ParticipationRequests)
@@ -450,9 +450,11 @@ namespace Reservant.Api.Services
             eventToUpdate.MustJoinUntil = request.MustJoinUntil;
             eventToUpdate.RestaurantId = request.RestaurantId;
 
-            if (request.RestaurantId is not null)
+            if (request.RestaurantId is not null && request.RestaurantId != eventToUpdate.RestaurantId)
             {
-                eventToUpdate.Restaurant = await context.Restaurants.FindAsync(request.RestaurantId);
+                eventToUpdate.Restaurant = await context.Restaurants
+                    .OnlyActiveRestaurants()
+                    .SingleAsync(restaurant => restaurant.RestaurantId == request.RestaurantId);
                 if (eventToUpdate.Restaurant is null)
                 {
                     return new ValidationFailure

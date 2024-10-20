@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 
@@ -48,6 +49,7 @@ public class AuthorizationService(
     public async Task<Result> VerifyRestaurantBackdoorAccess(int restaurantId, Guid userId)
     {
         var userHasBackdoorsAccess = await context.Restaurants
+            .OnlyActiveRestaurants()
             .Where(r => r.RestaurantId == restaurantId)
             .Select(r => r.Group.OwnerId == userId
                 || r.Employments.Any(e =>
@@ -77,6 +79,7 @@ public class AuthorizationService(
     public async Task<Result> VerifyRestaurantHallAccess(int restaurantId, Guid userId)
     {
         var userHasBackdoorsAccess = await context.Restaurants
+            .OnlyActiveRestaurants()
             .Where(r => r.RestaurantId == restaurantId)
             .Select(r => r.Group.OwnerId == userId
                 || r.Employments.Any(e =>

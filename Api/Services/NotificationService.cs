@@ -286,7 +286,7 @@ public class NotificationService(
         {
             await NotifyUser(
                 receiver,
-                new NotificationVisitApprovedDeclined 
+                new NotificationVisitApprovedDeclined
                 {
                     VisitId = visitId,
                     IsAccepted = visitData.IsAccepted ?? false,
