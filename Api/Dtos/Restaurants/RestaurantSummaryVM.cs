@@ -95,9 +95,9 @@ namespace Reservant.Api.Dtos.Restaurants
         public required int NumberReviews { get; set; }
 
         /// <summary>
-        /// Whether the restaurant is deleted
+        /// Whether the restaurant is archived
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public required bool IsDeleted { get; set; }
+        public required bool IsArchived { get; set; }
     }
 }

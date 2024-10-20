@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos.Location;
@@ -128,4 +129,10 @@ public class MyRestaurantVM
     /// Whether the restaurant is verified or not
     /// </summary>
     public required bool IsVerified { get; init; }
+
+    /// <summary>
+    /// Whether the restaurant is archived
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public required bool IsArchived { get; set; }
 }
