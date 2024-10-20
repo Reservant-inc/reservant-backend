@@ -290,7 +290,6 @@ public class DbSeeder(
                 TableId = 1,
                 ClientId = johnDoe.Id,
                 Client = customer1,
-                IsDeleted = false,
                 Participants = [customer2, customer3],
                 Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
@@ -307,7 +306,6 @@ public class DbSeeder(
                 TableId = 2,
                 ClientId = johnDoe.Id,
                 Client = customer2,
-                IsDeleted = false,
                 Participants = [customer3],
                 Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
@@ -324,7 +322,6 @@ public class DbSeeder(
                 TableId = 1,
                 ClientId = customer2.Id,
                 Client = customer2,
-                IsDeleted = false,
                 Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
         };
@@ -457,7 +454,6 @@ public class DbSeeder(
             new Order
             {
                 VisitId = visits.First().VisitId,
-                IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -473,7 +469,6 @@ public class DbSeeder(
             new Order
             {
                 VisitId = visits[1].VisitId,
-                IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -489,7 +484,6 @@ public class DbSeeder(
             new Order
             {
                 VisitId = visits[2].VisitId,
-                IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -737,7 +731,6 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -1562,7 +1555,6 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite")
                 .ToList(),
             VerifierId = verifier.Id,
-            IsDeleted = false
         };
         johnDoes2.Tables = new List<Table>
         {
@@ -1701,7 +1693,6 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "Asian" || rt.Name == "Takeaway")
                 .ToList(),
             VerifierId = verifier.Id,
-            IsDeleted = false
         };
         kowalskisRestaurant.Tables = new List<Table>
         {
@@ -1984,7 +1975,6 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2269,7 +2259,6 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2528,7 +2517,6 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2758,7 +2746,6 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
         };
 
         var visits = await context.Visits.ToListAsync();
