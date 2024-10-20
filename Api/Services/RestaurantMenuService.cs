@@ -246,6 +246,7 @@ public class RestaurantMenuService(
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
+        menu.MenuItems = await context.MenuItems.Where(m => request.MenuItemsIds.Contains(m.MenuItemId) && m.RestaurantId == menu.RestaurantId).ToListAsync();
 
         var result = await validationService.ValidateAsync(menu, user.Id);
         if (!result.IsValid)
