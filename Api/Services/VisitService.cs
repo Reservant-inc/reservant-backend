@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -6,11 +7,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
-using Reservant.Api.Dtos.Orders;
-using Reservant.Api.Dtos.Users;
 using Reservant.ErrorCodeDocs.Attributes;
-
-
 
 namespace Reservant.Api.Services;
 
@@ -21,7 +18,7 @@ public class VisitService(
     ApiDbContext context,
     UserManager<User> userManager,
     ValidationService validationService,
-    FileUploadService uploadService,
+    IMapper mapper,
     NotificationService notificationService,
     AuthorizationService authorizationService)
 {
@@ -50,37 +47,7 @@ public class VisitService(
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
 
-        var result = new VisitVM
-        {
-            VisitId = visit.VisitId,
-            Date = visit.Date,
-            NumberOfGuests = visit.NumberOfGuests,
-            PaymentTime = visit.PaymentTime,
-            Deposit = visit.Deposit,
-            ReservationDate = visit.ReservationDate,
-            Tip = visit.Tip,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId,
-            TableId = visit.TableId,
-            Participants = visit.Participants.Select(p => new UserSummaryVM
-            {
-                UserId = p.Id,
-                FirstName = p.FirstName,
-                LastName = p.LastName,
-                Photo = uploadService.GetPathForFileName(p.PhotoFileName),
-            }).ToList(),
-            Orders = visit.Orders.Select(o => new OrderSummaryVM
-            {
-                OrderId = o.OrderId,
-                VisitId = o.VisitId,
-                Date = o.Visit.Date,
-                Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount),
-                Status = o.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s)
-            }).ToList()
-        };
-
-        return result;
+        return mapper.Map<VisitVM>(visit);
     }
 
     /// <summary>
@@ -91,27 +58,102 @@ public class VisitService(
     /// <returns></returns>
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
-
-        var result = await validationService.ValidateAsync(request, user.Id);
-        if (!result.IsValid)
+        // Walidacja czy godziny rezerwacji s� na pe�ne godziny lub p�godzinne
+        if (request.Date.Minute != 0 && request.Date.Minute != 30)
         {
-            return result;
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Date),
+                ErrorMessage = "Reservations can only be made for full hours or half hours",
+                ErrorCode = ErrorCodes.InvalidTimeSlot
+            };
         }
 
+        if (request.EndTime.Minute != 0 && request.EndTime.Minute != 30)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.EndTime),
+                ErrorMessage = "Reservations can only be made for full hours or half hours",
+                ErrorCode = ErrorCodes.InvalidTimeSlot
+            };
+        }
+
+        // Validate the request
+        var validationResult = await validationService.ValidateAsync(request, user.Id);
+        if (!validationResult.IsValid)
+        {
+            return validationResult;
+        }
+
+        // Fetch restaurant information
         var restaurant = await context.Restaurants
-            .FirstAsync(r => r.RestaurantId == request.RestaurantId);
+            .Include(r => r.Tables)
+            .FirstOrDefaultAsync(r => r.RestaurantId == request.RestaurantId);
 
+        if (restaurant == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = "RestaurantId",
+                ErrorMessage = "Restaurant not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        // Check if the user already has a reservation during the requested time slot
+        var overlappingReservation = await context.Visits
+            .Where(v => v.ClientId == user.Id &&
+                        v.Date < request.EndTime &&
+                        v.EndTime > request.Date)
+            .FirstOrDefaultAsync();
+
+        if (overlappingReservation != null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = "ClientId",
+                ErrorMessage = "You already have a reservation during this time period.",
+                ErrorCode = ErrorCodes.Duplicate
+            };
+        }
+
+        // ��czna liczba ludzi to liczba go�ci kt�rzy nie maj� konta + liczba go�ci kt�rzy maj� konto i je podali�my + osoba sk�adaj�ca zam�wienie
+        var numberOfPeople = request.NumberOfGuests + request.ParticipantIds.Count + 1;
+
+        // Find the smallest table that can accommodate the guests and is not reserved during the time slot
+        var availableTable = await context.Tables
+            .Where(t => t.RestaurantId == request.RestaurantId && t.Capacity >= numberOfPeople)
+            .Where(t => !context.Visits.Any(v =>
+                v.TableId == t.TableId &&
+                v.Date < request.EndTime &&
+                v.EndTime > request.Date))
+            .OrderBy(t => t.Capacity)
+            .FirstOrDefaultAsync();
+
+        if (availableTable == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = "TableId",
+                ErrorMessage = "No available tables for the requested time slot",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        // Find the participants
         var participants = new List<User>();
-
-        foreach(var userId in request.ParticipantIds)
+        foreach (var userId in request.ParticipantIds)
         {
             var currentUser = await userManager.FindByIdAsync(userId.ToString());
             if (currentUser != null) participants.Add(currentUser);
         }
 
-        var visit = new Visit()
+        // Create a new visit with end time
+        var visit = new Visit
         {
             Date = request.Date,
+            EndTime = request.EndTime,
             NumberOfGuests = request.NumberOfGuests,
             ReservationDate = DateOnly.FromDateTime(DateTime.UtcNow),
             Tip = request.Tip,
@@ -119,30 +161,23 @@ public class VisitService(
             ClientId = user.Id,
             Takeaway = request.Takeaway,
             RestaurantId = request.RestaurantId,
-            TableId = request.TableId,
+            TableId = availableTable.TableId,
             Participants = participants,
             Deposit = restaurant.ReservationDeposit
         };
 
-        result = await validationService.ValidateAsync(visit, user.Id);
-        if (!result.IsValid)
+        // Validate the visit object
+        validationResult = await validationService.ValidateAsync(visit, user.Id);
+        if (!validationResult.IsValid)
         {
-            return result;
+            return validationResult;
         }
 
+        // Save the visit
         context.Add(visit);
         await context.SaveChangesAsync();
 
-        return new VisitSummaryVM()
-        {
-            VisitId = visit.VisitId,
-            ClientId = visit.ClientId,
-            Date = visit.Date,
-            Takeaway = visit.Takeaway,
-            RestaurantId = visit.RestaurantId,
-            NumberOfPeople = visit.NumberOfGuests,
-            Deposit = visit.Deposit
-        };
+        return mapper.Map<VisitSummaryVM>(visit);
     }
 
     /// <summary>

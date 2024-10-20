@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Models.Enums;
 
@@ -43,9 +42,4 @@ public class MenuVM
     /// Menu items
     /// </summary>
     public required List<MenuItemSummaryVM> MenuItems { get; set; }
-
-    /// <summary>
-    /// File name of the photo
-    /// </summary>
-    public required string Photo { get; set; }
 }

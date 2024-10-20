@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Auth;
-using Reservant.Api.Dtos.Ingredients;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.OrderItems;
 using Reservant.Api.Dtos.Restaurants;
@@ -826,7 +825,8 @@ public class DbSeeder(
             PublicName = "Dough",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 500,
-            AmountToOrder = 1000
+            AmountToOrder = 1000,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var tomatoSauce = new Ingredient
@@ -834,7 +834,8 @@ public class DbSeeder(
             PublicName = "Tomato sauce",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 0.5,
-            AmountToOrder = 1
+            AmountToOrder = 1,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var mozzarella = new Ingredient
@@ -842,7 +843,8 @@ public class DbSeeder(
             PublicName = "Mozzarella",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 200,
-            AmountToOrder = 500
+            AmountToOrder = 500,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var olives = new Ingredient
@@ -850,7 +852,8 @@ public class DbSeeder(
             PublicName = "Olives",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 100,
-            AmountToOrder = 200
+            AmountToOrder = 200,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var orderedBeer = new Ingredient
@@ -858,7 +861,8 @@ public class DbSeeder(
             PublicName = "ordered beer",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
-            AmountToOrder = 5
+            AmountToOrder = 5,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         pizzaMozzarella.Ingredients = new List<IngredientMenuItem>
@@ -885,8 +889,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("pizza.png", johnDoe),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = johnDoes,
             MenuItems = new List<MenuItem>
@@ -901,8 +903,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("piwo.png", johnDoe),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = johnDoes,
             MenuItems = new List<MenuItem>
@@ -1414,6 +1414,123 @@ public class DbSeeder(
             },
             johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
+
+        var corrections = new List<IngredientAmountCorrection>
+        {
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 1000,
+                NewAmount = 950,
+                CorrectionDate = DateTime.UtcNow.AddDays(-12),
+                User = johnDoe,
+                Comment = "Adjusted inventory after delivery"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 950,
+                NewAmount = 900,
+                CorrectionDate = DateTime.UtcNow.AddDays(-11),
+                User = backdoorEmployee,
+                Comment = "Used for special catering order"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 900,
+                NewAmount = 850,
+                CorrectionDate = DateTime.UtcNow.AddDays(-10),
+                User = johnDoe,
+                Comment = "Prepared extra dough for weekend rush"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 850,
+                NewAmount = 800,
+                CorrectionDate = DateTime.UtcNow.AddDays(-9),
+                User = johnDoe,
+                Comment = "Adjusted inventory after spoilage"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 800,
+                NewAmount = 750,
+                CorrectionDate = DateTime.UtcNow.AddDays(-8),
+                User = backdoorEmployee,
+                Comment = "Used for testing new recipe"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 750,
+                NewAmount = 700,
+                CorrectionDate = DateTime.UtcNow.AddDays(-7),
+                User = backdoorEmployee,
+                Comment = "Prepared dough for special event"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 700,
+                NewAmount = 650,
+                CorrectionDate = DateTime.UtcNow.AddDays(-6),
+                User = johnDoe,
+                Comment = "Adjusted inventory after staff meal"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 650,
+                NewAmount = 600,
+                CorrectionDate = DateTime.UtcNow.AddDays(-5),
+                User = backdoorEmployee,
+                Comment = "Used for charity event"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 600,
+                NewAmount = 550,
+                CorrectionDate = DateTime.UtcNow.AddDays(-4),
+                User = johnDoe,
+                Comment = "Prepared dough for school workshop"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 550,
+                NewAmount = 500,
+                CorrectionDate = DateTime.UtcNow.AddDays(-3),
+                User = johnDoe,
+                Comment = "Adjusted inventory after stocktake"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 500,
+                NewAmount = 450,
+                CorrectionDate = DateTime.UtcNow.AddDays(-2),
+                User = backdoorEmployee,
+                Comment = "Used for experimental dish"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 450,
+                NewAmount = 400,
+                CorrectionDate = DateTime.UtcNow.AddDays(-1),
+                User = backdoorEmployee,
+                Comment = "Prepared dough for family gathering"
+            }
+        };
+        foreach (var correction in corrections)
+        {
+            dough.Corrections.Add(correction);
+        }
+        await context.SaveChangesAsync();
     }
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
@@ -1481,8 +1598,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe 2",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("pierogi.png", johnDoe),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = johnDoes2,
             MenuItems =
@@ -1636,8 +1751,6 @@ public class DbSeeder(
             Name = "Menu jedzenie",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("menu.png", kowalski),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = kowalskisRestaurant,
             MenuItems =
@@ -2031,8 +2144,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("wege.png", anon),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = anons,
             MenuItems =
@@ -2074,8 +2185,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("woda.png", anon),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = anons,
             MenuItems =
@@ -2305,8 +2414,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("ramen.png", geralt),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = geralts,
             MenuItems =
@@ -2345,8 +2452,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("owner2.png", geralt),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = geralts,
             MenuItems =
@@ -2561,8 +2666,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("makarony.png", paul),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = atreides,
             MenuItems =
@@ -2601,8 +2704,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("human2.png", paul),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = atreides,
             MenuItems =
@@ -2756,8 +2857,6 @@ public class DbSeeder(
             Name = "Menu jedzeniowe",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("kebab.png", walter),
-            PhotoFileName = null!,
             MenuType = MenuType.Food,
             Restaurant = walters,
             MenuItems =
@@ -2788,8 +2887,6 @@ public class DbSeeder(
             Name = "Menu alkoholowe",
             DateFrom = new DateOnly(2024, 2, 1),
             DateUntil = null,
-            Photo = await RequireFileUpload("drinki.png", walter),
-            PhotoFileName = null!,
             MenuType = MenuType.Alcohol,
             Restaurant = walters,
             MenuItems =
@@ -2852,10 +2949,10 @@ public class DbSeeder(
             new CreateVisitRequest
             {
                 Date = DateTime.UtcNow.AddDays(1),
+                EndTime = DateTime.UtcNow.AddDays(1).AddHours(2),
                 NumberOfGuests = 1,
                 ParticipantIds = [exampleCustomer.Id],
                 RestaurantId = 1,
-                TableId = 1,
                 Takeaway = false,
                 Tip = new decimal(1.50)
             },
@@ -2883,15 +2980,7 @@ public class DbSeeder(
             exampleCustomer
         )).OrThrow();
 
-        return new VisitSummaryVM
-        {
-            ClientId = exampleCustomer.Id,
-            Date = visitResult.Date,
-            Deposit = visitResult.Deposit,
-            NumberOfPeople = visitResult.NumberOfPeople,
-            RestaurantId = visitResult.RestaurantId,
-            Takeaway = visitResult.Takeaway,
-            VisitId = visitResult.VisitId
-        };
+        return visitResult;
     }
+
 }

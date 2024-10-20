@@ -1,7 +1,8 @@
-﻿using Reservant.ErrorCodeDocs.Attributes;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Index.HPRtree;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Menus;
@@ -18,8 +19,8 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class RestaurantMenuService(
     ApiDbContext context,
-    FileUploadService uploadService,
-    ValidationService validationService)
+    ValidationService validationService,
+    IMapper mapper)
 {
 
     /// <summary>
@@ -33,25 +34,7 @@ public class RestaurantMenuService(
         var menu = await context.Menus
             .Include(m => m.MenuItems)
             .Where(m => m.MenuId == menuId)
-            .Select(m => new MenuVM
-            {
-                MenuId = m.MenuId,
-                Name = m.Name,
-                AlternateName = m.AlternateName,
-                MenuType = m.MenuType,
-                DateFrom = m.DateFrom,
-                DateUntil = m.DateUntil,
-                Photo = uploadService.GetPathForFileName(m.PhotoFileName),
-                MenuItems = m.MenuItems.Select(mi => new MenuItemSummaryVM
-                {
-                    MenuItemId = mi.MenuItemId,
-                    Name = mi.Name,
-                    AlternateName = mi.AlternateName,
-                    Price = mi.Price,
-                    AlcoholPercentage = mi.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-                }).ToList()
-            })
+            .ProjectTo<MenuVM>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
         if (menu is null)
@@ -109,7 +92,6 @@ public class RestaurantMenuService(
             MenuType = req.MenuType,
             DateFrom = req.DateFrom,
             DateUntil = req.DateUntil,
-            PhotoFileName = req.Photo,
             RestaurantId = req.RestaurantId
         };
 
@@ -122,19 +104,7 @@ public class RestaurantMenuService(
         context.Menus.Add(newMenu);
         await context.SaveChangesAsync();
 
-
-        var menuSummary = new MenuSummaryVM
-        {
-            MenuId = newMenu.MenuId,
-            Name = newMenu.Name,
-            AlternateName = newMenu.AlternateName,
-            MenuType = newMenu.MenuType,
-            Photo = uploadService.GetPathForFileName(newMenu.PhotoFileName),
-            DateFrom = newMenu.DateFrom,
-            DateUntil = newMenu.DateUntil
-        };
-
-        return menuSummary;
+        return mapper.Map<MenuSummaryVM>(newMenu);
     }
 
 
@@ -226,25 +196,7 @@ public class RestaurantMenuService(
 
         await context.SaveChangesAsync();
 
-        return new MenuVM
-        {
-            MenuId = menuToUpdate.MenuId,
-            Name = menuToUpdate.Name,
-            AlternateName = menuToUpdate.AlternateName,
-            MenuType = menuToUpdate.MenuType,
-            DateFrom = menuToUpdate.DateFrom,
-            DateUntil = menuToUpdate.DateUntil,
-            Photo = uploadService.GetPathForFileName(menuToUpdate.PhotoFileName),
-            MenuItems = menuToUpdate.MenuItems.Select(mi => new MenuItemSummaryVM
-            {
-                MenuItemId = mi.MenuItemId,
-                Name = mi.Name,
-                AlternateName = mi.AlternateName,
-                Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-            }).ToList()
-        };
+        return mapper.Map<MenuVM>(menuToUpdate);
     }
 
     /// <summary>
@@ -292,7 +244,6 @@ public class RestaurantMenuService(
         menu.Name = request.Name.Trim();
         menu.AlternateName = request.AlternateName?.Trim();
         menu.MenuType = request.MenuType;
-        menu.PhotoFileName = request.Photo.Trim();
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
 
@@ -304,25 +255,7 @@ public class RestaurantMenuService(
 
         await context.SaveChangesAsync();
 
-        return new MenuVM()
-        {
-            Name = menu.Name,
-            AlternateName = menu.AlternateName,
-            DateFrom = menu.DateFrom,
-            DateUntil = menu.DateUntil,
-            Photo = uploadService.GetPathForFileName(menu.PhotoFileName),
-            MenuId = menu.MenuId,
-            MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
-            {
-                MenuItemId = mi.MenuItemId,
-                Name = mi.Name,
-                AlternateName = mi.AlternateName,
-                Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-            }).ToList(),
-            MenuType = menu.MenuType
-        };
+        return mapper.Map<MenuVM>(menu);
     }
 
     /// <summary>
@@ -357,8 +290,7 @@ public class RestaurantMenuService(
             };
         }
 
-        context.Remove(menu);
-        await context.SaveChangesAsync();
+        menu.IsDeleted = true;
         return Result.Success;
     }
 
@@ -448,15 +380,7 @@ public class RestaurantMenuService(
         };
 
         return await query
-            .Select(mi => new MenuItemSummaryVM
-            {
-                MenuItemId = mi.MenuItemId,
-                Name = mi.Name,
-                AlternateName = mi.AlternateName,
-                Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-            })
+            .ProjectTo<MenuItemSummaryVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, Enum.GetNames<MenuItemSorting>(), maxPerPage: 20);
     }
 }

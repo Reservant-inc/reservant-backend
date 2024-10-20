@@ -238,6 +238,16 @@ public static class ErrorCodes
     public const string MustBeLocaleId = "MustBeLocaleId";
 
     /// <summary>
+    /// No times available for the selected number of guests and date
+    /// </summary>
+    public const string NoAvailableSlots = "NoAvailableSlots";
+
+    /// <summary>
+    /// Reservations can only be made for full hours or half hours
+    /// </summary>
+    public const string InvalidTimeSlot = "InvalidTimeSlot";
+
+    /// <summary>
     /// request was already considered
     /// </summary>
     public const string AlreadyConsidered = "AlreadyConsidered";

@@ -1,6 +1,7 @@
-using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Visits;
 
@@ -18,6 +19,11 @@ public class VisitVM
     /// Date of the visit
     /// </summary>
     public required DateTime Date { get; set; }
+
+    /// <summary>
+    /// End time of the visit
+    /// </summary>
+    public required DateTime EndTime { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account

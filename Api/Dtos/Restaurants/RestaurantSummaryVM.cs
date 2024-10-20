@@ -1,7 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.Text.Json.Serialization;
 using Reservant.Api.Models.Enums;
-using Reservant.Api.Validation;
 using Reservant.Api.Dtos.Location;
 
 namespace Reservant.Api.Dtos.Restaurants
@@ -95,5 +93,11 @@ namespace Reservant.Api.Dtos.Restaurants
         /// Number of reviews about this restaurant
         /// </summary>
         public required int NumberReviews { get; set; }
+
+        /// <summary>
+        /// Whether the restaurant is deleted
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public required bool IsDeleted { get; set; }
     }
 }

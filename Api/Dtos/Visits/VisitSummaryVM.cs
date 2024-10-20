@@ -16,6 +16,11 @@ public class VisitSummaryVM
     public required DateTime Date { get; set; }
 
     /// <summary>
+    /// End time of the visit
+    /// </summary>
+    public required DateTime EndTime { get; set; }
+
+    /// <summary>
     /// Number of guests + number of clients
     /// </summary>
     public required int NumberOfPeople { get; set; }
