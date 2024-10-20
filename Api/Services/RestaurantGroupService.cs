@@ -44,11 +44,12 @@ public class RestaurantGroupService(
 
 
         var restaurants = await context.Restaurants
-                .Where(r => req.RestaurantIds.Contains(r.RestaurantId))
-                .Include(r => r.Group)
-                .Include(r => r.Tags)
-                .Include(r => r.Reviews)
-                .ToListAsync();
+            .AsSplitQuery()
+            .Where(r => req.RestaurantIds.Contains(r.RestaurantId))
+            .Include(r => r.Group)
+            .Include(r => r.Tags)
+            .Include(r => r.Reviews)
+            .ToListAsync();
 
 
         //check if all restaurantIds from request belong to current user
@@ -169,6 +170,7 @@ public class RestaurantGroupService(
     public async Task<Result<RestaurantGroupVM>> UpdateRestaurantGroupAsync(int groupId, UpdateRestaurantGroupRequest request, Guid userId)
     {
         var restaurantGroup = await context.RestaurantGroups
+            .AsSplitQuery()
             .Include(restaurantGroup => restaurantGroup.Restaurants)
             .ThenInclude(restaurant => restaurant.Tags)
             .Include(restaurantGroup => restaurantGroup.Restaurants)

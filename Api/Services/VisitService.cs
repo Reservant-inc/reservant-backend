@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -30,20 +31,16 @@ public class VisitService(
     public async Task<Result<VisitVM>> GetVisitByIdAsync(int visitId, User user)
     {
         var visit = await context.Visits
-        .Include(r => r.Participants)
-        .Include(r => r.Orders)
-            .ThenInclude(o=>o.OrderItems)
-                .ThenInclude(o1=>o1.MenuItem)
             .Where(x => x.VisitId == visitId)
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
-
 
         if (visit == null)
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
         }
 
-        if (visit.ClientId != user.Id && !visit.Participants.Contains(user))
+        if (visit.ClientId != user.Id && visit.Participants.All(participant => participant.UserId != user.Id))
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }

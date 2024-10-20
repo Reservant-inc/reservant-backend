@@ -458,6 +458,7 @@ namespace Reservant.Api.Services
             }
 
             var restaurant = await context.Restaurants
+                .AsSplitQuery()
                 .Include(r => r.Tags)
                 .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)

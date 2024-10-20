@@ -319,18 +319,12 @@ public class UserService(
     /// <returns></returns>
     public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
-        var query = dbContext.Visits
-            .Include(r => r.Participants)
-            .Include(r => r.Orders)
+        return await dbContext.Visits
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Date > DateTime.UtcNow)
-            .OrderBy(x => x.Date);
-
-        var result = await query
+            .OrderBy(x => x.Date)
             .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 10);
-
-        return result;
     }
 
 
