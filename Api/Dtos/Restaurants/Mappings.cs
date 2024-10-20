@@ -12,11 +12,21 @@ public class Mappings : Profile
     /// <inheritdoc />
     public Mappings(UrlService urlService)
     {
-        CreateMap<Restaurant, RestaurantSummaryVM>()
+        CreateMap<Restaurant, MyRestaurantSummaryVM>()
             .MapUploadPath(dto => dto.Logo,
                 restaurant => restaurant.LogoFileName, urlService)
             .MapMemberFrom(dto => dto.IsVerified,
                 restaurant => restaurant.VerifierId != null)
+            .MapMemberFrom(dto => dto.Rating,
+                restaurant => restaurant.Reviews.Average(review => (double?)review.Stars) ?? 0)
+            .MapMemberFrom(dto => dto.NumberReviews,
+                restaurant => restaurant.Reviews.Count)
+            .MapMemberFrom(dto => dto.Tags,
+                restaurant => restaurant.Tags.Select(tag => tag.Name));
+
+        CreateMap<Restaurant, RestaurantSummaryVM>()
+            .MapUploadPath(dto => dto.Logo,
+                restaurant => restaurant.LogoFileName, urlService)
             .MapMemberFrom(dto => dto.Rating,
                 restaurant => restaurant.Reviews.Average(review => (double?)review.Stars) ?? 0)
             .MapMemberFrom(dto => dto.NumberReviews,

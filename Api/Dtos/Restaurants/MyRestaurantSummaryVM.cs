@@ -1,13 +1,13 @@
-﻿using System.Text.Json.Serialization;
-using Reservant.Api.Models.Enums;
+using System.Text.Json.Serialization;
 using Reservant.Api.Dtos.Location;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.Restaurants;
 
 /// <summary>
-/// Basic restaurant info
+/// Basic info about a restaurant owned by the current user
 /// </summary>
-public class RestaurantSummaryVM
+public class MyRestaurantSummaryVM
 {
     /// <summary>
     /// Unique ID
@@ -19,6 +19,12 @@ public class RestaurantSummaryVM
     /// </summary>
     /// <example>McJohn's</example>
     public required string Name { get; init; }
+
+    /// <summary>
+    /// NIP
+    /// </summary>
+    /// <example>1231264550</example>
+    public required string Nip { get; init; }
 
     /// <summary>
     /// Type of the establishment
@@ -44,6 +50,11 @@ public class RestaurantSummaryVM
     public required Geolocation Location { get; init; }
 
     /// <summary>
+    /// Restaurant group ID
+    /// </summary>
+    public required int GroupId { get; set; }
+
+    /// <summary>
     /// URI of the logo
     /// </summary>
     public required string Logo { get; init; }
@@ -67,6 +78,11 @@ public class RestaurantSummaryVM
     /// Restaurant tags
     /// </summary>
     public required List<string> Tags { get; init; }
+
+    /// <summary>
+    /// Whether the restaurant is verified or not
+    /// </summary>
+    public required bool IsVerified { get; init; }
 
     /// <summary>
     /// Rating of the restaurant based on the reviews
