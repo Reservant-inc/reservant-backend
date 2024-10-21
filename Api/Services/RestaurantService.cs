@@ -1409,12 +1409,14 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Zwraca dostępne godziny dla restauracji dla podanej daty i liczby gości
+        /// Get time spans on a given date that a reservation can be made in
         /// </summary>
-        /// <param name="restaurantId">ID restauracji</param>
-        /// <param name="date">Data rezerwacji</param>
-        /// <param name="numberOfGuests">Liczba gości</param>
-        /// <returns>Lista dostępnych godzin</returns>
+        /// <param name="restaurantId">Restaurant ID</param>
+        /// <param name="date">Date of the reservation</param>
+        /// <param name="numberOfGuests">Number of people that will be going</param>
+        /// <returns>Available hours list</returns>
+        [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.NoAvailableSlots)]
         public async Task<Result<AvailableHoursVM>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
         {
             var restaurant = await context.Restaurants
