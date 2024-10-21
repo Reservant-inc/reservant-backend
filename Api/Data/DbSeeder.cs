@@ -2932,11 +2932,13 @@ public class DbSeeder(
     {
         var exampleCustomer = await context.Users.FirstAsync(u => u.UserName == "customer");
 
+        var visitDay = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
         var visitResult = (await visitService.CreateVisitAsync(
             new CreateVisitRequest
             {
-                Date = DateTime.UtcNow.AddDays(1),
-                EndTime = DateTime.UtcNow.AddDays(1).AddHours(2),
+                Date = new DateTime(visitDay, new TimeOnly(18, 00)),
+                EndTime = new DateTime(visitDay, new TimeOnly(18, 30)),
                 NumberOfGuests = 1,
                 ParticipantIds = [exampleCustomer.Id],
                 RestaurantId = 1,
