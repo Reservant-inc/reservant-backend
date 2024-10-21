@@ -246,4 +246,9 @@ public static class ErrorCodes
     /// request was already considered
     /// </summary>
     public const string AlreadyConsidered = "AlreadyConsidered";
+    
+    /// <summary>
+    /// Visit duration exceeds restaurant maximum visit time
+    /// </summary>
+    public const string VisitExceedsMaxTime = "VisitExceedsMaxTime";
 }
