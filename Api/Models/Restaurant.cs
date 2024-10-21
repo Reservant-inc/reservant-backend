@@ -147,6 +147,11 @@ public class Restaurant
     public FileUpload Logo { get; set; } = null!;
 
     /// <summary>
+    /// Opening hours of a restaurant
+    /// </summary>
+    public List<AvailableHours> OpeningHours { get; set; } = null!;
+
+    /// <summary>
     /// Navigation collection for the photos. Ordered by the RestaurantPhoto.Order property.
     /// </summary>
     public ICollection<RestaurantPhoto> Photos { get; set; } = null!;

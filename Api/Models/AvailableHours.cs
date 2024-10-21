@@ -10,9 +10,9 @@ public class AvailableHours
     /// <summary>
     /// Available tables from 
     /// </summary>
-    public TimeSpan From { get; set; }
+    public TimeSpan? From { get; set; }
     /// <summary>
     /// Available tables until
     /// </summary>
-    public TimeSpan Until { get; set; }
+    public TimeSpan? Until { get; set; }
 }
