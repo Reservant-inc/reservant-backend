@@ -51,6 +51,11 @@ public class UpdateRestaurantRequest
     /// </summary>
     /// <example></example>
     public required Geolocation Location { get; init; }
+    
+    /// <summary>
+    /// Max reservation duration
+    /// </summary>
+    public required int MaxReservationDuration { get; init; }
 
     /// <summary>
     /// File name of the rental contract upload (umowa najmu lokalu)
