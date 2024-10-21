@@ -19,7 +19,8 @@ namespace Reservant.Api.Push;
 public class FirebaseService(
     ApiDbContext context,
     IStringLocalizer<FirebaseService> localizer,
-    UrlService urlService)
+    UrlService urlService,
+    ILogger<FirebaseService> logger)
 {
     /// <summary>
     /// Send a push notification to a specific user
@@ -40,11 +41,18 @@ public class FirebaseService(
 
         var userCulture = targetUser.Language;
 
-        await FirebaseMessaging.DefaultInstance.SendAsync(new FirebaseMessage
+        try
         {
-            Notification = ComposeNotification(notification, userCulture),
-            Token = targetUser.FirebaseDeviceToken,
-        });
+            await FirebaseMessaging.DefaultInstance.SendAsync(new FirebaseMessage
+            {
+                Notification = ComposeNotification(notification, userCulture),
+                Token = targetUser.FirebaseDeviceToken,
+            });
+        }
+        catch (FirebaseException ex)
+        {
+            logger.FirebaseMessagingError(ex, notification.TargetUserId);
+        }
     }
 
     /// <summary>
