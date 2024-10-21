@@ -1,7 +1,6 @@
-using AutoMapper;
 using Reservant.Api.Dtos.Orders;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Users;
-using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Visits;
 
@@ -61,9 +60,9 @@ public class VisitVM
     public required Guid ClientId { get; set; }
 
     /// <summary>
-    /// ID of the restaurant
+    /// Restaurant where the visit took place
     /// </summary>
-    public required int RestaurantId { get; set; }
+    public required RestaurantSummaryVM Restaurant { get; set; }
 
     /// <summary>
     /// ID of the table within the restaurant
