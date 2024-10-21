@@ -1428,7 +1428,7 @@ namespace Reservant.Api.Services
                 return new ValidationFailure
                 {
                     PropertyName = nameof(restaurantId),
-                    ErrorMessage = $"Restauracja o ID {restaurantId} nie została znaleziona",
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
