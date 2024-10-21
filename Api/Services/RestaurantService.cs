@@ -1446,73 +1446,84 @@ namespace Reservant.Api.Services
                 .Where(v => v.RestaurantId == restaurantId && DateOnly.FromDateTime(v.Date) == date)
                 .ToListAsync();
 
-            //TODO
-            // Tworzymy zakres godzin do sprawdzenia dostępności
-            var openingTime = TimeSpan.FromHours(8);  // przykładowa godzina otwarcia
-            var closingTime = TimeSpan.FromHours(22); // przykładowa godzina zamknięcia
-
-            var availableHours = new List<AvailableHours>();
-
-            // Sprawdzamy dostępność godzin dla każdego stolika
-            for (var time = openingTime; time < closingTime; time += TimeSpan.FromMinutes(30))
-            {
-                var timeSlotAvailable = availableTables.Any(table =>
-                    // Check if there are no reservations for this table that overlap with the current time slot
-                    !reservations.Any(r =>
-                        r.TableId == table.TableId &&                         // Same table
-                        r.Date.TimeOfDay <= time &&                           // Reservation starts before or at the current time (compare times only)
-                        r.EndTime.TimeOfDay > time                            // Reservation ends after the current time slot starts (compare times only)
-                    )
-                );
-
-                if (timeSlotAvailable)
-                {
-                    availableHours.Add(new AvailableHours
-                    {
-                        From = time,
-                        Until = time.Add(TimeSpan.FromMinutes(30))
-                    });
-                }
-            }
 
             // Łączenie sąsiadujących przedziałów czasowych
             var mergedAvailableHours = new List<AvailableHours>();
-            AvailableHours? currentSlot = null;
 
-            foreach (var slot in availableHours)
+            foreach (var day in restaurant.OpeningHours)
             {
-                if (currentSlot == null)
+
+                if (day.From == null || day.Until == null)
                 {
-                    currentSlot = slot;
+                    continue;
                 }
-                else if (currentSlot.Until == slot.From)
+
+                var openingTime = day.From.Value;
+                var closingTime = day.Until.Value;
+
+                var availableHours = new List<AvailableHours>();
+
+                // Sprawdzamy dostępność godzin dla każdego stolika
+                for (var time = openingTime; time < closingTime; time += TimeSpan.FromMinutes(30))
                 {
-                    // Przedziały sąsiadują, więc łączymy je
-                    currentSlot.Until = slot.Until;
+                    var timeSlotAvailable = availableTables.Any(table =>
+                        // Check if there are no reservations for this table that overlap with the current time slot
+                        !reservations.Any(r =>
+                            r.TableId == table.TableId &&                         // Same table
+                            r.Date.TimeOfDay <= time &&                           // Reservation starts before or at the current time (compare times only)
+                            r.EndTime.TimeOfDay > time                            // Reservation ends after the current time slot starts (compare times only)
+                        )
+                    );
+
+                    if (timeSlotAvailable)
+                    {
+                        availableHours.Add(new AvailableHours
+                        {
+                            From = time,
+                            Until = time.Add(TimeSpan.FromMinutes(30))
+                        });
+                    }
                 }
-                else
+
+                
+                AvailableHours? currentSlot = null;
+
+                foreach (var slot in availableHours)
                 {
-                    // Zapisujemy połączony przedział i zaczynamy nowy
+                    if (currentSlot == null)
+                    {
+                        currentSlot = slot;
+                    }
+                    else if (currentSlot.Until == slot.From)
+                    {
+                        // Przedziały sąsiadują, więc łączymy je
+                        currentSlot.Until = slot.Until;
+                    }
+                    else
+                    {
+                        // Zapisujemy połączony przedział i zaczynamy nowy
+                        mergedAvailableHours.Add(currentSlot);
+                        currentSlot = slot;
+                    }
+                }
+
+                // Dodajemy ostatni połączony przedział (jeśli istnieje)
+                if (currentSlot != null)
+                {
                     mergedAvailableHours.Add(currentSlot);
-                    currentSlot = slot;
+                }
+
+                if (mergedAvailableHours.Count == 0)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = null,
+                        ErrorMessage = "Brak dostępnych godzin dla wybranej liczby gości i daty",
+                        ErrorCode = ErrorCodes.NoAvailableSlots
+                    };
                 }
             }
 
-            // Dodajemy ostatni połączony przedział (jeśli istnieje)
-            if (currentSlot != null)
-            {
-                mergedAvailableHours.Add(currentSlot);
-            }
-
-            if (mergedAvailableHours.Count == 0)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorMessage = "Brak dostępnych godzin dla wybranej liczby gości i daty",
-                    ErrorCode = ErrorCodes.NoAvailableSlots
-                };
-            }
 
             return new AvailableHoursVM { AvailableHours = mergedAvailableHours };
         }
