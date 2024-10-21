@@ -1416,7 +1416,6 @@ namespace Reservant.Api.Services
         /// <param name="numberOfGuests">Number of people that will be going</param>
         /// <returns>Available hours list</returns>
         [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
-        [ErrorCode(null, ErrorCodes.NoAvailableSlots)]
         public async Task<Result<AvailableHoursVM>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
         {
             var restaurant = await context.Restaurants
@@ -1500,16 +1499,6 @@ namespace Reservant.Api.Services
             if (currentSlot != null)
             {
                 mergedAvailableHours.Add(currentSlot);
-            }
-
-            if (mergedAvailableHours.Count == 0)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorMessage = "Brak dostępnych godzin dla wybranej liczby gości i daty",
-                    ErrorCode = ErrorCodes.NoAvailableSlots
-                };
             }
 
             return new AvailableHoursVM { AvailableHours = mergedAvailableHours };
