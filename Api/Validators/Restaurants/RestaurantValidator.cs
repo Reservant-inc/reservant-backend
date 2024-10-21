@@ -22,6 +22,10 @@ public class RestaurantValidator : AbstractValidator<Models.Restaurant>
         RuleFor(r => r.Address)
             .NotEmpty()
             .MaximumLength(70);
+        
+        RuleFor(r => r.MaxReservationDuration)
+            .GreaterThanOrEqualTo(30);
+
 
         RuleFor(r => r.PostalIndex)
             .NotNull()
