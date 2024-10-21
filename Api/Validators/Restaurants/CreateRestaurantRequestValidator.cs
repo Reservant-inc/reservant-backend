@@ -18,6 +18,9 @@ public class CreateRestaurantRequestValidator : AbstractValidator<CreateRestaura
             .MaximumLength(50)
             .IsValidName();
 
+        RuleFor(r => r.MaxReservationDuration)
+            .GreaterThanOrEqualTo(30);
+
         RuleFor(r => r.Nip)
             .NotNull()
             .Nip();

@@ -117,6 +117,29 @@ public class VisitService(
             };
         }
 
+        TimeSpan visitDuration = request.EndTime.Subtract(request.Date);
+
+        if (visitDuration.TotalMinutes > restaurant.MaxReservationDuration)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.EndTime),
+                ErrorMessage = "Visit duration exceeds restaurant maximum visit time.",
+                ErrorCode = ErrorCodes.VisitExceedsMaxTime
+            };
+        }
+
+        if (visitDuration.TotalMinutes < 30)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.EndTime),
+                ErrorMessage = "Visit duration must be at least 30min.",
+                ErrorCode = ErrorCodes.VisitTooShort
+            };
+        }
+
+
         // ��czna liczba ludzi to liczba go�ci kt�rzy nie maj� konta + liczba go�ci kt�rzy maj� konto i je podali�my + osoba sk�adaj�ca zam�wienie
         var numberOfPeople = request.NumberOfGuests + request.ParticipantIds.Count + 1;
 
