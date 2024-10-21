@@ -311,7 +311,8 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/available-hours")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetAvailableHoursAsync))]
-    public async Task<ActionResult<AvailableHoursVM>> GetAvailableHours(int restaurantId, [FromQuery] DateOnly date, [FromQuery] int numberOfGuests)
+    public async Task<ActionResult<List<AvailableHoursVM>>> GetAvailableHours(
+        int restaurantId, [FromQuery] DateOnly date, [FromQuery] int numberOfGuests)
     {
         var availableHours = await service.GetAvailableHoursAsync(restaurantId, date, numberOfGuests);
         return OkOrErrors(availableHours);

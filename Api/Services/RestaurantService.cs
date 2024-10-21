@@ -1416,7 +1416,7 @@ namespace Reservant.Api.Services
         /// <param name="numberOfGuests">Number of people that will be going</param>
         /// <returns>Available hours list</returns>
         [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
-        public async Task<Result<AvailableHoursVM>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
+        public async Task<Result<List<AvailableHoursVM>>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Tables)
@@ -1448,7 +1448,7 @@ namespace Reservant.Api.Services
             var openingTime = TimeSpan.FromHours(8);  // przykładowa godzina otwarcia
             var closingTime = TimeSpan.FromHours(22); // przykładowa godzina zamknięcia
 
-            var availableHours = new List<AvailableHours>();
+            var availableHours = new List<AvailableHoursVM>();
 
             // Sprawdzamy dostępność godzin dla każdego stolika
             for (var time = openingTime; time < closingTime; time += TimeSpan.FromMinutes(30))
@@ -1464,7 +1464,7 @@ namespace Reservant.Api.Services
 
                 if (timeSlotAvailable)
                 {
-                    availableHours.Add(new AvailableHours
+                    availableHours.Add(new AvailableHoursVM
                     {
                         From = time,
                         Until = time.Add(TimeSpan.FromMinutes(30))
@@ -1473,8 +1473,8 @@ namespace Reservant.Api.Services
             }
 
             // Łączenie sąsiadujących przedziałów czasowych
-            var mergedAvailableHours = new List<AvailableHours>();
-            AvailableHours? currentSlot = null;
+            var mergedAvailableHours = new List<AvailableHoursVM>();
+            AvailableHoursVM? currentSlot = null;
 
             foreach (var slot in availableHours)
             {
@@ -1501,8 +1501,7 @@ namespace Reservant.Api.Services
                 mergedAvailableHours.Add(currentSlot);
             }
 
-            return new AvailableHoursVM { AvailableHours = mergedAvailableHours };
+            return mergedAvailableHours;
         }
-
     }
 }
