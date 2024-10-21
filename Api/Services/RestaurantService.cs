@@ -189,7 +189,8 @@ namespace Reservant.Api.Services
                     Tags = r.Tags.Select(t => t.Name).ToList(),
                     DistanceFrom = origin.IsEmpty ? null : origin.Distance(r.Location),
                     Rating = r.Reviews.Select(rv => (double?)rv.Stars).Average() ?? 0,
-                    NumberReviews = r.Reviews.Count
+                    NumberReviews = r.Reviews.Count,
+                    OpeningHours = new AvailableHoursVM { AvailableHours = r.OpeningHours }
                 })
                 .PaginateAsync(page, perPage, []);
 
@@ -282,7 +283,8 @@ namespace Reservant.Api.Services
                         PhotoFileName = photo,
                         Order = index + 1
                     })
-                    .ToList()
+                    .ToList(),
+                OpeningHours = request.OpeningHours.AvailableHours
             };
 
             result = await validationService.ValidateAsync(restaurant, user.Id);
@@ -606,6 +608,8 @@ namespace Reservant.Api.Services
             restaurant.LogoFileName = request.Logo;
             restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
              request.Location.Latitude));
+
+            restaurant.OpeningHours = request.OpeningHours.AvailableHours;
 
             restaurant.Tags = await context.RestaurantTags
                 .Where(t => request.Tags.Contains(t.Name))

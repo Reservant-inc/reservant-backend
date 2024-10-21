@@ -99,6 +99,11 @@ public class RestaurantVM
     public required int NumberReviews { get; set; }
 
     /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public required AvailableHoursVM OpeningHours { get; set; }
+
+    /// <summary>
     /// Whether the restaurant is archived
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

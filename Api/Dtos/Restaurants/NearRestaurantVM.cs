@@ -71,6 +71,11 @@ public class NearRestaurantVM
     public required List<string> Tags { get; init; }
 
     /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public required AvailableHoursVM OpeningHours { get; set; }
+
+    /// <summary>
     /// Distance from User
     /// </summary>
     public required double? DistanceFrom { get; init; }

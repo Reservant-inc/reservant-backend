@@ -121,6 +121,11 @@ public class MyRestaurantVM
     public required decimal? ReservationDeposit { get; init; }
 
     /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public required AvailableHoursVM OpeningHours { get; set; }
+
+    /// <summary>
     /// Restaurant tags
     /// </summary>
     public required List<string> Tags { get; init; }

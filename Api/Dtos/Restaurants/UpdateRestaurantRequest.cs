@@ -95,7 +95,12 @@ public class UpdateRestaurantRequest
     /// <summary>
     /// Deposit
     /// </summary>
-    public decimal? ReservationDeposit { get; init; }
+    public decimal? ReservationDeposit { get; init; 
+
+    /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public AvailableHoursVM OpeningHours { get; set; } = new();
 
     /// <summary>
     /// Restaurant tags
