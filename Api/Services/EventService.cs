@@ -564,6 +564,11 @@ namespace Reservant.Api.Services
 
             var origin = geometryFactory.CreatePoint();
 
+            if (request.RestaurantName is not null && request.RestaurantId is null)
+            {
+                events = events.Where(e => e.Restaurant != null && e.Restaurant.Name.Contains(request.RestaurantName));
+            }
+
             if (request.RestaurantId is not null)
             {
                 events = events.Where(e => e.RestaurantId == request.RestaurantId);

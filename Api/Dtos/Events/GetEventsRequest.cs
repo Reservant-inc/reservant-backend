@@ -18,6 +18,12 @@ public class GetEventsRequest
     /// ID of the restaurant that is hosting the event
     /// </summary>
     public int? RestaurantId { get; set; }
+
+    /// <summary>
+    /// Search by the name of the restaurant hosting the event
+    /// </summary>
+    public string? RestaurantName { get; set; }
+
     /// <summary>
     /// Name of the event
     /// </summary>
