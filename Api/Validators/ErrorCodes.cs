@@ -251,4 +251,9 @@ public static class ErrorCodes
     /// Visit duration exceeds restaurant maximum visit time
     /// </summary>
     public const string VisitExceedsMaxTime = "VisitExceedsMaxTime";
+    
+    /// <summary>
+    /// Visit duration is too short
+    /// </summary>
+    public const string VisitTooShort = "VisitTooShort";
 }
