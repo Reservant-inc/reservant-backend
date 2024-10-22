@@ -1458,6 +1458,11 @@ namespace Reservant.Api.Services
             var openingTime = restaurant.OpeningHours[dayOfWeek].From;
             var closingTime = restaurant.OpeningHours[dayOfWeek].Until;
 
+            if (openingTime == null || closingTime == null)
+            {
+                return new List<AvailableHoursVM>();
+            }
+
             var availableHours = new List<AvailableHoursVM>();
 
             // Sprawdzamy dostępność godzin dla każdego stolika
