@@ -1413,13 +1413,14 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Zwraca dostępne godziny dla restauracji dla podanej daty i liczby gości
+        /// Get time spans on a given date that a reservation can be made in
         /// </summary>
-        /// <param name="restaurantId">ID restauracji</param>
-        /// <param name="date">Data rezerwacji</param>
-        /// <param name="numberOfGuests">Liczba gości</param>
-        /// <returns>Lista dostępnych godzin</returns>
-        public async Task<Result<AvailableHoursVM>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
+        /// <param name="restaurantId">Restaurant ID</param>
+        /// <param name="date">Date of the reservation</param>
+        /// <param name="numberOfGuests">Number of people that will be going</param>
+        /// <returns>Available hours list</returns>
+        [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
+        public async Task<Result<List<AvailableHoursVM>>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Tables)
@@ -1431,7 +1432,7 @@ namespace Reservant.Api.Services
                 return new ValidationFailure
                 {
                     PropertyName = nameof(restaurantId),
-                    ErrorMessage = $"Restauracja o ID {restaurantId} nie została znaleziona",
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
@@ -1448,7 +1449,7 @@ namespace Reservant.Api.Services
 
 
             // Łączenie sąsiadujących przedziałów czasowych
-            var mergedAvailableHours = new List<AvailableHours>();
+            var mergedAvailableHours = new List<AvailableHoursVM>();
 
             foreach (var day in restaurant.OpeningHours)
             {
@@ -1461,7 +1462,7 @@ namespace Reservant.Api.Services
                 var openingTime = day.From.Value;
                 var closingTime = day.Until.Value;
 
-                var availableHours = new List<AvailableHours>();
+                var availableHours = new List<AvailableHoursVM>();
 
                 // Sprawdzamy dostępność godzin dla każdego stolika
                 for (var time = openingTime; time < closingTime; time += TimeSpan.FromMinutes(30))
@@ -1469,15 +1470,17 @@ namespace Reservant.Api.Services
                     var timeSlotAvailable = availableTables.Any(table =>
                         // Check if there are no reservations for this table that overlap with the current time slot
                         !reservations.Any(r =>
-                            r.TableId == table.TableId &&                         // Same table
-                            r.Date.TimeOfDay <= time &&                           // Reservation starts before or at the current time (compare times only)
-                            r.EndTime.TimeOfDay > time                            // Reservation ends after the current time slot starts (compare times only)
+                                r.TableId == table.TableId && // Same table
+                                r.Date.TimeOfDay <=
+                                time && // Reservation starts before or at the current time (compare times only)
+                                r.EndTime.TimeOfDay >
+                                time // Reservation ends after the current time slot starts (compare times only)
                         )
                     );
 
                     if (timeSlotAvailable)
                     {
-                        availableHours.Add(new AvailableHours
+                        availableHours.Add(new AvailableHoursVM
                         {
                             From = time,
                             Until = time.Add(TimeSpan.FromMinutes(30))
@@ -1485,8 +1488,7 @@ namespace Reservant.Api.Services
                     }
                 }
 
-                
-                AvailableHours? currentSlot = null;
+                AvailableHoursVM? currentSlot = null;
 
                 foreach (var slot in availableHours)
                 {
@@ -1512,21 +1514,9 @@ namespace Reservant.Api.Services
                 {
                     mergedAvailableHours.Add(currentSlot);
                 }
-
-                if (mergedAvailableHours.Count == 0)
-                {
-                    return new ValidationFailure
-                    {
-                        PropertyName = null,
-                        ErrorMessage = "Brak dostępnych godzin dla wybranej liczby gości i daty",
-                        ErrorCode = ErrorCodes.NoAvailableSlots
-                    };
-                }
             }
 
-
-            return new AvailableHoursVM { AvailableHours = mergedAvailableHours };
+            return mergedAvailableHours;
         }
-
     }
 }

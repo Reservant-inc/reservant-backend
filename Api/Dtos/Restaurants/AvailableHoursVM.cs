@@ -1,16 +1,17 @@
-﻿using Reservant.Api.Models;
-
-namespace Reservant.Api.Dtos.Restaurants;
+﻿namespace Reservant.Api.Dtos.Restaurants;
 
 /// <summary>
-/// View model that represents the available time slots for reservations at a restaurant.
+/// View model that represents an available time slot for reservations at a restaurant.
 /// </summary>
 public class AvailableHoursVM
 {
     /// <summary>
-    /// A list of available time slots during which tables can be reserved at the restaurant.
-    /// Each time slot is represented by a <see cref="AvailableHours"/> object, 
-    /// which contains the start and end time for the availability.
+    /// Available from
     /// </summary>
-    public List<AvailableHours> AvailableHours { get; set; } = new();
+    public TimeSpan From { get; set; }
+
+    /// <summary>
+    /// Available until
+    /// </summary>
+    public TimeSpan Until { get; set; }
 }

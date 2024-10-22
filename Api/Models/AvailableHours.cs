@@ -1,6 +1,4 @@
-﻿using Reservant.Api.Data;
-
-namespace Reservant.Api.Models;
+﻿namespace Reservant.Api.Models;
 
 /// <summary>
 /// Available Hours with empty tables
@@ -8,7 +6,7 @@ namespace Reservant.Api.Models;
 public class AvailableHours
 {
     /// <summary>
-    /// Available tables from 
+    /// Available tables from
     /// </summary>
     public TimeSpan? From { get; set; }
     /// <summary>
