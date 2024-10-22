@@ -1,16 +1,17 @@
-﻿namespace Reservant.Api.Models;
+namespace Reservant.Api.Models;
 
 /// <summary>
-/// Available Hours with empty tables
+/// Opening hours of a restaurant on a particular day
 /// </summary>
-public class AvailableHours
+public class OpeningHours
 {
     /// <summary>
-    /// Available tables from
+    /// When the restaurant opens
     /// </summary>
     public TimeSpan? From { get; set; }
+
     /// <summary>
-    /// Available tables until
+    /// When the restaurant closes
     /// </summary>
     public TimeSpan? Until { get; set; }
 }

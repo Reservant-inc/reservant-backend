@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Dtos.Location;
+using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 
@@ -95,12 +96,12 @@ public class UpdateRestaurantRequest
     /// <summary>
     /// Deposit
     /// </summary>
-    public decimal? ReservationDeposit { get; init; 
+    public decimal? ReservationDeposit { get; init; }
 
     /// <summary>
     /// Hours when the restaurant is open
     /// </summary>
-    public AvailableHoursVM OpeningHours { get; set; } = new();
+    public List<OpeningHours> OpeningHours { get; set; } = new();
 
     /// <summary>
     /// Restaurant tags

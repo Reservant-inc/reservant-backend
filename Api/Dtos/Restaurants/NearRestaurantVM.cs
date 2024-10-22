@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Dtos.Location;
+using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 
@@ -73,7 +74,7 @@ public class NearRestaurantVM
     /// <summary>
     /// Hours when the restaurant is open
     /// </summary>
-    public required AvailableHoursVM OpeningHours { get; set; }
+    public required List<OpeningHours> OpeningHours { get; set; }
 
     /// <summary>
     /// Distance from User

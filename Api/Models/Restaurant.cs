@@ -149,7 +149,7 @@ public class Restaurant
     /// <summary>
     /// Opening hours of a restaurant
     /// </summary>
-    public List<AvailableHours> OpeningHours { get; set; } = null!;
+    public List<OpeningHours> OpeningHours { get; set; } = null!;
 
     /// <summary>
     /// Navigation collection for the photos. Ordered by the RestaurantPhoto.Order property.

@@ -190,7 +190,7 @@ namespace Reservant.Api.Services
                     DistanceFrom = origin.IsEmpty ? null : origin.Distance(r.Location),
                     Rating = r.Reviews.Select(rv => (double?)rv.Stars).Average() ?? 0,
                     NumberReviews = r.Reviews.Count,
-                    OpeningHours = new AvailableHoursVM { AvailableHours = r.OpeningHours }
+                    OpeningHours = r.OpeningHours,
                 })
                 .PaginateAsync(page, perPage, []);
 
@@ -284,7 +284,7 @@ namespace Reservant.Api.Services
                         Order = index + 1
                     })
                     .ToList(),
-                OpeningHours = request.OpeningHours.AvailableHours
+                OpeningHours = request.OpeningHours,
             };
 
             result = await validationService.ValidateAsync(restaurant, user.Id);
@@ -609,7 +609,7 @@ namespace Reservant.Api.Services
             restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
              request.Location.Latitude));
 
-            restaurant.OpeningHours = request.OpeningHours.AvailableHours;
+            restaurant.OpeningHours = request.OpeningHours;
 
             restaurant.Tags = await context.RestaurantTags
                 .Where(t => request.Tags.Contains(t.Name))

@@ -106,7 +106,7 @@ public class CreateRestaurantRequest
     /// <summary>
     /// Hours when the restaurant is open
     /// </summary>
-    public AvailableHoursVM OpeningHours { get; set; } = new();
+    public List<OpeningHours> OpeningHours { get; set; } = new();
 
     /// <summary>
     /// Restaurant tags
