@@ -81,7 +81,7 @@ public class RestaurantSummaryVM
     /// <summary>
     /// Hours when the restaurant is open
     /// </summary>
-    public required AvailableHoursVM OpeningHours { get; set; }
+    public required List<AvailableHoursVM> OpeningHours { get; set; }
 
     /// <summary>
     /// Whether the restaurant is archived
