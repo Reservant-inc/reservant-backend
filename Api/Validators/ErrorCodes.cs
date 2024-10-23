@@ -233,8 +233,8 @@ public static class ErrorCodes
     public const string UserAlreadyRejected = "UserAlreadyRejected";
 
     /// <summary>
-    /// MenuItem is not in any public Menus
+    /// MenuItem is not in any active Menus
     /// </summary>
-    public const string MenuNotFound = "MenuNotFound";
+    public const string NotInAMenu = "MenuNotFound";
 
 }
