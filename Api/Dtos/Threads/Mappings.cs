@@ -1,4 +1,6 @@
 using AutoMapper;
+using Reservant.Api.Mapping;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Threads;
 
@@ -10,6 +12,7 @@ public class Mappings : Profile
     /// <inheritdoc />
     public Mappings()
     {
-        CreateMap<Thread, ThreadVM>();
+        CreateMap<MessageThread, ThreadVM>()
+            .MapMemberFrom(dto => dto.ThreadId, thread => thread.MessageThreadId);
     }
 }
