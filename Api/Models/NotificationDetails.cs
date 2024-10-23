@@ -71,6 +71,11 @@ public class NotificationNewRestaurantReview : NotificationDetails
 public class NotificationNewFriendRequest : NotificationDetails
 {
     /// <summary>
+    /// ID of the friend request
+    /// </summary>
+    public required int FriendRequestId { get; set; }
+
+    /// <summary>
     /// ID of the sender
     /// </summary>
     public required Guid SenderId { get; set; }
@@ -175,7 +180,7 @@ public class NotificationVisitApprovedDeclined  : NotificationDetails
     /// </summary>
     public required bool IsAccepted { get; set; }
 
-    
+
     /// <summary>
     /// Name of the restaurant in which visit takes place
     /// </summary>

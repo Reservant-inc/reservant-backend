@@ -58,15 +58,16 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
 
         if (existingRequest is null)
         {
-            context.Add(new FriendRequest
+            var request = new FriendRequest
             {
                 SenderId = senderId,
                 ReceiverId = receiverId,
-                DateSent = DateTime.UtcNow
-            });
+                DateSent = DateTime.UtcNow,
+            };
+            context.Add(request);
 
             await context.SaveChangesAsync();
-            await notificationService.NotifyNewFriendRequest(senderId, receiverId);
+            await notificationService.NotifyNewFriendRequest(senderId, request.FriendRequestId);
             return Result.Success;
         }
 

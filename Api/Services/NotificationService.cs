@@ -187,24 +187,21 @@ public class NotificationService(
     /// <summary>
     /// Notify a user that they have a new friend request
     /// </summary>
-    public async Task NotifyNewFriendRequest(Guid senderId, Guid receiverId)
+    public async Task NotifyNewFriendRequest(Guid targetUserId, int friendRequestId)
     {
-        var sender = await context.Users
-            .Where(u => u.Id == senderId)
-            .Select(u => new { u.FullName, u.PhotoFileName })
-            .FirstOrDefaultAsync();
+        var request = await context.FriendRequests
+            .Include(request => request.Sender)
+            .SingleAsync(request => request.FriendRequestId == friendRequestId);
 
-        if (sender != null)
-        {
-            await NotifyUser(
-                receiverId,
-                new NotificationNewFriendRequest
-                {
-                    SenderId = senderId,
-                    SenderName = sender.FullName,
-                }
-                , sender.PhotoFileName);
-        }
+        await NotifyUser(
+            targetUserId,
+            new NotificationNewFriendRequest
+            {
+                FriendRequestId = friendRequestId,
+                SenderId = request.SenderId,
+                SenderName = request.Sender.FullName,
+            },
+            request.Sender.PhotoFileName);
     }
 
     /// <summary>
