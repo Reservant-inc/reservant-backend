@@ -246,4 +246,9 @@ public static class ErrorCodes
     /// request was already considered
     /// </summary>
     public const string AlreadyConsidered = "AlreadyConsidered";
+    /// <summary>
+    /// MenuItem is not in any active Menus
+    /// </summary>
+    public const string NotInAMenu = "MenuNotFound";
+
 }

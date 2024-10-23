@@ -728,6 +728,8 @@ namespace Reservant.Api.Services
         /// <returns>A Result object containing a list of MenuSummaryVM or an error message.</returns>
         public async Task<Result<List<MenuSummaryVM>>> GetMenusCustomerAsync(int restaurantId)
         {
+            var todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
+
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
                 .OnlyActiveRestaurants()
@@ -744,7 +746,10 @@ namespace Reservant.Api.Services
                 };
             }
 
-            return mapper.Map<List<MenuSummaryVM>>(restaurant.Menus);
+            var menus = restaurant.Menus
+                .Where(m => (m.DateUntil ?? todaysDate) >= todaysDate);
+
+            return mapper.Map<List<MenuSummaryVM>>(menus);
         }
 
 

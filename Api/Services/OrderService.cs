@@ -149,11 +149,14 @@ public class OrderService(
         "Some of the menu items were not found")]
     [ErrorCode(nameof(request.Items), ErrorCodes.BelongsToAnotherRestaurant,
         "Order must only include items from the visit's restaurant")]
+    [ErrorCode(nameof(request.Items), ErrorCodes.NotInAMenu,
+        "Order must only include items that are included in an active menu")]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
     [ValidatorErrorCodes<CreateOrderRequest>]
     [ValidatorErrorCodes<Order>]
     public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
     {
+        var todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var result = await validationService.ValidateAsync(request, user.Id);
         if (!result.IsValid)
         {
@@ -194,6 +197,22 @@ public class OrderService(
                 PropertyName = nameof(request.Items),
                 ErrorCode = ErrorCodes.BelongsToAnotherRestaurant,
                 ErrorMessage = "Order must only include items from the visit's restaurant",
+            };
+        }
+
+        var menuCount = await context.Menus
+            .CountAsync(m =>
+                (m.DateUntil ?? todaysDate) >= todaysDate &&
+                m.MenuItems.Any(mi => menuItemIds.Contains(mi.MenuItemId))
+            );
+
+        if (menuCount != menuItems.Count)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Items),
+                ErrorCode = ErrorCodes.NotInAMenu,
+                ErrorMessage = "All menuItems must be in a publicly available menu",
             };
         }
 
