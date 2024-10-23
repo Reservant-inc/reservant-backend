@@ -42,5 +42,7 @@ public class UserConfig : IEntityTypeConfiguration<User>
 
         builder.HasMany(u => u.Threads)
             .WithMany(mt => mt.Participants);
+
+        builder.HasOne(user => user.Photo).WithMany();
     }
 }
