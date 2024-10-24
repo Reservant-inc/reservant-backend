@@ -1447,10 +1447,6 @@ namespace Reservant.Api.Services
                 .Where(v => v.RestaurantId == restaurantId && DateOnly.FromDateTime(v.Date) == date)
                 .ToListAsync();
 
-
-            // Łączenie sąsiadujących przedziałów czasowych
-            var mergedAvailableHours = new List<AvailableHoursVM>();
-
             //Pobranie godzin otwarcia i zamknięcia restauracji w podanym dniu
             var dayOfWeek = ((int)date.DayOfWeek) + 1;
             dayOfWeek = dayOfWeek == 7 ? dayOfWeek = 0 : dayOfWeek;
@@ -1466,7 +1462,7 @@ namespace Reservant.Api.Services
             var availableHours = new List<AvailableHoursVM>();
 
             // Sprawdzamy dostępność godzin dla każdego stolika
-            for (var time = openingTime.Value; time < closingTime.Value; time.AddMinutes(30))
+            for (var time = openingTime.Value; time < closingTime.Value; time = time.AddMinutes(30))
             {
                 var timeSlotAvailable = availableTables.Any(table =>
                     // Check if there are no reservations for this table that overlap with the current time slot
@@ -1487,6 +1483,8 @@ namespace Reservant.Api.Services
                 }
             }
 
+            // Łączenie sąsiadujących przedziałów czasowych
+            var mergedAvailableHours = new List<AvailableHoursVM>();
             AvailableHoursVM? currentSlot = null;
 
             foreach (var slot in availableHours)
