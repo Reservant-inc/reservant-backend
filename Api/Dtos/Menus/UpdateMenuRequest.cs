@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.Menus;
@@ -38,4 +39,9 @@ public class UpdateMenuRequest
     /// File name of the photo
     /// </summary>
     public required string Photo { get; set; }
+
+    /// <summary>
+    /// List of items to update
+    /// </summary>
+    public required List<int> MenuItemsIds { get; set; }
 }
