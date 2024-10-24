@@ -119,7 +119,7 @@ public class VisitService(
 
         TimeSpan visitDuration = request.EndTime.Subtract(request.Date);
 
-        if (visitDuration.TotalMinutes > restaurant.MaxReservationDuration)
+        if (visitDuration.TotalMinutes > restaurant.MaxReservationDurationMinutes)
         {
             return new ValidationFailure
             {
