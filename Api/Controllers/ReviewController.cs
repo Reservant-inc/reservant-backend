@@ -69,16 +69,16 @@ namespace Reservant.Api.Controllers
         /// Adds or updates a restaurant response to a review with a given id
         /// </summary>
         /// <param name="reviewId">id of the review</param>
-        /// <param name="restaurnatResponse">the restaurant response</param>
+        /// <param name="restaurantResponse">the restaurant response</param>
         /// <returns>a visual model of the updated review</returns>
         [HttpPut("{reviewId:int}/restaurant-response")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.UpdateRestaurantResponseAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<ReviewVM>> UpdateRestaurantResponse(int reviewId, RestaurantResponseDto restaurnatResponse)
+        public async Task<ActionResult<ReviewVM>> UpdateRestaurantResponse(int reviewId, RestaurantResponseDto restaurantResponse)
         {
             var userId = User.GetUserId();
-            var result = await reviewService.UpdateRestaurantResponseAsync(reviewId, userId!.Value, restaurnatResponse);
+            var result = await reviewService.UpdateRestaurantResponseAsync(reviewId, userId!.Value, restaurantResponse);
             return OkOrErrors(result);
         }
 

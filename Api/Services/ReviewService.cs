@@ -153,21 +153,21 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="reviewId">ID of the review</param>
         /// <param name="userId">Id of the current user for permission checking</param>
-        /// <param name="restaurnatResponse">New restaurant response</param>
+        /// <param name="restaurantResponse">New restaurant response</param>
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
         [ValidatorErrorCodes<Review>]
-        public async Task<Result<ReviewVM>> UpdateRestaurantResponseAsync(int reviewId,Guid userId, RestaurantResponseDto restaurnatResponse)
+        public async Task<Result<ReviewVM>> UpdateRestaurantResponseAsync(int reviewId,Guid userId, RestaurantResponseDto restaurantResponse)
         {
             var review = await context.Reviews
-            .Include(r => r.Author)
-            .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+                .Include(r => r.Author)
+                .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
             if (review == null)
             {
                 return new ValidationFailure
                 {
-                    ErrorCode = ErrorCodes.NotFound
+                    ErrorCode = ErrorCodes.NotFound,
                 };
             }
 
@@ -177,7 +177,7 @@ namespace Reservant.Api.Services
                 return authResult.Errors;
             }
 
-            review.RestaurantResponse = restaurnatResponse.RestaurantResponseText;
+            review.RestaurantResponse = restaurantResponse.RestaurantResponseText;
             review.AnsweredAt = DateTime.UtcNow;
 
             var res = await validationService.ValidateAsync(review, userId);
