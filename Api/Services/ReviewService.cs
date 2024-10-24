@@ -7,6 +7,7 @@ using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using AutoMapper;
 
 namespace Reservant.Api.Services
 {
@@ -15,7 +16,10 @@ namespace Reservant.Api.Services
     /// </summary>
     public class ReviewService(
         ApiDbContext context,
-        ValidationService validationService)
+        ValidationService validationService,
+        AuthorizationService authorizationService,
+        IMapper mapper
+        )
     {
         /// <summary>
         /// Delete review by ID
@@ -86,6 +90,7 @@ namespace Reservant.Api.Services
 
             review.Stars = request.Stars;
             review.Contents = request.Contents;
+            review.DateEdited = DateTime.UtcNow;
 
             res = await validationService.ValidateAsync(review, userid);
             if (!res.IsValid)
@@ -97,11 +102,12 @@ namespace Reservant.Api.Services
             return new ReviewVM
             {
                 ReviewId = review.ReviewId,
-                RestaurantId = review.ReviewId,
+                RestaurantId = review.RestaurantId,
                 Stars = review.Stars,
                 AuthorId = review.AuthorId,
                 AuthorFullName = review.Author.FullName,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = review.CreatedAt,
+                DateEdited = review.DateEdited,
                 Contents = review.Contents,
                 AnsweredAt = review.AnsweredAt,
                 RestaurantResponse = review.RestaurantResponse
@@ -120,11 +126,12 @@ namespace Reservant.Api.Services
                 .Select(review => new ReviewVM
                 {
                     ReviewId = review.ReviewId,
-                    RestaurantId = review.ReviewId,
+                    RestaurantId = review.RestaurantId,
                     Stars = review.Stars,
                     AuthorId = review.AuthorId,
                     AuthorFullName = review.Author.FullName,
                     CreatedAt = review.CreatedAt,
+                    DateEdited = review.DateEdited,
                     Contents = review.Contents,
                     AnsweredAt = review.AnsweredAt,
                     RestaurantResponse = review.RestaurantResponse
@@ -139,6 +146,79 @@ namespace Reservant.Api.Services
             }
 
             return review;
+        }
+
+        /// <summary>
+        /// Update restaurant response by review ID
+        /// </summary>
+        /// <param name="reviewId">ID of the review</param>
+        /// <param name="userId">Id of the current user for permission checking</param>
+        /// <param name="restaurantResponse">New restaurant response</param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
+        [ValidatorErrorCodes<Review>]
+        public async Task<Result<ReviewVM>> UpdateRestaurantResponseAsync(int reviewId,Guid userId, RestaurantResponseDto restaurantResponse)
+        {
+            var review = await context.Reviews
+                .Include(r => r.Author)
+                .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+            if (review == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound,
+                };
+            }
+
+            var authResult = await authorizationService.VerifyOwnerRole(review.RestaurantId, userId);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
+            }
+
+            review.RestaurantResponse = restaurantResponse.RestaurantResponseText;
+            review.AnsweredAt = DateTime.UtcNow;
+
+            var res = await validationService.ValidateAsync(review, userId);
+            if (!res.IsValid)
+            {
+                return res.Errors;
+            }
+
+            await context.SaveChangesAsync();
+            return mapper.Map<ReviewVM>(review);
+        }
+
+        /// <summary>
+        /// Delete restaurant response by review ID
+        /// </summary>
+        /// <param name="reviewId">ID of the review</param>
+        /// <param name="userId">Id of the Current user for permission checking</param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
+        public async Task<Result> DeleteRestaurantResponseAsync(int reviewId, Guid userId)
+        {
+            var review = await context.Reviews.FirstOrDefaultAsync(r => r.ReviewId == reviewId);
+            if (review == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var authResult = await authorizationService.VerifyOwnerRole(review.RestaurantId, userId);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
+            }
+
+            review.RestaurantResponse = null;
+            review.AnsweredAt = null;
+            await context.SaveChangesAsync();
+            return Result.Success;
         }
     }
 }

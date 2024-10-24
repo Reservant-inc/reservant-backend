@@ -23,14 +23,14 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Validates and creates given menuItems
         /// </summary>
-        /// <param name="user">The current user, must be a restaurant owner</param>
+        /// <param name="userId">The Id of current user, must be a restaurant owner</param>
         /// <param name="req">MenuItems to be created</param>
         /// <returns>Validation results or the created menuItems</returns>
         [ErrorCode(nameof(CreateMenuItemRequest.RestaurantId), ErrorCodes.NotFound)]
         [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
         [ValidatorErrorCodes<CreateMenuItemRequest>]
         [ValidatorErrorCodes<MenuItem>]
-        public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(User user, CreateMenuItemRequest req)
+        public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(Guid userId, CreateMenuItemRequest req)
         {
             var restaurant = await context.Restaurants
                 .OnlyActiveRestaurants()
@@ -46,13 +46,13 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var authResult = await authorizationService.VerifyOwnerRole(req.RestaurantId, user);
+            var authResult = await authorizationService.VerifyOwnerRole(req.RestaurantId, userId);
             if (authResult.IsError)
             {
                 return authResult.Errors;
             }
 
-            var result = await validationService.ValidateAsync(req, user.Id);
+            var result = await validationService.ValidateAsync(req, userId);
             if (!result.IsValid)
             {
                 return result;
@@ -90,7 +90,7 @@ namespace Reservant.Api.Services
                 Ingredients = ingredientMenuItems
             };
 
-            result = await validationService.ValidateAsync(menuItem, user.Id);
+            result = await validationService.ValidateAsync(menuItem, userId);
             if (!result.IsValid)
             {
                 return result;
