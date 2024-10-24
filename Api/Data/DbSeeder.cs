@@ -702,6 +702,24 @@ public class DbSeeder(
         return upload;
     }
 
+    private static WeeklyOpeningHours CreateOpeningHours(
+        TimeOnly from, TimeOnly until,
+        TimeOnly weekendFrom, TimeOnly weekendUntil,
+        bool openOnSunday = false)
+    {
+        return new WeeklyOpeningHours([
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = weekendFrom, Until = weekendUntil },
+            openOnSunday
+                ? new OpeningHours { From = weekendFrom, Until = weekendUntil }
+                : new OpeningHours(),
+        ]);
+    }
+
     private async Task CreateJohnDoesRestaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
         var exampleDocument = await RequireFileUpload("test-jd.pdf", johnDoe);
@@ -731,6 +749,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -1555,6 +1576,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite")
                 .ToList(),
             VerifierId = verifier.Id,
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
         johnDoes2.Tables = new List<Table>
         {
@@ -1693,6 +1717,10 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "Asian" || rt.Name == "Takeaway")
                 .ToList(),
             VerifierId = verifier.Id,
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(8, 00), new TimeOnly(18, 00),
+                new TimeOnly(8, 00), new TimeOnly(16, 00),
+                true),
         };
         kowalskisRestaurant.Tables = new List<Table>
         {
@@ -1975,6 +2003,10 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(00, 00), new TimeOnly(23, 59),
+                new TimeOnly(00, 00), new TimeOnly(23, 59),
+                true),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2259,6 +2291,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2517,6 +2552,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2746,6 +2784,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
