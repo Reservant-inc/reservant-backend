@@ -204,9 +204,9 @@ namespace Reservant.Api.Controllers
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
         {
-            var user = await userManager.GetUserAsync(User);
+            var userId = User.GetUserId();
 
-            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user!);
+            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,userId!.Value);
             return OkOrErrors(result);
         }
 
@@ -221,13 +221,9 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsCustomerAsync))]
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
-            var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
+           var userId = User.GetUserId();
 
-            var res = await restaurantService.GetMenuItemsOwnerAsync(user, restaurantId);
+            var res = await restaurantService.GetMenuItemsOwnerAsync(userId!.Value, restaurantId);
             return OkOrErrors(res);
         }
 

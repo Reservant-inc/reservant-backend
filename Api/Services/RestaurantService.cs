@@ -1295,12 +1295,12 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Validates and gets menu items from the given restaurant
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="userId"></param>
         /// <param name="restaurantId"></param>
         /// <returns>MenuItems</returns>
-        public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(User user, int restaurantId)
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(Guid userId, int restaurantId)
         {
-            var result = await authorizationService.VerifyOwnerRole(restaurantId, user);
+            var result = await authorizationService.VerifyOwnerRole(restaurantId, userId);
             if (result.IsError)
             {
                 return result.Errors;
@@ -1316,9 +1316,9 @@ namespace Reservant.Api.Services
         /// Returns a list of menus of specific restaurant (owner version)
         /// </summary>
         /// <param name="id"> Id of the restaurant.</param>
-        /// <param name="user">Current user for permission checking</param>
+        /// <param name="userId">Id of the current user for permission checking</param>
         /// <returns></returns>
-        public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, User user)
+        public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, Guid userId)
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Menus)
@@ -1335,7 +1335,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var result = await authorizationService.VerifyOwnerRole(id, user);
+            var result = await authorizationService.VerifyOwnerRole(id, userId);
             if (result.IsError)
             {
                 return new ValidationFailure

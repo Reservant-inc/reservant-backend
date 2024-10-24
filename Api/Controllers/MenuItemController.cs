@@ -31,13 +31,9 @@ public class MenuItemController(UserManager<User> userManager, MenuItemsService 
     [MethodErrorCodes<MenuItemsService>(nameof(MenuItemsService.CreateMenuItemsAsync))]
     public async Task<ActionResult<MenuItemVM>> CreateMenuItems(CreateMenuItemRequest menuItem)
     {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
-        {
-            return Unauthorized();
-        }
+        var userId = User.GetUserId();
 
-        var res = await service.CreateMenuItemsAsync(user, menuItem);
+        var res = await service.CreateMenuItemsAsync(userId!.Value, menuItem);
         return OkOrErrors(res);
     }
 

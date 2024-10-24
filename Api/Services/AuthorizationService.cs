@@ -19,13 +19,14 @@ public class AuthorizationService(
     /// returns if user is an owner of a restaurant
     /// </summary>
     /// <param name="restaurantId">The id of restaurant</param>
-    /// <param name="user">The user to be tested as owner</param>
-    public async Task<Result> VerifyOwnerRole(int restaurantId, User user)
+    /// <param name="userId">The Id of user to be tested as owner</param>
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    public async Task<Result> VerifyOwnerRole(int restaurantId, Guid userId)
     {
         var restaurant = await context
             .Restaurants
             .Include(x => x.Group)
-            .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId && r.Group.OwnerId == user.Id);
+            .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId && r.Group.OwnerId == userId);
 
         if (restaurant == null)
             return new ValidationFailure

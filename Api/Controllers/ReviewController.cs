@@ -15,8 +15,8 @@ namespace Reservant.Api.Controllers
     /// </summary>
     [ApiController, Route("/reviews")]
     public class ReviewController(
-        ReviewService reviewService,
-        UserManager<User> userManager
+        ReviewService reviewService//,
+        //UserManager<User> userManager
         ) : StrictController
     {
         /// <summary>
@@ -79,16 +79,16 @@ namespace Reservant.Api.Controllers
         [Authorize(Roles = Roles.RestaurantOwner)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.UpdateRestaurantResponseAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<ReviewVM>> UpdateRestaurantResponse(int reviewId, string restaurnatResponse)
+        public async Task<ActionResult<ReviewVM>> UpdateRestaurantResponse(int reviewId, RestaurantResponseDto restaurnatResponse)
         {
             var userId = User.GetUserId();
-            var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
+            // var user = await userManager.GetUserAsync(User);
+            // if (user is null)
+            // {
+            //     return Unauthorized();
+            // }
 
-            var result = await reviewService.UpdateRestaurantResponseAsync(reviewId, user, userId!.Value, restaurnatResponse);
+            var result = await reviewService.UpdateRestaurantResponseAsync(reviewId, userId!.Value, restaurnatResponse);
             return OkOrErrors(result);
         }
 
@@ -103,14 +103,14 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(204), ProducesResponseType(400)]
         public async Task<ActionResult> DeleteRestaurantResponse(int reviewId)
         {
-            var userid = User.GetUserId();
-            var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
+            var userId = User.GetUserId();
+            //var user = await userManager.GetUserAsync(User);
+            // if (userId is null)
+            // {
+            //     return Unauthorized();
+            // }
 
-            var result = await reviewService.DeleteRestaurantResponseAsync(reviewId, user);
+            var result = await reviewService.DeleteRestaurantResponseAsync(reviewId, userId!.Value);
             return OkOrErrors(result);
         }
     
