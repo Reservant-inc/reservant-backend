@@ -67,5 +67,7 @@ public class Mappings : Profile
                 restaurant => restaurant.Reviews.Average(review => (double?)review.Stars) ?? 0)
             .MapMemberFrom(dto => dto.NumberReviews,
                 restaurant => restaurant.Reviews.Count);
+
+        CreateMap<OpeningHours, AvailableHoursVM>();
     }
 }

@@ -189,7 +189,8 @@ namespace Reservant.Api.Services
                     Tags = r.Tags.Select(t => t.Name).ToList(),
                     DistanceFrom = origin.IsEmpty ? null : origin.Distance(r.Location),
                     Rating = r.Reviews.Select(rv => (double?)rv.Stars).Average() ?? 0,
-                    NumberReviews = r.Reviews.Count
+                    NumberReviews = r.Reviews.Count,
+                    OpeningHours = r.OpeningHours.ToList(),
                 })
                 .PaginateAsync(page, perPage, []);
 
@@ -282,7 +283,8 @@ namespace Reservant.Api.Services
                         PhotoFileName = photo,
                         Order = index + 1
                     })
-                    .ToList()
+                    .ToList(),
+                OpeningHours = new WeeklyOpeningHours(request.OpeningHours),
             };
 
             result = await validationService.ValidateAsync(restaurant, user.Id);
@@ -606,6 +608,8 @@ namespace Reservant.Api.Services
             restaurant.LogoFileName = request.Logo;
             restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
              request.Location.Latitude));
+
+            restaurant.OpeningHours = new WeeklyOpeningHours(request.OpeningHours);
 
             restaurant.Tags = await context.RestaurantTags
                 .Where(t => request.Tags.Contains(t.Name))
@@ -1447,25 +1451,30 @@ namespace Reservant.Api.Services
 
             // Pobieramy rezerwacje, które kolidują z danym dniem
             var reservations = await context.Visits
-                .Where(v => v.RestaurantId == restaurantId && DateOnly.FromDateTime(v.Date) == date)
+                .Where(v => v.RestaurantId == restaurantId && v.Date.Date == date.ToDateTime(new TimeOnly()))
                 .ToListAsync();
 
-            //TODO
-            // Tworzymy zakres godzin do sprawdzenia dostępności
-            var openingTime = TimeSpan.FromHours(8);  // przykładowa godzina otwarcia
-            var closingTime = TimeSpan.FromHours(22); // przykładowa godzina zamknięcia
+            //Pobranie godzin otwarcia i zamknięcia restauracji w podanym dniu
+            var openingTime = restaurant.OpeningHours[date.DayOfWeek].From;
+            var closingTime = restaurant.OpeningHours[date.DayOfWeek].Until;
+
+            if (openingTime == null || closingTime == null)
+            {
+                return new List<AvailableHoursVM>();
+            }
 
             var availableHours = new List<AvailableHoursVM>();
 
             // Sprawdzamy dostępność godzin dla każdego stolika
-            for (var time = openingTime; time < closingTime; time += TimeSpan.FromMinutes(30))
+            var wrappedDays = 0;
+            for (var time = openingTime.Value; time < closingTime.Value && wrappedDays < 1; time = time.AddMinutes(30, out wrappedDays))
             {
                 var timeSlotAvailable = availableTables.Any(table =>
                     // Check if there are no reservations for this table that overlap with the current time slot
                     !reservations.Any(r =>
-                        r.TableId == table.TableId &&                         // Same table
-                        r.Date.TimeOfDay <= time &&                           // Reservation starts before or at the current time (compare times only)
-                        r.EndTime.TimeOfDay > time                            // Reservation ends after the current time slot starts (compare times only)
+                        r.TableId == table.TableId && // Same table
+                        TimeOnly.FromDateTime(r.Date) <= time && // Reservation starts before or at the current time (compare times only)
+                        TimeOnly.FromDateTime(r.EndTime) > time // Reservation ends after the current time slot starts (compare times only)
                     )
                 );
 
