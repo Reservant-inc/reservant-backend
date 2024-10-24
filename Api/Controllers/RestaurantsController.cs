@@ -160,7 +160,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="perPage">Number of reviews per page</param>
     [HttpGet("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetReviewsAsync))]
     public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
