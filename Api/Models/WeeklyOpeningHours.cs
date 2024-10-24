@@ -44,7 +44,7 @@ public class WeeklyOpeningHours : ICollection<OpeningHours>
         set => _openingHours[DayOfWeekToIndex(dayOfWeek)] = value;
     }
 
-    private static int DayOfWeekToIndex(DayOfWeek dayOfWeek) => ((int)dayOfWeek + 1) % 7;
+    private static int DayOfWeekToIndex(DayOfWeek dayOfWeek) => ((int)dayOfWeek + 6) % 7;
 
     /// <inheritdoc />
     public IEnumerator<OpeningHours> GetEnumerator() => _openingHours.AsEnumerable().GetEnumerator();
