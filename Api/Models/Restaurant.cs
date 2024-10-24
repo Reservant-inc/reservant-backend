@@ -84,6 +84,11 @@ public class Restaurant
     public required string IdCardFileName { get; set; }
 
     /// <summary>
+    /// Max reservation duration
+    /// </summary>
+    public required int MaxReservationDurationMinutes { get; set; }
+
+    /// <summary>
     /// Restaurant group ID
     /// </summary>
     public int GroupId { get; set; }

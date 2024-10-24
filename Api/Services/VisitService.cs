@@ -54,6 +54,15 @@ public class VisitService(
     /// <param name="request">Description of the new visit</param>
     /// <param name="user">Owner of the visit</param>
     /// <returns></returns>
+    [ErrorCode(nameof(request.Date), ErrorCodes.InvalidTimeSlot, "Reservations can only be made for full hours or half hours")]
+    [ErrorCode(nameof(request.EndTime), ErrorCodes.InvalidTimeSlot, "Reservations can only be made for full hours or half hours")]
+    [ValidatorErrorCodes<CreateVisitRequest>]
+    [ErrorCode(nameof(request.RestaurantId), ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.Duplicate, "You already have a reservation during this time period.")]
+    [ErrorCode(nameof(request.EndTime), ErrorCodes.VisitExceedsMaxTime)]
+    [ErrorCode(nameof(request.EndTime), ErrorCodes.VisitTooShort)]
+    [ErrorCode(null, ErrorCodes.NoAvailableTable)]
+    [ValidatorErrorCodes<Visit>]
     public async Task<Result<VisitSummaryVM>> CreateVisitAsync(CreateVisitRequest request, User user)
     {
         // Walidacja czy godziny rezerwacji s� na pe�ne godziny lub p�godzinne
@@ -94,7 +103,7 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = "RestaurantId",
+                PropertyName = nameof(request.RestaurantId),
                 ErrorMessage = "Restaurant not found",
                 ErrorCode = ErrorCodes.NotFound
             };
@@ -111,11 +120,34 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = "ClientId",
+                PropertyName = null,
                 ErrorMessage = "You already have a reservation during this time period.",
                 ErrorCode = ErrorCodes.Duplicate
             };
         }
+
+        TimeSpan visitDuration = request.EndTime.Subtract(request.Date);
+
+        if (visitDuration.TotalMinutes > restaurant.MaxReservationDurationMinutes)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.EndTime),
+                ErrorMessage = "Visit duration exceeds restaurant maximum visit time.",
+                ErrorCode = ErrorCodes.VisitExceedsMaxTime
+            };
+        }
+
+        if (visitDuration.TotalMinutes < Visit.MinReservationDurationMinutes)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.EndTime),
+                ErrorMessage = $"Visit duration must be at least {Visit.MinReservationDurationMinutes}min.",
+                ErrorCode = ErrorCodes.VisitTooShort
+            };
+        }
+
 
         // ��czna liczba ludzi to liczba go�ci kt�rzy nie maj� konta + liczba go�ci kt�rzy maj� konto i je podali�my + osoba sk�adaj�ca zam�wienie
         var numberOfPeople = request.NumberOfGuests + request.ParticipantIds.Count + 1;
@@ -134,9 +166,9 @@ public class VisitService(
         {
             return new ValidationFailure
             {
-                PropertyName = "TableId",
+                PropertyName = null,
                 ErrorMessage = "No available tables for the requested time slot",
-                ErrorCode = ErrorCodes.NotFound
+                ErrorCode = ErrorCodes.NoAvailableTable
             };
         }
 

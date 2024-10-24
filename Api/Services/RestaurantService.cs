@@ -266,6 +266,7 @@ namespace Reservant.Api.Services
                 AlcoholLicenseFileName = request.AlcoholLicense,
                 BusinessPermissionFileName = request.BusinessPermission,
                 IdCardFileName = request.IdCard,
+                MaxReservationDurationMinutes = request.MaxReservationDuration,
                 LogoFileName = request.Logo,
                 ProvideDelivery = request.ProvideDelivery,
                 Description = request.Description?.Trim(),
@@ -600,6 +601,7 @@ namespace Reservant.Api.Services
             restaurant.ProvideDelivery = request.ProvideDelivery;
             restaurant.Description = request.Description?.Trim();
             restaurant.ReservationDeposit = request.ReservationDeposit;
+            restaurant.MaxReservationDurationMinutes = request.MaxReservationDuration;
 
             restaurant.RentalContractFileName = request.RentalContract;
             restaurant.AlcoholLicenseFileName = request.AlcoholLicense;

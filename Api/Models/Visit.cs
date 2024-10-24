@@ -10,6 +10,11 @@ namespace Reservant.Api.Models;
 public class Visit : ISoftDeletable
 {
     /// <summary>
+    /// Minimal reservation duration in minutes
+    /// </summary>
+    public const int MinReservationDurationMinutes = 30;
+
+    /// <summary>
     /// Unique ID
     /// </summary>
     [Key]

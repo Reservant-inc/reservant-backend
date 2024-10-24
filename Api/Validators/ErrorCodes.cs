@@ -251,4 +251,19 @@ public static class ErrorCodes
     /// </summary>
     public const string NotInAMenu = "MenuNotFound";
 
+
+    /// <summary>
+    /// Visit duration exceeds restaurant maximum visit time
+    /// </summary>
+    public const string VisitExceedsMaxTime = "VisitExceedsMaxTime";
+
+    /// <summary>
+    /// Visit duration is too short
+    /// </summary>
+    public const string VisitTooShort = "VisitTooShort";
+
+    /// <summary>
+    /// A reservation cannot be made as there is no available tables
+    /// </summary>
+    public const string NoAvailableTable = "NoAvailableTable";
 }
