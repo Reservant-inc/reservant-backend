@@ -138,12 +138,12 @@ public class VisitService(
             };
         }
 
-        if (visitDuration.TotalMinutes < 30)
+        if (visitDuration.TotalMinutes < Visit.MinReservationDurationMinutes)
         {
             return new ValidationFailure
             {
                 PropertyName = nameof(request.EndTime),
-                ErrorMessage = "Visit duration must be at least 30min.",
+                ErrorMessage = $"Visit duration must be at least {Visit.MinReservationDurationMinutes}min.",
                 ErrorCode = ErrorCodes.VisitTooShort
             };
         }

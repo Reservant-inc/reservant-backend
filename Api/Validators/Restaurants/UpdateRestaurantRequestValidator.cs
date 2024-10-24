@@ -1,6 +1,7 @@
 using FluentValidation;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Models;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.Restaurants;
@@ -26,9 +27,9 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
             .NotEmpty()
             .MaximumLength(70)
             .IsValidAddress();
-        
+
         RuleFor(r => r.MaxReservationDuration)
-            .GreaterThanOrEqualTo(30);
+            .GreaterThanOrEqualTo(Visit.MinReservationDurationMinutes);
 
 
         RuleFor(r => r.PostalIndex)
