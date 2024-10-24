@@ -208,6 +208,7 @@ public class RestaurantMenuService(
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User not permitted to edit menu with ID.")]
+    [ErrorCode(nameof(UpdateMenuRequest.MenuItemsIds), ErrorCodes.AccessDenied)]
     [ValidatorErrorCodes<Menu>]
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
@@ -241,12 +242,30 @@ public class RestaurantMenuService(
             };
         }
 
+        // Validating menu items
+        var menuItems = await context.MenuItems
+            .Where(m => m.RestaurantId == menu.RestaurantId)
+            .Select(m => m.MenuItemId)
+            .ToListAsync();
+        foreach (var itemId in request.MenuItemsIds)
+        {
+            if (!menuItems.Contains(itemId))
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.AccessDenied,
+                    ErrorMessage = ErrorCodes.AccessDenied,
+                    PropertyName = nameof(request.MenuItemsIds)
+                };
+            }
+        }
+
         menu.Name = request.Name.Trim();
         menu.AlternateName = request.AlternateName?.Trim();
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
-        menu.MenuItems = await context.MenuItems.Where(m => request.MenuItemsIds.Contains(m.MenuItemId) && m.RestaurantId == menu.RestaurantId).ToListAsync();
+        menu.MenuItems = await context.MenuItems.Where(m => request.MenuItemsIds.Contains(m.MenuItemId)).ToListAsync();
 
         var result = await validationService.ValidateAsync(menu, user.Id);
         if (!result.IsValid)
