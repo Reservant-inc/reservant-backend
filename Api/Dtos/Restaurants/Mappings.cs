@@ -68,10 +68,6 @@ public class Mappings : Profile
             .MapMemberFrom(dto => dto.NumberReviews,
                 restaurant => restaurant.Reviews.Count);
 
-        CreateMap<OpeningHours, AvailableHoursVM>()
-            .MapMemberFrom(oh => oh.From,
-                ah => ah.From)
-            .MapMemberFrom(oh => oh.Until,
-                ah => ah.Until);
+        CreateMap<OpeningHours, AvailableHoursVM>();
     }
 }
