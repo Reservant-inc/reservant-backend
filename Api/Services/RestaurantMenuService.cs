@@ -208,7 +208,7 @@ public class RestaurantMenuService(
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User not permitted to edit menu with ID.")]
-    [ErrorCode(nameof(UpdateMenuRequest.MenuItemsIds), ErrorCodes.AccessDenied)]
+    [ErrorCode(nameof(UpdateMenuRequest.MenuItemsIds), ErrorCodes.NotFound)]
     [ValidatorErrorCodes<Menu>]
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
@@ -244,20 +244,16 @@ public class RestaurantMenuService(
 
         // Validating menu items
         var menuItems = await context.MenuItems
-            .Where(m => m.RestaurantId == menu.RestaurantId)
-            .Select(m => m.MenuItemId)
+            .Where(m => m.RestaurantId == menu.RestaurantId && request.MenuItemsIds.Contains(m.MenuItemId))
             .ToListAsync();
-        foreach (var itemId in request.MenuItemsIds)
+        if (menuItems.Count != request.MenuItemsIds.Count)
         {
-            if (!menuItems.Contains(itemId))
+            return new ValidationFailure
             {
-                return new ValidationFailure
-                {
-                    ErrorCode = ErrorCodes.AccessDenied,
-                    ErrorMessage = ErrorCodes.AccessDenied,
-                    PropertyName = nameof(request.MenuItemsIds)
-                };
-            }
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Some of the provided menu items either don't exist or belong to another restaurant",
+                PropertyName = nameof(request.MenuItemsIds),
+            };
         }
 
         menu.Name = request.Name.Trim();
@@ -265,7 +261,7 @@ public class RestaurantMenuService(
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
-        menu.MenuItems = await context.MenuItems.Where(m => request.MenuItemsIds.Contains(m.MenuItemId)).ToListAsync();
+        menu.MenuItems = menuItems;
 
         var result = await validationService.ValidateAsync(menu, user.Id);
         if (!result.IsValid)
