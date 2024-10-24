@@ -1466,16 +1466,14 @@ namespace Reservant.Api.Services
             var availableHours = new List<AvailableHoursVM>();
 
             // Sprawdzamy dostępność godzin dla każdego stolika
-            for (var time = openingTime.Value; time < closingTime.Value; time += TimeSpan.FromMinutes(30))
+            for (var time = openingTime.Value; time < closingTime.Value; time.AddMinutes(30))
             {
                 var timeSlotAvailable = availableTables.Any(table =>
                     // Check if there are no reservations for this table that overlap with the current time slot
                     !reservations.Any(r =>
-                            r.TableId == table.TableId && // Same table
-                            r.Date.TimeOfDay <=
-                            time && // Reservation starts before or at the current time (compare times only)
-                            r.EndTime.TimeOfDay >
-                            time // Reservation ends after the current time slot starts (compare times only)
+                        r.TableId == table.TableId && // Same table
+                        TimeOnly.FromDateTime(r.Date) <= time && // Reservation starts before or at the current time (compare times only)
+                        TimeOnly.FromDateTime(r.EndTime) > time // Reservation ends after the current time slot starts (compare times only)
                     )
                 );
 

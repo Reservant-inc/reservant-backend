@@ -8,10 +8,10 @@ public class OpeningHours
     /// <summary>
     /// When the restaurant opens
     /// </summary>
-    public TimeSpan? From { get; set; }
+    public TimeOnly? From { get; set; }
 
     /// <summary>
     /// When the restaurant closes
     /// </summary>
-    public TimeSpan? Until { get; set; }
+    public TimeOnly? Until { get; set; }
 }

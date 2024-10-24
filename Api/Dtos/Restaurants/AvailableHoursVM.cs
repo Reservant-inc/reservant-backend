@@ -8,10 +8,10 @@ public class AvailableHoursVM
     /// <summary>
     /// Available from
     /// </summary>
-    public TimeSpan From { get; set; }
+    public TimeOnly From { get; set; }
 
     /// <summary>
     /// Available until
     /// </summary>
-    public TimeSpan Until { get; set; }
+    public TimeOnly Until { get; set; }
 }
