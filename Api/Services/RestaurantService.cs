@@ -190,7 +190,7 @@ namespace Reservant.Api.Services
                     DistanceFrom = origin.IsEmpty ? null : origin.Distance(r.Location),
                     Rating = r.Reviews.Select(rv => (double?)rv.Stars).Average() ?? 0,
                     NumberReviews = r.Reviews.Count,
-                    OpeningHours = r.OpeningHours,
+                    OpeningHours = r.OpeningHours.ToList(),
                 })
                 .PaginateAsync(page, perPage, []);
 
@@ -284,7 +284,7 @@ namespace Reservant.Api.Services
                         Order = index + 1
                     })
                     .ToList(),
-                OpeningHours = request.OpeningHours,
+                OpeningHours = new WeeklyOpeningHours(request.OpeningHours),
             };
 
             result = await validationService.ValidateAsync(restaurant, user.Id);
@@ -609,7 +609,7 @@ namespace Reservant.Api.Services
             restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
              request.Location.Latitude));
 
-            restaurant.OpeningHours = request.OpeningHours;
+            restaurant.OpeningHours = new WeeklyOpeningHours(request.OpeningHours);
 
             restaurant.Tags = await context.RestaurantTags
                 .Where(t => request.Tags.Contains(t.Name))
@@ -1444,15 +1444,12 @@ namespace Reservant.Api.Services
 
             // Pobieramy rezerwacje, które kolidują z danym dniem
             var reservations = await context.Visits
-                .Where(v => v.RestaurantId == restaurantId && DateOnly.FromDateTime(v.Date) == date)
+                .Where(v => v.RestaurantId == restaurantId && v.Date.Date == date.ToDateTime(new TimeOnly()))
                 .ToListAsync();
 
             //Pobranie godzin otwarcia i zamknięcia restauracji w podanym dniu
-            var dayOfWeek = ((int)date.DayOfWeek) + 1;
-            dayOfWeek = dayOfWeek == 7 ? dayOfWeek = 0 : dayOfWeek;
-
-            var openingTime = restaurant.OpeningHours[dayOfWeek].From;
-            var closingTime = restaurant.OpeningHours[dayOfWeek].Until;
+            var openingTime = restaurant.OpeningHours[date.DayOfWeek].From;
+            var closingTime = restaurant.OpeningHours[date.DayOfWeek].Until;
 
             if (openingTime == null || closingTime == null)
             {
