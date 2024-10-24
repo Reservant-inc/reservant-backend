@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
-using Reservant.Api.Models;
-using Microsoft.AspNetCore.Identity;
-
 
 namespace Reservant.Api.Controllers
 {
@@ -15,8 +12,7 @@ namespace Reservant.Api.Controllers
     /// </summary>
     [ApiController, Route("/reviews")]
     public class ReviewController(
-        ReviewService reviewService//,
-        //UserManager<User> userManager
+        ReviewService reviewService
         ) : StrictController
     {
         /// <summary>
@@ -82,12 +78,6 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<ReviewVM>> UpdateRestaurantResponse(int reviewId, RestaurantResponseDto restaurnatResponse)
         {
             var userId = User.GetUserId();
-            // var user = await userManager.GetUserAsync(User);
-            // if (user is null)
-            // {
-            //     return Unauthorized();
-            // }
-
             var result = await reviewService.UpdateRestaurantResponseAsync(reviewId, userId!.Value, restaurnatResponse);
             return OkOrErrors(result);
         }
@@ -104,15 +94,9 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult> DeleteRestaurantResponse(int reviewId)
         {
             var userId = User.GetUserId();
-            //var user = await userManager.GetUserAsync(User);
-            // if (userId is null)
-            // {
-            //     return Unauthorized();
-            // }
-
             var result = await reviewService.DeleteRestaurantResponseAsync(reviewId, userId!.Value);
             return OkOrErrors(result);
         }
-    
+
     }
 }

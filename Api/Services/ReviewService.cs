@@ -18,7 +18,7 @@ namespace Reservant.Api.Services
         ApiDbContext context,
         ValidationService validationService,
         AuthorizationService authorizationService,
-        IMapper mapper 
+        IMapper mapper
         )
     {
         /// <summary>
@@ -147,7 +147,7 @@ namespace Reservant.Api.Services
 
             return review;
         }
-    
+
         /// <summary>
         /// Update restaurant response by review ID
         /// </summary>
@@ -160,12 +160,6 @@ namespace Reservant.Api.Services
         [ValidatorErrorCodes<Review>]
         public async Task<Result<ReviewVM>> UpdateRestaurantResponseAsync(int reviewId,Guid userId, RestaurantResponseDto restaurnatResponse)
         {
-            // var res = await validationService.ValidateAsync(request, userid);
-            // if (!res.IsValid)
-            // {
-            //     return res.Errors;
-            // }
-            
             var review = await context.Reviews
             .Include(r => r.Author)
             .FirstOrDefaultAsync(r => r.ReviewId == reviewId);
