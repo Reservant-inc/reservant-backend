@@ -1459,7 +1459,8 @@ namespace Reservant.Api.Services
             var availableHours = new List<AvailableHoursVM>();
 
             // Sprawdzamy dostępność godzin dla każdego stolika
-            for (var time = openingTime.Value; time < closingTime.Value; time = time.AddMinutes(30))
+            var wrappedDays = 0;
+            for (var time = openingTime.Value; time < closingTime.Value && wrappedDays < 1; time = time.AddMinutes(30, out wrappedDays))
             {
                 var timeSlotAvailable = availableTables.Any(table =>
                     // Check if there are no reservations for this table that overlap with the current time slot
