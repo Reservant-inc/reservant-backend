@@ -24,6 +24,8 @@ public class Mappings : Profile
             .MapMemberFrom(dto => dto.Cost,
                 order => order.OrderItems.Sum(oi => oi.Price * oi.Amount))
             .MapMemberFrom(dto => dto.Status, order =>
-                order.OrderItems.Max(oi => oi.Status));
+                order.OrderItems.Max(oi => oi.Status))
+            .MapMemberFrom(dto => dto.Items,
+                order => order.OrderItems);
     }
 }
