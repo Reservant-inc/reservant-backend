@@ -15,15 +15,11 @@ public class Mappings : Profile
     public Mappings()
     {
         CreateMap<Event, EventVM>()
-            .MapMemberFrom(dto => dto.CreatorFullName,
-                @event => $"{@event.Creator.FirstName} {@event.Creator.LastName}")
             .ForMember(dto => dto.Participants, builder =>
                 builder.MapFrom(@event => @event.ParticipationRequests
                     .Where(request => request.DateAccepted != null)));
 
         CreateMap<Event, EventSummaryVM>()
-            .MapMemberFrom(dto => dto.CreatorFullName,
-                @event => $"{@event.Creator.FirstName} {@event.Creator.LastName}")
             .MapMemberFrom(dto => dto.NumberInterested,
                 @event => @event.ParticipationRequests.Count);
 
