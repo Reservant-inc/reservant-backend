@@ -315,36 +315,42 @@ public class RestaurantMenuService(
     /// Remove MenuItems from a Menu
     /// </summary>
     /// <returns>MenuItem</returns>
-    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(nameof(menuId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(req.ItemIds), ErrorCodes.NotFound, "Some of the menu items not found in the menu")]
     public async Task<Result> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
     {
-        var menuItemIds = req.ItemIds;
-
         var menu = await context.Menus
-            .Include(m => m.MenuItems
-                .Where(item => menuItemIds.Contains(item.MenuItemId))
-            ).FirstOrDefaultAsync(m => m.MenuId == menuId && user.Id == m.Restaurant.Group.OwnerId);
+            .Include(m => m.MenuItems)
+            .FirstOrDefaultAsync(m => m.MenuId == menuId && user.Id == m.Restaurant.Group.OwnerId);
 
         if (menu == null)
         {
             return new ValidationFailure
             {
+                PropertyName = nameof(menuId),
                 ErrorMessage = "Menu not found",
-                ErrorCode = ErrorCodes.NotFound
+                ErrorCode = ErrorCodes.NotFound,
             };
         }
 
-        if (menu.MenuItems.Count == 0)
+        var menuItemsToRemove = menu.MenuItems
+            .Where(menuItem => req.ItemIds.Contains(menuItem.MenuItemId))
+            .ToList();
+
+        if (menuItemsToRemove.Count != req.ItemIds.Count)
         {
             return new ValidationFailure
             {
-                ErrorMessage = "Menu items not found",
-                ErrorCode = ErrorCodes.NotFound
+                PropertyName = nameof(req.ItemIds),
+                ErrorMessage = "Some of the menu items not found in the menu",
+                ErrorCode = ErrorCodes.NotFound,
             };
         }
 
-        context.MenuItems.RemoveRange(menu.MenuItems);
-
+        foreach (var menuItem in menuItemsToRemove)
+        {
+            menu.MenuItems.Remove(menuItem);
+        }
         await context.SaveChangesAsync();
 
         return Result.Success;
