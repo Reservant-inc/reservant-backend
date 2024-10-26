@@ -66,6 +66,7 @@ namespace Reservant.Api.Services
             int page, int perPage)
         {
             IQueryable<Restaurant> query = context.Restaurants
+                .AsNoTracking()
                 .OnlyActiveRestaurants();
 
             if (name is not null)
@@ -311,6 +312,7 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
+                .AsNoTracking()
                 .Where(r => r.Group.OwnerId == userId)
                 .Where(r => name == null || r.Name.Contains(name.Trim()))
                 .ProjectTo<RestaurantSummaryVM>(mapper.ConfigurationProvider)
@@ -328,6 +330,7 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
+                .AsNoTracking()
                 .Where(r => r.Group.OwnerId == userId)
                 .Where(r => r.RestaurantId == id)
                 .ProjectTo<MyRestaurantVM>(mapper.ConfigurationProvider)
@@ -502,6 +505,7 @@ namespace Reservant.Api.Services
         public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, Guid userId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Group)
                 .Include(r => r.Employments)
                 .ThenInclude(e => e.Employee)
@@ -737,6 +741,7 @@ namespace Reservant.Api.Services
             var todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
 
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Menus)
                 .OnlyActiveRestaurants()
                 .Where(i => i.RestaurantId == restaurantId)
@@ -768,6 +773,7 @@ namespace Reservant.Api.Services
         public async Task<Result<List<MenuItemVM>>> GetMenuItemsCustomerAsync(User user, int restaurantId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Menus)
                 .OnlyActiveRestaurants()
                 .Where(i => i.RestaurantId == restaurantId)
@@ -877,6 +883,7 @@ namespace Reservant.Api.Services
             }
 
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(restaurant => restaurant.Group)
                 .FirstOrDefaultAsync(x => x.RestaurantId == restaurantId);
             if (restaurant == null)
@@ -971,6 +978,7 @@ namespace Reservant.Api.Services
             int page, int perPage)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .OnlyActiveRestaurants()
                 .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
             if (restaurant == null)
@@ -1080,6 +1088,7 @@ namespace Reservant.Api.Services
             ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .OnlyActiveRestaurants()
                 .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
 
@@ -1150,6 +1159,7 @@ namespace Reservant.Api.Services
         public async Task<Result<RestaurantVM>> GetRestaurantByIdAsync(int restaurantId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .OnlyActiveRestaurants()
                 .Where(x => x.RestaurantId == restaurantId)
                 .ProjectTo<RestaurantVM>(mapper.ConfigurationProvider)
@@ -1187,6 +1197,7 @@ namespace Reservant.Api.Services
             int perPage)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .OnlyActiveRestaurants()
                 .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
             if (restaurant == null)
@@ -1333,6 +1344,7 @@ namespace Reservant.Api.Services
         public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, Guid userId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Menus)
                 .Where(i => i.RestaurantId == id)
                 .FirstOrDefaultAsync();
@@ -1432,6 +1444,7 @@ namespace Reservant.Api.Services
         public async Task<Result<List<AvailableHoursVM>>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Tables)
                 .OnlyActiveRestaurants()
                 .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);

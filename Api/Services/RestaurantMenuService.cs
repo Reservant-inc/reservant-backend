@@ -62,6 +62,7 @@ public class RestaurantMenuService(
     public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(CreateMenuRequest req, User user)
     {
         var restaurant = await context.Restaurants
+            .AsNoTracking()
             .Include(r => r.Group)
             .FirstOrDefaultAsync(r => r.RestaurantId == req.RestaurantId);
 

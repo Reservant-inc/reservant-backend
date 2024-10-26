@@ -33,6 +33,7 @@ namespace Reservant.Api.Services
         public async Task<Result<MenuItemVM>> CreateMenuItemsAsync(Guid userId, CreateMenuItemRequest req)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .OnlyActiveRestaurants()
                 .FirstOrDefaultAsync(r => r.RestaurantId == req.RestaurantId);
 
@@ -137,6 +138,7 @@ namespace Reservant.Api.Services
         public async Task<Result> ValidateRestaurant(User user, int restaurantId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .OnlyActiveRestaurants()
                 .Include(r => r.Group)
                 .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);

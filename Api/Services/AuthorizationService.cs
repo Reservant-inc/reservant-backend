@@ -26,6 +26,7 @@ public class AuthorizationService(
     {
         var restaurant = await context
             .Restaurants
+            .AsNoTracking()
             .Include(x => x.Group)
             .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId && r.Group.OwnerId == userId);
 
@@ -50,6 +51,7 @@ public class AuthorizationService(
     public async Task<Result> VerifyRestaurantBackdoorAccess(int restaurantId, Guid userId)
     {
         var userHasBackdoorsAccess = await context.Restaurants
+            .AsNoTracking()
             .OnlyActiveRestaurants()
             .Where(r => r.RestaurantId == restaurantId)
             .Select(r => r.Group.OwnerId == userId
@@ -80,6 +82,7 @@ public class AuthorizationService(
     public async Task<Result> VerifyRestaurantHallAccess(int restaurantId, Guid userId)
     {
         var userHasBackdoorsAccess = await context.Restaurants
+            .AsNoTracking()
             .OnlyActiveRestaurants()
             .Where(r => r.RestaurantId == restaurantId)
             .Select(r => r.Group.OwnerId == userId
