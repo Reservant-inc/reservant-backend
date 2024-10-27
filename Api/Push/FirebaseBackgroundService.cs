@@ -68,7 +68,14 @@ public class FirebaseBackgroundService(
                 continue;
             }
 
-            await SendNotification(notification);
+            try
+            {
+                await SendNotification(notification);
+            }
+            catch (Exception ex)
+            {
+                logger.FirebaseMessagingError(ex, notification.TargetUserId);
+            }
         }
     }
 

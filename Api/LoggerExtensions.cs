@@ -30,7 +30,7 @@ public static partial class LoggerExtensions
     /// <summary>
     /// Failed to send a Firebase push notification
     /// </summary>
-    [LoggerMessage(Level = LogLevel.Warning, EventId = 1003, EventName = "Reservant.Api.FirebaseMessagingError",
+    [LoggerMessage(Level = LogLevel.Error, EventId = 1003, EventName = "Reservant.Api.FirebaseMessagingError",
         Message = "Failed to send a Firebase push notification to user ID {UserId}")]
     public static partial void FirebaseMessagingError(this ILogger logger, Exception ex, Guid userId);
 }
