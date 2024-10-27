@@ -6,9 +6,9 @@ namespace Reservant.Api.Dtos.Orders;
 public class UpdateOrderStatusRequest
 {
     /// <summary>
-    /// Serving employee IDs
+    /// Serving employee ID
     /// </summary>
-    public required ICollection<Guid> EmployeeIds { get; set; }
+    public required Guid EmployeeId { get; set; }
 
     /// <summary>
     /// List of Items included in the order

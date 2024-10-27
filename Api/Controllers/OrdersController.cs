@@ -75,7 +75,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPut("{orderId:int}/status")]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
+    //[Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<OrderVM>> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequest request)
     {
@@ -98,6 +98,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     [HttpPut("{orderId:int}/employee")]
     [Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<OrderService>(nameof(OrderService.UpdateOrderStatusAsync))]
     public async Task<ActionResult<OrderVM>> AssignEmployeeToOrder(int orderId, [FromBody] Guid userId)
     {
         var user = await userManager.GetUserAsync(User);
