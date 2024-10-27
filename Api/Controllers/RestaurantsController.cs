@@ -89,11 +89,13 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
     /// <param name="orderBy">Order by criteria</param>
+    /// <param name="tableId">Optional table number filter by Id</param>
+    /// <param name="assignedEmployeeId ">Optional emplyee number filter by Id</param>
     /// <returns>List of orders with pagination</returns>
     [HttpGet("{restaurantId:int}/orders")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
-    public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int restaurantId, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null)
+    public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int restaurantId, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null )
     {
         var userId = User.GetUserId();
         if (userId is null)
@@ -101,7 +103,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var result = await service.GetOrdersAsync(userId.Value, restaurantId, returnFinished, page, perPage, orderBy);
+        var result = await service.GetOrdersAsync(userId.Value, restaurantId, returnFinished, page, perPage, orderBy,tableId,assignedEmployeeId);
         return OkOrErrors(result);
     }
 

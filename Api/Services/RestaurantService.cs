@@ -861,9 +861,11 @@ namespace Reservant.Api.Services
         /// <param name="page">Page to return</param>
         /// <param name="perPage">Items per page</param>
         /// <param name="orderBy">Sorting order</param>
+        /// <param name="tableId">Optional table number filter by Id</param>
+        /// <param name="assignedEmployeeId ">Optional emplyee number filter by Id</param>
         /// <returns>Paginated order list</returns>
         public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(Guid userId, int restaurantId,
-            bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null)
+            bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null )
         {
             var user = await userManager.FindByIdAsync(userId.ToString());
             if (user == null)
@@ -931,7 +933,10 @@ namespace Reservant.Api.Services
                 .Include(order => order.Visit)
                 .Include(order => order.OrderItems)
                 .ThenInclude(orderItem => orderItem.MenuItem)
-                .Where(order => order.Visit.RestaurantId == restaurantId);
+                .Where(order => order.Visit.RestaurantId == restaurantId && 
+                tableId!=null?order.Visit.TableId==tableId:true && 
+                assignedEmployeeId!=null?order.AssignedEmployeeId==assignedEmployeeId:true
+                );
 
             if (returnFinished)
             {
