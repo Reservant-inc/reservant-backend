@@ -41,12 +41,12 @@ public class DebugController(
     }
 
     /// <summary>
-    /// Send a sample notification to a user
+    /// Send a sample notification to John Doe
     /// </summary>
     [HttpPost("send-test-notification")]
     public async Task<ActionResult> SendTestNotification([FromServices] NotificationService service)
     {
-        await service.NotifyNewRestaurantReview(Guid.Parse("28b618d7-2f32-4f0c-823d-e63ffa56e47f"), 1);
+        await service.NotifyNewRestaurantReview(Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367"), 1);
         return Ok();
     }
 }
