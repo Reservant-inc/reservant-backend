@@ -75,7 +75,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPut("{orderId:int}/status")]
-    //[Authorize(Roles = Roles.RestaurantEmployee)]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<OrderVM>> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequest request)
     {
@@ -86,28 +86,6 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
         }
 
         var result = await orderService.UpdateOrderStatusAsync(orderId, request, user);
-        return OkOrErrors(result);
-    }
-
-    /// <summary>
-    /// Assigns employee to order
-    /// </summary>
-    /// <param name="orderId">order id</param>
-    /// <param name="userId">user Id</param>
-    /// <returns></returns>
-    [HttpPut("{orderId:int}/employee")]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<OrderService>(nameof(OrderService.UpdateOrderStatusAsync))]
-    public async Task<ActionResult<OrderVM>> AssignEmployeeToOrder(int orderId, [FromBody] Guid userId)
-    {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await orderService.AssignEmployeeToOrderAsync(orderId, userId, user);
         return OkOrErrors(result);
     }
 }
