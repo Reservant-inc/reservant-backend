@@ -1,0 +1,99 @@
+script:pre-request {
+  
+  const { faker } = require('@faker-js/faker');
+  
+  //phone number
+  function generateRandomNumberSequence(length) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+          result += Math.floor(Math.random() * 10); 
+      }
+      return "+" + result;
+  }
+  const randomNumbers = generateRandomNumberSequence(11);
+  bru.setEnvVar("randomPhoneNumber", randomNumbers);
+  
+  //date
+  function generateFormattedDate() {
+      const today = new Date();
+      const year = today.getFullYear() - 20;
+      const month = ('0' + (today.getMonth() + 1)).slice(-2);
+      const day = ('0' + today.getDate()).slice(-2); 
+      return `${year}-${month}-${day}`;
+  }
+  const formattedDate = generateFormattedDate();
+  bru.setEnvVar("formattedDate", formattedDate);
+  
+  function generateRandomBirthdate(minAge = 18, maxAge = 65) {
+      return faker.date.birthdate({ min: minAge, max: maxAge, mode: 'age' }).toISOString().split('T')[0];
+  }
+  const birthDate = generateRandomBirthdate();
+  bru.setEnvVar("randomBirthDate", birthDate);
+  
+  function generatePassword() {
+      const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+      const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const digits = '0123456789';
+      const specialChars = '!@#$%^&*()_+{}[]|:;<>,.?/~`';
+  
+      let password = '';
+  
+      // Dodajemy co najmniej jedną wielką literę
+      password += uppercaseChars.charAt(Math.floor(Math.random() * uppercaseChars.length));
+  
+      // Dodajemy co najmniej jedną cyfrę
+      password += digits.charAt(Math.floor(Math.random() * digits.length));
+  
+      // Dodajemy co najmniej jeden znak specjalny
+      password += specialChars.charAt(Math.floor(Math.random() * specialChars.length));
+  
+      // Dodajemy co najmniej jedną małą literę
+      password += lowercaseChars.charAt(Math.floor(Math.random() * lowercaseChars.length));
+  
+      // Dodajemy pozostałe losowe znaki (litery małe, duże, cyfry lub znaki specjalne)
+      const allChars = lowercaseChars + uppercaseChars + digits + specialChars;
+      for (let i = password.length; i < 6; i++) {
+          password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+      }
+  
+      // Mieszamy znaki w haśle, aby mała litera, wielka litera, cyfra i znak specjalny były na losowych pozycjach
+      password = password.split('').sort(() => 0.5 - Math.random()).join('');
+  
+      return password;
+  }
+  
+  const randompassword = generatePassword();
+  bru.setEnvVar("randomPassword", randompassword);
+   
+  const randomFirstName = faker.name.firstName();
+  const randomLastName = faker.name.firstName();
+  const randomEmail = faker.internet.email();
+  bru.setEnvVar("randomFirstName", randomFirstName);
+  bru.setEnvVar("randomLastName", randomLastName);
+  bru.setEnvVar("randomEmail", randomEmail);
+  
+  const randomBoolean = faker.datatype.boolean();
+  bru.setEnvVar("randomBoolean", randomBoolean);
+  
+  function generateRandomLogin() {
+      const digits = '0123456789';
+  
+      // Losowe imię
+      const randomName = bru.getEnvVar("randomFirstName");
+  
+      // Generowanie losowego ciągu cyfr (np. 3 cyfry)
+      let randomDigits = '';
+      for (let i = 0; i < 3; i++) {
+          randomDigits += digits.charAt(Math.floor(Math.random() * digits.length));
+      }
+  
+      // Tworzenie loginu poprzez połączenie imienia i cyfr
+      const login = randomName + randomDigits;
+  
+      return login;
+  }
+  
+  const randomLogin = generateRandomLogin();
+  bru.setEnvVar("randomLogin", randomLogin);
+  
+}

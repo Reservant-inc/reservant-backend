@@ -12,26 +12,14 @@ post {
 
 body:json {
   {
-    "firstName": "John",
+    "firstName": "{{randomFirstName}}",
     "lastName": "",
-    "email": "johndoe@example.com",
-    "phoneNumber": "123456789",
-    "password": "pa$$w0rd",
-    "isManager": false
+    "email": "{{randomEmail}}",
+    "phoneNumber": "{{randomPhoneNumber}}",
+    "password": "{{randomPassword}}",
+    "isManager": {{randomBoolean}}
   }
   
-}
-
-script:pre-request {
-  function generateRandomNumberSequence(length) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += Math.floor(Math.random() * 10); 
-      }
-      return result;
-  }
-  const randomNumbers = generateRandomNumberSequence(9);
-  bru.setEnvVar("randomPhoneNumber", randomNumbers);
 }
 
 tests {
@@ -51,12 +39,15 @@ tests {
   test("lastName is required", function () {
       var responseData = res.getBody();
       expect(responseData.errors).to.have.property('lastName');
-      expect(responseData.errors.lastName[0]).to.include("The LastName field is required.");
+      expect(responseData.errors.lastName[0]).to.include("'Last Name' must not be empty.");
+    
+      expect(responseData.errorCodes).to.have.property('lastName');
+      expect(responseData.errorCodes.lastName[0]).to.include("NotEmptyValidator");
   });
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);

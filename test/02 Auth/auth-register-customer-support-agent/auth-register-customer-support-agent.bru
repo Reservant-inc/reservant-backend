@@ -12,25 +12,13 @@ post {
 
 body:json {
   {
-    "firstName": "{{$randomFirstName}}",
-    "lastName": "{{$randomLastName}}",
-    "email": "{{$randomEmail}}",
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
+    "email": "{{randomEmail}}",
     "phoneNumber": "{{randomPhoneNumber}}",
-    "password": "{{$randomAlphaNumeric.LENGTH(10)}}",
-    "isManager": {{$randomBoolean}}
+    "password": "{{randomPassword}}",
+    "isManager": {{randomBoolean}}
   }
-}
-
-script:pre-request {
-  function generateRandomNumberSequence(length) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += Math.floor(Math.random() * 10); 
-      }
-      return result;
-  }
-  const randomNumbers = generateRandomNumberSequence(9);
-  bru.setEnvVar("randomPhoneNumber", randomNumbers);
 }
 
 tests {
@@ -45,8 +33,7 @@ tests {
   });
   
   // Parsing the request and response body
-  // var requestBody = pm.request.body.raw;
-  var requestData = JSON.parse(requestBody);
+  var requestData = req.getBody();
   var responseData = res.getBody();
   
   // Check that each expected field is present and non-empty
