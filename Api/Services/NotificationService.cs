@@ -140,24 +140,7 @@ public class NotificationService(
     private async Task NotifyUser(
         Guid targetUserId, NotificationDetails details, string? photoFileName = null)
     {
-        var notification = new Notification(DateTime.UtcNow, targetUserId, details)
-        {
-            PhotoFileName = photoFileName,
-        };
-        context.Add(notification);
-        await context.SaveChangesAsync();
-
-        pushService.SendToUser(targetUserId, JsonSerializer.SerializeToUtf8Bytes(new NotificationVM
-        {
-            NotificationId = notification.NotificationId,
-            DateCreated = notification.DateCreated,
-            DateRead = notification.DateRead,
-            Photo = urlService.GetPathForFileName(notification.PhotoFileName),
-            NotificationType = notification.Details.GetType().Name,
-            Details = notification.Details,
-        }, JsonOptions));
-
-        firebaseService.EnqueueNotification(notification);
+        await NotifyUsers(Enumerable.Repeat(targetUserId, 1), details, photoFileName);
     }
 
     /// <summary>
