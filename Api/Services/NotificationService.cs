@@ -219,6 +219,26 @@ public class NotificationService(
     }
 
     /// <summary>
+    /// Notify employees that there is a new reservation in a restaurant
+    /// </summary>
+    /// <param name="targetUserIds">IDs of the employees</param>
+    /// <param name="reservation">R</param>
+    public async Task NotifyNewReservation(IEnumerable<Guid> targetUserIds, Visit reservation)
+    {
+        await NotifyUsers(
+            targetUserIds,
+            new NotificationNewReservation
+            {
+                RestaurantId = reservation.RestaurantId,
+                RestaurantName = reservation.Restaurant.Name,
+                Takeaway = reservation.Takeaway,
+                Date = reservation.Date,
+                EndTime = reservation.EndTime,
+                NumberOfPeople = reservation.NumberOfGuests + reservation.Participants.Count + 1,
+            });
+    }
+
+    /// <summary>
     /// Notify a user that his friend request was accepted
     /// </summary>
     /// <param name="targetUserId">ID of the person to receive the notification</param>

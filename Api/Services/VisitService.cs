@@ -191,7 +191,8 @@ public class VisitService(
             Client = user,
             ClientId = user.Id,
             Takeaway = request.Takeaway,
-            RestaurantId = request.RestaurantId,
+            RestaurantId = restaurant.RestaurantId,
+            Restaurant = restaurant,
             TableId = availableTable.TableId,
             Participants = participants,
             Deposit = restaurant.ReservationDeposit
@@ -207,6 +208,14 @@ public class VisitService(
         // Save the visit
         context.Add(visit);
         await context.SaveChangesAsync();
+
+        var hallEmployees = await context.Entry(restaurant)
+            .Collection(r => r.Employments)
+            .Query()
+            .Where(e => e.DateUntil == null && e.IsHallEmployee)
+            .Select(e => e.EmployeeId)
+            .ToListAsync();
+        await notificationService.NotifyNewReservation(hallEmployees, visit);
 
         return mapper.Map<VisitSummaryVM>(visit);
     }

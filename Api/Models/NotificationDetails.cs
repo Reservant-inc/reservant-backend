@@ -227,3 +227,39 @@ public class NotificationNewMessage  : NotificationDetails
     /// </summary>
     public required string Contents { get; set; }
 }
+
+/// <summary>
+/// Details for a new reservation notification
+/// </summary>
+public class NotificationNewReservation : NotificationDetails
+{
+    /// <summary>
+    /// ID of the restaurant
+    /// </summary>
+    public required int RestaurantId { get; set; }
+
+    /// <summary>
+    /// Name of the restaurant
+    /// </summary>
+    public required string RestaurantName { get; set; }
+
+    /// <summary>
+    /// Time when the reservation starts
+    /// </summary>
+    public required DateTime Date { get; set; }
+
+    /// <summary>
+    /// Time when the reservation ends
+    /// </summary>
+    public required DateTime EndTime { get; set; }
+
+    /// <summary>
+    /// Number of people
+    /// </summary>
+    public required int NumberOfPeople { get; set; }
+
+    /// <summary>
+    /// Whether the reservation is for a takeaway
+    /// </summary>
+    public required bool Takeaway { get; set; }
+}
