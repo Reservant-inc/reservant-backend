@@ -191,3 +191,39 @@ public class NotificationVisitApprovedDeclined  : NotificationDetails
     /// </summary>
     public required DateTime Date { get; set; }
 }
+
+/// <summary>
+/// Details for a new message notification
+/// </summary>
+public class NotificationNewMessage  : NotificationDetails
+{
+    /// <summary>
+    /// Message ID
+    /// </summary>
+    public required int MessageId { get; set; }
+
+    /// <summary>
+    /// Message thread ID
+    /// </summary>
+    public required int ThreadId { get; set; }
+
+    /// <summary>
+    /// Name of the thread
+    /// </summary>
+    public required string ThreadTitle { get; set; }
+
+    /// <summary>
+    /// ID of the author
+    /// </summary>
+    public required Guid AuthorId { get; set; }
+
+    /// <summary>
+    /// Full name of the author
+    /// </summary>
+    public required string AuthorName { get; set; }
+
+    /// <summary>
+    /// Content of the message
+    /// </summary>
+    public required string Contents { get; set; }
+}

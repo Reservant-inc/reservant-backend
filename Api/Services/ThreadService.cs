@@ -22,7 +22,8 @@ public class ThreadService(
     ApiDbContext dbContext,
     ValidationService validationService,
     UserManager<User> userManager,
-    IMapper mapper)
+    IMapper mapper,
+    NotificationService notificationService)
 {
     /// <summary>
     /// Creates a new message thread.
@@ -222,12 +223,17 @@ public class ThreadService(
             };
         }
 
+        var author = await dbContext.Users
+            .Where(u => u.Id == userId)
+            .FirstAsync();
+
         var message = new Message
         {
             Contents = request.Contents,
             DateSent = DateTime.UtcNow,
-            AuthorId = userId,
-            MessageThreadId = threadId
+            AuthorId = author.Id,
+            Author = author,
+            MessageThreadId = threadId,
         };
 
         var result = await validationService.ValidateAsync(message, userId);
@@ -236,12 +242,14 @@ public class ThreadService(
             return result;
         }
 
-        var user = await dbContext.Users
-            .Where(u => u.Id == userId)
-            .FirstAsync();
-
         dbContext.Add(message);
         await dbContext.SaveChangesAsync();
+
+        await notificationService.NotifyNewMessage(
+            messageThread.Participants
+                .Where(participant => participant != author)
+                .Select(participant => participant.Id),
+            message);
 
         return mapper.Map<MessageVM>(message);
     }

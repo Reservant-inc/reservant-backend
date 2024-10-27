@@ -59,4 +59,10 @@
     <data name="NotificationVisitApprovedDeclined.Details" xml:space="preserve">
         <value>Twoja rezerwacja w {RestaurantName} została {IsAccepted:choose:zatwierzona|odrzucona}</value>
     </data>
+    <data name="NotificationNewMessage.Title" xml:space="preserve">
+        <value>{AuthorName} w {ThreadTitle}</value>
+    </data>
+    <data name="NotificationNewMessage.Details" xml:space="preserve">
+        <value>{Contents}</value>
+    </data>
 </root>

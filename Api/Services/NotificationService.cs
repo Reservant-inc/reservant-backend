@@ -161,6 +161,81 @@ public class NotificationService(
     }
 
     /// <summary>
+    /// Notify multiple users that something has happened
+    /// </summary>
+    /// <param name="targetUserIds">IDs of the users that will receive the notification</param>
+    /// <param name="details">Kind-specific information. Stored in JSON in the database</param>
+    /// <param name="photoFileName">
+    /// File name of a picture related to the notification.
+    /// For example a user's profile picture, or a restaurant's logo
+    /// </param>
+    /// <param name="storeNotification">
+    /// Whether to persist the notification in the database.
+    /// Not required for example for New Message notifications, since those just
+    /// repeat message objects.
+    /// </param>
+    private async Task NotifyUsers(
+        IEnumerable<Guid> targetUserIds,
+        NotificationDetails details,
+        string? photoFileName = null,
+        bool storeNotification = true)
+    {
+        byte[]? pushMessage = null;
+        foreach (var targetUserId in targetUserIds)
+        {
+            var notification = new Notification(DateTime.UtcNow, targetUserId, details)
+            {
+                PhotoFileName = photoFileName,
+            };
+
+            if (storeNotification)
+            {
+                context.Add(notification);
+            }
+
+            pushMessage ??= JsonSerializer.SerializeToUtf8Bytes(new NotificationVM
+            {
+                NotificationId = notification.NotificationId,
+                DateCreated = notification.DateCreated,
+                DateRead = notification.DateRead,
+                Photo = urlService.GetPathForFileName(notification.PhotoFileName),
+                NotificationType = notification.Details.GetType().Name,
+                Details = notification.Details,
+            }, JsonOptions);
+
+            pushService.SendToUser(targetUserId, pushMessage);
+            await firebaseService.SendNotification(notification);
+        }
+
+        if (storeNotification)
+        {
+            await context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
+    /// Notify multiple users that they have received a new message
+    /// </summary>
+    /// <param name="targetUserIds">IDs of the users</param>
+    /// <param name="message">The new message</param>
+    public async Task NotifyNewMessage(IEnumerable<Guid> targetUserIds, Message message)
+    {
+        await NotifyUsers(
+            targetUserIds,
+            new NotificationNewMessage
+            {
+                MessageId = message.MessageId,
+                ThreadId = message.MessageThreadId,
+                AuthorId = message.AuthorId,
+                AuthorName = message.Author.FullName,
+                ThreadTitle = message.MessageThread.Title,
+                Contents = message.Contents,
+            },
+            message.Author.PhotoFileName,
+            storeNotification: false);
+    }
+
+    /// <summary>
     /// Notify a user that his friend request was accepted
     /// </summary>
     /// <param name="targetUserId">ID of the person to receive the notification</param>

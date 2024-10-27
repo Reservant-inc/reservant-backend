@@ -59,4 +59,10 @@
     <data name="NotificationVisitApprovedDeclined.Details" xml:space="preserve">
         <value>Your reservation at {RestaurantName} has been {IsAccepted:choose:approved|declined}</value>
     </data>
+    <data name="NotificationNewMessage.Title" xml:space="preserve">
+        <value>{AuthorName} in {ThreadTitle}</value>
+    </data>
+    <data name="NotificationNewMessage.Details" xml:space="preserve">
+        <value>{Contents}</value>
+    </data>
 </root>
