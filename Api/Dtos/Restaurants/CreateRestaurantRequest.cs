@@ -75,11 +75,11 @@ public class CreateRestaurantRequest
     /// </summary>
     /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
     public required string IdCard { get; init; }
-    
+
     /// <summary>
-    /// Max reservation duration
+    /// Max reservation duration in minutes
     /// </summary>
-    public required int MaxReservationDuration { get; init; }
+    public required int MaxReservationDurationMinutes { get; init; }
 
     /// <summary>
     /// Restaurant group ID, if null a new group is created

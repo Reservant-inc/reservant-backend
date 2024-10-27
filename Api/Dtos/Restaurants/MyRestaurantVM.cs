@@ -58,11 +58,11 @@ public class MyRestaurantVM
     /// </summary>
     /// <example></example>
     public required Geolocation Location { get; init; }
-    
+
     /// <summary>
-    /// Max reservation duration
+    /// Max reservation duration in minutes
     /// </summary>
-    public required int MaxReservationDuration { get; init; }
+    public required int MaxReservationDurationMinutes { get; init; }
 
     /// <summary>
     /// Restaurant group ID
