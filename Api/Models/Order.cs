@@ -36,9 +36,14 @@ public class Order : ISoftDeletable
     public ICollection<OrderItem> OrderItems { get; set; } = null!;
 
     /// <summary>
-    /// Navigational property for serving employees
+    /// Navigational property for serving employee
     /// </summary>
-    public ICollection<User> Employees { get; set; } = null!;
+    public User? AssignedEmployee { get; set; } = null!;
+
+    /// <summary>
+    /// Id of a serving employee
+    /// </summary>
+    public Guid? AssignedEmployeeId { get; set; } = null!;
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

@@ -36,7 +36,7 @@ public class OrderService(
         var order = await context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .Include(o => o.Employees)
+            .Include(o => o.AssignedEmployee)
             .FirstOrDefaultAsync(o => o.OrderId == id);
 
         if (order == null)
@@ -253,7 +253,7 @@ public class OrderService(
     {
         var order = await context.Orders
             .Where(o => o.OrderId == id)
-            .Include(o => o.Employees)
+            .Include(o => o.AssignedEmployee)
             .Include(o => o.OrderItems)
             .ThenInclude(o => o.MenuItem)
             .Include(o => o.Visit)
@@ -329,13 +329,100 @@ public class OrderService(
                     ErrorMessage = "The user does not work at the restaurant"
                 };
             }
-            if (!(order.Employees.Contains(employee)))
+            if (!(order.AssignedEmployee==employee))
             {
-                order.Employees.Add(employee);
+                order.AssignedEmployee=employee;
             }
         }
         await context.SaveChangesAsync();
 
         return mapper.Map<OrderVM>(order);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// Assigns employee to order
+    /// </summary>
+    /// <param name="id">order id</param>
+    /// <param name="userId">user Id</param>
+    /// <param name="currentUser">current user</param>
+    /// <returns></returns>
+    public async Task<Result<OrderVM>> AssignEmployeeToOrderAsync(int id, Guid userId, User currentUser)
+    {
+        var order = await context.Orders
+            .Include(x => x.AssignedEmployee)
+            .Select(x => new
+            {
+                Order = x,
+                OrderItemsStatus = x.OrderItems.Select(oi => oi.Status),
+                VisitRestaurantId = x.Visit.RestaurantId
+            })
+            .Where(o => o.Order.OrderId == id)
+            .FirstOrDefaultAsync();
+
+        if (order == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Order not found"
+            };
+        }
+
+        var curentUserAuthResult = await authorizationService.VerifyRestaurantHallAccess(order.VisitRestaurantId, currentUser.Id);
+        if (curentUserAuthResult.IsError)
+        {
+            return curentUserAuthResult.Errors;
+        }
+
+        var user = await context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "User to assign not found"
+            };
+        }
+
+        var assignedEmplyeeAuthResult = await authorizationService.VerifyRestaurantHallAccess(order.VisitRestaurantId, userId);
+        if (assignedEmplyeeAuthResult.IsError)
+        {
+            return assignedEmplyeeAuthResult.Errors;
+        }
+
+        if(order.OrderItemsStatus.Any(status => status == OrderStatus.Taken || status == OrderStatus.Cancelled))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.SomeOfItemsAreTaken,
+                ErrorMessage = "Some of items are taken"
+            };
+        }
+
+        order.Order.AssignedEmployee = user;
+        order.Order.AssignedEmployeeId = userId;
+
+        await context.SaveChangesAsync();
+
+        return mapper.Map<OrderVM>(order.Order);
     }
 }
