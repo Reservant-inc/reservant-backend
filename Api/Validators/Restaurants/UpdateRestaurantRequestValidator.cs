@@ -28,7 +28,7 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
             .MaximumLength(70)
             .IsValidAddress();
 
-        RuleFor(r => r.MaxReservationDuration)
+        RuleFor(r => r.MaxReservationDurationMinutes)
             .GreaterThanOrEqualTo(Visit.MinReservationDurationMinutes);
 
 
