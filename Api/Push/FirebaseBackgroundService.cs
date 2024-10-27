@@ -1,11 +1,14 @@
+using System.Collections.Concurrent;
 using System.Globalization;
 using FirebaseAdmin.Messaging;
 using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
 using Reservant.Api.Mapping;
 using Reservant.Api.Models;
-using Reservant.Api.Services;
+using Reservant.Api.Options;
 using SmartFormat;
 using Notification = Reservant.Api.Models.Notification;
 using FirebaseMessage = FirebaseAdmin.Messaging.Message;
@@ -16,21 +19,66 @@ namespace Reservant.Api.Push;
 /// <summary>
 /// Service responsible for interacting with Firebase
 /// </summary>
-public class FirebaseService(
-    ApiDbContext context,
-    IStringLocalizer<FirebaseService> localizer,
+public class FirebaseBackgroundService(
+    IServiceScopeFactory scopeFactory,
+    IStringLocalizer<FirebaseBackgroundService> localizer,
     UrlService urlService,
-    ILogger<FirebaseService> logger)
+    ILogger<FirebaseBackgroundService> logger,
+    IOptions<FirebaseOptions> options) : BackgroundService
 {
+    private readonly ConcurrentQueue<Notification> _notificationQueue = new();
+    private const int NotificationPollDelayMs = 1000;
+
     /// <summary>
-    /// Send a push notification to a specific user
+    /// Enqueue notification to be sent
     /// </summary>
-    public async Task SendNotification(Notification notification)
+    /// <param name="notification">The notification to be sent</param>
+    public void EnqueueNotification(Notification notification)
     {
         if (FirebaseApp.DefaultInstance is null)
         {
             return;
         }
+
+        _notificationQueue.Enqueue(notification);
+    }
+
+    /// <inheritdoc />
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        if (options.Value.CredentialsPath is null)
+        {
+#pragma warning disable CA1848
+            logger.LogWarning(
+                "Firebase credentials path is not specified. Firebase push notifications are disabled");
+#pragma warning restore CA1848
+            return;
+        }
+
+        FirebaseApp.Create(new AppOptions
+        {
+            Credential = await GoogleCredential.FromFileAsync(options.Value.CredentialsPath, stoppingToken),
+        });
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            if (!_notificationQueue.TryDequeue(out var notification))
+            {
+                await Task.Delay(NotificationPollDelayMs, stoppingToken);
+                continue;
+            }
+
+            await SendNotification(notification);
+        }
+    }
+
+    /// <summary>
+    /// Send a push notification to a specific user
+    /// </summary>
+    private async Task SendNotification(Notification notification)
+    {
+        using var scope = scopeFactory.CreateScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
 
         var targetUser = await context.FindAsync<User>(notification.TargetUserId)
             ?? throw new InvalidOperationException("Target user not found");

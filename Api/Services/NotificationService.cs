@@ -18,7 +18,7 @@ public class NotificationService(
     ApiDbContext context,
     UrlService urlService,
     PushService pushService,
-    FirebaseService firebaseService)
+    FirebaseBackgroundService firebaseService)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -157,7 +157,7 @@ public class NotificationService(
             Details = notification.Details,
         }, JsonOptions));
 
-        await firebaseService.SendNotification(notification);
+        firebaseService.EnqueueNotification(notification);
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ public class NotificationService(
             }, JsonOptions);
 
             pushService.SendToUser(targetUserId, pushMessage);
-            await firebaseService.SendNotification(notification);
+            firebaseService.EnqueueNotification(notification);
         }
 
         if (storeNotification)
