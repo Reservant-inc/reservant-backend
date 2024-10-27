@@ -183,8 +183,7 @@ tests {
   });
   
   // Parsing the request and response body
-  // var requestBody = pm.request.body.raw;
-  var requestData = JSON.parse(requestBody);
+var requestData = req.getBody();
   var responseData = res.getBody();
   
   // Check that each expected field is present and non-empty

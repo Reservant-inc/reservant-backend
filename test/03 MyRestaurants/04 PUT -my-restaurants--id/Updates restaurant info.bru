@@ -241,7 +241,7 @@ tests {
   // 5. Sprawdzenie, czy odpowiedź zawiera zaktualizowane dane zgodne z danymi wysłanymi w żądaniu
   test("Response matches the update request data", function () {
   //     var requestBody = pm.request.body.raw;
-      var requestData = JSON.parse(requestBody);
+var requestData = req.getBody();
       var responseData = res.getBody();
   
       expect(responseData.name).to.eql(requestData.name);
