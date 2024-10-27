@@ -96,4 +96,159 @@ script:pre-request {
   const randomLogin = generateRandomLogin();
   bru.setEnvVar("randomLogin", randomLogin);
   
+  
+  function generateNIP() {
+      var weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+      
+      // Generate the first 9 digits of NIP
+      var nip_base = [];
+      for (var i = 0; i < 9; i++) {
+          nip_base.push(Math.floor(Math.random() * 10));
+      }
+      
+      // Calculate the control digit
+      var control_sum = 0;
+      for (var i = 0; i < 9; i++) {
+          control_sum += nip_base[i] * weights[i];
+      }
+      var control_digit = control_sum % 11;
+      if (control_digit == 10) {
+          control_digit = 0;
+      }
+      
+      nip_base.push(control_digit);
+      return nip_base.join('');
+  }
+  
+  // Generate NIP and set it as a variable
+  var nip = generateNIP();
+  bru.setEnvVar("randomNIP",nip)
+  
+  //Random Restaurant Tag
+  const choices = ["Asian", "Italian", "OnSite", "Tag1", "Tag2", "Takeaway"];
+  
+  
+  function getRandomChoice(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  const randomChoice = getRandomChoice(choices);
+  
+  bru.setEnvVar("randomRestaurantTag", randomChoice);
+  
+  //Random Restaurant type
+  const choices2 = ["Restaurant", "Bar"];
+  
+  const randomChoice2 = getRandomChoice(choices2);
+  
+  bru.setEnvVar("randomRestaurantType", randomChoice2);
+  
+  //Random Deposit
+  function getRandomDeposit(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  // Losowy wybór dla ReservationDeposit
+  const randomDeposit = getRandomDeposit(0, 500);
+  
+  // Zapisanie wartości jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomDeposit", randomDeposit);
+  
+  const randomDuration = getRandomDeposit(30, 120);
+  
+  bru.setEnvVar("randomDuration", randomDuration);
+  
+  // RandomCity
+  const cities = [
+      "Warszawa",
+      "Kraków",
+      "Łódź",
+      "Wrocław",
+      "Poznań",
+      "Gdańsk",
+      "Szczecin",
+      "Bydgoszcz",
+      "Lublin",
+      "Białystok",
+      "Katowice",
+      "Gdynia",
+      "Częstochowa",
+      "Radom",
+      "Sosnowiec"
+  ];
+  
+  
+  function getRandomCity(arr) {
+      const randomIndex = Math.floor(Math.random() * arr.length);
+      return arr[randomIndex];
+  }
+  
+  
+  const randomCity = getRandomCity(cities);
+  
+  // Zapisanie miasta jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomCity", randomCity);
+  
+  //Random Postal code
+  function getRandomDigit() {
+      return Math.floor(Math.random() * 10);
+  }
+  
+  // Funkcja generująca polski kod pocztowy w formacie xx-xxx
+  function generateRandomPostalCode() {
+      let postalCode = '';
+      for (let i = 0; i < 2; i++) {
+          postalCode += getRandomDigit();
+      }
+      postalCode += '-';
+      for (let i = 0; i < 3; i++) {
+          postalCode += getRandomDigit();
+      }
+      return postalCode;
+  }
+  
+  // Losowy kod pocztowy
+  const randomPostalCode = generateRandomPostalCode();
+  
+  // Zapisanie kodu pocztowego jako zmiennej w środowisku Postmana
+  bru.setEnvVar("randomPostalCode", randomPostalCode);
+  
+  const randomCompanyName = faker.company.name();
+  bru.setEnvVar("randomCompanyName",randomCompanyName)
+  
+  // Random Street Address
+  const randomStreetAddress = faker.address.streetAddress();
+  bru.setEnvVar("randomStreetAddress", randomStreetAddress);
+  
+  // Random Latitude
+  const randomLatitude = faker.address.latitude();
+  bru.setEnvVar("randomLatitude", randomLatitude);
+  
+  // Random Longitude
+  const randomLongitude = faker.address.longitude();
+  bru.setEnvVar("randomLongitude", randomLongitude);
+  
+  // Random Lorem Sentence
+  const randomLoremSentence = faker.lorem.sentence();
+  bru.setEnvVar("randomLoremSentence", randomLoremSentence);
+  
+  function getRandomHourString(startHour, endHour) {
+      // Ensure the start and end hours are within a 24-hour range
+      const min = Math.max(0, startHour);
+      const max = Math.min(23, endHour);
+  
+      // Generate a random integer between min and max
+      const randomHour = Math.floor(Math.random() * (max - min + 1)) + min;
+  
+      // Return the hour in "H:00" format
+      return `${randomHour}:00`;
+  }
+  
+  // Example usage
+  const randomHourStartString = getRandomHourString(8, 12);
+  bru.setEnvVar("randomHourStartString", randomHourStartString);
+  
+  const randomHourEndString = getRandomHourString(20, 24);
+  bru.setEnvVar("randomHourEndString", randomHourEndString);
+  
 }
