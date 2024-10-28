@@ -213,7 +213,7 @@ script:pre-request {
   // Zapisanie kodu pocztowego jako zmiennej w środowisku Postmana
   bru.setEnvVar("randomPostalCode", randomPostalCode);
   
-  const randomCompanyName = faker.company.name();
+  const randomCompanyName = faker.company.buzzNoun();
   bru.setEnvVar("randomCompanyName",randomCompanyName)
   
   // Random Street Address
@@ -237,11 +237,11 @@ script:pre-request {
       const min = Math.max(0, startHour);
       const max = Math.min(23, endHour);
   
-      // Generate a random integer between min and max
+      // Generate a random integer between min and max for the hour
       const randomHour = Math.floor(Math.random() * (max - min + 1)) + min;
   
-      // Return the hour in "H:00" format
-      return `${randomHour}:00`;
+      // Format the hour as two digits and return in "HH:00" format
+      return `${String(randomHour).padStart(2, '0')}:00`;
   }
   
   // Example usage
