@@ -252,7 +252,7 @@ public class OrderService(
     [ErrorCode(null, ErrorCodes.NotFound, "Order not found")]
     [ErrorCode(null, ErrorCodes.AccessDenied, "Visit not found")]
     [ErrorCode(null, ErrorCodes.NotFound, "Menu item not found in the order")]
-    [ErrorCode(null, ErrorCodes.NotFound, "Employee not found")]
+    [ErrorCode(nameof(request.EmployeeId), ErrorCodes.NotFound, "Employee not found")]
     [MethodErrorCodes(typeof(AuthorizationService), nameof(authorizationService.VerifyRestaurantHallAccess))]
     public async Task<Result<OrderVM>> UpdateOrderStatusAsync(int id, UpdateOrderStatusRequest request, User user)
     {
@@ -278,24 +278,13 @@ public class OrderService(
             };
         }
 
-        if (order.OrderItems.Any(item => item.Status == OrderStatus.Taken || item.Status == OrderStatus.Cancelled))
+        if (order.OrderItems.All(item => item.Status == OrderStatus.Taken || item.Status == OrderStatus.Cancelled))
         {
             return new ValidationFailure
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.SomeOfItemsAreTaken,
                 ErrorMessage = "Some items are taken or canceled"
-            };
-        }
-
-        // Verify the order belongs to the correct restaurant group
-        if (order.Visit.Restaurant.Group.OwnerId != user.EmployerId)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = ErrorCodes.AccessDenied
             };
         }
 
@@ -331,7 +320,7 @@ public class OrderService(
         {
             return new ValidationFailure
             {
-                PropertyName = request.EmployeeId.ToString(),
+                PropertyName = nameof(request.EmployeeId),
                 ErrorCode = ErrorCodes.NotFound,
                 ErrorMessage = "Employee not found"
             };

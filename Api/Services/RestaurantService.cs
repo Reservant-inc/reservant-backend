@@ -933,10 +933,18 @@ namespace Reservant.Api.Services
                 .Include(order => order.Visit)
                 .Include(order => order.OrderItems)
                 .ThenInclude(orderItem => orderItem.MenuItem)
-                .Where(order => order.Visit.RestaurantId == restaurantId && 
-                tableId!=null?order.Visit.TableId==tableId:true && 
-                assignedEmployeeId!=null?order.AssignedEmployeeId==assignedEmployeeId:true
-                );
+                .Where(order => order.Visit.RestaurantId == restaurantId);
+
+            if (tableId != null)
+            {
+                ordersQuery = ordersQuery.Where(order => order.Visit.TableId == tableId);
+            }
+
+            if (assignedEmployeeId != null)
+            {
+                ordersQuery = ordersQuery.Where(order => order.AssignedEmployeeId == assignedEmployeeId);
+            }
+
 
             if (returnFinished)
             {
