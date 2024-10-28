@@ -398,12 +398,12 @@ namespace Reservant.Api.Services
                     break;
             }
 
-            if (dateFrom != null)
+            if (dateFrom != DateTime.MinValue)
             {
                 events = events.Where(e => e.Time > dateFrom);
             }
 
-            if (dateUntil != null)
+            if (dateUntil != DateTime.MinValue)
             {
                 events = events.Where(e => e.Time < dateUntil);
             }
