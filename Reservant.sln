@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorCodeDocs", "ErrorCodeD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ErrorCodeDocs.Test", "ErrorCodeDocs.Test\ErrorCodeDocs.Test.csproj", "{99C04399-6F77-49B8-9B13-C014F6AC4C9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Test", "Api.Test\Api.Test.csproj", "{FF0BF9B5-2B13-4167-ACC6-8A25FB715655}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{99C04399-6F77-49B8-9B13-C014F6AC4C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99C04399-6F77-49B8-9B13-C014F6AC4C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99C04399-6F77-49B8-9B13-C014F6AC4C9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF0BF9B5-2B13-4167-ACC6-8A25FB715655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF0BF9B5-2B13-4167-ACC6-8A25FB715655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF0BF9B5-2B13-4167-ACC6-8A25FB715655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF0BF9B5-2B13-4167-ACC6-8A25FB715655}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
