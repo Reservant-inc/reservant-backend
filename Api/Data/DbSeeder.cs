@@ -358,6 +358,8 @@ public class DbSeeder(
                         DateDeleted = visits[0].Date.AddHours(-4),
                     },
                 ],
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside5.jpg", johnDoe)
             },
             new Event
             {
@@ -377,6 +379,8 @@ public class DbSeeder(
                         DateSent = visits[1].Date.AddDays(-3),
                     },
                 ],
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside5.jpg", johnDoe)
             },
             new Event
             {
@@ -402,6 +406,8 @@ public class DbSeeder(
                         DateAccepted = DateTime.UtcNow,
                     },
                 ],
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside5.jpg", johnDoe)
             },
             new Event
             {
@@ -414,8 +420,11 @@ public class DbSeeder(
                 Creator = customer1,
                 RestaurantId = 1,
                 VisitId = null,
-                ParticipationRequests = []
+                ParticipationRequests = [],
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside5.jpg", johnDoe)
             },
+
             new Event
             {
                 Name="Wydarzenie 5",
@@ -444,6 +453,8 @@ public class DbSeeder(
                         DateSent = DateTime.UtcNow,
                     },
                 ],
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside5.jpg", johnDoe)
             }
         );
 
