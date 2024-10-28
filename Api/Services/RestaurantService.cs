@@ -1182,7 +1182,11 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant.</param>
         /// <param name="dateStart">Filter out visits before the date</param>
-        /// <param name="dateEnd">Filter out visits ater the date</param>
+        /// <param name="dateEnd">Filter out visits after the date</param>
+        /// <param name="tableId">Only visits assigned to the specified table ID</param>
+        /// <param name="hasOrders">
+        /// If true, only visits with orders; if false, only visits without orders; if null, all visits
+        /// </param>
         /// <param name="visitSorting">Order visits</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
@@ -1192,6 +1196,8 @@ namespace Reservant.Api.Services
             int restaurantId,
             DateOnly? dateStart,
             DateOnly? dateEnd,
+            int? tableId,
+            bool? hasOrders,
             VisitSorting visitSorting,
             int page,
             int perPage)
@@ -1227,6 +1233,34 @@ namespace Reservant.Api.Services
             if (dateEnd is not null)
             {
                 query = query.Where(x => DateOnly.FromDateTime(x.Date) <= dateEnd);
+            }
+
+            if (tableId is not null)
+            {
+                var tableExists = await context.Tables.AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId);
+                if (!tableExists)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(tableId),
+                        ErrorMessage = $"Table with ID {tableId} not found in restaurant {restaurantId}",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                }
+
+                query = query.Where(x => x.TableId == tableId);
+            }
+
+            if (hasOrders is not null)
+            {
+                if (hasOrders.Value)
+                {
+                    query = query.Where(x => x.Orders.Count != 0);
+                }
+                else
+                {
+                    query = query.Where(x => x.Orders.Count == 0);
+                }
             }
 
             switch (visitSorting)

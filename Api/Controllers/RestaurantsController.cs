@@ -189,7 +189,11 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// </summary>
     /// <param name="restaurantId">ID of the restaurant.</param>
     /// <param name="dateStart">Filter out visits before the date</param>
-    /// <param name="dateEnd">Filter out visits ater the date</param>
+    /// <param name="dateEnd">Filter out visits after the date</param>
+    /// <param name="tableId">Only visits assigned to the specified table ID</param>
+    /// <param name="hasOrders">
+    /// If true, only visits with orders; if false, only visits without orders; if null, all visits
+    /// </param>
     /// <param name="visitSorting">Order visits</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -201,13 +205,24 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         int restaurantId,
         DateOnly? dateStart,
         DateOnly? dateEnd,
+        int? tableId,
+        bool? hasOrders,
         VisitSorting visitSorting,
         [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
-        var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+        var result = await service.GetVisitsInRestaurantAsync(
+            restaurantId,
+            dateStart,
+            dateEnd,
+            tableId,
+            hasOrders,
+            visitSorting,
+            page,
+            perPage);
         return OkOrErrors(result);
     }
+
 
     /// <summary>
     /// Get list of ingredients for a restaurant
