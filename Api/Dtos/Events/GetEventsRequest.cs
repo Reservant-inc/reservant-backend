@@ -40,8 +40,4 @@ public class GetEventsRequest
     /// Value to specify the events status
     /// </summary>
     public EventStatus? EventStatus { get; set; }
-    /// <summary>
-    /// Value to specify if events are only from users' friends
-    /// </summary>
-    public bool FriendsOnly { get; set; }
 }
