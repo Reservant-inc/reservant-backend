@@ -13,6 +13,7 @@ using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Mapping;
 using Reservant.ErrorCodeDocs.Attributes;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Controllers;
 
@@ -161,25 +162,6 @@ public class UserController(
     }
 
     /// <summary>
-    /// Get list of events created by the current user
-    /// </summary>
-    /// <returns></returns>
-    [HttpGet("events-created")]
-    [Authorize(Roles = Roles.Customer)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<List<EventSummaryVM>>> GetEventsCreated()
-    {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await eventService.GetEventsCreatedAsync(user);
-        return OkOrErrors(result);
-    }
-
-    /// <summary>
     /// Mark an employee as deleted
     /// </summary>
     /// <param name="employeeId">ID of the employee</param>
@@ -201,15 +183,25 @@ public class UserController(
     }
 
     /// <summary>
-    /// Get future events in a restaurant with pagination.
+    /// Get events that were either created by the user or the user is interested in them with pagination.
     /// </summary>
+    /// <param name="category">Value that filters the search result</param>
+    /// <param name="dateFrom">Value that specifies botton boundary of time for the search</param>
+    /// <param name="dateUntil">Value that specifies upper boundary of time for the search</param>
+    /// <param name="order">Value that specifies if the search should be ordered by a specific value</param>
     /// <param name="page">Page number to return.</param>
     /// <param name="perPage">Items per page.</param>
-    /// <returns>Paginated list of future events.</returns>
-    [HttpGet("events-interested-in")]
+    /// <returns>Paginated list of events connected to the user.</returns>
+    [HttpGet("events")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    public async Task<ActionResult<Pagination<EventSummaryVM>>> GetEventsUserInterestedIn( [FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    public async Task<ActionResult<Pagination<EventSummaryVM>>> GetUserEvents(
+        [FromQuery] DateTime dateFrom,
+        [FromQuery] DateTime dateUntil,
+        [FromQuery] EventParticipationCategory category = EventParticipationCategory.CreatedBy,
+        [FromQuery] SearchOrder order = SearchOrder.DateCreatedDesc, 
+        [FromQuery] int page = 0, 
+        [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -217,7 +209,7 @@ public class UserController(
             return Unauthorized();
         }
 
-        var result = await eventService.GetEventsInterestedInAsync(user,page,perPage);
+        var result = await eventService.GetUserEventsAsync(category, dateFrom, dateUntil, order, user,page,perPage);
         return OkOrErrors(result);
     }
 
