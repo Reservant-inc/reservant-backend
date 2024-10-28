@@ -1187,6 +1187,9 @@ namespace Reservant.Api.Services
         /// <param name="hasOrders">
         /// If true, only visits with orders; if false, only visits without orders; if null, all visits
         /// </param>
+        /// <param name="isTakeaway">
+        /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
+        /// </param>
         /// <param name="visitSorting">Order visits</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
@@ -1198,6 +1201,7 @@ namespace Reservant.Api.Services
             DateOnly? dateEnd,
             int? tableId,
             bool? hasOrders,
+            bool? isTakeaway,
             VisitSorting visitSorting,
             int page,
             int perPage)
@@ -1261,6 +1265,11 @@ namespace Reservant.Api.Services
                 {
                     query = query.Where(x => x.Orders.Count == 0);
                 }
+            }
+
+            if (isTakeaway is not null)
+            {
+                query = query.Where(x => x.Takeaway == isTakeaway.Value);
             }
 
             switch (visitSorting)
