@@ -28,6 +28,32 @@ public static class Utils
                     ? name
                     : char.ToLowerInvariant(name[0]) + name[1..]));
 
+    private static readonly int[] NipWeights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+
+    /// <summary>
+    /// Check whether a string contains a valid
+    /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a>
+    /// </summary>
+    public static bool IsValidNip(string value)
+    {
+        if (string.IsNullOrEmpty(value) || value.Length != 10 || !value.All(char.IsDigit))
+        {
+            return false;
+        }
+
+        var sum = NipWeights.Zip(value)
+            .Select(vals => vals.First * (vals.Second - '0'))
+            .Sum();
+
+        var checksum = sum % 11;
+        if (checksum == 10)
+        {
+            checksum = 0;
+        }
+
+        return checksum == value[9] - '0';
+    }
+
     /// <summary>
     /// Return a single page of the query
     /// </summary>
