@@ -13,6 +13,7 @@ using Reservant.Api.Dtos.Users;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models.Enums;
+using Reservant.Api.Dtos.Auth;
 
 namespace Reservant.Api.Services
 {
@@ -546,6 +547,13 @@ namespace Reservant.Api.Services
             if (request.DateUntil is not null)
             {
                 events = events.Where(e => e.Time < request.DateUntil);
+            }
+            if (request.FriendsOnly)
+            {
+                events = events.Where(e => context.FriendRequests.Any(fr =>
+                    ((fr.ReceiverId == user.Id && fr.SenderId == e.CreatorId) ||
+                    (fr.SenderId == user.Id && fr.ReceiverId == e.CreatorId)) &&
+                    fr.DateAccepted != null && fr.DateDeleted == null));
             }
             if (request.EventStatus is not null)
             {
