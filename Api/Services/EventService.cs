@@ -529,11 +529,12 @@ namespace Reservant.Api.Services
         /// <param name="request">parameters of the request</param>
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
+        /// <param name="user">The current user.</param>
         /// <returns>list of events that fulfill the requirements</returns>
         [ErrorCode(nameof(GetEventsRequest.OrigLon), ErrorCodes.InvalidSearchParameters)]
         [ErrorCode(nameof(GetEventsRequest.OrigLat), ErrorCodes.InvalidSearchParameters)]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-        public async Task<Result<Pagination<NearEventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage)
+        public async Task<Result<Pagination<NearEventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage, User user)
         {
             IQueryable<Event> events = context.Events;
             if (request.Name is not null)
