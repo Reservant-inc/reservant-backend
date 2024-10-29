@@ -1,4 +1,4 @@
-﻿namespace Reservant.Api.Models.Enums;
+﻿namespace Reservant.Api.Dtos.Events;
 
 /// <summary>
 /// Enum that allows filtering events by different type of users involvment in said event.

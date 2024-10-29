@@ -373,7 +373,9 @@ namespace Reservant.Api.Services
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of events in which user might be interested in.</returns>
-        public async Task<Result<Pagination<EventSummaryVM>>> GetUserEventsAsync(EventParticipationCategory category, DateTime? dateFrom, DateTime? dateUntil, SearchOrder order, User user, int page, int perPage)
+        [ErrorCode(nameof(EventParticipationCategory), ErrorCodes.NotFound)]
+        [ErrorCode(nameof(EventSorting), ErrorCodes.NotFound)]
+        public async Task<Result<Pagination<EventSummaryVM>>> GetUserEventsAsync(EventParticipationCategory category, DateTime? dateFrom, DateTime? dateUntil, EventSorting order, User user, int page, int perPage)
         {
             IQueryable<Event> events = context.Events;
 
@@ -396,36 +398,50 @@ namespace Reservant.Api.Services
                 case EventParticipationCategory.CreatedBy:
                     events = events.Where(e => e.CreatorId == user.Id);
                     break;
+                default:
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(category),
+                        ErrorMessage = ErrorCodes.NotFound,
+                        ErrorCode = ErrorCodes.NotFound
+                    };
             }
 
-            if (dateFrom != DateTime.MinValue)
+            if (dateFrom != null)
             {
-                events = events.Where(e => e.Time > dateFrom);
+                events = events.Where(e => e.Time >= dateFrom);
             }
 
-            if (dateUntil != DateTime.MinValue)
+            if (dateUntil != null)
             {
-                events = events.Where(e => e.Time < dateUntil);
+                events = events.Where(e => e.Time <= dateUntil);
             }
 
             switch (order)
             {
-                case SearchOrder.DateDesc:
+                case EventSorting.DateDesc:
                     events = events.OrderBy(e => e.Time);
                     break;
-                case SearchOrder.DateAsc:
+                case EventSorting.DateAsc:
                     events = events.OrderByDescending(e => e.Time);
                     break;
-                case SearchOrder.DateCreatedAsc:
+                case EventSorting.DateCreatedAsc:
                     events = events.OrderBy(e => e.CreatedAt);
                     break;
-                case SearchOrder.DateCreatedDesc:
+                case EventSorting.DateCreatedDesc:
                     events = events.OrderByDescending(e => e.CreatedAt);
                     break;
+                default:
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(order),
+                        ErrorMessage = ErrorCodes.NotFound,
+                        ErrorCode = ErrorCodes.NotFound
+                    };
             }
 
             var result = events.ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
-            return await result.PaginateAsync(page, perPage, []);
+            return await result.PaginateAsync(page, perPage, Enum.GetNames<EventSorting>());
         }
 
 

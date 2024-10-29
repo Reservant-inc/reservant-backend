@@ -13,7 +13,6 @@ using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Mapping;
 using Reservant.ErrorCodeDocs.Attributes;
-using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Controllers;
 
@@ -194,12 +193,13 @@ public class UserController(
     /// <returns>Paginated list of events connected to the user.</returns>
     [HttpGet("events")]
     [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<EventService>(nameof(EventService.GetUserEventsAsync))]
     [Authorize(Roles = Roles.Customer)]
     public async Task<ActionResult<Pagination<EventSummaryVM>>> GetUserEvents(
-        [FromQuery] DateTime dateFrom,
-        [FromQuery] DateTime dateUntil,
+        [FromQuery] DateTime? dateFrom,
+        [FromQuery] DateTime? dateUntil,
         [FromQuery] EventParticipationCategory category = EventParticipationCategory.CreatedBy,
-        [FromQuery] SearchOrder order = SearchOrder.DateCreatedDesc, 
+        [FromQuery] EventSorting order = EventSorting.DateCreatedDesc, 
         [FromQuery] int page = 0, 
         [FromQuery] int perPage = 10)
     {

@@ -1,9 +1,9 @@
-﻿namespace Reservant.Api.Models.Enums;
+﻿namespace Reservant.Api.Dtos.Events;
 
 /// <summary>
 /// Enum that specifies the order by which the search shall commence.
 /// </summary>
-public enum SearchOrder
+public enum EventSorting
 {
     /// <summary>
     /// Value for sorting from the oldest to the most new
