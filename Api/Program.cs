@@ -15,6 +15,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Mapping;
 using Reservant.Api.Options;
 using Reservant.Api.Push;
+using Reservant.Api.Serialization;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -44,6 +45,8 @@ builder.Services.AddControllers()
     {
         o.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter());
+        o.JsonSerializerOptions.Converters.Add(
+            new SimplifiedTimeOnlyConverter());
     });
 
 builder.Services.AddCustomExceptionHandler();
