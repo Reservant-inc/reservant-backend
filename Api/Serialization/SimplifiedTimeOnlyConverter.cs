@@ -20,7 +20,12 @@ public class SimplifiedTimeOnlyConverter : JsonConverter<TimeOnly>
             throw new JsonException("Value cannot be null");
         }
 
-        if (TimeOnly.TryParseExact(timeString, TimeFormat, out var result))
+        if (!TimeOnly.TryParseExact(
+                timeString,
+                TimeFormat,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out var result))
         {
             throw new JsonException($"Invalid time format: {timeString}, expected {TimeFormat}");
         }
