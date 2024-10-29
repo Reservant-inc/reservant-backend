@@ -27,23 +27,6 @@ body:json {
   
 }
 
-script:pre-request {
-  function generateRandomNumber010() {
-      return Math.floor(Math.random() * 11);
-  }
-  var randomNumber010 = generateRandomNumber010();
-  bru.setEnvVar("randomNumber010", randomNumber010);
-  
-  function getRandomMenuName() {
-      var menuNames = ["seafood", "burger", "sushi", "kebab","pasta","pizza"];
-      var randomIndex = Math.floor(Math.random() * menuNames.length);
-      return menuNames[randomIndex];
-  }
-  
-  var randomMenuName = getRandomMenuName();
-  bru.setEnvVar("menuName", randomMenuName);
-}
-
 tests {
   // Test sprawdzający, czy odpowiedź ma status 400
   test("Status code is 400 for invalid price and missing menuItem field", function () {

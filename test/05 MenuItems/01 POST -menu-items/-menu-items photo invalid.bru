@@ -27,50 +27,6 @@ body:json {
   
 }
 
-script:pre-request {
-  function getRandomMenuItemName() {
-      var menuNames = ["seafood", "burger", "sushi", "kebab","pasta","pizza"];
-      var randomIndex = Math.floor(Math.random() * menuNames.length);
-      return menuNames[randomIndex];
-  }
-  
-  var randomMenuName = getRandomMenuItemName();
-  bru.setEnvVar("menuName", randomMenuName);
-  
-  // Funkcja do generowania losowej liczby całkowitej w zakresie od 0 do 500
-  function getRandomInt(max) {
-      return Math.floor(Math.random() * (max + 1)); // max + 1, aby uwzględnić max w zakresie
-  }
-  
-  // Ustawienie zmiennej środowiskowej na losową liczbę całkowitą od 0 do 500
-  bru.setEnvVar("randomInt", getRandomInt(500));
-  console.log("Generated random integer:", bru.getEnvVar("randomInt"));
-  
-  // Funkcja do generowania losowej liczby zmiennoprzecinkowej w zakresie od min do max
-  function getRandomDoubleInRange(min, max) {
-      return Math.random() * (max - min) + min;
-  }
-  
-  // Ustawienie zmiennej środowiskowej na losową liczbę zmiennoprzecinkową od 0 do 3
-  bru.setEnvVar("randomDouble0to3", getRandomDoubleInRange(0, 3).toFixed(2));  // Zaokrąglamy do 2 miejsc po przecinku
-  console.log("Generated random double from 0 to 3:", bru.getEnvVar("randomDouble0to3"));
-  
-  // Funkcja do losowego wyboru pomiędzy -1 a 101
-  function getRandomOutOfRangeAlcoholPercentage() {
-      // Losowanie wartości pomiędzy 0 a 1
-      const randomValue = Math.random();
-      
-      // Jeśli wartość jest mniejsza niż 0.5, zwróć -1, w przeciwnym razie zwróć 101
-      return randomValue < 0.5 ? -1 : 101;
-  }
-  
-  // Ustawienie zmiennej środowiskowej z losową wartością
-  const randomOutOfRangeAlcoholPercentage = getRandomOutOfRangeAlcoholPercentage();
-  bru.setEnvVar("randomOutOfRangeAlcoholPercentage", randomOutOfRangeAlcoholPercentage);
-  console.log("Generated random out-of-range alcohol percentage:", randomOutOfRangeAlcoholPercentage);
-  
-}
-
 tests {
   // Test sprawdzający, czy odpowiedź ma status 400
   test("Status code is 400 for invalid photo format", function () {

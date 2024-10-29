@@ -75,6 +75,10 @@ script:pre-request {
   const randomBoolean = faker.datatype.boolean();
   bru.setEnvVar("randomBoolean", randomBoolean);
   
+  // Ustawienie randomBoolean2 jako przeciwieństwa randomBoolean
+  const randomBoolean2 = !randomBoolean;
+  bru.setEnvVar("randomBoolean2", randomBoolean2);
+  
   function generateRandomLogin() {
       const digits = '0123456789';
   
