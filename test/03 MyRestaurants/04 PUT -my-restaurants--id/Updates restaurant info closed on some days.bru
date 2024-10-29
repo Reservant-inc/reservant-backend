@@ -1,13 +1,17 @@
 meta {
-  name: create-a-new-restaurant
+  name: Updates restaurant info closed on some days
   type: http
-  seq: 1
+  seq: 2
 }
 
-post {
-  url: {{host}}/my-restaurants
+put {
+  url: {{host}}/my-restaurants/:id
   body: json
   auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
 }
 
 auth:bearer {
@@ -41,8 +45,8 @@ body:json {
         "until": "{{randomHourEndString}}"
       },
       {
-        "from": "{{randomHourStartString}}",
-        "until": "{{randomHourEndString}}"
+        "from": null,
+        "until": null
       },
       {
         "from": "{{randomHourStartString}}",
@@ -223,33 +227,5 @@ tests {
       // Dodane sprawdzenie dla openingHours
       expect(responseData.openingHours).to.eql(requestData.openingHours);
   });
-  
-  
-  
-  // Pobierz odpowiedź z serwera
-  var jsonData = res.getBody();
-  
-  // Sprawdź, czy restaurantId istnieje w odpowiedzi
-  if (jsonData.restaurantId) {
-      // Pobierz aktualną listę restaurantIds z środowiska (jeśli istnieje)
-      var restaurantIdsList = bru.getEnvVar("restaurantIds");
-      
-      // Jeśli restaurantIdsList istnieje, parsuj ją jako JSON, w przeciwnym razie zainicjuj jako pustą tablicę
-      if (restaurantIdsList) {
-          restaurantIdsList = JSON.parse(restaurantIdsList);
-      } else {
-          restaurantIdsList = [];
-      }
-      
-      // Dodaj nowy restaurantId do listy
-      restaurantIdsList.push(jsonData.restaurantId);
-      
-      // Zapisz zaktualizowaną listę z powrotem do środowiska
-      bru.setEnvVar("restaurantIds", JSON.stringify(restaurantIdsList));
-      
-      console.log("Dodano restaurantId: " + jsonData.restaurantId);
-  } else {
-      console.log("restaurantId nie znaleziono w odpowiedzi");
-  }
   
 }

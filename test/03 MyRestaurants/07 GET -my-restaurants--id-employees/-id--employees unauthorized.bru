@@ -37,11 +37,13 @@ tests {
   });
   
   // Test sprawdzający, czy odpowiedź zawiera odpowiedni błąd dla nieautoryzowanego dostępu
-  test("Response contains error message for unauthorized access to restaurant ID 1", function () {
+  test("Response contains error message for unauthorized access to restaurant", function () {
       var jsonData = res.getBody();
       
       // Sprawdzenie, czy pole 'errors' zawiera odpowiedni komunikat błędu
-      expect(jsonData.errors[""]).to.be.an('array').that.includes("Restaurant with ID 1 is not owned by the current user");
+      expect(jsonData.errors[""]).to.be.an('array').that.satisfies(errors => 
+          errors.some(error => error.includes("not owned by the current user"))
+      );
   });
   
   // Test sprawdzający, czy odpowiedź zawiera odpowiedni kod błędu dla nieautoryzowanego dostępu

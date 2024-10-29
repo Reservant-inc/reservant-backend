@@ -1,7 +1,7 @@
 meta {
-  name: Updates restaurant info unauthorized Copy
+  name: Updates restaurant info duration error
   type: http
-  seq: 5
+  seq: 18
 }
 
 put {
@@ -15,7 +15,7 @@ params:path {
 }
 
 auth:bearer {
-  token: {{BOKEmployee}}
+  token: {{JD}}
 }
 
 body:json {
@@ -34,7 +34,7 @@ body:json {
     "description": "{{randomLoremSentence}}",
     "reservationDeposit": {{randomDeposit}},
     "provideDelivery": {{randomBoolean}},
-    "maxReservationDurationMinutes": {{randomDuration}},
+    "maxReservationDurationMinutes": -20, // Ujemna wartość dla minimalnego czasu rezerwacji
     "openingHours": [
       {
         "from": "{{randomHourStartString}}",
@@ -76,10 +76,30 @@ body:json {
       "longitude": {{randomLongitude}}
     }
   }
+  
 }
 
 tests {
-  test("Status code is 403", function () {
-      expect(res.getStatus()).to.equal(403);
+  // Sprawdzenie, czy odpowiedź ma status 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
   });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'status' i 'errors'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('status');
+      expect(jsonData).to.have.property('errors');    
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  // Test dla błędu związanego z polem 'reservationDeposit'
+  test("Error for reservationDeposit field is present", function () {
+      var responseData = res.getBody();
+  
+      // Sprawdzenie błędu dla 'reservationDeposit'
+      expect(responseData.errorCodes).to.have.property('maxReservationDurationMinutes');
+      expect(responseData.errorCodes.maxReservationDurationMinutes).to.include("GreaterThanOrEqualValidator");
+  });
+  
 }

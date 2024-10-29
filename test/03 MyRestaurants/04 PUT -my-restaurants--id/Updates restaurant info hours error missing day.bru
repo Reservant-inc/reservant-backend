@@ -1,7 +1,7 @@
 meta {
-  name: Updates restaurant info unauthorized Copy
+  name: Updates restaurant info hours error missing day
   type: http
-  seq: 5
+  seq: 17
 }
 
 put {
@@ -15,7 +15,7 @@ params:path {
 }
 
 auth:bearer {
-  token: {{BOKEmployee}}
+  token: {{JD}}
 }
 
 body:json {
@@ -59,10 +59,6 @@ body:json {
       {
         "from": "{{randomHourStartString}}",
         "until": "{{randomHourEndString}}"
-      },
-      {
-        "from": "{{randomHourStartString}}",
-        "until": "{{randomHourEndString}}"
       }
     ],
     "tags": [
@@ -79,7 +75,24 @@ body:json {
 }
 
 tests {
-  test("Status code is 403", function () {
-      expect(res.getStatus()).to.equal(403);
+  // Sprawdzenie, czy odpowiedź ma status 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
   });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'status' i 'errors'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('status');
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Testy dla błędu związanego z błędną godziną otwarcia restuaracji
+  test("Error for unknown invalid hour is present", function () {
+      var responseData = res.getBody();
+  
+      // Sprawdzenie błędu dla niepoprawnego typu 'openingHours'
+      expect(responseData.errors).to.have.property('$.openingHours');
+  });
+  
 }
