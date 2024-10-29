@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.Events;
 
@@ -8,7 +9,7 @@ namespace Reservant.Api.Validators.Events;
 public class EventValidator : AbstractValidator<Models.Event>
 {
     /// <inheritdoc />
-    public EventValidator()
+    public EventValidator(FileUploadService uploadService)
     {
         RuleFor(e => e.Name)
             .MaximumLength(50)
@@ -26,5 +27,9 @@ public class EventValidator : AbstractValidator<Models.Event>
         RuleFor(x => x.Time)
             .GreaterThan(x => x.MustJoinUntil)
             .WithErrorCode(ErrorCodes.MustJoinUntilMustBeBeforeEventTime);
+
+        RuleFor(m => m.PhotoFileName)
+            .FileUploadName(FileClass.Image, uploadService)
+            .NotNull();
     }
 }
