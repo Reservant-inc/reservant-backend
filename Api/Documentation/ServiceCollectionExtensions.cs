@@ -60,6 +60,7 @@ public static class ServiceCollectionExtensions
 
             options.AddOperationFilterInstance(new AuthorizationOperationFilter());
             options.IncludeErrorCodes(Assembly.GetExecutingAssembly());
+            options.DescribeAllParametersInCamelCase();
         });
     }
 }
