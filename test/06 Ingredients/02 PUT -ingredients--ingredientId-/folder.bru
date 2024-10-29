@@ -1,0 +1,23 @@
+meta {
+  name: 02 PUT -ingredients--ingredientId-
+}
+
+script:pre-request {
+  // Pobierz listę ingredientIdsList ze zmiennych środowiskowych
+  let ingredientIdsList = bru.getEnvVar("ingredientIdsList");
+  
+  // Upewnij się, że ingredientIdsList istnieje i jest tablicą
+  if (ingredientIdsList) {
+      ingredientIdsList = JSON.parse(ingredientIdsList);  // Przekonwertuj z JSON na tablicę
+      
+      // Losuj wartość z listy ingredientIdsList
+      const randomIndex = Math.floor(Math.random() * ingredientIdsList.length);
+      const randomIngredientId = ingredientIdsList[randomIndex];
+  
+      // Ustaw losowy ingredientId jako zmienną środowiskową
+      bru.setEnvVar("randomIngredientId", randomIngredientId);
+      console.log("Losowy ingredientId ustawiony:", randomIngredientId);
+  } else {
+      console.error("ingredientIdsList nie istnieje lub nie jest poprawną tablicą.");
+  }
+}
