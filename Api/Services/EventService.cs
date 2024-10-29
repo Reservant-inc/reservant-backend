@@ -13,6 +13,7 @@ using Reservant.Api.Dtos.Users;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models.Enums;
+using Reservant.Api.Dtos.Auth;
 
 namespace Reservant.Api.Services
 {
@@ -527,11 +528,12 @@ namespace Reservant.Api.Services
         /// <param name="request">parameters of the request</param>
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
+        /// <param name="user">The current user.</param>
         /// <returns>list of events that fulfill the requirements</returns>
         [ErrorCode(nameof(GetEventsRequest.OrigLon), ErrorCodes.InvalidSearchParameters)]
         [ErrorCode(nameof(GetEventsRequest.OrigLat), ErrorCodes.InvalidSearchParameters)]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-        public async Task<Result<Pagination<NearEventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage)
+        public async Task<Result<Pagination<NearEventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage, User user)
         {
             IQueryable<Event> events = context.Events;
             if (request.Name is not null)
@@ -545,6 +547,13 @@ namespace Reservant.Api.Services
             if (request.DateUntil is not null)
             {
                 events = events.Where(e => e.Time < request.DateUntil);
+            }
+            if (request.FriendsOnly)
+            {
+                events = events.Where(e => context.FriendRequests.Any(fr =>
+                    ((fr.ReceiverId == user.Id && fr.SenderId == e.CreatorId) ||
+                    (fr.SenderId == user.Id && fr.ReceiverId == e.CreatorId)) &&
+                    fr.DateAccepted != null && fr.DateDeleted == null));
             }
             if (request.EventStatus is not null)
             {

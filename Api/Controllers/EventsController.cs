@@ -203,7 +203,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            return OkOrErrors(await service.GetEventsAsync(request, page, perPage));
+            return OkOrErrors(await service.GetEventsAsync(request, page, perPage, user));
         }
     }
 }
