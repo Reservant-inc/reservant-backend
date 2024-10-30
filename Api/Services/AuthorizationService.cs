@@ -94,7 +94,7 @@ public class AuthorizationService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorMessage = "User must either be a backdoor employee or the owner of the restaurant",
+                ErrorMessage = "User must either be a hall employee or the owner of the restaurant",
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }
