@@ -236,4 +236,34 @@ public static class ErrorCodes
     /// String must be a valid locale identifier
     /// </summary>
     public const string MustBeLocaleId = "MustBeLocaleId";
+
+    /// <summary>
+    /// Reservations can only be made for full hours or half hours
+    /// </summary>
+    public const string InvalidTimeSlot = "InvalidTimeSlot";
+
+    /// <summary>
+    /// request was already considered
+    /// </summary>
+    public const string AlreadyConsidered = "AlreadyConsidered";
+    /// <summary>
+    /// MenuItem is not in any active Menus
+    /// </summary>
+    public const string NotInAMenu = "MenuNotFound";
+
+
+    /// <summary>
+    /// Visit duration exceeds restaurant maximum visit time
+    /// </summary>
+    public const string VisitExceedsMaxTime = "VisitExceedsMaxTime";
+
+    /// <summary>
+    /// Visit duration is too short
+    /// </summary>
+    public const string VisitTooShort = "VisitTooShort";
+
+    /// <summary>
+    /// A reservation cannot be made as there is no available tables
+    /// </summary>
+    public const string NoAvailableTable = "NoAvailableTable";
 }

@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using System.Security.Claims;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +13,7 @@ using Reservant.Api.Dtos.Employments;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
+using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -24,7 +27,8 @@ public class UserService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService,
-    FileUploadService uploadService)
+    UrlService urlService,
+    IMapper mapper)
 {
     /// <summary>
     /// Used to generate restaurant employee's logins:
@@ -195,41 +199,7 @@ public class UserService(
             .Where(u => u.EmployerId == userId)
             .Include(u => u.Employments)
             .ThenInclude(e => e.Restaurant)
-            .Select(u => new UserEmployeeVM
-            {
-                UserId = u.Id,
-                Login = u.UserName!,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                BirthDate = u.BirthDate!.Value,
-                PhoneNumber = u.PhoneNumber!,
-                Employments = u.Employments
-                    .Where(e => e.DateUntil == null)
-                    .Select(e => new EmploymentVM
-                    {
-                        EmploymentId = e.EmploymentId,
-                        RestaurantId = e.RestaurantId,
-                        IsBackdoorEmployee = e.IsBackdoorEmployee,
-                        IsHallEmployee = e.IsHallEmployee,
-                        RestaurantName = e.Restaurant.Name,
-                        DateFrom = e.DateFrom
-                    })
-                    .ToList(),
-                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
-                FriendStatus =
-                    (from fr in dbContext.FriendRequests
-                     let isOutgoing = fr.SenderId == userId && fr.ReceiverId == u.Id
-                     let isIncoming = fr.SenderId == u.Id && fr.ReceiverId == userId
-                     let isAccepted = fr.DateAccepted != null
-                     where isOutgoing || isIncoming
-                     select isAccepted
-                        ? FriendStatus.Friend
-                        : isIncoming
-                        ? FriendStatus.IncomingRequest
-                        : isOutgoing
-                        ? FriendStatus.OutgoingRequest
-                        : FriendStatus.Stranger).FirstOrDefault()
-            })
+            .ProjectTo<UserEmployeeVM>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         return employeeVMs;
@@ -349,26 +319,12 @@ public class UserService(
     /// <returns></returns>
     public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
-        var query = dbContext.Visits
-            .Include(r => r.Participants)
-            .Include(r => r.Orders)
+        return await dbContext.Visits
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Date > DateTime.UtcNow)
-            .OrderBy(x => x.Date);
-
-        var result = await query.Select(visit => new VisitSummaryVM
-        {
-            VisitId = visit.VisitId,
-            Date = visit.Date,
-            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId,
-            Deposit = visit.Deposit
-        })
-        .PaginateAsync(page, perPage, [], maxPerPage: 10);
-
-        return result;
+            .OrderBy(x => x.Date)
+            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, [], maxPerPage: 10);
     }
 
 
@@ -388,17 +344,9 @@ public class UserService(
             .Where(x => x.Date < DateTime.UtcNow)
             .OrderByDescending(x => x.Date);
 
-        var result = await query.Select(visit => new VisitSummaryVM
-        {
-            VisitId = visit.VisitId,
-            Date = visit.Date,
-            NumberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1,
-            Takeaway = visit.Takeaway,
-            ClientId = visit.ClientId,
-            RestaurantId = visit.RestaurantId,
-            Deposit = visit.Deposit
-        })
-        .PaginateAsync(page, perPage, [], maxPerPage: 10);
+        var result = await query
+            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, [], maxPerPage: 10);
 
         return result;
     }
@@ -478,7 +426,7 @@ public class UserService(
                 UserId = u.Id,
                 FirstName = u.FirstName,
                 LastName = u.LastName,
-                Photo = uploadService.GetPathForFileName(u.PhotoFileName),
+                Photo = urlService.GetPathForFileName(u.PhotoFileName),
                 FriendStatus =
                     (from fr in dbContext.FriendRequests
                      let isOutgoing = fr.SenderId == currentUserId && fr.ReceiverId == u.Id
@@ -534,49 +482,22 @@ public class UserService(
             };
         }
 
+        var viewModel = mapper.Map<UserEmployeeVM>(requestedUser);
+
         // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
         if (requestedUser.EmployerId == currentUserId)
         {
             // Zwrót pełnych danych dla pracownika
-            return new UserEmployeeVM
-            {
-                UserId = requestedUser.Id,
-                Login = requestedUser.UserName,
-                FirstName = requestedUser.FirstName,
-                LastName = requestedUser.LastName,
-                BirthDate = requestedUser.BirthDate!.Value,
-                PhoneNumber = requestedUser.PhoneNumber,
-                Employments = requestedUser.Employments
-                    .Where(e => e.DateUntil == null)
-                    .Select(e => new EmploymentVM
-                    {
-                        EmploymentId = e.EmploymentId,
-                        RestaurantId = e.RestaurantId,
-                        IsBackdoorEmployee = e.IsBackdoorEmployee,
-                        IsHallEmployee = e.IsHallEmployee,
-                        RestaurantName = e.Restaurant.Name,
-                        DateFrom = e.DateFrom
-                    })
-                    .ToList(),
-                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
-                FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id)
-            };
+            return viewModel;
         }
 
         // Jeżeli użytkownik nie jest pracownikiem, zwróć ograniczone dane
-        if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer)) {
-            return new UserEmployeeVM
-            {
-                UserId = requestedUser.Id,
-                FirstName = requestedUser.FirstName,
-                LastName = requestedUser.LastName,
-                BirthDate = requestedUser.BirthDate!.Value,
-                Photo = uploadService.GetPathForFileName(requestedUser.PhotoFileName),
-                FriendStatus = await GetFriendStatusAsync(currentUserId, requestedUser.Id),
-                Login = null,
-                PhoneNumber = null,
-                Employments = null
-            };
+        if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer))
+        {
+            viewModel.Login = null;
+            viewModel.PhoneNumber = null;
+            viewModel.Employments = null;
+            return viewModel;
         }
 
         return new ValidationFailure

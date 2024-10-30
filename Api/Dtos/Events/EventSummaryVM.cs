@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Dtos.Events;
 
@@ -40,24 +41,14 @@ public class EventSummaryVM
     public required DateTime MustJoinUntil { get; set; }
 
     /// <summary>
-    /// ID of the user who created the event
+    /// The user who created the event
     /// </summary>
-    public required Guid CreatorId { get; set; }
+    public required UserSummaryVM Creator { get; set; }
 
     /// <summary>
-    /// Navigational property for the creator
+    /// Restaurant where the event takes place
     /// </summary>
-    public required string CreatorFullName { get; set; }
-
-    /// <summary>
-    /// ID of the restaurant where the event takes place
-    /// </summary>
-    public required int? RestaurantId { get; set; }
-
-    /// <summary>
-    /// Restaurant name
-    /// </summary>
-    public required string? RestaurantName { get; set; }
+    public required RestaurantSummaryVM Restaurant { get; set; }
 
     /// <summary>
     /// Number of users interested

@@ -160,7 +160,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="perPage">Number of reviews per page</param>
     [HttpGet("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetReviewsAsync))]
     public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
     {
@@ -190,7 +189,14 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// </summary>
     /// <param name="restaurantId">ID of the restaurant.</param>
     /// <param name="dateStart">Filter out visits before the date</param>
-    /// <param name="dateEnd">Filter out visits ater the date</param>
+    /// <param name="dateEnd">Filter out visits after the date</param>
+    /// <param name="tableId">Only visits assigned to the specified table ID</param>
+    /// <param name="hasOrders">
+    /// If true, only visits with orders; if false, only visits without orders; if null, all visits
+    /// </param>
+    /// <param name="isTakeaway">
+    /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
+    /// </param>
     /// <param name="visitSorting">Order visits</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -198,17 +204,32 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/visits")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetVisitsInRestaurantAsync))]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
     public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
         int restaurantId,
         DateOnly? dateStart,
         DateOnly? dateEnd,
+        int? tableId,
+        bool? hasOrders,
+        bool? isTakeaway,
         VisitSorting visitSorting,
         [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
-        var result = await service.GetVisitsInRestaurantAsync(restaurantId, dateStart, dateEnd, visitSorting, page, perPage);
+        var result = await service.GetVisitsInRestaurantAsync(
+            User.GetUserId()!.Value,
+            restaurantId,
+            dateStart,
+            dateEnd,
+            tableId,
+            hasOrders,
+            isTakeaway,
+            visitSorting,
+            page,
+            perPage);
         return OkOrErrors(result);
     }
+
 
     /// <summary>
     /// Get list of ingredients for a restaurant
@@ -266,7 +287,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return Ok(result.Value);
     }
 
-    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     /// <summary>
     /// Get list of menus by given restaurant id
     /// </summary>
@@ -300,4 +320,23 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var res = await service.GetMenuItemsCustomerAsync(user, restaurantId);
         return OkOrErrors(res);
     }
+
+    /// <summary>
+    /// Get time spans on a given date that a reservation can be made in
+    /// </summary>
+    /// <param name="restaurantId">Restaurant ID</param>
+    /// <param name="date">Date of the reservation</param>
+    /// <param name="numberOfGuests">Number of people that will be going</param>
+    /// <returns>Available hours list</returns>
+    [HttpGet("{restaurantId:int}/available-hours")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetAvailableHoursAsync))]
+    public async Task<ActionResult<List<AvailableHoursVM>>> GetAvailableHours(
+        int restaurantId, [FromQuery] DateOnly date, [FromQuery] int numberOfGuests)
+    {
+        var availableHours = await service.GetAvailableHoursAsync(restaurantId, date, numberOfGuests);
+        return OkOrErrors(availableHours);
+    }
+
+
 }

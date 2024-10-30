@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Ingredients;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
@@ -60,6 +61,35 @@ public class IngredientsController(
         }
 
         var result = await ingredientService.UpdateIngredientAsync(ingredientId, request, userId.Value);
+        return OkOrErrors(result);
+    }
+    
+    /// <summary>
+    /// Get the change history of an ingredient with pagination and optional filters.
+    /// </summary>
+    /// <param name="ingredientId">Ingredient id</param>
+    /// <param name="request">Request with parameters</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Records per page</param>
+    /// <returns>Paginated list of ingredient amount corrections</returns>
+    [HttpGet("{ingredientId:int}/history")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner}, {Roles.RestaurantEmployee}")]
+    [MethodErrorCodes<IngredientService>(nameof(IngredientService.GetIngredientHistoryAsync))]
+    public async Task<ActionResult<Pagination<IngredientAmountCorrectionVM>>> GetIngredientHistory(
+        int ingredientId,
+        [FromQuery] IngredientHistoryRequest request,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 10
+        )
+    {
+        var userId = User.GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await ingredientService.GetIngredientHistoryAsync(request, ingredientId, userId.Value, page, perPage);
         return OkOrErrors(result);
     }
 

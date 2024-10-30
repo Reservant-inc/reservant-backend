@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Dtos.Location;
+using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 
@@ -53,6 +54,11 @@ public class UpdateRestaurantRequest
     public required Geolocation Location { get; init; }
 
     /// <summary>
+    /// Max reservation duration in minutes
+    /// </summary>
+    public required int MaxReservationDurationMinutes { get; init; }
+
+    /// <summary>
     /// File name of the rental contract upload (umowa najmu lokalu)
     /// </summary>
     /// <example>306f9fa1-fda5-48c4-aa5f-7c7c375e065f.pdf</example>
@@ -96,6 +102,11 @@ public class UpdateRestaurantRequest
     /// Deposit
     /// </summary>
     public decimal? ReservationDeposit { get; init; }
+
+    /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public List<OpeningHours> OpeningHours { get; set; } = new();
 
     /// <summary>
     /// Restaurant tags

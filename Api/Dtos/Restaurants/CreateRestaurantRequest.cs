@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Dtos.Location;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Restaurants;
 
@@ -76,6 +77,11 @@ public class CreateRestaurantRequest
     public required string IdCard { get; init; }
 
     /// <summary>
+    /// Max reservation duration in minutes
+    /// </summary>
+    public required int MaxReservationDurationMinutes { get; init; }
+
+    /// <summary>
     /// Restaurant group ID, if null a new group is created
     /// </summary>
     public int? GroupId { get; set; }
@@ -100,6 +106,12 @@ public class CreateRestaurantRequest
     /// Deposit
     /// </summary>
     public decimal? ReservationDeposit { get; init; }
+
+
+    /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public List<OpeningHours> OpeningHours { get; set; } = new();
 
     /// <summary>
     /// Restaurant tags

@@ -10,7 +10,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// Lokal
 /// </summary>
-public class Restaurant : ISoftDeletable
+public class Restaurant
 {
     /// <summary>
     /// Unique ID
@@ -84,6 +84,11 @@ public class Restaurant : ISoftDeletable
     public required string IdCardFileName { get; set; }
 
     /// <summary>
+    /// Max reservation duration
+    /// </summary>
+    public required int MaxReservationDurationMinutes { get; set; }
+
+    /// <summary>
     /// Restaurant group ID
     /// </summary>
     public int GroupId { get; set; }
@@ -147,6 +152,11 @@ public class Restaurant : ISoftDeletable
     public FileUpload Logo { get; set; } = null!;
 
     /// <summary>
+    /// Opening hours of a restaurant
+    /// </summary>
+    public WeeklyOpeningHours OpeningHours { get; set; } = null!;
+
+    /// <summary>
     /// Navigation collection for the photos. Ordered by the RestaurantPhoto.Order property.
     /// </summary>
     public ICollection<RestaurantPhoto> Photos { get; set; } = null!;
@@ -186,6 +196,9 @@ public class Restaurant : ISoftDeletable
     /// </summary>
     public ICollection<Event> Events { get; set; } = null!;
 
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
+    /// <summary>
+    /// Archived restaurants cannot be searched for or interacted with. They are only
+    /// visible to the owner and through existing visits, events or orders.
+    /// </summary>
+    public bool IsArchived { get; set; }
 }

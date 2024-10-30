@@ -12,6 +12,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<PushService>();
         services.AddScoped<PushMiddleware>();
+        services.AddSingleton<FirebaseBackgroundService>();
+        services.AddHostedService(p => p.GetRequiredService<FirebaseBackgroundService>());
     }
 
     /// <summary>

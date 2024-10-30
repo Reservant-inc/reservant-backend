@@ -71,6 +71,11 @@ public class NotificationNewRestaurantReview : NotificationDetails
 public class NotificationNewFriendRequest : NotificationDetails
 {
     /// <summary>
+    /// ID of the friend request
+    /// </summary>
+    public required int FriendRequestId { get; set; }
+
+    /// <summary>
     /// ID of the sender
     /// </summary>
     public required Guid SenderId { get; set; }
@@ -158,4 +163,103 @@ public class NotificationParticipationRequestResponse : NotificationDetails
     /// Bool determining if its accepted
     /// </summary>
     public required bool IsAccepted { get; set; }
+}
+
+/// <summary>
+/// Details for a new participation requests response notification
+/// </summary>
+public class NotificationVisitApprovedDeclined  : NotificationDetails
+{
+    /// <summary>
+    /// Visit ID
+    /// </summary>
+    public required int VisitId { get; set; }
+
+    /// <summary>
+    /// Bool determining if its accepted
+    /// </summary>
+    public required bool IsAccepted { get; set; }
+
+
+    /// <summary>
+    /// Name of the restaurant in which visit takes place
+    /// </summary>
+    public required string RestaurantName { get; set; }
+
+    /// <summary>
+    /// Time of the visit
+    /// </summary>
+    public required DateTime Date { get; set; }
+}
+
+/// <summary>
+/// Details for a new message notification
+/// </summary>
+public class NotificationNewMessage  : NotificationDetails
+{
+    /// <summary>
+    /// Message ID
+    /// </summary>
+    public required int MessageId { get; set; }
+
+    /// <summary>
+    /// Message thread ID
+    /// </summary>
+    public required int ThreadId { get; set; }
+
+    /// <summary>
+    /// Name of the thread
+    /// </summary>
+    public required string ThreadTitle { get; set; }
+
+    /// <summary>
+    /// ID of the author
+    /// </summary>
+    public required Guid AuthorId { get; set; }
+
+    /// <summary>
+    /// Full name of the author
+    /// </summary>
+    public required string AuthorName { get; set; }
+
+    /// <summary>
+    /// Content of the message
+    /// </summary>
+    public required string Contents { get; set; }
+}
+
+/// <summary>
+/// Details for a new reservation notification
+/// </summary>
+public class NotificationNewReservation : NotificationDetails
+{
+    /// <summary>
+    /// ID of the restaurant
+    /// </summary>
+    public required int RestaurantId { get; set; }
+
+    /// <summary>
+    /// Name of the restaurant
+    /// </summary>
+    public required string RestaurantName { get; set; }
+
+    /// <summary>
+    /// Time when the reservation starts
+    /// </summary>
+    public required DateTime Date { get; set; }
+
+    /// <summary>
+    /// Time when the reservation ends
+    /// </summary>
+    public required DateTime EndTime { get; set; }
+
+    /// <summary>
+    /// Number of people
+    /// </summary>
+    public required int NumberOfPeople { get; set; }
+
+    /// <summary>
+    /// Whether the reservation is for a takeaway
+    /// </summary>
+    public required bool Takeaway { get; set; }
 }

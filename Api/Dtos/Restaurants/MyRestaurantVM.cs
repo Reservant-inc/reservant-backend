@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos.Location;
@@ -57,6 +58,11 @@ public class MyRestaurantVM
     /// </summary>
     /// <example></example>
     public required Geolocation Location { get; init; }
+
+    /// <summary>
+    /// Max reservation duration in minutes
+    /// </summary>
+    public required int MaxReservationDurationMinutes { get; init; }
 
     /// <summary>
     /// Restaurant group ID
@@ -120,6 +126,11 @@ public class MyRestaurantVM
     public required decimal? ReservationDeposit { get; init; }
 
     /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public required List<AvailableHoursVM> OpeningHours { get; set; }
+
+    /// <summary>
     /// Restaurant tags
     /// </summary>
     public required List<string> Tags { get; init; }
@@ -128,4 +139,10 @@ public class MyRestaurantVM
     /// Whether the restaurant is verified or not
     /// </summary>
     public required bool IsVerified { get; init; }
+
+    /// <summary>
+    /// Whether the restaurant is archived
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public required bool IsArchived { get; set; }
 }

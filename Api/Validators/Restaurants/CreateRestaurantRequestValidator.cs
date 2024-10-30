@@ -1,6 +1,7 @@
 using FluentValidation;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Models;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.Restaurants;
@@ -17,6 +18,9 @@ public class CreateRestaurantRequestValidator : AbstractValidator<CreateRestaura
             .NotEmpty()
             .MaximumLength(50)
             .IsValidName();
+
+        RuleFor(r => r.MaxReservationDurationMinutes)
+            .GreaterThanOrEqualTo(Visit.MinReservationDurationMinutes);
 
         RuleFor(r => r.Nip)
             .NotNull()

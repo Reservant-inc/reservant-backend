@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Auth;
-using Reservant.Api.Dtos.Ingredients;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.OrderItems;
 using Reservant.Api.Dtos.Restaurants;
@@ -291,7 +290,6 @@ public class DbSeeder(
                 TableId = 1,
                 ClientId = johnDoe.Id,
                 Client = customer1,
-                IsDeleted = false,
                 Participants = [customer2, customer3],
                 Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
@@ -308,7 +306,6 @@ public class DbSeeder(
                 TableId = 2,
                 ClientId = johnDoe.Id,
                 Client = customer2,
-                IsDeleted = false,
                 Participants = [customer3],
                 Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
@@ -325,7 +322,6 @@ public class DbSeeder(
                 TableId = 1,
                 ClientId = customer2.Id,
                 Client = customer2,
-                IsDeleted = false,
                 Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
             },
         };
@@ -458,7 +454,6 @@ public class DbSeeder(
             new Order
             {
                 VisitId = visits.First().VisitId,
-                IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -474,7 +469,6 @@ public class DbSeeder(
             new Order
             {
                 VisitId = visits[1].VisitId,
-                IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -490,7 +484,6 @@ public class DbSeeder(
             new Order
             {
                 VisitId = visits[2].VisitId,
-                IsDeleted = false,
                 OrderItems = new List<OrderItem>
                 {
                     new OrderItem
@@ -709,6 +702,24 @@ public class DbSeeder(
         return upload;
     }
 
+    private static WeeklyOpeningHours CreateOpeningHours(
+        TimeOnly from, TimeOnly until,
+        TimeOnly weekendFrom, TimeOnly weekendUntil,
+        bool openOnSunday = false)
+    {
+        return new WeeklyOpeningHours([
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = from, Until = until },
+            new OpeningHours { From = weekendFrom, Until = weekendUntil },
+            openOnSunday
+                ? new OpeningHours { From = weekendFrom, Until = weekendUntil }
+                : new OpeningHours(),
+        ]);
+    }
+
     private async Task CreateJohnDoesRestaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
     {
         var exampleDocument = await RequireFileUpload("test-jd.pdf", johnDoe);
@@ -728,6 +739,7 @@ public class DbSeeder(
             AlcoholLicense = exampleDocument,
             BusinessPermissionFileName = null!,
             BusinessPermission = exampleDocument,
+            MaxReservationDurationMinutes = 120,
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
@@ -738,7 +750,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -826,7 +840,8 @@ public class DbSeeder(
             PublicName = "Dough",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 500,
-            AmountToOrder = 1000
+            AmountToOrder = 1000,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var tomatoSauce = new Ingredient
@@ -834,7 +849,8 @@ public class DbSeeder(
             PublicName = "Tomato sauce",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 0.5,
-            AmountToOrder = 1
+            AmountToOrder = 1,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var mozzarella = new Ingredient
@@ -842,7 +858,8 @@ public class DbSeeder(
             PublicName = "Mozzarella",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 200,
-            AmountToOrder = 500
+            AmountToOrder = 500,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var olives = new Ingredient
@@ -850,7 +867,8 @@ public class DbSeeder(
             PublicName = "Olives",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 100,
-            AmountToOrder = 200
+            AmountToOrder = 200,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         var orderedBeer = new Ingredient
@@ -858,7 +876,8 @@ public class DbSeeder(
             PublicName = "ordered beer",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
-            AmountToOrder = 5
+            AmountToOrder = 5,
+            Corrections = new List<IngredientAmountCorrection>()
         };
 
         pizzaMozzarella.Ingredients = new List<IngredientMenuItem>
@@ -1410,6 +1429,123 @@ public class DbSeeder(
             },
             johnDoes.RestaurantId,
             johnDoe.Id)).OrThrow();
+
+        var corrections = new List<IngredientAmountCorrection>
+        {
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 1000,
+                NewAmount = 950,
+                CorrectionDate = DateTime.UtcNow.AddDays(-12),
+                User = johnDoe,
+                Comment = "Adjusted inventory after delivery"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 950,
+                NewAmount = 900,
+                CorrectionDate = DateTime.UtcNow.AddDays(-11),
+                User = backdoorEmployee,
+                Comment = "Used for special catering order"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 900,
+                NewAmount = 850,
+                CorrectionDate = DateTime.UtcNow.AddDays(-10),
+                User = johnDoe,
+                Comment = "Prepared extra dough for weekend rush"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 850,
+                NewAmount = 800,
+                CorrectionDate = DateTime.UtcNow.AddDays(-9),
+                User = johnDoe,
+                Comment = "Adjusted inventory after spoilage"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 800,
+                NewAmount = 750,
+                CorrectionDate = DateTime.UtcNow.AddDays(-8),
+                User = backdoorEmployee,
+                Comment = "Used for testing new recipe"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 750,
+                NewAmount = 700,
+                CorrectionDate = DateTime.UtcNow.AddDays(-7),
+                User = backdoorEmployee,
+                Comment = "Prepared dough for special event"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 700,
+                NewAmount = 650,
+                CorrectionDate = DateTime.UtcNow.AddDays(-6),
+                User = johnDoe,
+                Comment = "Adjusted inventory after staff meal"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 650,
+                NewAmount = 600,
+                CorrectionDate = DateTime.UtcNow.AddDays(-5),
+                User = backdoorEmployee,
+                Comment = "Used for charity event"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 600,
+                NewAmount = 550,
+                CorrectionDate = DateTime.UtcNow.AddDays(-4),
+                User = johnDoe,
+                Comment = "Prepared dough for school workshop"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 550,
+                NewAmount = 500,
+                CorrectionDate = DateTime.UtcNow.AddDays(-3),
+                User = johnDoe,
+                Comment = "Adjusted inventory after stocktake"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 500,
+                NewAmount = 450,
+                CorrectionDate = DateTime.UtcNow.AddDays(-2),
+                User = backdoorEmployee,
+                Comment = "Used for experimental dish"
+            },
+            new IngredientAmountCorrection
+            {
+                Ingredient = dough,
+                OldAmount = 450,
+                NewAmount = 400,
+                CorrectionDate = DateTime.UtcNow.AddDays(-1),
+                User = backdoorEmployee,
+                Comment = "Prepared dough for family gathering"
+            }
+        };
+        foreach (var correction in corrections)
+        {
+            dough.Corrections.Add(correction);
+        }
+        await context.SaveChangesAsync();
     }
 
     private async Task CreateJohnDoes2Restaurant(User johnDoe, RestaurantGroup johnDoesGroup, User verifier)
@@ -1430,6 +1566,7 @@ public class DbSeeder(
             AlcoholLicenseFileName = null,
             BusinessPermissionFileName = null!,
             BusinessPermission = exampleDocument,
+            MaxReservationDurationMinutes = 120,
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
@@ -1441,7 +1578,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite")
                 .ToList(),
             VerifierId = verifier.Id,
-            IsDeleted = false
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
         johnDoes2.Tables = new List<Table>
         {
@@ -1570,6 +1709,7 @@ public class DbSeeder(
             BusinessPermissionFileName = null!,
             BusinessPermission = exampleDocument,
             IdCardFileName = null!,
+            MaxReservationDurationMinutes = 120,
             IdCard = exampleDocument,
             LogoFileName = null!,
             Logo = await RequireFileUpload("ResLogo4.png", kowalski),
@@ -1580,7 +1720,10 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "Asian" || rt.Name == "Takeaway")
                 .ToList(),
             VerifierId = verifier.Id,
-            IsDeleted = false
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(8, 00), new TimeOnly(18, 00),
+                new TimeOnly(8, 00), new TimeOnly(16, 00),
+                true),
         };
         kowalskisRestaurant.Tables = new List<Table>
         {
@@ -1853,6 +1996,7 @@ public class DbSeeder(
             AlcoholLicense = exampleDocument,
             BusinessPermissionFileName = null!,
             BusinessPermission = exampleDocument,
+            MaxReservationDurationMinutes = 120,
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
@@ -1863,7 +2007,10 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(00, 00), new TimeOnly(23, 59),
+                new TimeOnly(00, 00), new TimeOnly(23, 59),
+                true),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2138,6 +2285,7 @@ public class DbSeeder(
             AlcoholLicense = exampleDocument,
             BusinessPermissionFileName = null!,
             BusinessPermission = exampleDocument,
+            MaxReservationDurationMinutes = 120,
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
@@ -2148,7 +2296,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2397,6 +2547,7 @@ public class DbSeeder(
             AlcoholLicense = exampleDocument,
             BusinessPermissionFileName = null!,
             BusinessPermission = exampleDocument,
+            MaxReservationDurationMinutes = 120,
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
@@ -2407,7 +2558,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2627,6 +2780,7 @@ public class DbSeeder(
             AlcoholLicense = exampleDocument,
             BusinessPermissionFileName = null!,
             BusinessPermission = exampleDocument,
+            MaxReservationDurationMinutes = 120,
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
@@ -2637,7 +2791,9 @@ public class DbSeeder(
                 .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
                 .ToListAsync(),
             VerifierId = verifier.Id,
-            IsDeleted = false
+            OpeningHours = CreateOpeningHours(
+                new TimeOnly(10, 00), new TimeOnly(20, 00),
+                new TimeOnly(10, 00), new TimeOnly(18, 00)),
         };
 
         var visits = await context.Visits.ToListAsync();
@@ -2824,14 +2980,16 @@ public class DbSeeder(
     {
         var exampleCustomer = await context.Users.FirstAsync(u => u.UserName == "customer");
 
+        var visitDay = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
+
         var visitResult = (await visitService.CreateVisitAsync(
             new CreateVisitRequest
             {
-                Date = DateTime.UtcNow.AddDays(1),
+                Date = new DateTime(visitDay, new TimeOnly(18, 00)),
+                EndTime = new DateTime(visitDay, new TimeOnly(18, 30)),
                 NumberOfGuests = 1,
                 ParticipantIds = [exampleCustomer.Id],
                 RestaurantId = 1,
-                TableId = 1,
                 Takeaway = false,
                 Tip = new decimal(1.50)
             },
@@ -2859,15 +3017,7 @@ public class DbSeeder(
             exampleCustomer
         )).OrThrow();
 
-        return new VisitSummaryVM
-        {
-            ClientId = exampleCustomer.Id,
-            Date = visitResult.Date,
-            Deposit = visitResult.Deposit,
-            NumberOfPeople = visitResult.NumberOfPeople,
-            RestaurantId = visitResult.RestaurantId,
-            Takeaway = visitResult.Takeaway,
-            VisitId = visitResult.VisitId
-        };
+        return visitResult;
     }
+
 }

@@ -51,6 +51,24 @@
         <value>{AuthorName} piszy: "{Contents}"</value>
     </data>
     <data name="NotificationParticipationRequestResponse.Details" xml:space="preserve">
-        <value>Your request to participate in {EventName} has been {IsAccepted:choose:accepted|rejected}</value>
+        <value>Twoja prośba o uczestnictwo w {EventName} została {IsAccepted:choose:przyjęta|odrzucona}</value>
+    </data>
+    <data name="NotificationVisitApprovedDeclined.Title" xml:space="preserve">
+        <value>Rezerwacja {IsAccepted:choose:Zatwierdzona|Odrzucona}</value>
+    </data>
+    <data name="NotificationVisitApprovedDeclined.Details" xml:space="preserve">
+        <value>Twoja rezerwacja w {RestaurantName} została {IsAccepted:choose:zatwierzona|odrzucona}</value>
+    </data>
+    <data name="NotificationNewMessage.Title" xml:space="preserve">
+        <value>{AuthorName} w {ThreadTitle}</value>
+    </data>
+    <data name="NotificationNewMessage.Details" xml:space="preserve">
+        <value>{Contents}</value>
+    </data>
+    <data name="NotificationNewReservation.Title" xml:space="preserve">
+        <value>Nowa Rezerwacja w {RestaurantName}</value>
+    </data>
+    <data name="NotificationNewReservation.Details" xml:space="preserve">
+        <value>{NumberOfPeople:plural:{} osoba|{} osoby|{} osób}, {Date}</value>
     </data>
 </root>

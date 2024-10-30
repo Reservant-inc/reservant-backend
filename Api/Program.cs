@@ -12,8 +12,10 @@ using Reservant.Api;
 using Reservant.Api.Data;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
+using Reservant.Api.Mapping;
 using Reservant.Api.Options;
 using Reservant.Api.Push;
+using Reservant.Api.Serialization;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 
@@ -43,6 +45,8 @@ builder.Services.AddControllers()
     {
         o.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter());
+        o.JsonSerializerOptions.Converters.Add(
+            new SimplifiedTimeOnlyConverter());
     });
 
 builder.Services.AddCustomExceptionHandler();
@@ -55,6 +59,7 @@ builder.Services.AddDbContext<ApiDbContext>();
 builder.Services.AddScoped<DbSeeder>();
 builder.Services.AddIdentityServices(builder.Configuration);
 
+builder.Services.AddMappingServices();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddPushServices();
 builder.Services.AddBusinessServices();
@@ -62,7 +67,6 @@ builder.Services.AddBusinessServices();
 var app = builder.Build();
 
 await app.EnsureDatabaseCreatedAndSeeded();
-await app.TryInitFirebase();
 
 app.Services.RegisterLogsViewerProvider();
 

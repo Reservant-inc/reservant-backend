@@ -20,10 +20,10 @@ using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Dtos.Location;
-using Reservant.Api.Dtos.Tables;
 using Reservant.Api.Dtos.Users;
-using System.Text.Json;
-
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services
 {
@@ -32,12 +32,13 @@ namespace Reservant.Api.Services
     /// </summary>
     public class RestaurantService(
         ApiDbContext context,
-        FileUploadService uploadService,
+        UrlService urlService,
         UserManager<User> userManager,
         ValidationService validationService,
         GeometryFactory geometryFactory,
         AuthorizationService authorizationService,
-        NotificationService notificationService)
+        NotificationService notificationService,
+        IMapper mapper)
     {
         /// <summary>
         /// Find restaurants by different criteria
@@ -65,7 +66,8 @@ namespace Reservant.Api.Services
             int page, int perPage)
         {
             IQueryable<Restaurant> query = context.Restaurants
-                .Where(r => r.VerifierId != null);
+                .AsNoTracking()
+                .OnlyActiveRestaurants();
 
             if (name is not null)
             {
@@ -182,13 +184,14 @@ namespace Reservant.Api.Services
                         Longitude = r.Location.X
                     },
                     ProvideDelivery = r.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
+                    Logo = urlService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
                     ReservationDeposit = r.ReservationDeposit,
                     Tags = r.Tags.Select(t => t.Name).ToList(),
                     DistanceFrom = origin.IsEmpty ? null : origin.Distance(r.Location),
                     Rating = r.Reviews.Select(rv => (double?)rv.Stars).Average() ?? 0,
-                    NumberReviews = r.Reviews.Count
+                    NumberReviews = r.Reviews.Count,
+                    OpeningHours = r.OpeningHours.ToList(),
                 })
                 .PaginateAsync(page, perPage, []);
 
@@ -264,6 +267,7 @@ namespace Reservant.Api.Services
                 AlcoholLicenseFileName = request.AlcoholLicense,
                 BusinessPermissionFileName = request.BusinessPermission,
                 IdCardFileName = request.IdCard,
+                MaxReservationDurationMinutes = request.MaxReservationDurationMinutes,
                 LogoFileName = request.Logo,
                 ProvideDelivery = request.ProvideDelivery,
                 Description = request.Description?.Trim(),
@@ -281,7 +285,8 @@ namespace Reservant.Api.Services
                         PhotoFileName = photo,
                         Order = index + 1
                     })
-                    .ToList()
+                    .ToList(),
+                OpeningHours = new WeeklyOpeningHours(request.OpeningHours),
             };
 
             result = await validationService.ValidateAsync(restaurant, user.Id);
@@ -294,35 +299,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new MyRestaurantVM
-            {
-                RestaurantId = restaurant.RestaurantId,
-                Name = restaurant.Name,
-                RestaurantType = restaurant.RestaurantType,
-                Nip = restaurant.Nip,
-                Address = restaurant.Address,
-                PostalIndex = restaurant.PostalIndex,
-                City = restaurant.City,
-                GroupId = restaurant.GroupId,
-                GroupName = group.Name,
-                RentalContract = uploadService.GetPathForFileName(restaurant.RentalContractFileName),
-                AlcoholLicense = uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
-                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
-                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
-                Tables = [], //restaurantVM ma required pole Tables, ale nie dodajemy Tables powyżej
-                ProvideDelivery = restaurant.ProvideDelivery,
-                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-                Photos = restaurant.Photos.Select(p => uploadService.GetPathForFileName(p.PhotoFileName)).ToList(),
-                Description = restaurant.Description,
-                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
-                IsVerified = restaurant.VerifierId is not null,
-                Location = new Geolocation
-                {
-                    Longitude = restaurant.Location.Y,
-                    Latitude = restaurant.Location.X
-                },
-                ReservationDeposit = restaurant.ReservationDeposit
-            };
+            return mapper.Map<MyRestaurantVM>(restaurant);
         }
 
         /// <summary>
@@ -335,31 +312,10 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
+                .AsNoTracking()
                 .Where(r => r.Group.OwnerId == userId)
                 .Where(r => name == null || r.Name.Contains(name.Trim()))
-                .Select(r => new RestaurantSummaryVM
-                {
-                    RestaurantId = r.RestaurantId,
-                    Name = r.Name,
-                    Nip = r.Nip,
-                    RestaurantType = r.RestaurantType,
-                    Address = r.Address,
-                    City = r.City,
-                    Location = new Geolocation()
-                    {
-                        Longitude = r.Location.Y,
-                        Latitude = r.Location.X
-                    },
-                    GroupId = r.GroupId,
-                    ProvideDelivery = r.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                    Description = r.Description,
-                    ReservationDeposit = r.ReservationDeposit,
-                    Tags = r.Tags.Select(t => t.Name).ToList(),
-                    IsVerified = r.VerifierId != null,
-                    Rating = r.Reviews.Average(review => (double?)review.Stars) ?? 0,
-                    NumberReviews = r.Reviews.Count
-                })
+                .ProjectTo<RestaurantSummaryVM>(mapper.ConfigurationProvider)
                 .ToListAsync();
             return result;
         }
@@ -374,49 +330,10 @@ namespace Reservant.Api.Services
         {
             var userId = user.Id;
             var result = await context.Restaurants
+                .AsNoTracking()
                 .Where(r => r.Group.OwnerId == userId)
                 .Where(r => r.RestaurantId == id)
-                .Select(r => new MyRestaurantVM
-                {
-                    RestaurantId = r.RestaurantId,
-                    Name = r.Name,
-                    RestaurantType = r.RestaurantType,
-                    Nip = r.Nip,
-                    Address = r.Address,
-                    PostalIndex = r.PostalIndex,
-                    City = r.City,
-                    Location = new Geolocation()
-                    {
-                        Longitude = r.Location.Y,
-                        Latitude = r.Location.X
-                    },
-                    GroupId = r.Group.RestaurantGroupId,
-                    GroupName = r.Group.Name,
-                    RentalContract = r.RentalContractFileName == null
-                        ? null
-                        : uploadService.GetPathForFileName(r.RentalContractFileName),
-                    AlcoholLicense = r.AlcoholLicenseFileName == null
-                        ? null
-                        : uploadService.GetPathForFileName(r.AlcoholLicenseFileName),
-                    BusinessPermission = uploadService.GetPathForFileName(r.BusinessPermissionFileName),
-                    IdCard = uploadService.GetPathForFileName(r.IdCardFileName),
-                    Tables = r.Tables.Select(t => new TableVM
-                    {
-                        TableId = t.TableId,
-                        Capacity = t.Capacity
-                    }),
-                    Photos = r.Photos
-                        .OrderBy(rp => rp.Order)
-                        .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
-                        .ToList(),
-                    ProvideDelivery = r.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(r.LogoFileName),
-                    Description = r.Description,
-                    ReservationDeposit = r.ReservationDeposit,
-                    Tags = r.Tags.Select(t => t.Name).ToList(),
-                    IsVerified = r.VerifierId != null
-                })
-                .AsSplitQuery()
+                .ProjectTo<MyRestaurantVM>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
 
             return result;
@@ -547,6 +464,7 @@ namespace Reservant.Api.Services
             }
 
             var restaurant = await context.Restaurants
+                .AsSplitQuery()
                 .Include(r => r.Tags)
                 .Include(r => r.Group)
                 .ThenInclude(g => g.Restaurants)
@@ -566,7 +484,7 @@ namespace Reservant.Api.Services
             oldGroup.Restaurants.Remove(restaurant);
             if (oldGroup.Restaurants.Count == 0)
             {
-                context.Remove(oldGroup);
+                oldGroup.IsDeleted = true;
             }
 
             restaurant.GroupId = request.GroupId;
@@ -574,29 +492,7 @@ namespace Reservant.Api.Services
             newRestaurantGroup.Restaurants.Add(restaurant);
             context.RestaurantGroups.Update(newRestaurantGroup);
             await context.SaveChangesAsync();
-            return new RestaurantSummaryVM
-            {
-                RestaurantId = restaurant.RestaurantId,
-                Name = restaurant.Name,
-                Nip = restaurant.Nip,
-                RestaurantType = restaurant.RestaurantType,
-                Address = restaurant.Address,
-                City = restaurant.City,
-                Location = new Geolocation()
-                {
-                    Longitude = restaurant.Location.Y,
-                    Latitude = restaurant.Location.X
-                },
-                GroupId = restaurant.GroupId,
-                Description = restaurant.Description,
-                ReservationDeposit = restaurant.ReservationDeposit,
-                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
-                ProvideDelivery = restaurant.ProvideDelivery,
-                IsVerified = restaurant.VerifierId != null,
-                Rating = restaurant.Reviews.Count == 0 ? 0 : restaurant.Reviews.Average(rev => (double)rev.Stars),
-                NumberReviews = restaurant.Reviews.Count
-            };
+            return mapper.Map<RestaurantSummaryVM>(restaurant);
         }
 
         /// <summary>
@@ -609,6 +505,7 @@ namespace Reservant.Api.Services
         public async Task<Result<List<RestaurantEmployeeVM>>> GetEmployeesAsync(int id, Guid userId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Group)
                 .Include(r => r.Employments)
                 .ThenInclude(e => e.Employee)
@@ -708,6 +605,7 @@ namespace Reservant.Api.Services
             restaurant.ProvideDelivery = request.ProvideDelivery;
             restaurant.Description = request.Description?.Trim();
             restaurant.ReservationDeposit = request.ReservationDeposit;
+            restaurant.MaxReservationDurationMinutes = request.MaxReservationDurationMinutes;
 
             restaurant.RentalContractFileName = request.RentalContract;
             restaurant.AlcoholLicenseFileName = request.AlcoholLicense;
@@ -716,6 +614,8 @@ namespace Reservant.Api.Services
             restaurant.LogoFileName = request.Logo;
             restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
              request.Location.Latitude));
+
+            restaurant.OpeningHours = new WeeklyOpeningHours(request.OpeningHours);
 
             restaurant.Tags = await context.RestaurantTags
                 .Where(t => request.Tags.Contains(t.Name))
@@ -738,46 +638,7 @@ namespace Reservant.Api.Services
 
             await context.SaveChangesAsync();
 
-            return new MyRestaurantVM
-            {
-                RestaurantId = restaurant.RestaurantId,
-                Name = restaurant.Name,
-                RestaurantType = restaurant.RestaurantType,
-                Nip = restaurant.Nip,
-                Address = restaurant.Address,
-                PostalIndex = restaurant.PostalIndex,
-                City = restaurant.City,
-                Location = new Geolocation()
-                {
-                    Longitude = restaurant.Location.Y,
-                    Latitude = restaurant.Location.X
-                },
-                GroupId = restaurant.Group.RestaurantGroupId,
-                GroupName = restaurant.Group.Name,
-                RentalContract = restaurant.RentalContractFileName == null
-                    ? null
-                    : uploadService.GetPathForFileName(restaurant.RentalContractFileName),
-                AlcoholLicense = restaurant.AlcoholLicenseFileName == null
-                    ? null
-                    : uploadService.GetPathForFileName(restaurant.AlcoholLicenseFileName),
-                BusinessPermission = uploadService.GetPathForFileName(restaurant.BusinessPermissionFileName),
-                IdCard = uploadService.GetPathForFileName(restaurant.IdCardFileName),
-                Tables = restaurant.Tables.Select(t => new TableVM
-                {
-                    TableId = t.TableId,
-                    Capacity = t.Capacity
-                }),
-                Photos = restaurant.Photos
-                    .OrderBy(rp => rp.Order)
-                    .Select(rp => uploadService.GetPathForFileName(rp.PhotoFileName))
-                    .ToList(),
-                ProvideDelivery = restaurant.ProvideDelivery,
-                Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-                Description = restaurant.Description,
-                ReservationDeposit = restaurant.ReservationDeposit,
-                Tags = restaurant.Tags.Select(t => t.Name).ToList(),
-                IsVerified = restaurant.VerifierId != null
-            };
+            return mapper.Map<MyRestaurantVM>(restaurant);
         }
 
         /// <summary>
@@ -877,8 +738,12 @@ namespace Reservant.Api.Services
         /// <returns>A Result object containing a list of MenuSummaryVM or an error message.</returns>
         public async Task<Result<List<MenuSummaryVM>>> GetMenusCustomerAsync(int restaurantId)
         {
+            var todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
+
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Menus)
+                .OnlyActiveRestaurants()
                 .Where(i => i.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
@@ -893,18 +758,9 @@ namespace Reservant.Api.Services
             }
 
             var menus = restaurant.Menus
-                .Select(menu => new MenuSummaryVM
-                {
-                    MenuId = menu.MenuId,
-                    Name = menu.Name,
-                    AlternateName = menu.AlternateName,
-                    MenuType = menu.MenuType,
-                    DateFrom = menu.DateFrom,
-                    DateUntil = menu.DateUntil,
-                })
-                .ToList();
+                .Where(m => (m.DateUntil ?? todaysDate) >= todaysDate);
 
-            return menus;
+            return mapper.Map<List<MenuSummaryVM>>(menus);
         }
 
 
@@ -917,7 +773,9 @@ namespace Reservant.Api.Services
         public async Task<Result<List<MenuItemVM>>> GetMenuItemsCustomerAsync(User user, int restaurantId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Menus)
+                .OnlyActiveRestaurants()
                 .Where(i => i.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
@@ -933,23 +791,8 @@ namespace Reservant.Api.Services
 
             return await context.MenuItems
                 .Where(i => i.RestaurantId == restaurantId)
-                .Select(i => new MenuItemVM()
-                {
-                    MenuItemId = i.MenuItemId,
-                    Name = i.Name,
-                    AlternateName = i.AlternateName,
-                    Price = i.Price,
-                    AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
-                    Ingredients = i.Ingredients
-                        .Select(mii => new MenuItemIngredientVM
-                        {
-                            IngredientId = mii.IngredientId,
-                            PublicName = mii.Ingredient.PublicName,
-                            AmountUsed = mii.AmountUsed,
-                        })
-                        .ToList(),
-                }).ToListAsync();
+                .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -959,7 +802,7 @@ namespace Reservant.Api.Services
         /// <param name="user"></param>
         /// <returns></returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result> SoftDeleteRestaurantAsync(int id, User user)
+        public async Task<Result> ArchiveRestaurantAsync(int id, User user)
         {
             var restaurant = await context.Restaurants
                 .AsSplitQuery()
@@ -982,16 +825,33 @@ namespace Reservant.Api.Services
                 };
             }
 
-            context.RemoveRange(restaurant.Tables);
-            context.RemoveRange(restaurant.Employments);
-            context.RemoveRange(restaurant.MenuItems);
-            context.RemoveRange(restaurant.Menus);
+            foreach (var table in restaurant.Tables)
+            {
+                table.IsDeleted = true;
+            }
 
-            context.Remove(restaurant);
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            foreach (var employment in restaurant.Employments)
+            {
+                employment.DateUntil = today;
+            }
+
+            foreach (var menuItem in restaurant.MenuItems)
+            {
+                menuItem.IsDeleted = true;
+            }
+
+            foreach (var menu in restaurant.Menus)
+            {
+                menu.IsDeleted = true;
+            }
+
+            restaurant.IsArchived = true;
+
             // We check if the restaurant was the last one (the collection was loaded before we deleted it)
             if (restaurant.Group.Restaurants.Count == 1)
             {
-                context.Remove(restaurant.Group);
+                restaurant.Group.IsDeleted = true;
             }
 
             await context.SaveChangesAsync();
@@ -1023,6 +883,7 @@ namespace Reservant.Api.Services
             }
 
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(restaurant => restaurant.Group)
                 .FirstOrDefaultAsync(x => x.RestaurantId == restaurantId);
             if (restaurant == null)
@@ -1092,15 +953,7 @@ namespace Reservant.Api.Services
                     order.OrderItems.Max(oi => oi.Status) == OrderStatus.Ready);
             }
 
-            var filteredOrders = ordersQuery.Select(order => new OrderSummaryVM
-            {
-                OrderId = order.OrderId,
-                VisitId = order.VisitId,
-                Date = order.Visit.Date,
-                Note = order.Note,
-                Cost = order.OrderItems.Sum(oi => oi.MenuItem.Price * oi.Amount),
-                Status = order.OrderItems.Max(oi => oi.Status)
-            });
+            var filteredOrders = ordersQuery.ProjectTo<OrderSummaryVM>(mapper.ConfigurationProvider);
 
             filteredOrders = orderBy switch
             {
@@ -1124,7 +977,10 @@ namespace Reservant.Api.Services
         public async Task<Result<Pagination<EventSummaryVM>>> GetFutureEventsByRestaurantAsync(int restaurantId,
             int page, int perPage)
         {
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .OnlyActiveRestaurants()
+                .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -1138,20 +994,7 @@ namespace Reservant.Api.Services
             var query = context.Events
                 .Where(e => e.RestaurantId == restaurantId && e.Time > DateTime.UtcNow)
                 .OrderBy(e => e.Time)
-                .Select(e => new EventSummaryVM
-                {
-                    EventId = e.EventId,
-                    Name = e.Name,
-                    Description = e.Description,
-                    Time = e.Time,
-                    MaxPeople = e.MaxPeople,
-                    MustJoinUntil = e.MustJoinUntil,
-                    CreatorId = e.CreatorId,
-                    CreatorFullName = e.Creator.FullName,
-                    RestaurantId = e.RestaurantId,
-                    RestaurantName = e.Restaurant == null ? null : e.Restaurant.Name,
-                    NumberInterested = e.ParticipationRequests.Count
-                });
+                .ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
 
             return await query.PaginateAsync(page, perPage, []);
         }
@@ -1172,6 +1015,7 @@ namespace Reservant.Api.Services
         {
             var restaurant = await context.Restaurants
                 .Include(r => r.Group)
+                .OnlyActiveRestaurants()
                 .Where(r => r.RestaurantId == restaurantId)
                 .FirstOrDefaultAsync();
 
@@ -1227,6 +1071,7 @@ namespace Reservant.Api.Services
                 AuthorFullName = newReview.Author.FullName,
                 Stars = newReview.Stars,
                 CreatedAt = newReview.CreatedAt,
+                DateEdited = newReview.DateEdited,
                 Contents = newReview.Contents,
                 AnsweredAt = newReview.AnsweredAt,
                 RestaurantResponse = newReview.RestaurantResponse
@@ -1242,7 +1087,10 @@ namespace Reservant.Api.Services
         public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId,
             ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
         {
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .OnlyActiveRestaurants()
+                .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
 
             if (restaurant == null)
             {
@@ -1265,6 +1113,7 @@ namespace Reservant.Api.Services
                 AuthorFullName = r.Author.FullName,
                 Stars = r.Stars,
                 CreatedAt = r.CreatedAt,
+                DateEdited = r.DateEdited,
                 Contents = r.Contents,
                 AnsweredAt = r.AnsweredAt,
                 RestaurantResponse = r.RestaurantResponse
@@ -1310,39 +1159,10 @@ namespace Reservant.Api.Services
         public async Task<Result<RestaurantVM>> GetRestaurantByIdAsync(int restaurantId)
         {
             var restaurant = await context.Restaurants
-                .Include(restaurant => restaurant.Tables)
-                .Include(restaurant => restaurant.Photos)
-                .Include(restaurant => restaurant.Tags)
-                .Where(x => x.RestaurantId == restaurantId && x.VerifierId != null)
-                .Select(restaurant => new RestaurantVM
-                {
-                    RestaurantId = restaurant.RestaurantId,
-                    Name = restaurant.Name,
-                    RestaurantType = restaurant.RestaurantType,
-                    Address = restaurant.Address,
-                    PostalIndex = restaurant.PostalIndex,
-                    City = restaurant.City,
-                    Location = new Geolocation
-                    {
-                        Latitude = restaurant.Location.Y,
-                        Longitude = restaurant.Location.X
-                    },
-                    Tables = restaurant.Tables.Select(x => new TableVM
-                    {
-                        Capacity = x.Capacity,
-                        TableId = x.TableId
-                    }).ToList(),
-                    ProvideDelivery = restaurant.ProvideDelivery,
-                    Logo = uploadService.GetPathForFileName(restaurant.LogoFileName),
-                    Photos = restaurant.Photos
-                    .Select(x => uploadService.GetPathForFileName(x.PhotoFileName))
-                    .ToList(),
-                    Description = restaurant.Description,
-                    ReservationDeposit = restaurant.ReservationDeposit,
-                    Tags = restaurant.Tags.Select(x => x.Name).ToList(),
-                    Rating = restaurant.Reviews.Average(review => (double?)review.Stars) ?? 0,
-                    NumberReviews = restaurant.Reviews.Count,
-                })
+                .AsNoTracking()
+                .OnlyActiveRestaurants()
+                .Where(x => x.RestaurantId == restaurantId)
+                .ProjectTo<RestaurantVM>(mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
             if (restaurant is null)
             {
@@ -1360,23 +1180,38 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Get visits in a restaurant
         /// </summary>
+        /// <param name="userId">ID of the current user for permission checking</param>
         /// <param name="restaurantId">ID of the restaurant.</param>
         /// <param name="dateStart">Filter out visits before the date</param>
-        /// <param name="dateEnd">Filter out visits ater the date</param>
+        /// <param name="dateEnd">Filter out visits after the date</param>
+        /// <param name="tableId">Only visits assigned to the specified table ID</param>
+        /// <param name="hasOrders">
+        /// If true, only visits with orders; if false, only visits without orders; if null, all visits
+        /// </param>
+        /// <param name="isTakeaway">
+        /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
+        /// </param>
         /// <param name="visitSorting">Order visits</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
         /// <returns>Paged list of visits</returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<Pagination<VisitVM>>> GetVisitsInRestaurantAsync(
+            Guid userId,
             int restaurantId,
             DateOnly? dateStart,
             DateOnly? dateEnd,
+            int? tableId,
+            bool? hasOrders,
+            bool? isTakeaway,
             VisitSorting visitSorting,
             int page,
             int perPage)
         {
-            var restaurant = await context.Restaurants.FindAsync(restaurantId);
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .OnlyActiveRestaurants()
+                .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == restaurantId);
             if (restaurant == null)
             {
                 return new ValidationFailure
@@ -1385,6 +1220,12 @@ namespace Reservant.Api.Services
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
+            }
+
+            var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
             }
 
             IQueryable<Visit> query = context.Visits
@@ -1406,6 +1247,39 @@ namespace Reservant.Api.Services
                 query = query.Where(x => DateOnly.FromDateTime(x.Date) <= dateEnd);
             }
 
+            if (tableId is not null)
+            {
+                var tableExists = await context.Tables.AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId);
+                if (!tableExists)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(tableId),
+                        ErrorMessage = $"Table with ID {tableId} not found in restaurant {restaurantId}",
+                        ErrorCode = ErrorCodes.NotFound
+                    };
+                }
+
+                query = query.Where(x => x.TableId == tableId);
+            }
+
+            if (hasOrders is not null)
+            {
+                if (hasOrders.Value)
+                {
+                    query = query.Where(x => x.Orders.Count != 0);
+                }
+                else
+                {
+                    query = query.Where(x => x.Orders.Count == 0);
+                }
+            }
+
+            if (isTakeaway is not null)
+            {
+                query = query.Where(x => x.Takeaway == isTakeaway.Value);
+            }
+
             switch (visitSorting)
             {
                 case VisitSorting.DateAsc:
@@ -1419,36 +1293,8 @@ namespace Reservant.Api.Services
                     break;
             }
 
-            var result = await query.Select(e => new VisitVM
-                {
-                    VisitId = e.VisitId,
-                    Date = e.Date,
-                    NumberOfGuests = e.NumberOfGuests,
-                    PaymentTime = e.PaymentTime,
-                    Deposit = e.Deposit,
-                    ReservationDate = e.ReservationDate,
-                    Tip = e.Tip,
-                    Takeaway = e.Takeaway,
-                    ClientId = e.ClientId,
-                    RestaurantId = e.Table.RestaurantId,
-                    TableId = e.Table.TableId,
-                    Participants = e.Participants.Select(p => new UserSummaryVM
-                    {
-                        UserId = p.Id,
-                        FirstName = p.FirstName,
-                        LastName = p.LastName,
-                        Photo = uploadService.GetPathForFileName(p.PhotoFileName),
-                    }).ToList(),
-                    Orders = e.Orders.Select(o => new OrderSummaryVM
-                    {
-                        OrderId = o.OrderId,
-                        VisitId = o.VisitId,
-                        Date = o.Visit.Date,
-                        Note = o.Note,
-                        Cost = o.OrderItems.Sum(oi => oi.Price * oi.Amount), // This now safely computes Cost
-                        Status = o.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s)
-                    }).ToList()
-                })
+            var result = await query
+                .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
                 .PaginateAsync(page, perPage, Enum.GetNames<VisitSorting>());
 
             return result;
@@ -1477,16 +1323,6 @@ namespace Reservant.Api.Services
             int page = 0,
             int perPage = 10)
         {
-            if (!await context.Restaurants.AnyAsync(r => r.RestaurantId == restaurantId))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
-                };
-            }
-
             var access = await authorizationService
                 .VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
             if (access.IsError)
@@ -1533,12 +1369,12 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Validates and gets menu items from the given restaurant
         /// </summary>
-        /// <param name="user"></param>
+        /// <param name="userId"></param>
         /// <param name="restaurantId"></param>
         /// <returns>MenuItems</returns>
-        public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(User user, int restaurantId)
+        public async Task<Result<List<MenuItemVM>>> GetMenuItemsOwnerAsync(Guid userId, int restaurantId)
         {
-            var result = await authorizationService.VerifyOwnerRole(restaurantId, user);
+            var result = await authorizationService.VerifyOwnerRole(restaurantId, userId);
             if (result.IsError)
             {
                 return result.Errors;
@@ -1546,32 +1382,20 @@ namespace Reservant.Api.Services
 
             return await context.MenuItems
                 .Where(i => i.RestaurantId == restaurantId)
-                .Select(i => new MenuItemVM()
-                {
-                    MenuItemId = i.MenuItemId,
-                    Name = i.Name,
-                    AlternateName = i.AlternateName,
-                    Price = i.Price,
-                    AlcoholPercentage = i.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(i.PhotoFileName),
-                    Ingredients = i.Ingredients.Select(i => new MenuItemIngredientVM
-                    {
-                        PublicName = i.Ingredient.PublicName,
-                        IngredientId = i.IngredientId,
-                        AmountUsed = i.AmountUsed,
-                    }).ToList(),
-                }).ToListAsync();
+                .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
+                .ToListAsync();
         }
 
         /// <summary>
         /// Returns a list of menus of specific restaurant (owner version)
         /// </summary>
         /// <param name="id"> Id of the restaurant.</param>
-        /// <param name="user">Current user for permission checking</param>
+        /// <param name="userId">Id of the current user for permission checking</param>
         /// <returns></returns>
-        public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, User user)
+        public async Task<Result<List<MenuSummaryVM>>> GetMenusOwnerAsync(int id, Guid userId)
         {
             var restaurant = await context.Restaurants
+                .AsNoTracking()
                 .Include(r => r.Menus)
                 .Where(i => i.RestaurantId == id)
                 .FirstOrDefaultAsync();
@@ -1586,7 +1410,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var result = await authorizationService.VerifyOwnerRole(id, user);
+            var result = await authorizationService.VerifyOwnerRole(id, userId);
             if (result.IsError)
             {
                 return new ValidationFailure
@@ -1597,19 +1421,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var menus = restaurant.Menus
-                .Select(menu => new MenuSummaryVM
-                {
-                    MenuId = menu.MenuId,
-                    Name = menu.Name,
-                    AlternateName = menu.AlternateName,
-                    MenuType = menu.MenuType,
-                    DateFrom = menu.DateFrom,
-                    DateUntil = menu.DateUntil,
-                })
-                .ToList();
-
-            return new Result<List<MenuSummaryVM>>(menus);
+            return mapper.Map<List<MenuSummaryVM>>(restaurant.Menus);
         }
 
         /// <summary>
@@ -1627,7 +1439,9 @@ namespace Reservant.Api.Services
             int page,
             int perPage)
         {
-            bool restaurantExists = await context.Restaurants.AnyAsync(r => r.RestaurantId == restaurantId);
+            bool restaurantExists = await context.Restaurants
+                .OnlyActiveRestaurants()
+                .AnyAsync(r => r.RestaurantId == restaurantId);
             if (!restaurantExists)
             {
                 return new ValidationFailure
@@ -1668,6 +1482,108 @@ namespace Reservant.Api.Services
                 .PaginateAsync(page, perPage, Enum.GetNames<IngredientSorting>(), maxPerPage: 20);
 
             return paginatedResult;
+        }
+
+        /// <summary>
+        /// Get time spans on a given date that a reservation can be made in
+        /// </summary>
+        /// <param name="restaurantId">Restaurant ID</param>
+        /// <param name="date">Date of the reservation</param>
+        /// <param name="numberOfGuests">Number of people that will be going</param>
+        /// <returns>Available hours list</returns>
+        [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
+        public async Task<Result<List<AvailableHoursVM>>> GetAvailableHoursAsync(int restaurantId, DateOnly date, int numberOfGuests)
+        {
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .Include(r => r.Tables)
+                .OnlyActiveRestaurants()
+                .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            // Pobieramy stoliki odpowiednie do liczby gości
+            var availableTables = await context.Tables
+                .Where(t => t.RestaurantId == restaurantId && t.Capacity >= numberOfGuests)
+                .ToListAsync();
+
+            // Pobieramy rezerwacje, które kolidują z danym dniem
+            var reservations = await context.Visits
+                .Where(v => v.RestaurantId == restaurantId && v.Date.Date == date.ToDateTime(new TimeOnly()))
+                .ToListAsync();
+
+            //Pobranie godzin otwarcia i zamknięcia restauracji w podanym dniu
+            var openingTime = restaurant.OpeningHours[date.DayOfWeek].From;
+            var closingTime = restaurant.OpeningHours[date.DayOfWeek].Until;
+
+            if (openingTime == null || closingTime == null)
+            {
+                return new List<AvailableHoursVM>();
+            }
+
+            var availableHours = new List<AvailableHoursVM>();
+
+            // Sprawdzamy dostępność godzin dla każdego stolika
+            var wrappedDays = 0;
+            for (var time = openingTime.Value; time < closingTime.Value && wrappedDays < 1; time = time.AddMinutes(30, out wrappedDays))
+            {
+                var timeSlotAvailable = availableTables.Any(table =>
+                    // Check if there are no reservations for this table that overlap with the current time slot
+                    !reservations.Any(r =>
+                        r.TableId == table.TableId && // Same table
+                        TimeOnly.FromDateTime(r.Date) <= time && // Reservation starts before or at the current time (compare times only)
+                        TimeOnly.FromDateTime(r.EndTime) > time // Reservation ends after the current time slot starts (compare times only)
+                    )
+                );
+
+                if (timeSlotAvailable)
+                {
+                    availableHours.Add(new AvailableHoursVM
+                    {
+                        From = time,
+                        Until = time.Add(TimeSpan.FromMinutes(30))
+                    });
+                }
+            }
+
+            // Łączenie sąsiadujących przedziałów czasowych
+            var mergedAvailableHours = new List<AvailableHoursVM>();
+            AvailableHoursVM? currentSlot = null;
+
+            foreach (var slot in availableHours)
+            {
+                if (currentSlot == null)
+                {
+                    currentSlot = slot;
+                }
+                else if (currentSlot.Until == slot.From)
+                {
+                    // Przedziały sąsiadują, więc łączymy je
+                    currentSlot.Until = slot.Until;
+                }
+                else
+                {
+                    // Zapisujemy połączony przedział i zaczynamy nowy
+                    mergedAvailableHours.Add(currentSlot);
+                    currentSlot = slot;
+                }
+            }
+
+            // Dodajemy ostatni połączony przedział (jeśli istnieje)
+            if (currentSlot != null)
+            {
+                mergedAvailableHours.Add(currentSlot);
+            }
+
+            return mergedAvailableHours;
         }
     }
 }

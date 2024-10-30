@@ -10,15 +10,25 @@ namespace Reservant.Api.Models;
 public class Visit : ISoftDeletable
 {
     /// <summary>
+    /// Minimal reservation duration in minutes
+    /// </summary>
+    public const int MinReservationDurationMinutes = 30;
+
+    /// <summary>
     /// Unique ID
     /// </summary>
     [Key]
     public int VisitId { get; set; }
 
     /// <summary>
-    /// Date of the visit
+    /// Start time of the reservation
     /// </summary>
     public DateTime Date { get; set; }
+
+    /// <summary>
+    /// End time of the reservation
+    /// </summary>
+    public DateTime EndTime { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account
@@ -68,6 +78,16 @@ public class Visit : ISoftDeletable
     public int TableId { get; set; }
 
     /// <summary>
+    /// ID of the restaurant owner/hall employee that considered reservation
+    /// </summary>
+    public Guid? AnsweredById { get; set;}
+
+    /// <summary>
+    /// The decison about reservation
+    /// </summary>
+    public Boolean? IsAccepted  { get; set;}
+
+    /// <summary>
     /// Navigational property for the client who made the reservation
     /// </summary>
     public User Client { get; set; } = null!;
@@ -94,4 +114,9 @@ public class Visit : ISoftDeletable
     /// Navigational property for restaurant
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
+
+    /// <summary>
+    /// restaurant restaurant owner/hall employee that considered reservationn
+    /// </summary>
+    public User? AnsweredBy { get; set; }
 }

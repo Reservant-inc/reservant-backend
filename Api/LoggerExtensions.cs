@@ -26,4 +26,11 @@ public static partial class LoggerExtensions
     [LoggerMessage(Level = LogLevel.Error, EventId = 1002, EventName = "Reservant.Api.WsUnexpectedError",
         Message = "Unexpected WebSocket error occured")]
     public static partial void WebSocketUnexpectedError(this ILogger logger, Exception ex);
+
+    /// <summary>
+    /// Failed to send a Firebase push notification
+    /// </summary>
+    [LoggerMessage(Level = LogLevel.Error, EventId = 1003, EventName = "Reservant.Api.FirebaseMessagingError",
+        Message = "Failed to send a Firebase push notification to user ID {UserId}")]
+    public static partial void FirebaseMessagingError(this ILogger logger, Exception ex, Guid userId);
 }

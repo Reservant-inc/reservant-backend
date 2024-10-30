@@ -6,6 +6,7 @@ using Reservant.Api.Dtos.Notifications;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Mapping;
 using Reservant.Api.Push;
 
 namespace Reservant.Api.Services;
@@ -15,9 +16,9 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class NotificationService(
     ApiDbContext context,
-    FileUploadService uploadService,
+    UrlService urlService,
     PushService pushService,
-    FirebaseService firebaseService)
+    FirebaseBackgroundService firebaseService)
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -48,7 +49,7 @@ public class NotificationService(
                 NotificationId = n.NotificationId,
                 DateCreated = n.DateCreated,
                 DateRead = n.DateRead,
-                Photo = uploadService.GetPathForFileName(n.PhotoFileName),
+                Photo = urlService.GetPathForFileName(n.PhotoFileName),
                 NotificationType = n.Details.GetType().Name,
                 Details = n.Details,
             })
@@ -139,24 +140,102 @@ public class NotificationService(
     private async Task NotifyUser(
         Guid targetUserId, NotificationDetails details, string? photoFileName = null)
     {
-        var notification = new Notification(DateTime.UtcNow, targetUserId, details)
-        {
-            PhotoFileName = photoFileName,
-        };
-        context.Add(notification);
-        await context.SaveChangesAsync();
+        await NotifyUsers(Enumerable.Repeat(targetUserId, 1), details, photoFileName);
+    }
 
-        pushService.SendToUser(targetUserId, JsonSerializer.SerializeToUtf8Bytes(new NotificationVM
+    /// <summary>
+    /// Notify multiple users that something has happened
+    /// </summary>
+    /// <param name="targetUserIds">IDs of the users that will receive the notification</param>
+    /// <param name="details">Kind-specific information. Stored in JSON in the database</param>
+    /// <param name="photoFileName">
+    /// File name of a picture related to the notification.
+    /// For example a user's profile picture, or a restaurant's logo
+    /// </param>
+    /// <param name="storeNotification">
+    /// Whether to persist the notification in the database.
+    /// Not required for example for New Message notifications, since those just
+    /// repeat message objects.
+    /// </param>
+    private async Task NotifyUsers(
+        IEnumerable<Guid> targetUserIds,
+        NotificationDetails details,
+        string? photoFileName = null,
+        bool storeNotification = true)
+    {
+        byte[]? pushMessage = null;
+        foreach (var targetUserId in targetUserIds)
         {
-            NotificationId = notification.NotificationId,
-            DateCreated = notification.DateCreated,
-            DateRead = notification.DateRead,
-            Photo = uploadService.GetPathForFileName(notification.PhotoFileName),
-            NotificationType = notification.Details.GetType().Name,
-            Details = notification.Details,
-        }, JsonOptions));
+            var notification = new Notification(DateTime.UtcNow, targetUserId, details)
+            {
+                PhotoFileName = photoFileName,
+            };
 
-        await firebaseService.SendNotification(notification);
+            if (storeNotification)
+            {
+                context.Add(notification);
+            }
+
+            pushMessage ??= JsonSerializer.SerializeToUtf8Bytes(new NotificationVM
+            {
+                NotificationId = notification.NotificationId,
+                DateCreated = notification.DateCreated,
+                DateRead = notification.DateRead,
+                Photo = urlService.GetPathForFileName(notification.PhotoFileName),
+                NotificationType = notification.Details.GetType().Name,
+                Details = notification.Details,
+            }, JsonOptions);
+
+            pushService.SendToUser(targetUserId, pushMessage);
+            firebaseService.EnqueueNotification(notification);
+        }
+
+        if (storeNotification)
+        {
+            await context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
+    /// Notify multiple users that they have received a new message
+    /// </summary>
+    /// <param name="targetUserIds">IDs of the users</param>
+    /// <param name="message">The new message</param>
+    public async Task NotifyNewMessage(IEnumerable<Guid> targetUserIds, Message message)
+    {
+        await NotifyUsers(
+            targetUserIds,
+            new NotificationNewMessage
+            {
+                MessageId = message.MessageId,
+                ThreadId = message.MessageThreadId,
+                AuthorId = message.AuthorId,
+                AuthorName = message.Author.FullName,
+                ThreadTitle = message.MessageThread.Title,
+                Contents = message.Contents,
+            },
+            message.Author.PhotoFileName,
+            storeNotification: false);
+    }
+
+    /// <summary>
+    /// Notify employees that there is a new reservation in a restaurant
+    /// </summary>
+    /// <param name="targetUserIds">IDs of the employees</param>
+    /// <param name="reservation">R</param>
+    public async Task NotifyNewReservation(IEnumerable<Guid> targetUserIds, Visit reservation)
+    {
+        await NotifyUsers(
+            targetUserIds,
+            new NotificationNewReservation
+            {
+                RestaurantId = reservation.RestaurantId,
+                RestaurantName = reservation.Restaurant.Name,
+                Takeaway = reservation.Takeaway,
+                Date = reservation.Date,
+                EndTime = reservation.EndTime,
+                NumberOfPeople = reservation.NumberOfGuests + reservation.Participants.Count + 1,
+            });
     }
 
     /// <summary>
@@ -186,24 +265,21 @@ public class NotificationService(
     /// <summary>
     /// Notify a user that they have a new friend request
     /// </summary>
-    public async Task NotifyNewFriendRequest(Guid senderId, Guid receiverId)
+    public async Task NotifyNewFriendRequest(Guid targetUserId, int friendRequestId)
     {
-        var sender = await context.Users
-            .Where(u => u.Id == senderId)
-            .Select(u => new { u.FullName, u.PhotoFileName })
-            .FirstOrDefaultAsync();
+        var request = await context.FriendRequests
+            .Include(request => request.Sender)
+            .SingleAsync(request => request.FriendRequestId == friendRequestId);
 
-        if (sender != null)
-        {
-            await NotifyUser(
-                receiverId,
-                new NotificationNewFriendRequest
-                {
-                    SenderId = senderId,
-                    SenderName = sender.FullName,
-                }
-                , sender.PhotoFileName);
-        }
+        await NotifyUser(
+            targetUserId,
+            new NotificationNewFriendRequest
+            {
+                FriendRequestId = friendRequestId,
+                SenderId = request.SenderId,
+                SenderName = request.Sender.FullName,
+            },
+            request.Sender.PhotoFileName);
     }
 
     /// <summary>
@@ -262,6 +338,37 @@ public class NotificationService(
                     CreatorName = eventData.CreatorName,
                 },
                 eventData.PhotoFileName);
+        }
+    }
+
+    /// <summary>
+    /// Notify a user that their visit request was accepted/rejected
+    /// </summary>
+    public async Task NotifyVisitApprovedDeclined(Guid receiver, int visitId)
+    {
+        var visitData = await context.Visits
+            .Where(v => v.VisitId == visitId)
+            .Select(v => new
+            {
+                photoFileName =  v.Client.PhotoFileName,
+                IsAccepted = v.IsAccepted,
+                RestaurantName = v.Restaurant.Name,
+                Date = v.Date
+            })
+            .FirstOrDefaultAsync();
+
+        if (visitData != null)
+        {
+            await NotifyUser(
+                receiver,
+                new NotificationVisitApprovedDeclined
+                {
+                    VisitId = visitId,
+                    IsAccepted = visitData.IsAccepted ?? false,
+                    RestaurantName = visitData.RestaurantName,
+                    Date = visitData.Date
+                },
+                visitData.photoFileName);
         }
     }
 }

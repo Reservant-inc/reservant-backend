@@ -1,4 +1,5 @@
 using FluentValidation;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators.Restaurants;
 
@@ -22,6 +23,10 @@ public class RestaurantValidator : AbstractValidator<Models.Restaurant>
         RuleFor(r => r.Address)
             .NotEmpty()
             .MaximumLength(70);
+
+        RuleFor(r => r.MaxReservationDurationMinutes)
+            .GreaterThanOrEqualTo(Visit.MinReservationDurationMinutes);
+
 
         RuleFor(r => r.PostalIndex)
             .NotNull()

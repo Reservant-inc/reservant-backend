@@ -7,13 +7,14 @@ using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.FriendRequests;
+using Reservant.Api.Mapping;
 
 namespace Reservant.Api.Services;
 
 /// <summary>
 /// Service for managing friends and friend requests
 /// </summary>
-public class FriendService(ApiDbContext context, FileUploadService uploadService, NotificationService notificationService)
+public class FriendService(ApiDbContext context, UrlService urlService, NotificationService notificationService)
 {
     /// <summary>
     /// Create a friend request
@@ -57,15 +58,16 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
 
         if (existingRequest is null)
         {
-            context.Add(new FriendRequest
+            var request = new FriendRequest
             {
                 SenderId = senderId,
                 ReceiverId = receiverId,
-                DateSent = DateTime.UtcNow
-            });
+                DateSent = DateTime.UtcNow,
+            };
+            context.Add(request);
 
             await context.SaveChangesAsync();
-            await notificationService.NotifyNewFriendRequest(senderId, receiverId);
+            await notificationService.NotifyNewFriendRequest(senderId, request.FriendRequestId);
             return Result.Success;
         }
 
@@ -246,14 +248,14 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                         UserId = fr.SenderId,
                         FirstName = fr.Sender.FirstName,
                         LastName = fr.Sender.LastName,
-                        Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
+                        Photo = urlService.GetPathForFileName(fr.Sender.PhotoFileName),
                     }
                     : new Dtos.Users.UserSummaryVM
                     {
                         UserId = fr.ReceiverId,
                         FirstName = fr.Receiver.FirstName,
                         LastName = fr.Receiver.LastName,
-                        Photo = uploadService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                        Photo = urlService.GetPathForFileName(fr.Receiver.PhotoFileName),
                     },
             });
 
@@ -284,7 +286,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                     UserId = fr.SenderId,
                     FirstName = fr.Sender.FirstName,
                     LastName = fr.Sender.LastName,
-                    Photo = uploadService.GetPathForFileName(fr.Sender.PhotoFileName),
+                    Photo = urlService.GetPathForFileName(fr.Sender.PhotoFileName),
                 },
             });
 
@@ -314,7 +316,7 @@ public class FriendService(ApiDbContext context, FileUploadService uploadService
                     UserId = fr.ReceiverId,
                     FirstName = fr.Receiver.FirstName,
                     LastName = fr.Receiver.LastName,
-                    Photo = uploadService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                    Photo = urlService.GetPathForFileName(fr.Receiver.PhotoFileName),
                 },
             });
 

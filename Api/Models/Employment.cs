@@ -1,4 +1,3 @@
-using Reservant.Api.Data;
 using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Models;
@@ -6,7 +5,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// Connects an employee to the restaurants they work at
 /// </summary>
-public class Employment : ISoftDeletable
+public class Employment
 {
     /// <summary>
     /// Unique identifier for the employment record.
@@ -53,7 +52,4 @@ public class Employment : ISoftDeletable
     /// Navigational property for the restaurant
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
-
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
 }

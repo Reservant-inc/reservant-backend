@@ -1,7 +1,8 @@
-﻿using Reservant.ErrorCodeDocs.Attributes;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Index.HPRtree;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Menus;
@@ -18,8 +19,8 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class RestaurantMenuService(
     ApiDbContext context,
-    FileUploadService uploadService,
-    ValidationService validationService)
+    ValidationService validationService,
+    IMapper mapper)
 {
 
     /// <summary>
@@ -33,24 +34,7 @@ public class RestaurantMenuService(
         var menu = await context.Menus
             .Include(m => m.MenuItems)
             .Where(m => m.MenuId == menuId)
-            .Select(m => new MenuVM
-            {
-                MenuId = m.MenuId,
-                Name = m.Name,
-                AlternateName = m.AlternateName,
-                MenuType = m.MenuType,
-                DateFrom = m.DateFrom,
-                DateUntil = m.DateUntil,
-                MenuItems = m.MenuItems.Select(mi => new MenuItemSummaryVM
-                {
-                    MenuItemId = mi.MenuItemId,
-                    Name = mi.Name,
-                    AlternateName = mi.AlternateName,
-                    Price = mi.Price,
-                    AlcoholPercentage = mi.AlcoholPercentage,
-                    Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-                }).ToList()
-            })
+            .ProjectTo<MenuVM>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
 
         if (menu is null)
@@ -78,6 +62,7 @@ public class RestaurantMenuService(
     public async Task<Result<MenuSummaryVM>> PostMenuToRestaurant(CreateMenuRequest req, User user)
     {
         var restaurant = await context.Restaurants
+            .AsNoTracking()
             .Include(r => r.Group)
             .FirstOrDefaultAsync(r => r.RestaurantId == req.RestaurantId);
 
@@ -120,18 +105,7 @@ public class RestaurantMenuService(
         context.Menus.Add(newMenu);
         await context.SaveChangesAsync();
 
-
-        var menuSummary = new MenuSummaryVM
-        {
-            MenuId = newMenu.MenuId,
-            Name = newMenu.Name,
-            AlternateName = newMenu.AlternateName,
-            MenuType = newMenu.MenuType,
-            DateFrom = newMenu.DateFrom,
-            DateUntil = newMenu.DateUntil
-        };
-
-        return menuSummary;
+        return mapper.Map<MenuSummaryVM>(newMenu);
     }
 
 
@@ -223,24 +197,7 @@ public class RestaurantMenuService(
 
         await context.SaveChangesAsync();
 
-        return new MenuVM
-        {
-            MenuId = menuToUpdate.MenuId,
-            Name = menuToUpdate.Name,
-            AlternateName = menuToUpdate.AlternateName,
-            MenuType = menuToUpdate.MenuType,
-            DateFrom = menuToUpdate.DateFrom,
-            DateUntil = menuToUpdate.DateUntil,
-            MenuItems = menuToUpdate.MenuItems.Select(mi => new MenuItemSummaryVM
-            {
-                MenuItemId = mi.MenuItemId,
-                Name = mi.Name,
-                AlternateName = mi.AlternateName,
-                Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-            }).ToList()
-        };
+        return mapper.Map<MenuVM>(menuToUpdate);
     }
 
     /// <summary>
@@ -252,6 +209,7 @@ public class RestaurantMenuService(
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound)]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User not permitted to edit menu with ID.")]
+    [ErrorCode(nameof(UpdateMenuRequest.MenuItemsIds), ErrorCodes.NotFound)]
     [ValidatorErrorCodes<Menu>]
     public async Task<Result<MenuVM>> UpdateMenuAsync(UpdateMenuRequest request, int menuId, User user)
     {
@@ -285,11 +243,26 @@ public class RestaurantMenuService(
             };
         }
 
+        // Validating menu items
+        var menuItems = await context.MenuItems
+            .Where(m => m.RestaurantId == menu.RestaurantId && request.MenuItemsIds.Contains(m.MenuItemId))
+            .ToListAsync();
+        if (menuItems.Count != request.MenuItemsIds.Count)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Some of the provided menu items either don't exist or belong to another restaurant",
+                PropertyName = nameof(request.MenuItemsIds),
+            };
+        }
+
         menu.Name = request.Name.Trim();
         menu.AlternateName = request.AlternateName?.Trim();
         menu.MenuType = request.MenuType;
         menu.DateFrom = request.DateFrom;
         menu.DateUntil = request.DateUntil;
+        menu.MenuItems = menuItems;
 
         var result = await validationService.ValidateAsync(menu, user.Id);
         if (!result.IsValid)
@@ -299,24 +272,7 @@ public class RestaurantMenuService(
 
         await context.SaveChangesAsync();
 
-        return new MenuVM()
-        {
-            Name = menu.Name,
-            AlternateName = menu.AlternateName,
-            DateFrom = menu.DateFrom,
-            DateUntil = menu.DateUntil,
-            MenuId = menu.MenuId,
-            MenuItems = menu.MenuItems.Select(mi => new MenuItemSummaryVM
-            {
-                MenuItemId = mi.MenuItemId,
-                Name = mi.Name,
-                AlternateName = mi.AlternateName,
-                Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-            }).ToList(),
-            MenuType = menu.MenuType
-        };
+        return mapper.Map<MenuVM>(menu);
     }
 
     /// <summary>
@@ -351,8 +307,7 @@ public class RestaurantMenuService(
             };
         }
 
-        context.Remove(menu);
-        await context.SaveChangesAsync();
+        menu.IsDeleted = true;
         return Result.Success;
     }
 
@@ -361,36 +316,42 @@ public class RestaurantMenuService(
     /// Remove MenuItems from a Menu
     /// </summary>
     /// <returns>MenuItem</returns>
-    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(nameof(menuId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(req.ItemIds), ErrorCodes.NotFound, "Some of the menu items not found in the menu")]
     public async Task<Result> RemoveMenuItemFromMenuAsync(User user, int menuId, RemoveItemsRequest req)
     {
-        var menuItemIds = req.ItemIds;
-
         var menu = await context.Menus
-            .Include(m => m.MenuItems
-                .Where(item => menuItemIds.Contains(item.MenuItemId))
-            ).FirstOrDefaultAsync(m => m.MenuId == menuId && user.Id == m.Restaurant.Group.OwnerId);
+            .Include(m => m.MenuItems)
+            .FirstOrDefaultAsync(m => m.MenuId == menuId && user.Id == m.Restaurant.Group.OwnerId);
 
         if (menu == null)
         {
             return new ValidationFailure
             {
+                PropertyName = nameof(menuId),
                 ErrorMessage = "Menu not found",
-                ErrorCode = ErrorCodes.NotFound
+                ErrorCode = ErrorCodes.NotFound,
             };
         }
 
-        if (menu.MenuItems.Count == 0)
+        var menuItemsToRemove = menu.MenuItems
+            .Where(menuItem => req.ItemIds.Contains(menuItem.MenuItemId))
+            .ToList();
+
+        if (menuItemsToRemove.Count != req.ItemIds.Count)
         {
             return new ValidationFailure
             {
-                ErrorMessage = "Menu items not found",
-                ErrorCode = ErrorCodes.NotFound
+                PropertyName = nameof(req.ItemIds),
+                ErrorMessage = "Some of the menu items not found in the menu",
+                ErrorCode = ErrorCodes.NotFound,
             };
         }
 
-        context.MenuItems.RemoveRange(menu.MenuItems);
-
+        foreach (var menuItem in menuItemsToRemove)
+        {
+            menu.MenuItems.Remove(menuItem);
+        }
         await context.SaveChangesAsync();
 
         return Result.Success;
@@ -442,15 +403,7 @@ public class RestaurantMenuService(
         };
 
         return await query
-            .Select(mi => new MenuItemSummaryVM
-            {
-                MenuItemId = mi.MenuItemId,
-                Name = mi.Name,
-                AlternateName = mi.AlternateName,
-                Price = mi.Price,
-                AlcoholPercentage = mi.AlcoholPercentage,
-                Photo = uploadService.GetPathForFileName(mi.PhotoFileName)
-            })
+            .ProjectTo<MenuItemSummaryVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, Enum.GetNames<MenuItemSorting>(), maxPerPage: 20);
     }
 }

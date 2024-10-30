@@ -11,14 +11,16 @@ namespace Reservant.Api.Controllers
     /// Managing reviews
     /// </summary>
     [ApiController, Route("/reviews")]
-    public class ReviewController(ReviewService reviewService) : StrictController
+    public class ReviewController(
+        ReviewService reviewService
+        ) : StrictController
     {
         /// <summary>
         /// Deletes a review with a given id, great for censorship
         /// </summary>
         /// <param name="reviewId">id of the review</param>
         /// <returns>confirmation of the action's status</returns>
-        [HttpDelete("{id:int}")]
+        [HttpDelete("{reviewId:int}")]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.DeleteReviewAsync))]
         [ProducesResponseType(204), ProducesResponseType(400)]
@@ -36,7 +38,7 @@ namespace Reservant.Api.Controllers
         /// <param name="reviewId">id of the review to change</param>
         /// <param name="request">new contents of the review</param>
         /// <returns>a visual model of the updated review</returns>
-        [HttpPut("{id:int}")]
+        [HttpPut("{reviewId:int}")]
         [Authorize(Roles = Roles.Customer)]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.UpdateReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
@@ -52,14 +54,47 @@ namespace Reservant.Api.Controllers
         /// <summary>
         /// Gets a review with a given id
         /// </summary>
-        /// <param name="id">id of the review</param>
+        /// <param name="reviewId">id of the review</param>
         /// <returns>a visual model of the review</returns>
-        [HttpGet("{id:int}")]
+        [HttpGet("{reviewId:int}")]
         [MethodErrorCodes<ReviewService>(nameof(ReviewService.GetReviewAsync))]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        public async Task<ActionResult<ReviewVM>> GetReview(int id)
+        public async Task<ActionResult<ReviewVM>> GetReview(int reviewId)
         {
-            var result = await reviewService.GetReviewAsync(id);
+            var result = await reviewService.GetReviewAsync(reviewId);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Adds or updates a restaurant response to a review with a given id
+        /// </summary>
+        /// <param name="reviewId">id of the review</param>
+        /// <param name="restaurantResponse">the restaurant response</param>
+        /// <returns>a visual model of the updated review</returns>
+        [HttpPut("{reviewId:int}/restaurant-response")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [MethodErrorCodes<ReviewService>(nameof(ReviewService.UpdateRestaurantResponseAsync))]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<ReviewVM>> UpdateRestaurantResponse(int reviewId, RestaurantResponseDto restaurantResponse)
+        {
+            var userId = User.GetUserId();
+            var result = await reviewService.UpdateRestaurantResponseAsync(reviewId, userId!.Value, restaurantResponse);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Deletes a restaurant response from a review with a given id
+        /// </summary>
+        /// <param name="reviewId">id of the review</param>
+        /// <returns>confirmation of the action's status</returns>
+        [HttpDelete("{reviewId:int}/restaurant-response")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [MethodErrorCodes<ReviewService>(nameof(ReviewService.DeleteRestaurantResponseAsync))]
+        [ProducesResponseType(204), ProducesResponseType(400)]
+        public async Task<ActionResult> DeleteRestaurantResponse(int reviewId)
+        {
+            var userId = User.GetUserId();
+            var result = await reviewService.DeleteRestaurantResponseAsync(reviewId, userId!.Value);
             return OkOrErrors(result);
         }
 

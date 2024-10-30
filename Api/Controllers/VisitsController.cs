@@ -5,7 +5,7 @@ using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
-using Reservant.Api.Validation;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;
 
@@ -44,6 +44,7 @@ public class VisitsController(
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.CreateVisitAsync))]
     public async Task<ActionResult<VisitSummaryVM>> CreateVisit(CreateVisitRequest request)
     {
         var user = await userManager.GetUserAsync(User);
@@ -54,5 +55,42 @@ public class VisitsController(
 
         var result = await visitService.CreateVisitAsync(request, user);
         return OkOrErrors(result);
+    }
+
+
+    /// <summary>
+    /// Approves visit
+    /// </summary>
+    [HttpPost("{visitId}/approve")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    public async Task<ActionResult> ApproveVisitRequest(int visitId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        return OkOrErrors(await visitService.ApproveVisitRequestAsync(visitId, user));
+    }
+
+    /// <summary>
+    /// Decline visit
+    /// </summary>
+    [HttpPost("{visitId}/decline")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    public async Task<ActionResult> DeclineVisitRequest(int visitId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        return OkOrErrors(await visitService.DeclineVisitRequestAsync(visitId, user));
     }
 }

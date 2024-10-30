@@ -204,9 +204,9 @@ namespace Reservant.Api.Controllers
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<ActionResult<List<MenuSummaryVM>>> GetMenusById(int restaurantId)
         {
-            var user = await userManager.GetUserAsync(User);
+            var userId = User.GetUserId();
 
-            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,user!);
+            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,userId!.Value);
             return OkOrErrors(result);
         }
 
@@ -221,24 +221,20 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsCustomerAsync))]
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
-            var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
+           var userId = User.GetUserId();
 
-            var res = await restaurantService.GetMenuItemsOwnerAsync(user, restaurantId);
+            var res = await restaurantService.GetMenuItemsOwnerAsync(userId!.Value, restaurantId);
             return OkOrErrors(res);
         }
 
         /// <summary>
-        /// Delete restaurant
+        /// Archive restaurant
         /// </summary>
         /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
         [HttpDelete("{restaurantId:int}")]
         [ProducesResponseType(204), ProducesResponseType(404)]
-        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.SoftDeleteRestaurantAsync))]
-        public async Task<ActionResult> SoftDeleteRestaurant(int restaurantId)
+        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ArchiveRestaurantAsync))]
+        public async Task<ActionResult> ArchiveRestaurant(int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -246,7 +242,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.SoftDeleteRestaurantAsync(restaurantId, user);
+            var result = await restaurantService.ArchiveRestaurantAsync(restaurantId, user);
             return OkOrErrors(result);
         }
     }

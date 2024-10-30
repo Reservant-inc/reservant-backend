@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Dtos.Orders;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Dtos.Visits;
@@ -18,6 +18,11 @@ public class VisitVM
     /// Date of the visit
     /// </summary>
     public required DateTime Date { get; set; }
+
+    /// <summary>
+    /// End time of the visit
+    /// </summary>
+    public required DateTime EndTime { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account
@@ -55,9 +60,9 @@ public class VisitVM
     public required Guid ClientId { get; set; }
 
     /// <summary>
-    /// ID of the restaurant
+    /// Restaurant where the visit took place
     /// </summary>
-    public required int RestaurantId { get; set; }
+    public required RestaurantSummaryVM Restaurant { get; set; }
 
     /// <summary>
     /// ID of the table within the restaurant

@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Orders;
-using Reservant.Api.Dtos.OrderItems;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Security.Claims;
+using AutoMapper;
 
 namespace Reservant.Api.Services;
 
@@ -21,7 +21,8 @@ public class OrderService(
     UserManager<User> userManager,
     ApiDbContext context,
     ValidationService validationService,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    IMapper mapper)
 {
     /// <summary>
     /// Gets the order with the given id
@@ -35,6 +36,7 @@ public class OrderService(
         var order = await context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
+            .Include(o => o.Employees)
             .FirstOrDefaultAsync(o => o.OrderId == id);
 
         if (order == null)
@@ -92,24 +94,7 @@ public class OrderService(
             }
         }
 
-        var orderItems = order.OrderItems.Select(i => new OrderItemVM()
-        {
-            MenuItemId = i.MenuItemId,
-            Amount = i.Amount,
-            Price = i.Price,
-            Cost = i.Amount * i.Price,
-            Status = i.Status,
-        }).ToList();
-
-        return new OrderVM()
-        {
-            OrderId = order.OrderId,
-            VisitId = order.VisitId,
-            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
-            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
-            Items = orderItems,
-            EmployeeId = order.EmployeeId
-        };
+        return mapper.Map<OrderVM>(order);
     }
 
     /// <summary>
@@ -164,11 +149,14 @@ public class OrderService(
         "Some of the menu items were not found")]
     [ErrorCode(nameof(request.Items), ErrorCodes.BelongsToAnotherRestaurant,
         "Order must only include items from the visit's restaurant")]
+    [ErrorCode(nameof(request.Items), ErrorCodes.NotInAMenu,
+        "Order must only include items that are included in an active menu")]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
     [ValidatorErrorCodes<CreateOrderRequest>]
     [ValidatorErrorCodes<Order>]
     public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
     {
+        var todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
         var result = await validationService.ValidateAsync(request, user.Id);
         if (!result.IsValid)
         {
@@ -212,6 +200,22 @@ public class OrderService(
             };
         }
 
+        var menuCount = await context.Menus
+            .CountAsync(m =>
+                (m.DateUntil ?? todaysDate) >= todaysDate &&
+                m.MenuItems.Any(mi => menuItemIds.Contains(mi.MenuItemId))
+            );
+
+        if (menuCount != menuItems.Count)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.Items),
+                ErrorCode = ErrorCodes.NotInAMenu,
+                ErrorMessage = "All menuItems must be in a publicly available menu",
+            };
+        }
+
         var orderItems = request.Items.Select(c => new OrderItem
         {
             MenuItemId = c.MenuItemId,
@@ -236,16 +240,7 @@ public class OrderService(
         context.Add(order);
         await context.SaveChangesAsync();
 
-
-        return new OrderSummaryVM
-        {
-            OrderId = order.OrderId,
-            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
-            Note = order.Note,
-            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
-            VisitId = order.VisitId,
-            Date = visit.Date
-        };
+        return mapper.Map<OrderSummaryVM>(order);
     }
     /// <summary>
     /// Update status of the order by updating the list of states of included menu items
@@ -341,21 +336,6 @@ public class OrderService(
         }
         await context.SaveChangesAsync();
 
-        return new OrderVM
-        {
-            OrderId = order.OrderId,
-            VisitId = order.VisitId,
-            Status = order.OrderItems.Select(oi => oi.Status).MaxBy(s => (int)s),
-            Items = order.OrderItems.Select(orderItem => new OrderItemVM
-            {
-                Amount = orderItem.Amount,
-                Price = orderItem.Price,
-                Status = orderItem.Status,
-                MenuItemId = orderItem.MenuItemId,
-                Cost = orderItem.Price * orderItem.Amount
-            }).ToList(),
-            Cost = order.OrderItems.Sum(oi => oi.Price * oi.Amount),
-            EmployeeId = order.EmployeeId
-        };
+        return mapper.Map<OrderVM>(order);
     }
 }

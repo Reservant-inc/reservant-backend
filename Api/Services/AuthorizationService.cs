@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Validation;
 using FluentValidation.Results;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 
@@ -19,13 +20,15 @@ public class AuthorizationService(
     /// returns if user is an owner of a restaurant
     /// </summary>
     /// <param name="restaurantId">The id of restaurant</param>
-    /// <param name="user">The user to be tested as owner</param>
-    public async Task<Result> VerifyOwnerRole(int restaurantId, User user)
+    /// <param name="userId">The Id of user to be tested as owner</param>
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    public async Task<Result> VerifyOwnerRole(int restaurantId, Guid userId)
     {
         var restaurant = await context
             .Restaurants
+            .AsNoTracking()
             .Include(x => x.Group)
-            .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId && r.Group.OwnerId == user.Id);
+            .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId && r.Group.OwnerId == userId);
 
         if (restaurant == null)
             return new ValidationFailure
@@ -48,6 +51,8 @@ public class AuthorizationService(
     public async Task<Result> VerifyRestaurantBackdoorAccess(int restaurantId, Guid userId)
     {
         var userHasBackdoorsAccess = await context.Restaurants
+            .AsNoTracking()
+            .OnlyActiveRestaurants()
             .Where(r => r.RestaurantId == restaurantId)
             .Select(r => r.Group.OwnerId == userId
                 || r.Employments.Any(e =>
@@ -59,6 +64,37 @@ public class AuthorizationService(
             {
                 PropertyName = null,
                 ErrorMessage = "User must either be a backdoor employee or the owner of the restaurant",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// Verify that the user is a hall employee or the owner of the restaurant.
+    /// Return a validation error if not.
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="userId">ID of the user</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    public async Task<Result> VerifyRestaurantHallAccess(int restaurantId, Guid userId)
+    {
+        var userHasBackdoorsAccess = await context.Restaurants
+            .AsNoTracking()
+            .OnlyActiveRestaurants()
+            .Where(r => r.RestaurantId == restaurantId)
+            .Select(r => r.Group.OwnerId == userId
+                || r.Employments.Any(e =>
+                    e.DateUntil == null && e.EmployeeId == userId && e.IsHallEmployee))
+            .SingleOrDefaultAsync();
+        if (!userHasBackdoorsAccess)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User must either be a hall employee or the owner of the restaurant",
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }

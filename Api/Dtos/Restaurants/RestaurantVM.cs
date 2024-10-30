@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Dtos.Location;
@@ -96,4 +97,15 @@ public class RestaurantVM
     /// Number of reviews about this restaurant
     /// </summary>
     public required int NumberReviews { get; set; }
+
+    /// <summary>
+    /// Hours when the restaurant is open
+    /// </summary>
+    public required List<AvailableHoursVM> OpeningHours { get; set; }
+
+    /// <summary>
+    /// Whether the restaurant is archived
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public required bool IsArchived { get; set; }
 }

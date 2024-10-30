@@ -1,3 +1,5 @@
+using Reservant.Api.Dtos.Restaurants;
+
 namespace Reservant.Api.Dtos.Visits;
 
 /// <summary>
@@ -14,6 +16,11 @@ public class VisitSummaryVM
     /// Date of the visit
     /// </summary>
     public required DateTime Date { get; set; }
+
+    /// <summary>
+    /// End time of the visit
+    /// </summary>
+    public required DateTime EndTime { get; set; }
 
     /// <summary>
     /// Number of guests + number of clients
@@ -36,7 +43,7 @@ public class VisitSummaryVM
     public required Guid ClientId { get; init; }
 
     /// <summary>
-    /// ID of the restaurant
+    /// Restaurant where the visit took place
     /// </summary>
-    public required int RestaurantId { get; init; }
+    public required RestaurantSummaryVM Restaurant { get; init; }
 }

@@ -11,6 +11,7 @@ using Reservant.Api.Dtos.OrderItems;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
 using System.Text.RegularExpressions;
+using Reservant.Api.Dtos.Restaurants;
 
 namespace Reservant.Api.Validators;
 
@@ -63,8 +64,6 @@ public static class CustomRules
             .WithMessage("Must be a valid restaurant tag");
     }
 
-    private static readonly int[] NipWeights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
-
     /// <summary>
     /// Validates that the property contains a valid
     /// <a href="https://pl.wikipedia.org/wiki/Numer_identyfikacji_podatkowej">NIP</a>.
@@ -72,25 +71,7 @@ public static class CustomRules
     public static IRuleBuilderOptions<T, string> Nip<T>(this IRuleBuilder<T, string> builder)
     {
         return builder
-            .Must(value =>
-            {
-                if (string.IsNullOrEmpty(value) || value.Length != 10 || !value.All(char.IsDigit))
-                {
-                    return false;
-                }
-
-                var sum = NipWeights.Zip(value)
-                    .Select(vals => vals.First * vals.Second)
-                    .Sum();
-
-                var checksum = sum % 11;
-                if (checksum == 10)
-                {
-                    checksum = 0;
-                }
-
-                return checksum == value[9] - '0';
-            })
+            .Must(Utils.IsValidNip)
             .WithErrorCode(ErrorCodes.Nip)
             .WithMessage("Must be a valid NIP");
     }
@@ -187,6 +168,7 @@ public static class CustomRules
             .MustAsync(async (restaurantId, cancellationToken) =>
             {
                 return await dbContext.Restaurants
+                    .OnlyActiveRestaurants()
                     .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")
@@ -207,6 +189,7 @@ public static class CustomRules
                 }
 
                 return await dbContext.Restaurants
+                    .OnlyActiveRestaurants()
                     .AnyAsync(r => r.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Restaurant ID does not exist.")
