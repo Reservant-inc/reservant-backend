@@ -204,6 +204,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/visits")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetVisitsInRestaurantAsync))]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
     public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
         int restaurantId,
         DateOnly? dateStart,
@@ -216,6 +217,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         [FromQuery] int perPage = 10)
     {
         var result = await service.GetVisitsInRestaurantAsync(
+            User.GetUserId()!.Value,
             restaurantId,
             dateStart,
             dateEnd,

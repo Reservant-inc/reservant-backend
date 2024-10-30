@@ -1180,6 +1180,7 @@ namespace Reservant.Api.Services
         /// <summary>
         /// Get visits in a restaurant
         /// </summary>
+        /// <param name="userId">ID of the current user for permission checking</param>
         /// <param name="restaurantId">ID of the restaurant.</param>
         /// <param name="dateStart">Filter out visits before the date</param>
         /// <param name="dateEnd">Filter out visits after the date</param>
@@ -1196,6 +1197,7 @@ namespace Reservant.Api.Services
         /// <returns>Paged list of visits</returns>
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<Pagination<VisitVM>>> GetVisitsInRestaurantAsync(
+            Guid userId,
             int restaurantId,
             DateOnly? dateStart,
             DateOnly? dateEnd,
@@ -1218,6 +1220,12 @@ namespace Reservant.Api.Services
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
+            }
+
+            var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
             }
 
             IQueryable<Visit> query = context.Visits
