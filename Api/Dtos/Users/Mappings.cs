@@ -17,6 +17,7 @@ public class Mappings : Profile
             .MapUploadPath(dto => dto.Photo, user => user.PhotoFileName, urlService);
 
         CreateMap<User, UserEmployeeVM>()
+            .MapMemberFrom(dto => dto.UserId, user => user.Id)
             .MapUploadPath(dto => dto.Photo, user => user.PhotoFileName, urlService)
             .MapMemberFrom(dto => dto.Login, user => user.UserName)
             .MapMemberFrom(dto => dto.Employments,
