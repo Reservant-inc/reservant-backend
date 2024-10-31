@@ -62,6 +62,17 @@ public class Event : ISoftDeletable
     public int? VisitId { get; set; }
 
     /// <summary>
+    /// File name of the photo
+    /// </summary>
+    [StringLength(50)]
+    public required string PhotoFileName { get; set; }
+
+    /// <summary>
+    /// Navigation property for the photo upload
+    /// </summary>
+    public FileUpload Photo { get; set; } = null!;
+
+    /// <summary>
     /// Navigational property for the creator
     /// </summary>
     public User Creator { get; set; } = null!;

@@ -56,7 +56,8 @@ namespace Reservant.Api.Services
                 CreatorId = user.Id,
                 RestaurantId = request.RestaurantId,
                 Creator = user,
-                IsDeleted = false
+                IsDeleted = false,
+                PhotoFileName = request.Photo
             };
 
             if (request.RestaurantId is not null)
@@ -450,6 +451,7 @@ namespace Reservant.Api.Services
             eventToUpdate.MaxPeople = request.MaxPeople;
             eventToUpdate.MustJoinUntil = request.MustJoinUntil;
             eventToUpdate.RestaurantId = request.RestaurantId;
+            eventToUpdate.PhotoFileName = request.Photo;
 
             if (request.RestaurantId is not null && request.RestaurantId != eventToUpdate.RestaurantId)
             {

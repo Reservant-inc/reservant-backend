@@ -54,4 +54,9 @@ public class EventSummaryVM
     /// Number of users interested
     /// </summary>
     public required int NumberInterested { get; set; }
+
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    public required string Photo { get; set; }
 }

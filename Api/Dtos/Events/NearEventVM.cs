@@ -62,4 +62,9 @@ public class NearEventVM
     /// Number of users participate (accepted requests)
     /// </summary>
     public required int NumberParticipants { get; set; }
+
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    public required string Photo { get; set; }
 }

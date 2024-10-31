@@ -46,6 +46,11 @@ public class EventVM
     public required DateTime MustJoinUntil { get; set; }
 
     /// <summary>
+    /// File name of the photo
+    /// </summary>
+    public required string Photo { get; set; }
+
+    /// <summary>
     /// The user who created the event
     /// </summary>
     public required UserSummaryVM Creator { get; set; }

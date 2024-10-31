@@ -34,4 +34,9 @@ public class CreateEventRequest
     /// ID of the restaurant where the event takes place
     /// </summary>
     public int? RestaurantId { get; set; }
+
+    /// <summary>
+    /// File name of the photo
+    /// </summary>
+    public required string Photo { get; set; }
 }
