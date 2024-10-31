@@ -14,6 +14,7 @@ using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Dtos.Auth;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Services
 {
@@ -364,22 +365,73 @@ namespace Reservant.Api.Services
 
 
         /// <summary>
-        /// Get future events the user is interested in
+        /// Get a list of events that the user might have interest in.
         /// </summary>
+        /// <param name="category">Value to filter the search results through</param>
+        /// <param name="dateFrom">date used as a bottom boundry for the search</param>
+        /// <param name="dateUntil">date used as a upper boundry for the search</param>
+        /// <param name="order">value by which the search result should be ordered</param>
         /// <param name="user">User whos intered event we go over</param>
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
-        /// <returns>Paginated list of events in which user is interested</returns>
-        public async Task<Result<Pagination<EventSummaryVM>>> GetEventsInterestedInAsync(User user, int page, int perPage)
+        /// <returns>Paginated list of events in which user might be interested in.</returns>
+        public async Task<Result<Pagination<EventSummaryVM>>> GetUserEventsAsync(EventParticipationCategory category, DateTime? dateFrom, DateTime? dateUntil, EventSorting order, User user, int page, int perPage)
         {
-            var query = context.Users
-                .Where(u => u.Id == user.Id)
-                .SelectMany(u => u.EventParticipations.Select(e => e.Event))
-                .Where(u => u.Time > DateTime.UtcNow)
-                .OrderBy(u => u.Time)
-                .ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
+            IQueryable<Event> events = context.Events;
 
-            return await query.PaginateAsync(page, perPage, []);
+            switch (category)
+            {
+                case EventParticipationCategory.ParticipateIn:
+                    events = context.Users
+                        .Where(u => u.Id == user.Id)
+                        .SelectMany(u => u.EventParticipations
+                            .Where(e => e.DateDeleted == null && e.DateAccepted != null)
+                            .Select(e => e.Event));
+                    break;
+                case EventParticipationCategory.InterestedIn:
+                    events = context.Users
+                        .Where(u => u.Id == user.Id)
+                        .SelectMany(u => u.EventParticipations
+                            .Where(e => e.DateAccepted == null)
+                            .Select(e => e.Event));
+                    break;
+                case EventParticipationCategory.CreatedBy:
+                    events = events.Where(e => e.CreatorId == user.Id);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(category));
+            }
+
+            if (dateFrom != null)
+            {
+                events = events.Where(e => e.Time >= dateFrom);
+            }
+
+            if (dateUntil != null)
+            {
+                events = events.Where(e => e.Time <= dateUntil);
+            }
+
+            switch (order)
+            {
+                case EventSorting.DateDesc:
+                    events = events.OrderBy(e => e.Time);
+                    break;
+                case EventSorting.DateAsc:
+                    events = events.OrderByDescending(e => e.Time);
+                    break;
+                case EventSorting.DateCreatedAsc:
+                    events = events.OrderBy(e => e.CreatedAt);
+                    break;
+                case EventSorting.DateCreatedDesc:
+                    events = events.OrderByDescending(e => e.CreatedAt);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(order));
+            }
+
+            var result = events.ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
+            return await result.PaginateAsync(page, perPage, Enum.GetNames<EventSorting>());
         }
 
 
