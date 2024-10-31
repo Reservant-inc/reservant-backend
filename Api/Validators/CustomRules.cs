@@ -140,26 +140,6 @@ public static class CustomRules
     }
 
     /// <summary>
-    /// Validate that the given ID corresponds to current user's employee
-    /// </summary>
-    public static IRuleBuilderOptions<T, Guid> CurrentUsersEmployee<T>(this IRuleBuilder<T, Guid> builder, ApiDbContext db)
-    {
-        return builder.MustAsync(async (_, value, context, cancelToken) =>
-        {
-            var user = await db.Users.FindAsync([value], cancelToken);
-            if (user is null)
-            {
-                return false;
-            }
-
-            var userId = (Guid?)context.RootContextData["UserId"];
-            return userId is null || user.EmployerId == userId;
-        })
-        .WithErrorCode(ErrorCodes.MustBeCurrentUsersEmployee)
-        .WithMessage(ErrorCodes.MustBeCurrentUsersEmployee);
-    }
-
-    /// <summary>
     /// Validates that the given Restaurant ID exists.
     /// </summary>
     public static IRuleBuilderOptions<T, int> RestaurantExists<T>(this IRuleBuilder<T, int> builder, ApiDbContext dbContext)

@@ -353,6 +353,7 @@ namespace Reservant.Api.Services
             "User is not a restaurant employee or is not employee of the restaurant owner")]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed,
             "Employee is alredy employed in a restaurant")]
+        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.MustBeCurrentUsersEmployee)]
         public async Task<Result> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
             Guid employerId)
         {
@@ -395,6 +396,15 @@ namespace Reservant.Api.Services
                     {
                         PropertyName = nameof(request.EmployeeId),
                         ErrorCode = ErrorCodes.NotFound
+                    };
+                }
+
+                if (employee.EmployerId != employerId)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.EmployeeId),
+                        ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee,
                     };
                 }
 
