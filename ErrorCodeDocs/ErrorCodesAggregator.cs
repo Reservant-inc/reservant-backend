@@ -62,7 +62,9 @@ public class ErrorCodesAggregator
             foreach (var methodAttribute in sourceMethod.GetCustomAttributes<MethodErrorCodesAttribute>())
             {
                 var referencedMethod =
-                    methodAttribute.ContainingType.GetMethod(methodAttribute.MethodName)
+                    methodAttribute.ContainingType.GetMethod(methodAttribute.MethodName,
+                        BindingFlags.Public | BindingFlags.NonPublic |
+                        BindingFlags.Static | BindingFlags.Instance)
                     ?? throw new InvalidOperationException(
                         $"Method not found {methodAttribute.MethodName} in type {methodAttribute.ContainingType.Name}");
 

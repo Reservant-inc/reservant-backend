@@ -77,4 +77,17 @@ public class SampleMethods
     {
         throw new NotSupportedException();
     }
+
+    [ErrorCode(null, ErrorCodes.FirstCode)]
+    [MethodErrorCodes<SampleMethods>(nameof(PrivateInheritedMethod))]
+    public void InheritsFromPrivateMethod()
+    {
+        throw new NotSupportedException();
+    }
+
+    [ErrorCode(null, ErrorCodes.SecondCode)]
+    private void PrivateInheritedMethod()
+    {
+        throw new NotSupportedException();
+    }
 }

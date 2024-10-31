@@ -108,6 +108,24 @@ public class ErrorCodeAggregatorTest
         Assert.Equal(expected, codes);
     }
 
+    [Fact]
+    public void InheritingFromPrivateMethodWorks()
+    {
+        // Arrange
+        var method = GetSampleMethod(nameof(SampleMethods.InheritsFromPrivateMethod));
+
+        // Act
+        var codes = _sut.GetErrorCodes(method);
+
+        // Assert
+        var expected = new ErrorCodeDescription[]
+        {
+            new(null, ErrorCodes.FirstCode),
+            new(null, ErrorCodes.SecondCode),
+        };
+        Assert.Equal(expected, codes);
+    }
+
     private static MethodInfo GetSampleMethod(string name, params Type[] paramTypes)
         => typeof(SampleMethods).GetMethod(name, paramTypes)
            ?? throw new InvalidOperationException(
