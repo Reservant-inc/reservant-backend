@@ -13,7 +13,7 @@ public class Mappings : Profile
     public Mappings()
     {
         CreateMap<OrderItem, OrderItemVM>()
-            .MapMemberFrom(dto => dto.Cost,
-                orderItem => orderItem.Price * orderItem.Amount);
+            .MapMemberFrom(dto => dto.TotalCost,
+                orderItem => orderItem.OneItemPrice * orderItem.Amount);
     }
 }

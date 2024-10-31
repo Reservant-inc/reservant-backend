@@ -20,12 +20,12 @@ public class OrderItemVM
     /// <summary>
     /// Price for which the item was ordered
     /// </summary>
-    public required decimal Price { get; init; }
+    public required decimal OneItemPrice { get; init; }
 
     /// <summary>
     /// Cost of all the items
     /// </summary>
-    public required decimal Cost { get; init; }
+    public required decimal TotalCost { get; init; }
 
     /// <summary>
     /// Order status

@@ -472,7 +472,7 @@ public class DbSeeder(
                     {
                         Amount = 1,
                         MenuItemId = 3,
-                        Price = 8m,
+                        OneItemPrice = 8m,
                         Status = OrderStatus.Taken,
                     }
                 },
@@ -487,7 +487,7 @@ public class DbSeeder(
                     {
                         Amount = 1,
                         MenuItemId = 1,
-                        Price = 39m,
+                        OneItemPrice = 39m,
                         Status = OrderStatus.Cancelled,
                     }
                 },
@@ -502,14 +502,14 @@ public class DbSeeder(
                     {
                         Amount = 1,
                         MenuItemId = 1,
-                        Price = 39m,
+                        OneItemPrice = 39m,
                         Status = OrderStatus.Taken,
                     },
                     new OrderItem
                     {
                         Amount = 1,
                         MenuItemId = 2,
-                        Price = 45m,
+                        OneItemPrice = 45m,
                         Status = OrderStatus.Taken,
                     }
                 },

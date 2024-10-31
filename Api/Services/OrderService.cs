@@ -218,7 +218,7 @@ public class OrderService(
         {
             MenuItemId = c.MenuItemId,
             Amount = c.Amount,
-            Price = menuItems[c.MenuItemId].Price,
+            OneItemPrice = menuItems[c.MenuItemId].Price,
             Status = OrderStatus.InProgress,
         }).ToList();
 

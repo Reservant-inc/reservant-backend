@@ -16,7 +16,7 @@ public class OrderItem : ISoftDeletable
     /// <summary>
     /// Price of the item for which it was ordered
     /// </summary>
-    public decimal Price { get; set; }
+    public decimal OneItemPrice { get; set; }
 
     /// <summary>
     /// ID of the order
