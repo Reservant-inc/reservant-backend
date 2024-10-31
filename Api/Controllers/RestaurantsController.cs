@@ -90,7 +90,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="perPage">Records per page</param>
     /// <param name="orderBy">Order by criteria</param>
     /// <param name="tableId">Optional table number filter by Id</param>
-    /// <param name="assignedEmployeeId ">Optional emplyee number filter by Id</param>
+    /// <param name="assignedEmployeeId">Optional emplyee number filter by Id</param>
     /// <returns>List of orders with pagination</returns>
     [HttpGet("{restaurantId:int}/orders")]
     [ProducesResponseType(200), ProducesResponseType(400)]

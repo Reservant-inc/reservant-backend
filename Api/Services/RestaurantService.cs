@@ -862,7 +862,7 @@ namespace Reservant.Api.Services
         /// <param name="perPage">Items per page</param>
         /// <param name="orderBy">Sorting order</param>
         /// <param name="tableId">Optional table number filter by Id</param>
-        /// <param name="assignedEmployeeId ">Optional emplyee number filter by Id</param>
+        /// <param name="assignedEmployeeId">Optional emplyee number filter by Id</param>
         /// <returns>Paginated order list</returns>
         public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(Guid userId, int restaurantId,
             bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null )
