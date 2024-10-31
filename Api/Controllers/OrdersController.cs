@@ -75,7 +75,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPut("{orderId:int}/status")]
-    [Authorize(Roles = Roles.RestaurantEmployee)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<OrderVM>> UpdateOrderStatus(int orderId, [FromBody] UpdateOrderStatusRequest request)
     {
