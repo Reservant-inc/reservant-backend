@@ -1,3 +1,4 @@
+using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.OrderItems;
@@ -10,7 +11,7 @@ public class OrderItemVM
     /// <summary>
     /// Ordered item ID
     /// </summary>
-    public required int MenuItemId { get; init; }
+    public required MenuItemSummaryVM MenuItem { get; init; }
 
     /// <summary>
     /// Number of items ordered
