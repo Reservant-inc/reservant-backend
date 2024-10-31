@@ -373,8 +373,6 @@ namespace Reservant.Api.Services
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of events in which user might be interested in.</returns>
-        [ErrorCode(nameof(EventParticipationCategory), ErrorCodes.NotFound)]
-        [ErrorCode(nameof(EventSorting), ErrorCodes.NotFound)]
         public async Task<Result<Pagination<EventSummaryVM>>> GetUserEventsAsync(EventParticipationCategory category, DateTime? dateFrom, DateTime? dateUntil, EventSorting order, User user, int page, int perPage)
         {
             IQueryable<Event> events = context.Events;
@@ -399,12 +397,7 @@ namespace Reservant.Api.Services
                     events = events.Where(e => e.CreatorId == user.Id);
                     break;
                 default:
-                    return new ValidationFailure
-                    {
-                        PropertyName = nameof(category),
-                        ErrorMessage = ErrorCodes.NotFound,
-                        ErrorCode = ErrorCodes.NotFound
-                    };
+                    throw new ArgumentOutOfRangeException(nameof(category));
             }
 
             if (dateFrom != null)
@@ -432,12 +425,7 @@ namespace Reservant.Api.Services
                     events = events.OrderByDescending(e => e.CreatedAt);
                     break;
                 default:
-                    return new ValidationFailure
-                    {
-                        PropertyName = nameof(order),
-                        ErrorMessage = ErrorCodes.NotFound,
-                        ErrorCode = ErrorCodes.NotFound
-                    };
+                    throw new ArgumentOutOfRangeException(nameof(order));
             }
 
             var result = events.ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
