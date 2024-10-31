@@ -200,13 +200,11 @@ public class OrderService(
             };
         }
 
-        var menuCount = await context.Menus
-            .CountAsync(m =>
-                (m.DateUntil ?? todaysDate) >= todaysDate &&
-                m.MenuItems.Any(mi => menuItemIds.Contains(mi.MenuItemId))
-            );
+        var availableMenuItemCount = await context.MenuItems
+            .Where(mi => menuItemIds.Contains(mi.MenuItemId))
+            .CountAsync(mi => mi.Menus.Any(m => m.DateUntil == null || m.DateUntil >= todaysDate));
 
-        if (menuCount != menuItems.Count)
+        if (availableMenuItemCount != menuItems.Count)
         {
             return new ValidationFailure
             {
