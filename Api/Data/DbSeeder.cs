@@ -13,6 +13,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
+using Reservant.Api.Services.VisitServices;
 
 namespace Reservant.Api.Data;
 
@@ -24,7 +25,7 @@ public class DbSeeder(
     RoleManager<IdentityRole<Guid>> roleManager,
     UserService userService,
     RestaurantService restaurantService,
-    VisitService visitService,
+    MakeReservationService makeReservationService,
     OrderService orderService,
     ILogger<DbSeeder> logger,
     IOptions<FileUploadsOptions> fileUploadsOptions,
@@ -2995,8 +2996,8 @@ public class DbSeeder(
 
         var visitDay = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
 
-        var visitResult = (await visitService.CreateVisitAsync(
-            new CreateVisitRequest
+        var visitResult = (await makeReservationService.MakeReservation(
+            new MakeReservationRequest
             {
                 Date = new DateTime(visitDay, new TimeOnly(18, 00)),
                 EndTime = new DateTime(visitDay, new TimeOnly(18, 30)),

@@ -440,4 +440,22 @@ public static class CustomRules
             .WithErrorCode(ErrorCodes.MustBeLocaleId)
             .WithMessage("Must be a valid locale identifier (e.g. pl, en_GB)");
     }
+
+    /// <summary>
+    /// Validates that the DateTime is aligned to 00 or 30 minutes
+    /// </summary>
+    public static IRuleBuilderOptions<T, DateTime> IsAlignedTo30Minutes<T>(this IRuleBuilder<T, DateTime> builder)
+    {
+        return builder
+            .Must(time => time is
+            {
+                Minute: 0 or 30,
+                Second: 0,
+                Millisecond: 0,
+                Microsecond: 0,
+                Nanosecond: 0,
+            })
+            .WithErrorCode(ErrorCodes.InvalidTimeSlot)
+            .WithMessage("Reservations can only be made for full hours or half hours");
+    }
 }

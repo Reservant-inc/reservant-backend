@@ -5,6 +5,7 @@ using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
+using Reservant.Api.Services.VisitServices;
 using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;
@@ -44,8 +45,9 @@ public class VisitsController(
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
-    [MethodErrorCodes<VisitService>(nameof(VisitService.CreateVisitAsync))]
-    public async Task<ActionResult<VisitSummaryVM>> CreateVisit(CreateVisitRequest request)
+    [MethodErrorCodes<MakeReservationService>(nameof(MakeReservationService.MakeReservation))]
+    public async Task<ActionResult<VisitSummaryVM>> CreateVisit(
+        MakeReservationRequest request, [FromServices] MakeReservationService service)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -53,7 +55,7 @@ public class VisitsController(
             return Unauthorized();
         }
 
-        var result = await visitService.CreateVisitAsync(request, user);
+        var result = await service.MakeReservation(request, user);
         return OkOrErrors(result);
     }
 

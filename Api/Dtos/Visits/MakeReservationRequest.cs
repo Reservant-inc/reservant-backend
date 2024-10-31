@@ -3,7 +3,7 @@ namespace Reservant.Api.Dtos.Visits;
 /// <summary>
 /// Request to create a Visit
 /// </summary>
-public class CreateVisitRequest
+public class MakeReservationRequest
 {
     /// <summary>
     /// Start time of the reservation
@@ -39,4 +39,9 @@ public class CreateVisitRequest
     /// People who visited the restaurant
     /// </summary>
     public required List<Guid> ParticipantIds { get; init; }
+
+    /// <summary>
+    /// Total number of people making the reservation, including the visit's creator
+    /// </summary>
+    public int TotalNumberOfPeople => NumberOfGuests + ParticipantIds.Count + 1;
 }

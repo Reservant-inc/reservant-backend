@@ -8,13 +8,19 @@ namespace Reservant.Api.Validators.Visits;
 /// <summary>
 /// Validator for CreateVisitRequest
 /// </summary>
-public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
+public class MakeReservationRequestValidator : AbstractValidator<MakeReservationRequest>
 {
     /// <inheritdoc />
-    public CreateVisitRequestValidator(UserManager<Models.User> userManager, ApiDbContext dbContext)
+    public MakeReservationRequestValidator(UserManager<Models.User> userManager, ApiDbContext dbContext)
     {
         RuleFor(v => v.Date)
-            .DateTimeInFuture();
+            .DateTimeInFuture()
+            .IsAlignedTo30Minutes();
+
+        RuleFor(v => v.EndTime)
+            .IsAlignedTo30Minutes()
+            .GreaterThan(dto => dto.Date)
+            .WithErrorCode(ErrorCodes.StartMustBeBeforeEnd);
 
         RuleFor(v => (double) v.NumberOfGuests)
             .GreaterOrEqualToZero();
@@ -32,5 +38,4 @@ public class CreateVisitRequestValidator : AbstractValidator<CreateVisitRequest>
         RuleForEach(v => v.ParticipantIds)
             .CustomerExists(userManager);
     }
-
 }
