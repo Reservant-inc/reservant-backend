@@ -35,7 +35,7 @@ public class OrderVM
     public required List<OrderItemVM> Items { get; init; }
 
     /// <summary>
-    /// Serving employee's ID
+    /// Serving employee
     /// </summary>
-    public required List<UserSummaryVM> Employees { get; set; }
+    public UserSummaryVM? AssignedEmployee { get; set; }
 }

@@ -1,4 +1,5 @@
 using Reservant.Api.Models.Enums;
+using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Dtos.Orders;
 
@@ -36,4 +37,9 @@ public class OrderSummaryVM
     /// Status of the whole order
     /// </summary>
     public required OrderStatus Status { get; init; }
+
+    /// <summary>
+    /// Serving employee
+    /// </summary>
+    public UserSummaryVM? AssignedEmployee { get; set; }
 }

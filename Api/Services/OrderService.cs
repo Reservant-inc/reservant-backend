@@ -36,7 +36,7 @@ public class OrderService(
         var order = await context.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
-            .Include(o => o.Employees)
+            .Include(o => o.AssignedEmployee)
             .FirstOrDefaultAsync(o => o.OrderId == id);
 
         if (order == null)
@@ -200,13 +200,11 @@ public class OrderService(
             };
         }
 
-        var menuCount = await context.Menus
-            .CountAsync(m =>
-                (m.DateUntil ?? todaysDate) >= todaysDate &&
-                m.MenuItems.Any(mi => menuItemIds.Contains(mi.MenuItemId))
-            );
+        var availableMenuItemCount = await context.MenuItems
+            .Where(mi => menuItemIds.Contains(mi.MenuItemId))
+            .CountAsync(mi => mi.Menus.Any(m => m.DateUntil == null || m.DateUntil >= todaysDate));
 
-        if (menuCount != menuItems.Count)
+        if (availableMenuItemCount != menuItems.Count)
         {
             return new ValidationFailure
             {
@@ -246,22 +244,28 @@ public class OrderService(
     /// Update status of the order by updating the list of states of included menu items
     /// </summary>
     /// <param name="id">order id</param>
-    /// <param name="request">request containing list of updated menu items and employees that work on them</param>
+    /// <param name="request">request containing list of updated menu items and employee that work on them</param>
     /// <param name="user"></param>
     /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound, "Order not found")]
+    [ErrorCode(null, ErrorCodes.OrderIsFinished, "All items are either taken or cancelled")]
+    [ErrorCode(nameof(request.Items), ErrorCodes.NotFound, "Menu item not found in the order")]
+    [ErrorCode(nameof(request.EmployeeId), ErrorCodes.NotFound, "Employee not found")]
+    [MethodErrorCodes(typeof(AuthorizationService), nameof(authorizationService.VerifyRestaurantHallAccess))]
     public async Task<Result<OrderVM>> UpdateOrderStatusAsync(int id, UpdateOrderStatusRequest request, User user)
     {
         var order = await context.Orders
             .Where(o => o.OrderId == id)
-            .Include(o => o.Employees)
+            .Include(o => o.AssignedEmployee)
             .Include(o => o.OrderItems)
-            .ThenInclude(o => o.MenuItem)
+                .ThenInclude(o => o.MenuItem)
             .Include(o => o.Visit)
-            .ThenInclude(v => v.Restaurant)
-            .ThenInclude(r => r.Group)
+                .ThenInclude(v => v.Restaurant)
+                .ThenInclude(r => r.Group)
             .AsSplitQuery()
             .FirstOrDefaultAsync();
-        //does order with id exist?
+
+        // Check if the order exists
         if (order is null)
         {
             return new ValidationFailure
@@ -272,20 +276,24 @@ public class OrderService(
             };
         }
 
-        //is it in the correct restaurant group?
-        if (order.Visit.Restaurant.Group.OwnerId != user.EmployerId)
+        if (order.OrderItems.All(item => item.Status == OrderStatus.Taken || item.Status == OrderStatus.Cancelled))
         {
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = ErrorCodes.AccessDenied
+                ErrorCode = ErrorCodes.OrderIsFinished,
+                ErrorMessage = "All items are either taken or cancelled"
             };
         }
 
-        //update status of the order's menuitems
+        var authResult1 = await authorizationService.VerifyRestaurantHallAccess(order.Visit.Restaurant.RestaurantId, user.Id);
+        if (authResult1.IsError)
+        {
+            return authResult1.Errors;
+        }
 
-        foreach (UpdateOrderItemStatusRequest item in request.Items)
+        // Update the status of the order items
+        foreach (var item in request.Items)
         {
             var menuItem = order.OrderItems.FirstOrDefault(x => x.MenuItemId == item.MenuItemId);
             if (menuItem is null)
@@ -300,40 +308,34 @@ public class OrderService(
 
             menuItem.Status = item.Status;
         }
-        //assign employees to the order and check if they exist/belong to the correct restaurant group
-        for (int i = 0; i < request.EmployeeIds.Count; i++)
+
+        // Assign employee to the order if they exist and belong to the correct restaurant group
+        var employee = await context.Users
+            .Include(x => x.Employments)
+            .FirstOrDefaultAsync(x => x.Id == request.EmployeeId);
+
+        if (employee is null)
         {
-            var employeeId = request.EmployeeIds.ElementAt(i);
-            var employee = await context.Users
-                .Include(x => x.Employments)
-                .FirstOrDefaultAsync(x => employeeId == x.Id);
-
-            if (employee is null)
+            return new ValidationFailure
             {
-                return new ValidationFailure
-                {
-                    PropertyName = request.EmployeeIds.ElementAt(i).ToString(),
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = "Employee not found"
-                };
-            }
-
-            var worksAtRestaurant = employee.Employments
-                .Any(x => x.RestaurantId == order.Visit.RestaurantId && x.DateUntil == null);
-            if (!worksAtRestaurant)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = request.EmployeeIds.ElementAt(i).ToString(),
-                    ErrorCode = ErrorCodes.MustBeRestaurantEmployee,
-                    ErrorMessage = "The user does not work at the restaurant"
-                };
-            }
-            if (!(order.Employees.Contains(employee)))
-            {
-                order.Employees.Add(employee);
-            }
+                PropertyName = nameof(request.EmployeeId),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Employee not found"
+            };
         }
+
+        var authResult2 = await authorizationService.VerifyRestaurantHallAccess(order.Visit.Restaurant.RestaurantId, request.EmployeeId);
+        if (authResult2.IsError)
+        {
+            return authResult2.Errors;
+        }
+
+        // Assign employee if not already assigned
+        if (order.AssignedEmployee != employee)
+        {
+            order.AssignedEmployee = employee;
+        }
+
         await context.SaveChangesAsync();
 
         return mapper.Map<OrderVM>(order);

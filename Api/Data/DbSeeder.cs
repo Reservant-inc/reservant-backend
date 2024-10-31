@@ -2978,6 +2978,8 @@ public class DbSeeder(
     /// </summary>
     public async Task<VisitSummaryVM> AddFutureVisitAsync()
     {
+        await context.Database.BeginTransactionAsync();
+
         var exampleCustomer = await context.Users.FirstAsync(u => u.UserName == "customer");
 
         var visitDay = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
@@ -3016,6 +3018,8 @@ public class DbSeeder(
             },
             exampleCustomer
         )).OrThrow();
+
+        await context.Database.CommitTransactionAsync();
 
         return visitResult;
     }
