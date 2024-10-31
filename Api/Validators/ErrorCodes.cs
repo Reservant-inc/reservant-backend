@@ -266,4 +266,9 @@ public static class ErrorCodes
     /// A reservation cannot be made as there is no available tables
     /// </summary>
     public const string NoAvailableTable = "NoAvailableTable";
+
+    /// <summary>
+    /// Order cannot be edited because all the items are either taken or cancelled
+    /// </summary>
+    public const string OrderIsFinished = "OrderIsFinished";
 }

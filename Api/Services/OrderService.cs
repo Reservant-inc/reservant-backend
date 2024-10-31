@@ -250,8 +250,8 @@ public class OrderService(
     /// <param name="user"></param>
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound, "Order not found")]
-    [ErrorCode(null, ErrorCodes.AccessDenied, "Visit not found")]
-    [ErrorCode(null, ErrorCodes.NotFound, "Menu item not found in the order")]
+    [ErrorCode(null, ErrorCodes.OrderIsFinished, "All items are either taken or cancelled")]
+    [ErrorCode(nameof(request.Items), ErrorCodes.NotFound, "Menu item not found in the order")]
     [ErrorCode(nameof(request.EmployeeId), ErrorCodes.NotFound, "Employee not found")]
     [MethodErrorCodes(typeof(AuthorizationService), nameof(authorizationService.VerifyRestaurantHallAccess))]
     public async Task<Result<OrderVM>> UpdateOrderStatusAsync(int id, UpdateOrderStatusRequest request, User user)
@@ -283,8 +283,8 @@ public class OrderService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.SomeOfItemsAreTaken,
-                ErrorMessage = "Some items are taken or canceled"
+                ErrorCode = ErrorCodes.OrderIsFinished,
+                ErrorMessage = "All items are either taken or cancelled"
             };
         }
 
