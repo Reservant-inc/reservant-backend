@@ -431,10 +431,6 @@ namespace Reservant.Api.Services
                 IsBackdoorEmployee = r.IsBackdoorEmployee,
                 IsHallEmployee = r.IsHallEmployee,
                 DateFrom = DateOnly.FromDateTime(DateTime.UtcNow)
-            }).Select(x =>
-            {
-                Console.WriteLine(x.EmploymentId);
-                return x;
             }));
             await context.SaveChangesAsync();
             return Result.Success;
