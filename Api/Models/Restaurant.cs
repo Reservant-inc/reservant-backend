@@ -111,7 +111,7 @@ public class Restaurant
     public string? Description { get; set; }
 
     /// <summary>
-    /// Deposit
+    /// Amount that a client pays when making a reservation
     /// </summary>
     [Column(TypeName = "decimal(5, 2)")]
     public decimal? ReservationDeposit { get; set; }
