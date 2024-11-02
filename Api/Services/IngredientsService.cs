@@ -30,80 +30,60 @@ public class IngredientService(
     /// <returns></returns>
     [ValidatorErrorCodes<CreateIngredientRequest>]
     [ValidatorErrorCodes<Ingredient>]
-    [ErrorCode(nameof(request.MenuItem), ErrorCodes.NotFound)]
-    [ErrorCode(nameof(request.MenuItem), ErrorCodes.AccessDenied)]
+    [ErrorCode(nameof(request.RestaurantId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(request.RestaurantId), ErrorCodes.AccessDenied)]
     public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, Guid userId)
+{
+    var result = await validationService.ValidateAsync(request, userId);
+    if (!result.IsValid)
     {
-        var result = await validationService.ValidateAsync(request, userId);
-        if (!result.IsValid)
+        return result;
+    }
+
+    var restaurant = await dbContext.Restaurants
+        .OnlyActiveRestaurants()
+        .FirstOrDefaultAsync(r => r.Group.OwnerId == userId && r.RestaurantId == request.RestaurantId);
+
+    if (restaurant == null)
+    {
+        return new ValidationFailure
         {
-            return result;
-        }
-        var menuItem = await dbContext.MenuItems.Include(m => m.Ingredients).Where(m => m.MenuItemId == request.MenuItem.MenuItemId).FirstOrDefaultAsync();
-        if (menuItem is null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(request.MenuItem),
-                ErrorMessage = ErrorCodes.NotFound,
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
-        var restaurant = await dbContext.Restaurants
-            .OnlyActiveRestaurants()
-            .Where(r => r.Group.OwnerId == userId && r.MenuItems.Contains(menuItem))
-            .AnyAsync();
-
-        if (!restaurant)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(request.MenuItem),
-                ErrorMessage = ErrorCodes.AccessDenied,
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
-        var ingredient = new Ingredient
-        {
-            PublicName = request.PublicName,
-            UnitOfMeasurement = request.UnitOfMeasurement,
-            MinimalAmount = request.MinimalAmount,
-            AmountToOrder = request.AmountToOrder,
-            Amount = request.Amount
-        };
-
-        var ingredientMenuItem = new IngredientMenuItem
-        {
-            MenuItemId = menuItem.MenuItemId,
-            IngredientId = ingredient.IngredientId,
-            AmountUsed = ingredient.MinimalAmount,
-            MenuItem = menuItem,
-            Ingredient = ingredient
-        };
-
-        menuItem.Ingredients.Add(ingredientMenuItem);
-
-        var validationResult = await validationService.ValidateAsync(ingredient, userId);
-        if (!validationResult.IsValid)
-        {
-            return validationResult;
-        }
-
-        dbContext.Ingredients.Add(ingredient);
-        await dbContext.SaveChangesAsync();
-
-        return new IngredientVM
-        {
-            IngredientId = ingredient.IngredientId,
-            PublicName = ingredient.PublicName,
-            UnitOfMeasurement = ingredient.UnitOfMeasurement,
-            MinimalAmount = ingredient.MinimalAmount,
-            AmountToOrder = ingredient.AmountToOrder,
-            Amount = ingredient.Amount
+            PropertyName = nameof(request.RestaurantId),
+            ErrorMessage = ErrorCodes.NotFound,
+            ErrorCode = ErrorCodes.NotFound
         };
     }
+
+    var ingredient = new Ingredient
+    {
+        PublicName = request.PublicName,
+        UnitOfMeasurement = request.UnitOfMeasurement,
+        MinimalAmount = request.MinimalAmount,
+        AmountToOrder = request.AmountToOrder,
+        Amount = request.Amount,
+        Restaurant = restaurant
+    };
+
+    var validationResult = await validationService.ValidateAsync(ingredient, userId);
+    if (!validationResult.IsValid)
+    {
+        return validationResult;
+    }
+
+    dbContext.Ingredients.Add(ingredient);
+    await dbContext.SaveChangesAsync();
+
+    return new IngredientVM
+    {
+        IngredientId = ingredient.IngredientId,
+        PublicName = ingredient.PublicName,
+        UnitOfMeasurement = ingredient.UnitOfMeasurement,
+        MinimalAmount = ingredient.MinimalAmount,
+        AmountToOrder = ingredient.AmountToOrder,
+        Amount = ingredient.Amount
+    };
+}
+
 
     /// <summary>
     /// Gets the change history of an ingredient with optional filters and pagination.
@@ -127,8 +107,7 @@ public class IngredientService(
     {
         // Check if the ingredient exists
         var ingredient = await dbContext.Ingredients
-            .Include(i => i.MenuItems)
-            .ThenInclude(mi => mi.MenuItem)
+            .Include(ingredient=>ingredient.Restaurant)
             .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient == null)
@@ -142,7 +121,7 @@ public class IngredientService(
         }
 
         // Check if the user has access to the restaurant
-        var restaurantId = ingredient.MenuItems.First().MenuItem.RestaurantId;
+        var restaurantId = ingredient.Restaurant.RestaurantId;
 
         var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, userId);
         if (access.IsError)
@@ -204,8 +183,7 @@ public class IngredientService(
         }
 
         var ingredient = await dbContext.Ingredients
-            .Include(i => i.MenuItems)
-                .ThenInclude(mi => mi.MenuItem)
+            .Include(i => i.Restaurant)
             .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient == null)
@@ -218,20 +196,8 @@ public class IngredientService(
             };
         }
 
-        var menuItem = ingredient.MenuItems.FirstOrDefault()?.MenuItem;
-
-        if (menuItem == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(ingredientId),
-                ErrorMessage = ErrorCodes.AccessDenied,
-                ErrorCode = ErrorCodes.AccessDenied
-            };
-        }
-
         var access = await authorizationService
-                .VerifyRestaurantBackdoorAccess(menuItem.RestaurantId, userId);
+                .VerifyRestaurantBackdoorAccess(ingredient.Restaurant.RestaurantId, userId);
         if (access.IsError)
         {
             return access.Errors;
@@ -268,6 +234,7 @@ public class IngredientService(
     /// <param name="userId">ID of the current user for permission checking</param>
     /// <param name="request">The DTO containing the new data</param>
     /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
     [ErrorCode(null, ErrorCodes.NotFound)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
     [ValidatorErrorCodes<IngredientAmountCorrectionRequest>]
@@ -284,8 +251,7 @@ public class IngredientService(
                    ?? throw new InvalidOperationException($"User with ID {userId} not found");
 
         var ingredient = await dbContext.Ingredients
-            .Include(i => i.MenuItems)
-            .ThenInclude(m => m.MenuItem)
+            .Include(i => i.Restaurant)
             .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient is null)
@@ -299,7 +265,7 @@ public class IngredientService(
         }
 
         var access = await authorizationService
-                .VerifyRestaurantBackdoorAccess(ingredient.MenuItems.First().MenuItem.RestaurantId, userId);
+            .VerifyRestaurantBackdoorAccess(ingredient.Restaurant.RestaurantId, userId);
         if (access.IsError)
         {
             return access.Errors;

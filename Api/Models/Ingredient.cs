@@ -53,4 +53,10 @@ public class Ingredient
     /// Amount correction history
     /// </summary>
     public ICollection<IngredientAmountCorrection> Corrections { get; set; } = null!;
+
+    ///NEWLY ADDED
+    /// <summary>
+    /// Navigational property of restaurant
+    /// </summary>
+    public Restaurant Restaurant { get; set; } = null!;
 }

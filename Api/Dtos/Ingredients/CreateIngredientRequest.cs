@@ -1,4 +1,5 @@
 ﻿using Reservant.Api.Models.Enums;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Ingredients;
 
@@ -32,8 +33,9 @@ public class CreateIngredientRequest
     /// </summary>
     public required double Amount { get; set; }
 
+    ///NEWLY ADDED
     /// <summary>
-    /// Property that tells what menu items used what amount of ingredients
+    /// Id of restaurant using this ingrediants
     /// </summary>
-    public required UsedInMenuItemDto MenuItem { get; set; }
+    public required int RestaurantId { get; set; }
 }

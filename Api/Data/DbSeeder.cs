@@ -853,7 +853,8 @@ public class DbSeeder(
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 500,
             AmountToOrder = 1000,
-            Corrections = new List<IngredientAmountCorrection>()
+            Corrections = new List<IngredientAmountCorrection>(),
+            Restaurant = johnDoes
         };
 
         var tomatoSauce = new Ingredient
@@ -862,7 +863,8 @@ public class DbSeeder(
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 0.5,
             AmountToOrder = 1,
-            Corrections = new List<IngredientAmountCorrection>()
+            Corrections = new List<IngredientAmountCorrection>(),
+            Restaurant = johnDoes
         };
 
         var mozzarella = new Ingredient
@@ -871,7 +873,8 @@ public class DbSeeder(
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 200,
             AmountToOrder = 500,
-            Corrections = new List<IngredientAmountCorrection>()
+            Corrections = new List<IngredientAmountCorrection>(),
+            Restaurant = johnDoes
         };
 
         var olives = new Ingredient
@@ -880,7 +883,8 @@ public class DbSeeder(
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 100,
             AmountToOrder = 200,
-            Corrections = new List<IngredientAmountCorrection>()
+            Corrections = new List<IngredientAmountCorrection>(),
+            Restaurant = johnDoes
         };
 
         var orderedBeer = new Ingredient
@@ -889,7 +893,8 @@ public class DbSeeder(
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
             AmountToOrder = 5,
-            Corrections = new List<IngredientAmountCorrection>()
+            Corrections = new List<IngredientAmountCorrection>(),
+            Restaurant = johnDoes
         };
 
         pizzaMozzarella.Ingredients = new List<IngredientMenuItem>
@@ -943,7 +948,8 @@ public class DbSeeder(
             PublicName = "Bun",
             UnitOfMeasurement = UnitOfMeasurement.Unit,
             MinimalAmount = 2,
-            AmountToOrder = 10
+            AmountToOrder = 10,
+            Restaurant = johnDoes
         };
 
         var beefPatty = new Ingredient
@@ -951,7 +957,8 @@ public class DbSeeder(
             PublicName = "Beef Patty",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 100,
-            AmountToOrder = 500
+            AmountToOrder = 500,
+            Restaurant = johnDoes
         };
 
         var cheese = new Ingredient
@@ -959,7 +966,8 @@ public class DbSeeder(
             PublicName = "Cheese",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 50,
-            AmountToOrder = 250
+            AmountToOrder = 250,
+            Restaurant = johnDoes
         };
 
         var beerDelivery = new Ingredient
@@ -967,7 +975,8 @@ public class DbSeeder(
             PublicName = "Beer",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
-            AmountToOrder = 5
+            AmountToOrder = 5,
+            Restaurant = johnDoes
         };
 
         context.Deliveries.AddRange(new List<Delivery>()
@@ -1761,7 +1770,8 @@ public class DbSeeder(
             PublicName = "Rice",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 200,
-            AmountToOrder = 500
+            AmountToOrder = 500,
+            Restaurant = kowalskisRestaurant
         };
 
         var tofu = new Ingredient
@@ -1769,7 +1779,8 @@ public class DbSeeder(
             PublicName = "Tofu",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 100,
-            AmountToOrder = 200
+            AmountToOrder = 200,
+            Restaurant = kowalskisRestaurant
         };
 
         var noodles = new Ingredient
@@ -1777,7 +1788,8 @@ public class DbSeeder(
             PublicName = "Noodles",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 150,
-            AmountToOrder = 300
+            AmountToOrder = 300,
+            Restaurant = kowalskisRestaurant
         };
 
         context.Menus.Add(new Menu
@@ -2150,7 +2162,8 @@ public class DbSeeder(
             PublicName = "Bun",
             UnitOfMeasurement = UnitOfMeasurement.Unit,
             MinimalAmount = 2,
-            AmountToOrder = 10
+            AmountToOrder = 10,
+            Restaurant = anons
         };
 
         var beefPatty = new Ingredient
@@ -2158,7 +2171,8 @@ public class DbSeeder(
             PublicName = "Beef Patty",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 100,
-            AmountToOrder = 500
+            AmountToOrder = 500,
+            Restaurant = anons
         };
 
         var cheese = new Ingredient
@@ -2166,7 +2180,8 @@ public class DbSeeder(
             PublicName = "Cheese",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 50,
-            AmountToOrder = 250
+            AmountToOrder = 250,
+            Restaurant = anons
         };
 
         var beer = new Ingredient
@@ -2174,7 +2189,8 @@ public class DbSeeder(
             PublicName = "Beer",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
-            AmountToOrder = 5
+            AmountToOrder = 5,
+            Restaurant = anons
         };
 
         context.Menus.Add(new Menu
@@ -2431,7 +2447,8 @@ public class DbSeeder(
             PublicName = "Noodles",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 150,
-            AmountToOrder = 300
+            AmountToOrder = 300,
+            Restaurant = geralts
         };
 
         var beef = new Ingredient
@@ -2439,7 +2456,8 @@ public class DbSeeder(
             PublicName = "Beef",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 200,
-            AmountToOrder = 1000
+            AmountToOrder = 1000,
+            Restaurant = geralts
         };
 
         var beer = new Ingredient
@@ -2447,7 +2465,8 @@ public class DbSeeder(
             PublicName = "Beer",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
-            AmountToOrder = 5
+            AmountToOrder = 5,
+            Restaurant = geralts
         };
 
         context.Menus.Add(new Menu
@@ -2686,7 +2705,8 @@ public class DbSeeder(
             PublicName = "Chicken",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 200,
-            AmountToOrder = 1000
+            AmountToOrder = 1000,
+            Restaurant = atreides
         };
 
         var pasta = new Ingredient
@@ -2694,7 +2714,8 @@ public class DbSeeder(
             PublicName = "Pasta",
             UnitOfMeasurement = UnitOfMeasurement.Gram,
             MinimalAmount = 150,
-            AmountToOrder = 300
+            AmountToOrder = 300,
+            Restaurant = atreides
         };
 
         var beer = new Ingredient
@@ -2702,7 +2723,8 @@ public class DbSeeder(
             PublicName = "Beer",
             UnitOfMeasurement = UnitOfMeasurement.Liter,
             MinimalAmount = 1,
-            AmountToOrder = 5
+            AmountToOrder = 5,
+            Restaurant = atreides
         };
 
         context.Menus.Add(new Menu
