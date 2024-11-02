@@ -357,27 +357,44 @@ namespace Reservant.Api.Services
         public async Task<Result> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
             Guid employerId)
         {
-            var restaurantOwnerId = await context.Restaurants
-                .Where(r => r.RestaurantId == restaurantId)
-                .Select(r => r.Group.OwnerId)
-                .FirstOrDefaultAsync();
+            var result1 = await context.Restaurants
+            .Include(r => r.Group)
+            .Where(r => r.RestaurantId == restaurantId)
+            .Select(
+                r => new {
+                    Restaurant = r,
+                    OwnerId = r.Group.OwnerId
+                }
+            )
+            .FirstOrDefaultAsync();
 
+            var restaurant = result1?.Restaurant;
+            var restaurantOwnerId = result1?.OwnerId;
+
+            if (restaurant == null || restaurant.IsArchived)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = "Restaurant not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
 
             if (restaurantOwnerId == Guid.Empty)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = "Owner not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
 
             foreach (var request in listRequest)
             {
-                var result = await validationService.ValidateAsync(request, employerId);
-                if (!result.IsValid)
+                var result2 = await validationService.ValidateAsync(request, employerId);
+                if (!result2.IsValid)
                 {
-                    return result;
+                    return result2;
                 }
 
                 if (restaurantOwnerId != employerId)
