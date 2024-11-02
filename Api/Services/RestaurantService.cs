@@ -619,7 +619,7 @@ namespace Reservant.Api.Services
             restaurant.IdCardFileName = request.IdCard;
             restaurant.LogoFileName = request.Logo;
             restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
-             request.Location.Latitude));
+            request.Location.Latitude));
 
             restaurant.OpeningHours = new WeeklyOpeningHours(request.OpeningHours);
 
