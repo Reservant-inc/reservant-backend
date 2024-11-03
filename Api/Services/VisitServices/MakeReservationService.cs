@@ -77,23 +77,25 @@ public class MakeReservationService(
         var participants = await FindParticipantsByIds(request.ParticipantIds);
         var visit = new Visit
         {
-            Date = request.Date,
-            EndTime = request.EndTime,
-            NumberOfGuests = request.NumberOfGuests,
-            ReservationDate = DateOnly.FromDateTime(DateTime.UtcNow),
-            Tip = request.Tip,
-            Client = client,
-            Takeaway = request.Takeaway,
-            RestaurantId = restaurant.RestaurantId,
             Restaurant = restaurant,
-            TableId = table.TableId,
+            NumberOfGuests = request.NumberOfGuests,
+            Client = client,
             Participants = participants,
-            Deposit = restaurant.ReservationDeposit,
+            Reservation = new Reservation
+            {
+                StartTime = request.Date,
+                EndTime = request.EndTime,
+                ReservationDate = DateTime.UtcNow,
+                Deposit = restaurant.ReservationDeposit,
+            },
+            Tip = request.Tip,
+            Takeaway = request.Takeaway,
+            TableId = table.TableId,
         };
 
+        context.Add(visit);
         var validationResult = await validationService.ValidateAsync(visit, client.Id);
         if (!validationResult.IsValid) return validationResult;
-        context.Add(visit);
         await context.SaveChangesAsync();
 
         await NotifyHallEmployeesAboutReservation(restaurant, visit);
@@ -160,8 +162,8 @@ public class MakeReservationService(
             .Where(t => t.RestaurantId == restaurant.RestaurantId && t.Capacity >= numberOfPeople)
             .Where(t => !context.Visits.Any(v =>
                 v.TableId == t.TableId &&
-                v.Date < until &&
-                v.EndTime > from))
+                v.Reservation!.StartTime < until &&
+                v.Reservation!.EndTime > from))
             .OrderBy(t => t.Capacity)
             .FirstOrDefaultAsync();
     }
@@ -197,6 +199,6 @@ public class MakeReservationService(
     {
         return await context.Visits
             .AnyAsync(v => v.ClientId == client.Id
-                           && v.Date < until && v.EndTime > from);
+                           && v.Reservation!.StartTime < until && v.Reservation!.EndTime > from);
     }
 }

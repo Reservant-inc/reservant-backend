@@ -5,6 +5,64 @@ using Reservant.Api.Data;
 namespace Reservant.Api.Models;
 
 /// <summary>
+/// The restaurant's decision whether to accept the reservation or not
+/// </summary>
+public class RestaurantDecision
+{
+    /// <summary>
+    /// ID of the restaurant owner/hall employee who considered the reservation
+    /// </summary>
+    public Guid AnsweredById { get; set;}
+
+    /// <summary>
+    /// Whether the restaurant accepts or declines the reservation
+    /// </summary>
+    public bool IsAccepted  { get; set;}
+
+    /// <summary>
+    /// Navigation property for the restaurant owner/hall employee who considered the reservation
+    /// </summary>
+    public User AnsweredBy { get; set; } = null!;
+}
+
+/// <summary>
+/// Reservation at a restaurant
+/// </summary>
+public class Reservation
+{
+    /// <summary>
+    /// Date the reservation was made
+    /// </summary>
+    public DateTime? ReservationDate { get; set; }
+
+    /// <summary>
+    /// Start time of the reservation
+    /// </summary>
+    public DateTime StartTime { get; set; }
+
+    /// <summary>
+    /// End time of the reservation
+    /// </summary>
+    public DateTime EndTime { get; set; }
+
+    /// <summary>
+    /// Deposit to be paid
+    /// </summary>
+    [Column(TypeName = "decimal(5, 2)")]
+    public decimal? Deposit { get; set; }
+
+    /// <summary>
+    /// Date of the payment
+    /// </summary>
+    public DateTime? DepositPaymentTime { get; set; }
+
+    /// <summary>
+    /// The restaurant's decision whether to accept reservation or not
+    /// </summary>
+    public RestaurantDecision? Decision { get; set; }
+}
+
+/// <summary>
 /// Restaurant visit
 /// </summary>
 public class Visit : ISoftDeletable
@@ -21,14 +79,9 @@ public class Visit : ISoftDeletable
     public int VisitId { get; set; }
 
     /// <summary>
-    /// Start time of the reservation
+    /// ID of the restaurant
     /// </summary>
-    public DateTime Date { get; set; }
-
-    /// <summary>
-    /// End time of the reservation
-    /// </summary>
-    public DateTime EndTime { get; set; }
+    public int RestaurantId { get; set; }
 
     /// <summary>
     /// Number of people who do not have an account
@@ -36,41 +89,19 @@ public class Visit : ISoftDeletable
     public int NumberOfGuests { get; set; }
 
     /// <summary>
-    /// Date of the payment
-    /// </summary>
-    public DateTime? PaymentTime { get; set; }
-
-    /// <summary>
-    /// Deposit
-    /// </summary>
-    [Column(TypeName = "decimal(5, 2)")]
-    public decimal? Deposit { get; set; }
-
-    /// <summary>
-    /// Date the reservation was made
-    /// </summary>
-    public DateOnly? ReservationDate { get; set; }
-
-    /// <summary>
-    /// Optional tip
-    /// </summary>
-    [Column(TypeName = "decimal(5, 2)")]
-    public decimal? Tip { get; set; }
-
-    /// <summary>
-    /// Zabrano na wynos
-    /// </summary>
-    public bool Takeaway { get; set; }
-
-    /// <summary>
     /// ID of the client who made the reservation
     /// </summary>
     public Guid ClientId { get; set; }
 
     /// <summary>
-    /// ID of the restaurant
+    /// Reservation
     /// </summary>
-    public int RestaurantId { get; set; }
+    public Reservation? Reservation { get; set; }
+
+    /// <summary>
+    /// Whether the client ordered a takeaway
+    /// </summary>
+    public bool Takeaway { get; set; }
 
     /// <summary>
     /// ID of the table within the restaurant
@@ -78,14 +109,10 @@ public class Visit : ISoftDeletable
     public int TableId { get; set; }
 
     /// <summary>
-    /// ID of the restaurant owner/hall employee that considered reservation
+    /// Optional tip
     /// </summary>
-    public Guid? AnsweredById { get; set;}
-
-    /// <summary>
-    /// The decison about reservation
-    /// </summary>
-    public Boolean? IsAccepted  { get; set;}
+    [Column(TypeName = "decimal(5, 2)")]
+    public decimal? Tip { get; set; }
 
     /// <summary>
     /// Navigational property for the client who made the reservation
@@ -107,16 +134,11 @@ public class Visit : ISoftDeletable
     /// </summary>
     public Table Table { get; set; } = null!;
 
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
-
     /// <summary>
     /// Navigational property for restaurant
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
 
-    /// <summary>
-    /// restaurant restaurant owner/hall employee that considered reservationn
-    /// </summary>
-    public User? AnsweredBy { get; set; }
+    /// <inheritdoc />
+    public bool IsDeleted { get; set; }
 }

@@ -11,9 +11,6 @@ public class VisitValidator : AbstractValidator<Models.Visit>
     /// <inheritdoc />
     public VisitValidator(ApiDbContext dbContext)
     {
-        RuleFor(v => v.Date)
-            .DateTimeInFuture();
-
         RuleFor(v => (double) v.NumberOfGuests)
             .GreaterOrEqualToZero();
 

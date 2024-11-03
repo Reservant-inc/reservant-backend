@@ -232,8 +232,8 @@ public class NotificationService(
                 RestaurantId = reservation.RestaurantId,
                 RestaurantName = reservation.Restaurant.Name,
                 Takeaway = reservation.Takeaway,
-                Date = reservation.Date,
-                EndTime = reservation.EndTime,
+                Date = reservation.Reservation!.StartTime,
+                EndTime = reservation.Reservation!.EndTime,
                 NumberOfPeople = reservation.NumberOfGuests + reservation.Participants.Count + 1,
             });
     }
@@ -351,9 +351,9 @@ public class NotificationService(
             .Select(v => new
             {
                 photoFileName =  v.Client.PhotoFileName,
-                IsAccepted = v.IsAccepted,
+                IsAccepted = v.Reservation!.Decision!.IsAccepted,
                 RestaurantName = v.Restaurant.Name,
-                Date = v.Date
+                Date = v.Reservation!.StartTime,
             })
             .FirstOrDefaultAsync();
 
@@ -364,7 +364,7 @@ public class NotificationService(
                 new NotificationVisitApprovedDeclined
                 {
                     VisitId = visitId,
-                    IsAccepted = visitData.IsAccepted ?? false,
+                    IsAccepted = visitData.IsAccepted,
                     RestaurantName = visitData.RestaurantName,
                     Date = visitData.Date
                 },

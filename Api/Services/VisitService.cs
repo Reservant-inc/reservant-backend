@@ -81,7 +81,7 @@ public class VisitService(
             };
         }
 
-        if(visitFound.IsAccepted!=null)
+        if (visitFound.Reservation?.Decision is null)
         {
             return new ValidationFailure
             {
@@ -91,8 +91,11 @@ public class VisitService(
             };
         }
 
-        visitFound.AnsweredBy = currentUser;
-        visitFound.IsAccepted = true;
+        visitFound.Reservation.Decision = new RestaurantDecision
+        {
+            AnsweredBy = currentUser,
+            IsAccepted = true,
+        };
 
         await context.SaveChangesAsync();
         await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId,visitId);
@@ -135,7 +138,7 @@ public class VisitService(
             };
         }
 
-        if(visitFound.IsAccepted!=null)
+        if (visitFound.Reservation?.Decision is null)
         {
             return new ValidationFailure
             {
@@ -145,8 +148,11 @@ public class VisitService(
             };
         }
 
-        visitFound.AnsweredBy = currentUser;
-        visitFound.IsAccepted = false;
+        visitFound.Reservation.Decision = new RestaurantDecision
+        {
+            AnsweredBy = currentUser,
+            IsAccepted = false,
+        };
 
         await context.SaveChangesAsync();
         await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId,visitId);

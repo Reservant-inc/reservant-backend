@@ -14,7 +14,7 @@ public class Mappings : Profile
     {
         CreateMap<Order, OrderSummaryVM>()
             .MapMemberFrom(dto => dto.Date,
-                order => order.Visit.Date)
+                order => order.Visit.Reservation!.StartTime)
             .MapMemberFrom(dto => dto.Cost,
                 order => order.OrderItems.Sum(oi => oi.OneItemPrice * oi.Amount))
             .MapMemberFrom(dto => dto.Status, order =>

@@ -278,64 +278,66 @@ public class DbSeeder(
 
         var visits = new List<Visit>
         {
-            new Visit
+            new()
             {
-                Date = new DateTime(2024, 1, 1, 17, 0, 0),
+                Restaurant = johnDoesGroup.Restaurants.ElementAt(0),
                 NumberOfGuests = 1,
-                PaymentTime = new DateTime(2024, 1, 1, 19, 32, 00),
-                Deposit = null,
-                ReservationDate = null,
-                Tip = null,
-                Takeaway = true,
-                RestaurantId = 1,
-                TableId = 1,
-                ClientId = johnDoe.Id,
                 Client = customer1,
                 Participants = [customer2, customer3],
-                Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
+                Reservation = new Reservation
+                {
+                    StartTime = new DateTime(2024, 1, 1, 17, 0, 0),
+                    Deposit = null,
+                    ReservationDate = new DateTime(2024, 1, 1, 22, 32, 00),
+                },
+                Takeaway = true,
+                TableId = 1,
+                Tip = null,
             },
-            new Visit
+            new()
             {
-                Date = new DateTime(2024, 1, 4, 18, 0, 0),
+                Restaurant = johnDoesGroup.Restaurants.ElementAt(0),
                 NumberOfGuests = 1,
-                PaymentTime = new DateTime(2024, 1, 1, 22, 32, 00),
-                Deposit = null,
-                ReservationDate = null,
-                Tip = 10m,
-                Takeaway = false,
-                RestaurantId = 1,
-                TableId = 2,
-                ClientId = johnDoe.Id,
                 Client = customer2,
                 Participants = [customer3],
-                Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
-            },
-            new Visit
-            {
-                Date = new DateTime(2024, 1, 5, 18, 0, 0),
-                NumberOfGuests = 1,
-                PaymentTime = new DateTime(2024, 1, 1, 15, 32, 00),
-                Deposit = null,
-                ReservationDate = null,
-                Tip = 25m,
+                Reservation = new Reservation
+                {
+                    StartTime = new DateTime(2024, 1, 4, 18, 0, 0),
+                    ReservationDate = new DateTime(2024, 1, 1, 22, 32, 00),
+                    Deposit = null,
+                },
                 Takeaway = false,
-                RestaurantId = 1,
-                TableId = 1,
-                ClientId = customer2.Id,
+                TableId = 2,
+                Tip = 10m,
+            },
+            new()
+            {
+                Restaurant = johnDoesGroup.Restaurants.ElementAt(0),
+                NumberOfGuests = 1,
                 Client = customer2,
-                Restaurant = johnDoesGroup.Restaurants.ElementAt(0)
+                Reservation = new Reservation
+                {
+                    StartTime = new DateTime(2024, 1, 5, 18, 0, 0),
+                    ReservationDate = new DateTime(2024, 1, 1, 15, 32, 00),
+                    Deposit = null,
+                },
+                Takeaway = false,
+                TableId = 1,
+                Tip = 25m,
             },
         };
 
         // Dodaj przykładowe wydarzenia dla restauracji John Doe
+        var visit0Date = visits[0].Reservation!.ReservationDate!.Value;
+        var visit1Date = visits[1].Reservation!.ReservationDate!.Value;
         context.Events.AddRange(
             new Event
             {
                 Name="Posiadówa w John Doe's",
-                CreatedAt = visits[0].Date.AddDays(-1),
+                CreatedAt = visit0Date.AddDays(-1),
                 Description = "Event 1 Description",
-                Time = visits[0].Date,
-                MustJoinUntil = visits[0].Date.AddHours(-3),
+                Time = visit0Date,
+                MustJoinUntil = visit0Date.AddHours(-3),
                 MaxPeople = 13,
                 Creator = johnDoe,
                 RestaurantId = 1,
@@ -344,19 +346,19 @@ public class DbSeeder(
                     new ParticipationRequest
                     {
                         User = customer1,
-                        DateSent = visits[0].Date.AddHours(-5),
+                        DateSent = visit0Date.AddHours(-5),
                     },
                     new ParticipationRequest
                     {
                         User = customer2,
-                        DateSent = visits[0].Date.AddHours(-5),
-                        DateAccepted = visits[0].Date.AddHours(-4),
+                        DateSent = visit0Date.AddHours(-5),
+                        DateAccepted = visit0Date.AddHours(-4),
                     },
                     new ParticipationRequest
                     {
                         User = customer3,
-                        DateSent = visits[0].Date.AddHours(-5),
-                        DateDeleted = visits[0].Date.AddHours(-4),
+                        DateSent = visit0Date.AddHours(-5),
+                        DateDeleted = visit0Date.AddHours(-4),
                     },
                 ],
                 PhotoFileName = null!,
@@ -365,10 +367,10 @@ public class DbSeeder(
             new Event
             {
                 Name="Posiadówa w John Doe's vol. 2",
-                CreatedAt = visits[1].Date.AddDays(-5),
+                CreatedAt = visit1Date.AddDays(-5),
                 Description = "Event 2 Description",
-                Time = visits[1].Date,
-                MustJoinUntil = visits[1].Date.AddDays(-1),
+                Time = visit1Date,
+                MustJoinUntil = visit1Date.AddDays(-1),
                 MaxPeople = 10,
                 Creator = johnDoe,
                 RestaurantId = 1,
@@ -377,7 +379,7 @@ public class DbSeeder(
                     new ParticipationRequest
                     {
                         User = customer1,
-                        DateSent = visits[1].Date.AddDays(-3),
+                        DateSent = visit1Date.AddDays(-3),
                     },
                 ],
                 PhotoFileName = null!,

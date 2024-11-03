@@ -1258,12 +1258,14 @@ namespace Reservant.Api.Services
 
             if (dateStart is not null)
             {
-                query = query.Where(x => DateOnly.FromDateTime(x.Date) >= dateStart);
+                var dateTimeStart = new DateTime(dateStart.Value, default);
+                query = query.Where(x => x.Reservation!.StartTime.Date >= dateTimeStart);
             }
 
             if (dateEnd is not null)
             {
-                query = query.Where(x => DateOnly.FromDateTime(x.Date) <= dateEnd);
+                var dateTimeEnd = new DateTime(dateEnd.Value, default);
+                query = query.Where(x => x.Reservation!.StartTime.Date <= dateTimeEnd);
             }
 
             if (tableId is not null)
@@ -1302,13 +1304,13 @@ namespace Reservant.Api.Services
             switch (visitSorting)
             {
                 case VisitSorting.DateAsc:
-                    query = query.OrderBy(e => e.Date);
+                    query = query.OrderBy(e => e.Reservation!.StartTime);
                     break;
                 case VisitSorting.DateDesc:
-                    query = query.OrderByDescending(e => e.Date);
+                    query = query.OrderByDescending(e => e.Reservation!.StartTime);
                     break;
                 default:
-                    query = query.OrderBy(e => e.Date); // Default to ascending order if VisitSorting is unexpected
+                    query = query.OrderBy(e => e.Reservation!.StartTime); // Default to ascending order if VisitSorting is unexpected
                     break;
             }
 
@@ -1536,7 +1538,7 @@ namespace Reservant.Api.Services
 
             // Pobieramy rezerwacje, które kolidują z danym dniem
             var reservations = await context.Visits
-                .Where(v => v.RestaurantId == restaurantId && v.Date.Date == date.ToDateTime(new TimeOnly()))
+                .Where(v => v.RestaurantId == restaurantId && v.Reservation!.StartTime.Date == date.ToDateTime(new TimeOnly()))
                 .ToListAsync();
 
             //Pobranie godzin otwarcia i zamknięcia restauracji w podanym dniu
@@ -1558,8 +1560,8 @@ namespace Reservant.Api.Services
                     // Check if there are no reservations for this table that overlap with the current time slot
                     !reservations.Any(r =>
                         r.TableId == table.TableId && // Same table
-                        TimeOnly.FromDateTime(r.Date) <= time && // Reservation starts before or at the current time (compare times only)
-                        TimeOnly.FromDateTime(r.EndTime) > time // Reservation ends after the current time slot starts (compare times only)
+                        TimeOnly.FromDateTime(r.Reservation!.StartTime) <= time && // Reservation starts before or at the current time (compare times only)
+                        TimeOnly.FromDateTime(r.Reservation!.EndTime) > time // Reservation ends after the current time slot starts (compare times only)
                     )
                 );
 

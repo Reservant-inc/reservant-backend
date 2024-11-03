@@ -321,8 +321,8 @@ public class UserService(
     {
         return await dbContext.Visits
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
-            .Where(x => x.Date > DateTime.UtcNow)
-            .OrderBy(x => x.Date)
+            .Where(x => x.Reservation!.StartTime > DateTime.UtcNow)
+            .OrderBy(x => x.Reservation!.StartTime)
             .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 10);
     }
@@ -341,8 +341,8 @@ public class UserService(
             .Include(r => r.Participants)
             .Include(r => r.Orders)
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
-            .Where(x => x.Date < DateTime.UtcNow)
-            .OrderByDescending(x => x.Date);
+            .Where(x => x.Reservation!.StartTime < DateTime.UtcNow)
+            .OrderByDescending(x => x.Reservation!.StartTime);
 
         var result = await query
             .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)

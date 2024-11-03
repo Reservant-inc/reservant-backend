@@ -14,8 +14,28 @@ public class Mappings : Profile
     {
         CreateMap<Visit, VisitSummaryVM>()
             .MapMemberFrom(dto => dto.NumberOfPeople,
-                visit => visit.NumberOfGuests + visit.Participants.Count + 1);
+                visit => visit.NumberOfGuests + visit.Participants.Count + 1)
+            .MapMemberFrom(dto => dto.Date,
+                visit => visit.Reservation!.StartTime)
+            .MapMemberFrom(dto => dto.EndTime,
+                visit => visit.Reservation!.EndTime)
+            .MapMemberFrom(dto => dto.Deposit,
+                visit => visit.Reservation == null
+                    ? null : visit.Reservation.Deposit);
 
-        CreateMap<Visit, VisitVM>();
+        CreateMap<Visit, VisitVM>()
+            .MapMemberFrom(dto => dto.Date,
+                visit => visit.Reservation!.StartTime)
+            .MapMemberFrom(dto => dto.EndTime,
+                visit => visit.Reservation!.EndTime)
+            .MapMemberFrom(dto => dto.PaymentTime,
+                visit => visit.Reservation == null
+                    ? null : visit.Reservation.DepositPaymentTime)
+            .MapMemberFrom(dto => dto.Deposit,
+                visit => visit.Reservation == null
+                    ? null : visit.Reservation.Deposit)
+            .MapMemberFrom(dto => dto.ReservationDate,
+                visit => visit.Reservation == null
+                    ? null : visit.Reservation.ReservationDate);
     }
 }
