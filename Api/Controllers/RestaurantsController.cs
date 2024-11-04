@@ -347,11 +347,11 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId"></param>
     /// <returns></returns>
     [HttpGet("{restaurantId:int}/tables")]
-    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
+    [Authorize(Roles = Roles.RestaurantEmployee)]
     public async Task<ActionResult<List<RestaurantTableVM>>> GetTables(int restaurantId)
     {
-        var availableHours = await service.GetTablesAsync(restaurantId);
-        return OkOrErrors(availableHours);
+        var tables = await service.GetTablesAsync(restaurantId);
+        return OkOrErrors(tables);
     }
 
 }
