@@ -16,6 +16,7 @@ using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Dtos.Tables;
 namespace Reservant.Api.Controllers;
 
 
@@ -340,5 +341,17 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return OkOrErrors(availableHours);
     }
 
+    /// <summary>
+    /// Gets a list of tables in a restaurant
+    /// </summary>
+    /// <param name="restaurantId"></param>
+    /// <returns></returns>
+    [HttpGet("{restaurantId:int}/tables")]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
+    public async Task<ActionResult<List<RestaurantTableVM>>> GetTables(int restaurantId)
+    {
+        var availableHours = await service.GetTablesAsync(restaurantId);
+        return OkOrErrors(availableHours);
+    }
 
 }

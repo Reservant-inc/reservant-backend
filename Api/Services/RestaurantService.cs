@@ -24,6 +24,7 @@ using Reservant.Api.Dtos.Users;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Reservant.Api.Mapping;
+using Reservant.Api.Dtos.Tables;
 
 namespace Reservant.Api.Services
 {
@@ -1605,6 +1606,18 @@ namespace Reservant.Api.Services
             }
 
             return mergedAvailableHours;
+        }
+
+        /// <summary>
+        /// Returns tables for the given restaurant
+        /// </summary>
+        /// <param name="restaurantId"></param>
+        /// <returns></returns>
+        
+        [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
+        public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId)
+        {
+            return null;
         }
     }
 }
