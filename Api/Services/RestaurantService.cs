@@ -1633,17 +1633,25 @@ namespace Reservant.Api.Services
                 };
             }
 
-
-
             var tables = restaurant.Tables
                 .Select(t => new RestaurantTableVM
                 {
                     TableId = t.TableId,
                     Capacity = t.Capacity,
-                    Status = TableStatus.Availiable, //TODO: implement table status
+                    Status = TableStatus.Availiable, 
                 }).ToList();
 
-           
+            foreach (var table in tables)
+            {
+
+                table.Status = await context.Visits
+                        .AnyAsync(v => v.TableId == table.TableId &&
+                            v.RestaurantId == restaurant.RestaurantId &&
+                            v.Reservation != null &&
+                            v.Reservation.EndTime > DateTime.UtcNow
+                        ) ? TableStatus.Taken : TableStatus.Availiable;
+
+            }
 
             return tables;
         }
