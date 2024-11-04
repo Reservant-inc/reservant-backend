@@ -1612,10 +1612,11 @@ namespace Reservant.Api.Services
         /// Returns tables for the given restaurant
         /// </summary>
         /// <param name="restaurantId"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        
+
         [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
-        public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId)
+        public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId, User user)
         {
             var restaurant = await context.Restaurants
                 .AsNoTracking()
@@ -1631,6 +1632,13 @@ namespace Reservant.Api.Services
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
+            }
+
+            var res = await authorizationService.VerifyRestaurantHallAccess(restaurantId, user.Id);
+
+            if (res.IsError)
+            {
+                return res.Errors;
             }
 
             var tables = restaurant.Tables
