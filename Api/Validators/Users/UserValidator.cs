@@ -46,6 +46,10 @@ public class UserValidator : AbstractValidator<Models.User>
             .FileUploadName(FileClass.Image, uploadService)
             .When(u => !string.IsNullOrEmpty(u.PhotoFileName));
 
+        RuleFor(u => u.PhoneNumber)
+            .Matches("^(\\+\\d{1,3})?\\d{9,15}$")
+            .When(u => u.PhoneNumber != null);
+
         
     }
 }
