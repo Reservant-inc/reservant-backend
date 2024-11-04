@@ -1617,6 +1617,24 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
         public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId)
         {
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .Include(r => r.Tables)
+                .OnlyActiveRestaurants()
+                .FirstOrDefaultAsync(r => r.RestaurantId == restaurantId);
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+
+
             return null;
         }
     }
