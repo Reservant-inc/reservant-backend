@@ -1635,7 +1635,17 @@ namespace Reservant.Api.Services
 
 
 
-            return null;
+            var tables = restaurant.Tables
+                .Select(t => new RestaurantTableVM
+                {
+                    TableId = t.TableId,
+                    Capacity = t.Capacity,
+                    Status = TableStatus.Availiable, //TODO: implement table status
+                }).ToList();
+
+           
+
+            return tables;
         }
     }
 }

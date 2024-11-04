@@ -23,8 +23,4 @@ public class RestaurantTableVM
     /// </summary>
     public TableStatus Status { get; set; }
 
-    /// <summary>
-    /// Current or upcoming visit
-    /// </summary>
-    public VisitSummaryVM? Visit { get; set; }
 }
