@@ -1210,6 +1210,12 @@ namespace Reservant.Api.Services
         /// <param name="isTakeaway">
         /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
         /// </param>
+        /// <param name="isAccepted">
+        /// If true, only accepted visits; if false, only declined visits; if null, all visits
+        /// </param>
+        /// <param name="isConsidered">
+        /// If true, only processed visits; if false, only waiting for being processed visits; if null, all visits
+        /// </param>
         /// <param name="visitSorting">Order visits</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
@@ -1223,6 +1229,8 @@ namespace Reservant.Api.Services
             int? tableId,
             bool? hasOrders,
             bool? isTakeaway,
+            bool? isAccepted,
+            bool? isConsidered,
             VisitSorting visitSorting,
             int page,
             int perPage)
@@ -1298,6 +1306,25 @@ namespace Reservant.Api.Services
             {
                 query = query.Where(x => x.Takeaway == isTakeaway.Value);
             }
+
+            if (isAccepted is not null)
+            {
+                query = query.Where(x => x.IsAccepted == isAccepted.Value);
+            }
+
+            if (isConsidered is not null)
+            {
+                if (isConsidered.Value)
+                {
+                    query = query.Where(x => x.IsAccepted != null);
+                }
+                else
+                {
+                    query = query.Where(x => x.IsAccepted == null);
+                }
+            }
+
+
 
             switch (visitSorting)
             {

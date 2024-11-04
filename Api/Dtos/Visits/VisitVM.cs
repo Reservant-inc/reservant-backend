@@ -70,6 +70,11 @@ public class VisitVM
     public required int TableId { get; set; }
 
     /// <summary>
+    /// The decison about reservation
+    /// </summary>
+    public Boolean? IsAccepted { get; set; }
+
+    /// <summary>
     /// People who visited the restaurant
     /// </summary>
     public required List<UserSummaryVM> Participants { get; set; }
