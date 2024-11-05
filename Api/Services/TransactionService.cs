@@ -21,7 +21,6 @@ public class TransactionService(ApiDbContext context)
     /// <param name="title"></param>
     /// <param name="amount"></param>
     /// <returns></returns>
-    [ErrorCode(null, ErrorCodes.InsufficientFunds)]
     public async Task<PaymentTransaction?> MakeTransactionAsync(User user, string title, decimal amount)
     {
 

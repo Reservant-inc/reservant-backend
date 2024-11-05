@@ -92,14 +92,14 @@ public class WalletController(
     /// <returns>payment confirmation</returns>
     [HttpPost("pay-deposit")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<WalletService>(nameof(WalletService.MakeDepositAsync))]
-    public async Task<ActionResult<TransactionVM>> MakeDeposit([FromQuery] int visitId) {
+    [MethodErrorCodes<WalletService>(nameof(WalletService.PayDepositAsync))]
+    public async Task<ActionResult<TransactionVM>> PayDeposit([FromQuery] int visitId) {
         var user = await userManager.GetUserAsync(User);
         if(user is null)
         {
             return Unauthorized();
         }
-        var result = await walletService.MakeDepositAsync(user, visitId);
+        var result = await walletService.PayDepositAsync(user, visitId);
         return OkOrErrors(result);
     }
 }

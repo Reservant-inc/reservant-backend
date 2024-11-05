@@ -105,7 +105,7 @@ public class WalletService(
     [ErrorCode(null, ErrorCodes.DepositAlreadyMade)]
     [ErrorCode(null, ErrorCodes.InsufficientFunds)]
     [MethodErrorCodes<WalletService>(nameof(GetWalletStatus))]
-    public async Task<Result<TransactionVM>> MakeDepositAsync(User user, int visitId)
+    public async Task<Result<TransactionVM>> PayDepositAsync(User user, int visitId)
     {
         var visit = await context.Visits
             .Where(v => v.VisitId == visitId)
@@ -151,11 +151,11 @@ public class WalletService(
                 PropertyName = null
             };
         }
-        var newTransactionTask = transactionService.MakeTransactionAsync(
+        var newTransaction = await transactionService.MakeTransactionAsync(
             user,
-            $"Deposit payment for visit with visitId: {visit.VisitId}",
+            $"Deposit payment for visit in restaurant: {visit.Restaurant.Name} on: {visit.Reservation.StartTime}",
             (decimal)visit.Reservation.Deposit * -1);
-        if (newTransactionTask.Result == null) {
+        if (newTransaction == null) {
             return new ValidationFailure
             {
                 ErrorCode = ErrorCodes.InsufficientFunds,
@@ -163,7 +163,6 @@ public class WalletService(
                 PropertyName = null
             };
         }
-        var newTransaction = newTransactionTask.Result;
         visit.Reservation.DepositPaymentTime = newTransaction!.Time;
         await context.SaveChangesAsync();
         return new TransactionVM
