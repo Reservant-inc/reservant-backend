@@ -67,6 +67,7 @@ public class VisitsController(
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.ApproveVisitRequestAsync))]
     public async Task<ActionResult> ApproveVisitRequest(int visitId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -85,6 +86,7 @@ public class VisitsController(
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.DeclineVisitRequestAsync))]
     public async Task<ActionResult> DeclineVisitRequest(int visitId)
     {
         var user = await userManager.GetUserAsync(User);
