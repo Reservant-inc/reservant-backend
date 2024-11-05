@@ -128,6 +128,16 @@ public class Visit : ISoftDeletable
     public int TableId { get; set; }
 
     /// <summary>
+    /// Actual start time of the visit
+    /// </summary>
+    public DateTime? StartTime { get; set; }
+
+    /// <summary>
+    /// Actual end time of the visit
+    /// </summary>
+    public DateTime? EndTime { get; set; }
+
+    /// <summary>
     /// Optional tip
     /// </summary>
     [Column(TypeName = "decimal(5, 2)")]

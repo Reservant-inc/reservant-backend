@@ -160,4 +160,106 @@ public class VisitService(
 
         return Result.Success;
     }
+
+    /// <summary>
+    /// Confirm a visit's start as an employee
+    /// </summary>
+    /// <param name="visitId">ID of the visit</param>
+    /// <param name="currentUserId">ID of the current user for permission checking</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Visit not found")]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
+    [ErrorCode(null, ErrorCodes.IncorrectVisitStatus,
+        "Visit has not been approved by restaurant or has already started")]
+    public async Task<Result> ConfirmStart(int visitId, Guid currentUserId)
+    {
+        var visit = await context.Visits.SingleOrDefaultAsync(visit => visit.VisitId == visitId);
+        if (visit is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Visit not found",
+            };
+        }
+
+        var authResult = await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, currentUserId);
+        if (authResult.IsError) return authResult;
+
+        if (visit.Reservation?.CurrentStatus is not ReservationStatus.ApprovedByRestaurant)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.IncorrectVisitStatus,
+                ErrorMessage = "Visit cannot be started because it was not approved by the restaurant",
+            };
+        }
+
+        if (visit.StartTime is not null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.IncorrectVisitStatus,
+                ErrorMessage = "Visit has already started",
+            };
+        }
+
+        visit.StartTime = DateTime.UtcNow;
+        await context.SaveChangesAsync();
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// Confirm a visit's start as an employee
+    /// </summary>
+    /// <param name="visitId">ID of the visit</param>
+    /// <param name="currentUserId">ID of the current user for permission checking</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Visit not found")]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
+    [ErrorCode(null, ErrorCodes.IncorrectVisitStatus,
+        "Visit has not started yet or is already ended")]
+    public async Task<Result> ConfirmEnd(int visitId, Guid currentUserId)
+    {
+        var visit = await context.Visits.SingleOrDefaultAsync(visit => visit.VisitId == visitId);
+        if (visit is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Visit not found",
+            };
+        }
+
+        var authResult = await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, currentUserId);
+        if (authResult.IsError) return authResult;
+
+        if (visit.StartTime is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.IncorrectVisitStatus,
+                ErrorMessage = "Visit has not started yet",
+            };
+        }
+
+        if (visit.EndTime is not null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.IncorrectVisitStatus,
+                ErrorMessage = "Visit has already ended",
+            };
+        }
+
+        visit.EndTime = DateTime.UtcNow;
+        await context.SaveChangesAsync();
+
+        return Result.Success;
+    }
 }
