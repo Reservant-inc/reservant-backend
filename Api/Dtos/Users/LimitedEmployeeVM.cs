@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-namespace Reservant.Api.Dtos.Restaurants;
+﻿namespace Reservant.Api.Dtos.Users;
 
 /// <summary>
 /// Information about a restaurant employee
@@ -11,7 +9,6 @@ public class LimitedEmployeeVM
     /// Employee ID
     /// </summary>
     public required Guid EmployeeId { get; init; }
-
 
     /// <summary>
     /// First name

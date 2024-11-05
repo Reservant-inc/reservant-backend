@@ -15,6 +15,7 @@ using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Reviews;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 namespace Reservant.Api.Controllers;
 
