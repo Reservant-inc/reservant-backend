@@ -348,12 +348,17 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// Get a list of employees with limited data for a specific restaurant.
     /// </summary>
     /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="hallOnly">Show only hall employees</param>
+    /// <param name="backdoorOnly">Show only backdoor employees</param>
     /// <returns>List of employees with limited data</returns>
     [HttpGet("{restaurantId:int}/employees")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesBasicInfoAsync))]
     [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
-    public async Task<ActionResult<List<EmployeeBasicInfoVM>>> GetEmployees(int restaurantId)
+    public async Task<ActionResult<List<EmployeeBasicInfoVM>>> GetEmployees(
+        int restaurantId,
+        bool hallOnly,
+        bool backdoorOnly)
     {
         var userId = User.GetUserId();
         if (userId is null)
@@ -361,7 +366,9 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var result = await service.GetEmployeesBasicInfoAsync(restaurantId, userId.Value);
+        var result = await service.GetEmployeesBasicInfoAsync(
+            restaurantId, userId.Value,
+            hallOnly, backdoorOnly);
         return OkOrErrors(result);
     }
 

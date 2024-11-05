@@ -1626,10 +1626,14 @@ namespace Reservant.Api.Services
         /// Get list of restaurant's current employees
         /// </summary>
         /// <param name="restaurantId">ID of the restaurants</param>
+        /// <param name="hallOnly">Show only hall employees</param>
+        /// <param name="backdoorOnly">Show only backdoor employees</param>
         /// <param name="userId">ID of the current user (to check permissions)</param>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantEmployeeAccess))]
-        public async Task<Result<List<EmployeeBasicInfoVM>>> GetEmployeesBasicInfoAsync(int restaurantId, Guid userId)
+        public async Task<Result<List<EmployeeBasicInfoVM>>> GetEmployeesBasicInfoAsync(
+            int restaurantId, Guid userId,
+            bool hallOnly, bool backdoorOnly)
         {
             var restaurant = await context.Restaurants
                 .AsNoTracking()
@@ -1653,9 +1657,21 @@ namespace Reservant.Api.Services
                 return authResult.Errors;
             }
 
-            var employees = await context.Employments
+            var employees = context.Employments
                 .AsNoTracking()
-                .Where(e => e.RestaurantId == restaurantId && e.DateUntil == null)
+                .Where(e => e.RestaurantId == restaurantId && e.DateUntil == null);
+
+            if (hallOnly)
+            {
+                employees = employees.Where(e => e.IsHallEmployee);
+            }
+
+            if (backdoorOnly)
+            {
+                employees = employees.Where(e => e.IsBackdoorEmployee);
+            }
+
+            return await employees
                 .Select(e => new EmployeeBasicInfoVM
                 {
                     EmployeeId = e.EmployeeId,
@@ -1665,8 +1681,6 @@ namespace Reservant.Api.Services
                     IsBackdoorEmployee = e.IsBackdoorEmployee,
                 })
                 .ToListAsync();
-
-            return employees;
 
         }
     }
