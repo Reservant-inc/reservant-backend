@@ -9,6 +9,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Models.Enums;
 using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services;
@@ -52,7 +53,7 @@ public class VisitService(
     /// <param name="visitId">ID of the event</param>
     /// <param name="currentUser">Current user for permission checking</param>
     [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
-    [ErrorCode(nameof(visitId), ErrorCodes.AlreadyConsidered, "User already considered")]
+    [ErrorCode(nameof(visitId), ErrorCodes.IncorrectVisitStatus, "Reservation already reviewed or deposit not paid")]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User not qualified to reject")]
     public async Task<Result> ApproveVisitRequestAsync(int visitId,User currentUser)
     {
@@ -81,13 +82,13 @@ public class VisitService(
             };
         }
 
-        if (visitFound.Reservation?.Decision is null)
+        if (visitFound.Reservation?.CurrentStatus is not ReservationStatus.ToBeReviewedByRestaurant)
         {
             return new ValidationFailure
             {
                 PropertyName = nameof(visitId),
-                ErrorMessage = "User already considered",
-                ErrorCode = ErrorCodes.AlreadyConsidered
+                ErrorMessage = "Reservation already reviewed or deposit not paid",
+                ErrorCode = ErrorCodes.IncorrectVisitStatus,
             };
         }
 
@@ -109,7 +110,7 @@ public class VisitService(
     /// <param name="visitId">ID of the event</param>
     /// <param name="currentUser">Current user for permission checking</param>
     [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
-    [ErrorCode(nameof(visitId), ErrorCodes.AlreadyConsidered, "User already considered")]
+    [ErrorCode(nameof(visitId), ErrorCodes.IncorrectVisitStatus, "Reservation already reviewed or deposit not paid")]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User not qualified to reject")]
     public async Task<Result> DeclineVisitRequestAsync(int visitId,User currentUser)
     {
@@ -138,13 +139,13 @@ public class VisitService(
             };
         }
 
-        if (visitFound.Reservation?.Decision is null)
+        if (visitFound.Reservation?.CurrentStatus is not ReservationStatus.ToBeReviewedByRestaurant)
         {
             return new ValidationFailure
             {
                 PropertyName = nameof(visitId),
-                ErrorMessage = "User already considered",
-                ErrorCode = ErrorCodes.AlreadyConsidered
+                ErrorMessage = "Reservation already reviewed or deposit not paid",
+                ErrorCode = ErrorCodes.IncorrectVisitStatus,
             };
         }
 
