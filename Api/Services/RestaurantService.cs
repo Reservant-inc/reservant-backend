@@ -1210,6 +1210,7 @@ namespace Reservant.Api.Services
         /// <param name="isTakeaway">
         /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
         /// </param>
+        /// <param name="reservationStateFilter">Filter visits by the state of the reservation</param>
         /// <param name="visitSorting">Order visits</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
@@ -1223,6 +1224,7 @@ namespace Reservant.Api.Services
             int? tableId,
             bool? hasOrders,
             bool? isTakeaway,
+            ReservationStatus? reservationStateFilter,
             VisitSorting visitSorting,
             int page,
             int perPage)
@@ -1298,6 +1300,20 @@ namespace Reservant.Api.Services
             {
                 query = query.Where(x => x.Takeaway == isTakeaway.Value);
             }
+
+            query = reservationStateFilter switch
+            {
+                ReservationStatus.DepositNotPaid =>
+                    query.Where(x => x.Deposit != null && x.PaymentTime == null),
+                ReservationStatus.ToBeReviewed =>
+                    query.Where(x => (x.Deposit == null || x.PaymentTime != null) && x.AnsweredById == null),
+                ReservationStatus.Approved =>
+                    query.Where(x => x.IsAccepted == true),
+                ReservationStatus.Declined =>
+                    query.Where(x => x.IsAccepted == false),
+                null => query,
+                _ => throw new ArgumentOutOfRangeException(nameof(reservationStateFilter)),
+            };
 
             switch (visitSorting)
             {

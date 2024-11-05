@@ -199,6 +199,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="isTakeaway">
     /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
     /// </param>
+    /// <param name="reservationStatus">Filter visits by the state of the reservation</param>
     /// <param name="visitSorting">Order visits</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -214,6 +215,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         int? tableId,
         bool? hasOrders,
         bool? isTakeaway,
+        ReservationStatus? reservationStatus,
         VisitSorting visitSorting,
         [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
@@ -226,6 +228,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             tableId,
             hasOrders,
             isTakeaway,
+            reservationStatus,
             visitSorting,
             page,
             perPage);
