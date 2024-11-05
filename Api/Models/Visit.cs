@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Reservant.Api.Data;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Models;
 
@@ -60,6 +61,24 @@ public class Reservation
     /// The restaurant's decision whether to accept reservation or not
     /// </summary>
     public RestaurantDecision? Decision { get; set; }
+
+    /// <summary>
+    /// Current state of the visit
+    /// </summary>
+    public ReservationStatus CurrentStatus
+    {
+        get
+        {
+            return this switch
+            {
+                { Deposit: not null, DepositPaymentTime: null } => ReservationStatus.DepositNotPaid,
+                { Decision: null } => ReservationStatus.ToBeReviewedByRestaurant,
+                { Decision.IsAccepted: true } => ReservationStatus.ApprovedByRestaurant,
+                { Decision.IsAccepted: false } => ReservationStatus.DeclinedByRestaurant,
+                null => throw new InvalidOperationException(),
+            };
+        }
+    }
 }
 
 /// <summary>
