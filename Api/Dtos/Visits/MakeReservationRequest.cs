@@ -44,4 +44,9 @@ public class MakeReservationRequest
     /// Total number of people making the reservation, including the visit's creator
     /// </summary>
     public int TotalNumberOfPeople => NumberOfGuests + ParticipantIds.Count + 1;
+
+    /// <summary>
+    /// value of the deposit for the reservations that require it
+    /// </summary>
+    public decimal? Deposit { get; init; }
 }

@@ -85,4 +85,21 @@ public class WalletController(
 
     }
 
+    /// <summary>
+    /// Makes a deposit payment for a specified visit
+    /// </summary>
+    /// <param name="visitId">id of the visit that requires the deposit</param>
+    /// <returns>payment confirmation</returns>
+    [HttpPost("pay-deposit")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<WalletService>(nameof(WalletService.MakeDepositAsync))]
+    public async Task<ActionResult<TransactionVM>> MakeDeposit([FromQuery] int visitId) {
+        var user = await userManager.GetUserAsync(User);
+        if(user is null)
+        {
+            return Unauthorized();
+        }
+        var result = await walletService.MakeDepositAsync(user, visitId);
+        return OkOrErrors(result);
+    }
 }

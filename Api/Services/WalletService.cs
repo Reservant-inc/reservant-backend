@@ -5,6 +5,9 @@ using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Wallets;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Services;
 
@@ -13,9 +16,11 @@ namespace Reservant.Api.Services;
 /// </summary>
 /// <param name="context"></param>
 /// <param name="validationService"></param>
+/// <param name="transactionService"></param>
 public class WalletService(
     ApiDbContext context,
-    ValidationService validationService)
+    ValidationService validationService,
+    TransactionService transactionService)
 {
     /// <summary>
     /// creates a transaction for the specified user
@@ -88,4 +93,85 @@ public class WalletService(
 
     }
 
+    /// <summary>
+    /// Make deposit for a reservation that is connected to the specified visit
+    /// </summary>
+    /// <param name="user">user that created the reservation</param>
+    /// <param name="visitId">id of the visit that the deposit is for</param>
+    /// <returns>DTO with confirmation of the payment</returns>
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    [ErrorCode(null, ErrorCodes.DepositFreeVisit)]
+    [ErrorCode(null, ErrorCodes.DepositAlreadyMade)]
+    [ErrorCode(null, ErrorCodes.InsufficientFunds)]
+    [MethodErrorCodes<WalletService>(nameof(GetWalletStatus))]
+    public async Task<Result<TransactionVM>> MakeDepositAsync(User user, int visitId)
+    {
+        var visit = await context.Visits
+            .Where(v => v.VisitId == visitId)
+            .Include(v => v.Reservation)
+            .FirstOrDefaultAsync();
+        //check if the visit exists
+        if (visit == null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = ErrorCodes.NotFound,
+                PropertyName = null
+            };
+        }
+        //check if the visit belongs to the user
+        if (visit.ClientId != user.Id)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = ErrorCodes.AccessDenied,
+                PropertyName = null
+            };
+        }
+        //check if reservation requires a deposit
+        if (visit.Reservation!.Deposit is null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.DepositFreeVisit,
+                ErrorMessage = ErrorCodes.DepositFreeVisit,
+                PropertyName = null
+            };
+        }
+        //check if the deposit was already paid
+        if (visit.Reservation!.DepositPaymentTime is not null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.DepositAlreadyMade,
+                ErrorMessage = ErrorCodes.DepositAlreadyMade,
+                PropertyName = null
+            };
+        }
+        var newTransactionTask = transactionService.MakeTransactionAsync(
+            user,
+            $"Deposit payment for visit with visitId: {visit.VisitId}",
+            (decimal)visit.Reservation.Deposit * -1);
+        if (newTransactionTask.Result == null) {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.InsufficientFunds,
+                ErrorMessage = ErrorCodes.InsufficientFunds,
+                PropertyName = null
+            };
+        }
+        var newTransaction = newTransactionTask.Result;
+        visit.Reservation.DepositPaymentTime = newTransaction!.Time;
+        await context.SaveChangesAsync();
+        return new TransactionVM
+        {
+            TransactionId = newTransaction.PaymentTransactionId,
+            Title = newTransaction.Title,
+            Amount = newTransaction.Amount,
+            Time = newTransaction.Time,
+        };
+    }
 }

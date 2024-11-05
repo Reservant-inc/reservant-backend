@@ -271,4 +271,24 @@ public static class ErrorCodes
     /// Order cannot be edited because all the items are either taken or cancelled
     /// </summary>
     public const string OrderIsFinished = "OrderIsFinished";
+
+    /// <summary>
+    /// There funds in the account balance doesn't allow this operation
+    /// </summary>
+    public const string InsufficientFunds = "InsufficientFunds";
+
+    /// <summary>
+    /// Deposit for specified visit was already made
+    /// </summary>
+    public const string DepositAlreadyMade = "DepositAlreadyMade";
+
+    /// <summary>
+    /// Visit does not require a deposit
+    /// </summary>
+    public const string DepositFreeVisit = "DepositFreeVisit";
+
+    /// <summary>
+    /// Specified value doesn't match the required value
+    /// </summary>
+    public const string NotMatchingValue = "NotMatchingValue";
 }
