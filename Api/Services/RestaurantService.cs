@@ -1612,6 +1612,7 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of the restaurants</param>
         /// <param name="userId">ID of the current user (to check permissions)</param>
         [ErrorCode(null, ErrorCodes.NotFound)]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantEmployeeAccess))]
         public async Task<Result<List<EmployeeBasicInfoVM>>> GetEmployeesBasicInfoAsync(int restaurantId, Guid userId)
         {
             var restaurant = await context.Restaurants
@@ -1630,7 +1631,7 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
+            var authResult = await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId);
             if (authResult.IsError)
             {
                 return authResult.Errors;
