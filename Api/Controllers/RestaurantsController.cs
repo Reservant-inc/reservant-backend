@@ -15,6 +15,7 @@ using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Reviews;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 namespace Reservant.Api.Controllers;
 
@@ -343,5 +344,25 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return OkOrErrors(availableHours);
     }
 
+    /// <summary>
+    /// Get a list of employees with limited data for a specific restaurant.
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <returns>List of employees with limited data</returns>
+    [HttpGet("{restaurantId:int}/employees")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesBasicInfoAsync))]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult<List<EmployeeBasicInfoVM>>> GetEmployees(int restaurantId)
+    {
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.GetEmployeesBasicInfoAsync(restaurantId, userId.Value);
+        return OkOrErrors(result);
+    }
 
 }

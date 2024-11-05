@@ -10,7 +10,7 @@ using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos.Menus;
 using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Restaurants;
-
+using Reservant.Api.Dtos.Users;
 
 namespace Reservant.Api.Controllers
 {
