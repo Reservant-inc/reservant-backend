@@ -340,5 +340,25 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return OkOrErrors(availableHours);
     }
 
+    /// <summary>
+    /// Get a list of employees with limited data for a specific restaurant.
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <returns>List of employees with limited data</returns>
+    [HttpGet("{restaurantId:int}/employees")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesLimitedAsync))]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult<List<LimitedEmployeeVM>>> GetEmployees(int restaurantId)
+    {
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.GetEmployeesLimitedAsync(restaurantId, userId.Value);
+        return OkOrErrors(result);
+    }
 
 }

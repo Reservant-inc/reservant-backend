@@ -24,6 +24,7 @@ using Reservant.Api.Dtos.Users;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Reservant.Api.Mapping;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Reservant.Api.Services
 {
@@ -877,7 +878,7 @@ namespace Reservant.Api.Services
         /// <param name="assignedEmployeeId">Optional emplyee number filter by Id</param>
         /// <returns>Paginated order list</returns>
         public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(Guid userId, int restaurantId,
-            bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null )
+            bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null)
         {
             var user = await userManager.FindByIdAsync(userId.ToString());
             if (user == null)
@@ -1603,6 +1604,53 @@ namespace Reservant.Api.Services
             }
 
             return mergedAvailableHours;
+        }
+
+        /// <summary>
+        /// Get list of restaurant's current employees
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurants</param>
+        /// <param name="userId">ID of the current user (to check permissions)</param>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        public async Task<Result<List<LimitedEmployeeVM>>> GetEmployeesLimitedAsync(int restaurantId, Guid userId)
+        {
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .Include(r => r.Group)
+                .Where(r => r.RestaurantId == restaurantId)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
+            }
+
+            var employees = await context.Employments
+                .AsNoTracking()
+                .Where(e => e.RestaurantId == restaurantId && e.DateUntil == null)
+                .Select(e => new LimitedEmployeeVM
+                {
+                    EmployeeId = e.EmployeeId,
+                    FirstName = e.Employee.FirstName,
+                    LastName = e.Employee.LastName,
+                    IsHallEmployee = e.IsHallEmployee,
+                    IsBackdoorEmployee = e.IsBackdoorEmployee
+                })
+                .ToListAsync();
+
+            return employees;
+
         }
     }
 }
