@@ -1,9 +1,9 @@
 ﻿namespace Reservant.Api.Dtos.Users;
 
 /// <summary>
-/// Information about a restaurant employee
+/// Basic information about a restaurant employee
 /// </summary>
-public class LimitedEmployeeVM
+public class EmployeeBasicInfoVM
 {
     /// <summary>
     /// Employee ID

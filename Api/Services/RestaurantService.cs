@@ -1612,7 +1612,7 @@ namespace Reservant.Api.Services
         /// <param name="restaurantId">ID of the restaurants</param>
         /// <param name="userId">ID of the current user (to check permissions)</param>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result<List<LimitedEmployeeVM>>> GetEmployeesLimitedAsync(int restaurantId, Guid userId)
+        public async Task<Result<List<EmployeeBasicInfoVM>>> GetEmployeesBasicInfoAsync(int restaurantId, Guid userId)
         {
             var restaurant = await context.Restaurants
                 .AsNoTracking()
@@ -1626,7 +1626,7 @@ namespace Reservant.Api.Services
                 {
                     PropertyName = nameof(restaurantId),
                     ErrorMessage = $"Restaurant with ID {restaurantId} not found",
-                    ErrorCode = ErrorCodes.NotFound
+                    ErrorCode = ErrorCodes.NotFound,
                 };
             }
 
@@ -1639,13 +1639,13 @@ namespace Reservant.Api.Services
             var employees = await context.Employments
                 .AsNoTracking()
                 .Where(e => e.RestaurantId == restaurantId && e.DateUntil == null)
-                .Select(e => new LimitedEmployeeVM
+                .Select(e => new EmployeeBasicInfoVM
                 {
                     EmployeeId = e.EmployeeId,
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
                     IsHallEmployee = e.IsHallEmployee,
-                    IsBackdoorEmployee = e.IsBackdoorEmployee
+                    IsBackdoorEmployee = e.IsBackdoorEmployee,
                 })
                 .ToListAsync();
 
