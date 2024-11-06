@@ -84,7 +84,7 @@ public class AtreidesRestaurantSeeder
             MaxReservationDurationMinutes = 120,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = await RequireFileUpload("ResLogo2.png", _muadib),
+            Logo = await RequireFileUpload("ResLogo5.png", _muadib),
             ProvideDelivery = true,
             Description = "A themed restaurant offering exotic dishes inspired by the Dune universe",
             Photos = new List<RestaurantPhoto>(),
@@ -134,7 +134,7 @@ public class AtreidesRestaurantSeeder
                 Restaurant = atreidesRestaurant,
                 Order = 1,
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("ResInside3.jpg", _muadib)
+                Photo = await RequireFileUpload("ResInside7.jpg", _muadib)
             }
         };
 
@@ -174,12 +174,12 @@ public class AtreidesRestaurantSeeder
                 {
                     new MenuItem
                     {
-                        Name = "Spice-infused Sandworm Steak",
+                        Name = "Spice Sandworm",
                         Price = 50m,
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal7.jpg", _muadib),
+                        Photo = await RequireFileUpload("kurczak.png", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 200 }, // Sandworm Meat
@@ -195,27 +195,11 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal8.jpg", _muadib),
+                        Photo = await RequireFileUpload("makarony.png", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 1 }, // Fremen Bread
                             new IngredientMenuItem { Ingredient = ingredients[10], AmountUsed = 30 }, // Melange Sauce
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 5 } // Desert Herbs
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Desert Grain Salad",
-                        Price = 18m,
-                        AlcoholPercentage = null,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal9.jpg", _muadib),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Desert Grains
-                            new IngredientMenuItem { Ingredient = ingredients[12], AmountUsed = 50 }, // Desert Vegetables
-                            new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 30 }, // Date Palm Fruits
                             new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 5 } // Desert Herbs
                         }
                     }
@@ -237,148 +221,13 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sushi.png", _muadib),
+                        Photo = await RequireFileUpload("meksykanskie.png", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Desert Grains
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 5 }, // Spice
                             new IngredientMenuItem { Ingredient = ingredients[8], AmountUsed = 2 }, // Quail Eggs
                             new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 20 } // Date Palm Fruits
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Desert Cheesecake",
-                        Price = 18m,
-                        AlcoholPercentage = null,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("pierogi.png", _muadib),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[11], AmountUsed = 100 }, // Sietch Cheese
-                            new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Desert Grains
-                            new IngredientMenuItem { Ingredient = ingredients[8], AmountUsed = 2 }, // Quail Eggs
-                            new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 20 } // Date Palm Fruits
-                        }
-                    }
-                }
-            },
-            new Menu
-            {
-                Name = "Exotic Beverages",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Food, // Since only Food and Alcohol are available
-                Restaurant = atreidesRestaurant,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Cactus Juice",
-                        Price = 10m,
-                        AlcoholPercentage = null,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sushi.png", _muadib), // Reusing image
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 250 } // Cactus Juice
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Herbal Tea",
-                        Price = 8m,
-                        AlcoholPercentage = null,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("pierogi.png", _muadib), // Reusing image
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[13], AmountUsed = 250 } // Herbal Tea
-                        }
-                    }
-                }
-            },
-            new Menu
-            {
-                Name = "Alcoholic Beverages",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Alcohol,
-                Restaurant = atreidesRestaurant,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Spiced Wine",
-                        Price = 22m,
-                        AlcoholPercentage = 14m,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("wine.png", _muadib),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[9], AmountUsed = 150 }, // Spiced Wine
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 2 } // Spice
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Melange Liquor",
-                        Price = 25m,
-                        AlcoholPercentage = 20m,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _muadib),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 5 }, // Spice
-                            new IngredientMenuItem { Ingredient = ingredients[9], AmountUsed = 100 } // Spiced Wine
-                        }
-                    }
-                }
-            },
-            new Menu
-            {
-                Name = "Special Offers",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Food,
-                Restaurant = atreidesRestaurant,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Stilgar's Special Stew",
-                        Price = 45m,
-                        AlcoholPercentage = null,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal7.jpg", _muadib), // Reusing image
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 150 }, // Sandworm Meat
-                            new IngredientMenuItem { Ingredient = ingredients[14], AmountUsed = 10 }, // Stilgar's Spice Mix
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 10 }, // Desert Herbs
-                            new IngredientMenuItem { Ingredient = ingredients[12], AmountUsed = 50 } // Desert Vegetables
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Paul's Desert Delight",
-                        Price = 40m,
-                        AlcoholPercentage = null,
-                        Restaurant = atreidesRestaurant,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal8.jpg", _muadib), // Reusing image
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 200 }, // Water
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 5 }, // Spice
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 10 }, // Desert Herbs
-                            new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 30 } // Date Palm Fruits
                         }
                     }
                 }
