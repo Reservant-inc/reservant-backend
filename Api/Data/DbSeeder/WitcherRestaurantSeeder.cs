@@ -84,7 +84,7 @@ public class WitcherRestaurantSeeder
             MaxReservationDurationMinutes = 120,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = await RequireFileUpload("ResLogo1.png", _geralt),
+            Logo = await RequireFileUpload("ResLogo3.png", _geralt),
             ProvideDelivery = false,
             Description = "A rustic inn serving hearty meals from the Witcher universe",
             Photos = new List<RestaurantPhoto>(),
@@ -179,7 +179,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal2.jpg", _geralt),
+                        Photo = await RequireFileUpload("ResKebab2.jpg", _geralt),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 200 }, // Beef
@@ -197,7 +197,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal3.jpg", _geralt),
+                        Photo = await RequireFileUpload("ResKebab1.jpg", _geralt),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 250 }, // Chicken
@@ -208,12 +208,12 @@ public class WitcherRestaurantSeeder
                     },
                     new MenuItem
                     {
-                        Name = "Pork Sausages with Cabbage",
+                        Name = "Pork Sausages",
                         Price = 28m,
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal4.jpg", _geralt),
+                        Photo = await RequireFileUpload("ramen.png", _geralt),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 200 }, // Pork
@@ -229,7 +229,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal5.jpg", _geralt),
+                        Photo = await RequireFileUpload("ResKebab1.jpg", _geralt),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[12], AmountUsed = 200 }, // Fish
@@ -256,7 +256,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sushi.png", _geralt),
+                        Photo = await RequireFileUpload("saladki.png", _geralt),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[9], AmountUsed = 100 }, // Mushrooms
@@ -272,7 +272,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("pierogi.png", _geralt),
+                        Photo = await RequireFileUpload("stek.png", _geralt),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 100 }, // Potatoes
@@ -300,7 +300,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal2.jpg", _geralt), // Ponowne użycie obrazu
+                        Photo = await RequireFileUpload("ResKebab2.jpg", _geralt), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 1 }, // Bread
@@ -314,7 +314,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal3.jpg", _geralt), // Ponowne użycie obrazu
+                        Photo = await RequireFileUpload("stek.png", _geralt), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 100 }, // Beef
@@ -342,7 +342,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResMeal4.jpg", _geralt), // Ponowne użycie obrazu
+                        Photo = await RequireFileUpload("ramen.png", _geralt), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[11], AmountUsed = 150 } // Cheese
@@ -366,7 +366,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = 10m,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _geralt)
+                        Photo = await RequireFileUpload("saladki.png", _geralt)
                     },
                     new MenuItem
                     {
@@ -375,7 +375,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = 5m,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _geralt) // Ponowne użycie obrazu
+                        Photo = await RequireFileUpload("stek.png", _geralt) // Ponowne użycie obrazu
                     },
                     new MenuItem
                     {
@@ -384,7 +384,7 @@ public class WitcherRestaurantSeeder
                         AlcoholPercentage = 13m,
                         Restaurant = witcherRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("wine.png", _geralt)
+                        Photo = await RequireFileUpload("stek.png", _geralt)
                     }
                 }
             }
