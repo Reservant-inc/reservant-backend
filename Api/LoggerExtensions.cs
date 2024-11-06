@@ -33,4 +33,29 @@ public static partial class LoggerExtensions
     [LoggerMessage(Level = LogLevel.Error, EventId = 1003, EventName = "Reservant.Api.FirebaseMessagingError",
         Message = "Failed to send a Firebase push notification to user ID {UserId}")]
     public static partial void FirebaseMessagingError(this ILogger logger, Exception ex, Guid userId);
+
+    /// <summary>
+    /// Failed to go through with reservation payment
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="name"></param>
+    /// <param name="restaurantId"></param>
+    /// <param name="nip"></param>
+    /// <param name="dateTime"></param>
+    [LoggerMessage(Level = LogLevel.Error, EventId = 1004, EventName = "Reservant.Api.BankServicePaymentNullError",
+        Message = "Failed to make deposit for restaurant {Name} with id {RestaurantId} and NIP {Nip} on {DateTime} because amount is null")]
+    public static partial void BankServicePaymentNullError(this ILogger logger, string name, int restaurantId, string nip, DateTime dateTime);
+
+    /// <summary>
+    /// Succeded in making a payment in banking service
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="depositAmount"></param>
+    /// <param name="name"></param>
+    /// <param name="restaurantId"></param>
+    /// <param name="nip"></param>
+    /// <param name="dateTime"></param>
+    [LoggerMessage(Level = LogLevel.Information, EventId = 1005, EventName = "Reservant.Api.BankServicePaymentProcessingInformation",
+    Message = "{DepositAmount} was transferred to restaurant {Name} with id {RestaurantId} and NIP {Nip} on {DateTime}")]
+    public static partial void BankServicePaymentProcessingInformation(this ILogger logger, decimal? depositAmount, string name, int restaurantId, string nip, DateTime dateTime);
 }

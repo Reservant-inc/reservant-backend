@@ -37,17 +37,6 @@ public class MakeReservationService(
         var requestValidation = await validationService.ValidateAsync(request, client.Id);
         if (!requestValidation.IsValid) return requestValidation;
 
-        if (request.Deposit is not null) {
-            if (request.Deposit < 0) {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(request.Deposit),
-                    ErrorCode = ErrorCodes.ValueLessThanZero,
-                    ErrorMessage = ErrorCodes.ValueLessThanZero
-                };
-            }
-        }
-
         var restaurant = await GetRestaurant(request.RestaurantId);
         if (restaurant is null)
         {
@@ -97,7 +86,7 @@ public class MakeReservationService(
                 StartTime = request.Date,
                 EndTime = request.EndTime,
                 ReservationDate = DateTime.UtcNow,
-                Deposit = request.Deposit != null? request.Deposit : restaurant.ReservationDeposit,
+                Deposit = restaurant.ReservationDeposit,
             },
             Tip = request.Tip,
             Takeaway = request.Takeaway,

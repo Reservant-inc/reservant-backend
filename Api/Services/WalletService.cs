@@ -16,11 +16,9 @@ namespace Reservant.Api.Services;
 /// </summary>
 /// <param name="context"></param>
 /// <param name="validationService"></param>
-/// <param name="transactionService"></param>
 public class WalletService(
     ApiDbContext context,
-    ValidationService validationService,
-    TransactionService transactionService)
+    ValidationService validationService)
 {
     /// <summary>
     /// creates a transaction for the specified user
@@ -97,22 +95,12 @@ public class WalletService(
     /// Make deposit for a reservation that is connected to the specified visit
     /// </summary>
     /// <param name="user">user that created the reservation</param>
-    /// <param name="visitId">id of the visit that the deposit is for</param>
+    /// <param name="visit">visit that the deposit is for</param>
     /// <returns>DTO with confirmation of the payment</returns>
-    [ErrorCode(null, ErrorCodes.NotFound)]
-    [ErrorCode(null, ErrorCodes.AccessDenied)]
-    [ErrorCode(null, ErrorCodes.DepositFreeVisit)]
-    [ErrorCode(null, ErrorCodes.DepositAlreadyMade)]
-    [ErrorCode(null, ErrorCodes.InsufficientFunds)]
     [MethodErrorCodes<WalletService>(nameof(GetWalletStatus))]
-    public async Task<Result<TransactionVM>> PayDepositAsync(User user, int visitId)
+    public async Task<Result<TransactionVM>> PayDepositAsync(User user, Visit visit)
     {
-        var visit = await context.Visits
-            .Where(v => v.VisitId == visitId)
-            .Include(v => v.Reservation)
-            .FirstOrDefaultAsync();
-        //check if the visit exists
-        if (visit == null)
+        if (visit.Reservation == null)
         {
             return new ValidationFailure
             {
@@ -121,18 +109,7 @@ public class WalletService(
                 PropertyName = null
             };
         }
-        //check if the visit belongs to the user
-        if (visit.ClientId != user.Id)
-        {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = ErrorCodes.AccessDenied,
-                PropertyName = null
-            };
-        }
-        //check if reservation requires a deposit
-        if (visit.Reservation!.Deposit is null)
+        if (visit.Reservation.Deposit is null)
         {
             return new ValidationFailure
             {
@@ -141,29 +118,17 @@ public class WalletService(
                 PropertyName = null
             };
         }
-        //check if the deposit was already paid
-        if (visit.Reservation!.DepositPaymentTime is not null)
+
+        //create the transaction
+        var newTransaction = new PaymentTransaction
         {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.DepositAlreadyMade,
-                ErrorMessage = ErrorCodes.DepositAlreadyMade,
-                PropertyName = null
-            };
-        }
-        var newTransaction = await transactionService.MakeTransactionAsync(
-            user,
-            $"Deposit payment for visit in restaurant: {visit.Restaurant.Name} on: {visit.Reservation.StartTime}",
-            (decimal)visit.Reservation.Deposit * -1);
-        if (newTransaction == null) {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.InsufficientFunds,
-                ErrorMessage = ErrorCodes.InsufficientFunds,
-                PropertyName = null
-            };
-        }
-        visit.Reservation.DepositPaymentTime = newTransaction!.Time;
+            Title = $"Deposit payment for visit in restaurant: {visit.Restaurant.Name} on: {visit.Reservation.StartTime}",
+            Amount = (decimal)visit.Reservation.Deposit * -1,
+            Time = DateTime.UtcNow,
+            UserId = user.Id,
+        };
+
+        await context.PaymentTransactions.AddAsync(newTransaction);
         await context.SaveChangesAsync();
         return new TransactionVM
         {

@@ -16,11 +16,13 @@ namespace Reservant.Api.Controllers;
 /// </summary>
 /// <param name="userManager"></param>
 /// <param name="walletService"></param>
+/// <param name="paymentService"></param>
 [ApiController, Route("/wallet")]
 [Authorize(Roles = Roles.Customer)]
 public class WalletController(
     UserManager<User> userManager,
-    WalletService walletService
+    WalletService walletService,
+    PaymentService paymentService
 ): StrictController
 {
 
@@ -99,7 +101,7 @@ public class WalletController(
         {
             return Unauthorized();
         }
-        var result = await walletService.PayDepositAsync(user, visitId);
+        var result = await paymentService.PayDepositAsync(user, visitId);
         return OkOrErrors(result);
     }
 }
