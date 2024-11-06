@@ -84,7 +84,7 @@ public class AnonRestaurantSeeder
             MaxReservationDurationMinutes = 120,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = await RequireFileUpload("restaurantLogo1.PNG", _anon),
+            Logo = await RequireFileUpload("ResLogo3.png", _anon),
             ProvideDelivery = true,
             Description = "The second example restaurant",
             Photos = new List<RestaurantPhoto>(),
@@ -179,7 +179,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("spaghetti_bolognese.jpg", _anon),
+                        Photo = await RequireFileUpload("ResPizza3.jpg", _anon),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Pasta
@@ -196,7 +196,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("penne_arrabiata.jpg", _anon),
+                        Photo = await RequireFileUpload("ResMeal6.jpg", _anon),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Pasta
@@ -212,7 +212,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("garlic_bread.jpg", _anon),
+                        Photo = await RequireFileUpload("pierogi.png", _anon),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 1 }, // Bread
@@ -238,7 +238,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("caesar_salad.jpg", _anon),
+                        Photo = await RequireFileUpload("sushi.png", _anon),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Lettuce
@@ -254,7 +254,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("greek_salad.jpg", _anon),
+                        Photo = await RequireFileUpload("pierogi.png", _anon), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Lettuce
@@ -282,7 +282,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("beef_burger.jpg", _anon),
+                        Photo = await RequireFileUpload("ResMeal6.jpg", _anon), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 1 }, // Bread (bun)
@@ -299,7 +299,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("chicken_burger.jpg", _anon),
+                        Photo = await RequireFileUpload("ResMeal6.jpg", _anon), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 1 }, // Bread (bun)
@@ -316,7 +316,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("bacon_burger.jpg", _anon),
+                        Photo = await RequireFileUpload("ResMeal6.jpg", _anon), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 1 }, // Bread (bun)
@@ -345,7 +345,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("fries.jpg", _anon),
+                        Photo = await RequireFileUpload("pierogi.png", _anon), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[14], AmountUsed = 150 } // Fries
@@ -358,7 +358,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("onion_rings.jpg", _anon),
+                        Photo = await RequireFileUpload("sushi.png", _anon), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 50 } // Garlic (as placeholder for onions)
@@ -382,7 +382,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = 5m,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("craft_beer.jpg", _anon)
+                        Photo = await RequireFileUpload("piwo.png", _anon)
                     },
                     new MenuItem
                     {
@@ -391,7 +391,7 @@ public class AnonRestaurantSeeder
                         AlcoholPercentage = 12m,
                         Restaurant = anonRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("house_wine.jpg", _anon)
+                        Photo = await RequireFileUpload("wine.png", _anon)
                     }
                 }
             }

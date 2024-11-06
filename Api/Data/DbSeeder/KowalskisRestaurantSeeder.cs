@@ -181,7 +181,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("green_curry.jpg", _kowalski),
+                        Photo = await RequireFileUpload("restaurantboss3.PNG", _kowalski),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 150 }, // Chicken
@@ -198,7 +198,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("massaman_curry.jpg", _kowalski),
+                        Photo = await RequireFileUpload("padthai.png", _kowalski), // Reusing padthai.png
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 150 }, // Beef
@@ -215,7 +215,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("tom_yum.jpg", _kowalski),
+                        Photo = await RequireFileUpload("ResSushi2.jpg", _kowalski),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Shrimp
@@ -232,13 +232,12 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("pineapple_fried_rice.jpg", _kowalski),
+                        Photo = await RequireFileUpload("restaurantboss3.PNG", _kowalski), // Reusing image
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Rice
                             new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 100 }, // Chicken
                             new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 50 }, // Vegetables
-                            // Assuming "Pineapple" is added as an ingredient
                             new IngredientMenuItem { Ingredient = new Ingredient { PublicName = "Pineapple", UnitOfMeasurement = UnitOfMeasurement.Gram }, AmountUsed = 50 }
                         }
                     }
@@ -260,7 +259,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sushi_set.jpg", _kowalski),
+                        Photo = await RequireFileUpload("ResSushi2.jpg", _kowalski),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 150 }, // Rice
@@ -276,7 +275,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("chicken_teriyaki.jpg", _kowalski),
+                        Photo = await RequireFileUpload("padthai.png", _kowalski),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 150 }, // Chicken
@@ -291,7 +290,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ramen.jpg", _kowalski),
+                        Photo = await RequireFileUpload("ResSushi2.jpg", _kowalski), // Reusing image
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 200 }, // Noodles
@@ -307,7 +306,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("beef_udon.jpg", _kowalski),
+                        Photo = await RequireFileUpload("padthai.png", _kowalski), // Reusing image
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 200 }, // Noodles
@@ -334,7 +333,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("butter_chicken.jpg", _kowalski),
+                        Photo = await RequireFileUpload("restaurantboss3.PNG", _kowalski),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 150 }, // Chicken
@@ -349,7 +348,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("vegetable_curry.jpg", _kowalski),
+                        Photo = await RequireFileUpload("padthai.png", _kowalski),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 150 }, // Vegetables
@@ -375,7 +374,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("green_tea.jpg", _kowalski)
+                        Photo = await RequireFileUpload("ResLogo4.png", _kowalski)
                     },
                     new MenuItem
                     {
@@ -384,7 +383,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("mango_lassi.jpg", _kowalski)
+                        Photo = await RequireFileUpload("padthai.png", _kowalski)
                     }
                 }
             },
@@ -404,7 +403,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = 14m,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sake.jpg", _kowalski)
+                        Photo = await RequireFileUpload("restaurantboss3.PNG", _kowalski)
                     },
                     new MenuItem
                     {
@@ -413,7 +412,7 @@ public class KowalskisRestaurantSeeder
                         AlcoholPercentage = 5m,
                         Restaurant = kowalskisRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("thai_beer.jpg", _kowalski)
+                        Photo = await RequireFileUpload("ResLogo4.png", _kowalski)
                     }
                 }
             }

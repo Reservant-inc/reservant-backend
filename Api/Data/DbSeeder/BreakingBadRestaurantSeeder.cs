@@ -86,7 +86,7 @@ public class BreakingBadRestaurantSeeder
             MaxReservationDurationMinutes = 120,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = await RequireFileUpload("los_pollos_logo.png", _gusFring),
+            Logo = await RequireFileUpload("ResLogo5.png", _gusFring),
             ProvideDelivery = true,
             Description = "A family-friendly restaurant specializing in fried chicken and classic American cuisine",
             Photos = new List<RestaurantPhoto>(),
@@ -136,7 +136,7 @@ public class BreakingBadRestaurantSeeder
                 Restaurant = losPollosRestaurant,
                 Order = 1,
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("los_pollos_interior.jpg", _gusFring)
+                Photo = await RequireFileUpload("ResInside5.jpg", _gusFring)
             }
         };
 
@@ -181,7 +181,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("fried_chicken.jpg", _gusFring),
+                        Photo = await RequireFileUpload("ResMeal1.jpg", _gusFring),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Chicken
@@ -197,7 +197,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("spicy_fried_chicken.jpg", _gusFring),
+                        Photo = await RequireFileUpload("ResMeal1.jpg", _gusFring), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Chicken
@@ -225,7 +225,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("beef_burger_lph.jpg", _gusFring),
+                        Photo = await RequireFileUpload("pierogi.png", _gusFring),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[9], AmountUsed = 1 }, // Burger Bun
@@ -242,7 +242,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("chicken_burger_lph.jpg", _gusFring),
+                        Photo = await RequireFileUpload("pierogi.png", _gusFring), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[9], AmountUsed = 1 }, // Burger Bun
@@ -270,7 +270,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("fries_lph.jpg", _gusFring),
+                        Photo = await RequireFileUpload("ResMeal1.jpg", _gusFring), // Ponowne użycie obrazu
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 150 } // Potatoes
@@ -283,7 +283,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("coleslaw.jpg", _gusFring),
+                        Photo = await RequireFileUpload("sushi.png", _gusFring),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = new Ingredient { PublicName = "Cabbage", UnitOfMeasurement = UnitOfMeasurement.Gram }, AmountUsed = 100 },
@@ -309,7 +309,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("soft_drink.jpg", _gusFring)
+                        Photo = await RequireFileUpload("sushi.png", _gusFring) // Ponowne użycie obrazu
                     },
                     new MenuItem
                     {
@@ -318,7 +318,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("iced_tea.jpg", _gusFring)
+                        Photo = await RequireFileUpload("pierogi.png", _gusFring) // Ponowne użycie obrazu
                     }
                 }
             },
@@ -338,7 +338,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = 5m,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("beer_lph.jpg", _gusFring)
+                        Photo = await RequireFileUpload("piwo.png", _gusFring)
                     },
                     new MenuItem
                     {
@@ -347,7 +347,7 @@ public class BreakingBadRestaurantSeeder
                         AlcoholPercentage = 12m,
                         Restaurant = losPollosRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("house_wine_lph.jpg", _gusFring)
+                        Photo = await RequireFileUpload("wine.png", _gusFring)
                     }
                 }
             }

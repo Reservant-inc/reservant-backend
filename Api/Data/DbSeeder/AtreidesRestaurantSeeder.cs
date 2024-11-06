@@ -84,7 +84,7 @@ public class AtreidesRestaurantSeeder
             MaxReservationDurationMinutes = 120,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = await RequireFileUpload("atreides_logo.png", _muadib),
+            Logo = await RequireFileUpload("ResLogo2.png", _muadib),
             ProvideDelivery = true,
             Description = "A themed restaurant offering exotic dishes inspired by the Dune universe",
             Photos = new List<RestaurantPhoto>(),
@@ -134,7 +134,7 @@ public class AtreidesRestaurantSeeder
                 Restaurant = atreidesRestaurant,
                 Order = 1,
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("atreides_interior.jpg", _muadib)
+                Photo = await RequireFileUpload("ResInside3.jpg", _muadib)
             }
         };
 
@@ -179,7 +179,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sandworm_steak.jpg", _muadib),
+                        Photo = await RequireFileUpload("ResMeal7.jpg", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 200 }, // Sandworm Meat
@@ -195,7 +195,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("fremen_bread.jpg", _muadib),
+                        Photo = await RequireFileUpload("ResMeal8.jpg", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 1 }, // Fremen Bread
@@ -210,7 +210,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("grain_salad.jpg", _muadib),
+                        Photo = await RequireFileUpload("ResMeal9.jpg", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Desert Grains
@@ -237,7 +237,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("spice_cake.jpg", _muadib),
+                        Photo = await RequireFileUpload("sushi.png", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 100 }, // Desert Grains
@@ -253,7 +253,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("desert_cheesecake.jpg", _muadib),
+                        Photo = await RequireFileUpload("pierogi.png", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[11], AmountUsed = 100 }, // Sietch Cheese
@@ -280,7 +280,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("cactus_juice.jpg", _muadib),
+                        Photo = await RequireFileUpload("sushi.png", _muadib), // Reusing image
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 250 } // Cactus Juice
@@ -293,7 +293,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("herbal_tea.jpg", _muadib),
+                        Photo = await RequireFileUpload("pierogi.png", _muadib), // Reusing image
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[13], AmountUsed = 250 } // Herbal Tea
@@ -317,7 +317,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = 14m,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("spiced_wine.jpg", _muadib),
+                        Photo = await RequireFileUpload("wine.png", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[9], AmountUsed = 150 }, // Spiced Wine
@@ -331,7 +331,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = 20m,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("melange_liquor.jpg", _muadib),
+                        Photo = await RequireFileUpload("piwo.png", _muadib),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 5 }, // Spice
@@ -356,7 +356,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("stilgar_stew.jpg", _muadib),
+                        Photo = await RequireFileUpload("ResMeal7.jpg", _muadib), // Reusing image
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 150 }, // Sandworm Meat
@@ -372,7 +372,7 @@ public class AtreidesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("paul_desert_delight.jpg", _muadib),
+                        Photo = await RequireFileUpload("ResMeal8.jpg", _muadib), // Reusing image
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 200 }, // Water
