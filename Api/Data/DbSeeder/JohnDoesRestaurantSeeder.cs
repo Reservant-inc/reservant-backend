@@ -226,7 +226,7 @@ public class JohnDoesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = johnDoes,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sushi.png", _johnDoe),
+                        Photo = await RequireFileUpload("ResSushi1.jpg", _johnDoe),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
@@ -308,7 +308,7 @@ public class JohnDoesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = johnDoes,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sushi.png", _johnDoe),
+                        Photo = await RequireFileUpload("ResSushi1.jpg", _johnDoe),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
@@ -389,7 +389,7 @@ public class JohnDoesRestaurantSeeder
                         AlcoholPercentage = null,
                         Restaurant = johnDoes,
                         PhotoFileName = null!,
-                        Photo = await RequireFileUpload("sushi.png", _johnDoe),
+                        Photo = await RequireFileUpload("ResSushi1.jpg", _johnDoe),
                         Ingredients = new List<IngredientMenuItem>
                         {
                             new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Dough
