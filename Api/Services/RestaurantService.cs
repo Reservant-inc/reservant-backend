@@ -24,6 +24,7 @@ using Reservant.Api.Dtos.Users;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Reservant.Api.Mapping;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Reservant.Api.Services
 {
@@ -877,7 +878,7 @@ namespace Reservant.Api.Services
         /// <param name="assignedEmployeeId">Optional emplyee number filter by Id</param>
         /// <returns>Paginated order list</returns>
         public async Task<Result<Pagination<OrderSummaryVM>>> GetOrdersAsync(Guid userId, int restaurantId,
-            bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null )
+            bool returnFinished = false, int page = 0, int perPage = 10, OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null)
         {
             var user = await userManager.FindByIdAsync(userId.ToString());
             if (user == null)
@@ -1210,6 +1211,7 @@ namespace Reservant.Api.Services
         /// <param name="isTakeaway">
         /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
         /// </param>
+        /// <param name="reservationStateFilter">Filter visits by the state of the reservation</param>
         /// <param name="visitSorting">Order visits</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Items per page</param>
@@ -1223,6 +1225,7 @@ namespace Reservant.Api.Services
             int? tableId,
             bool? hasOrders,
             bool? isTakeaway,
+            ReservationStatus? reservationStateFilter,
             VisitSorting visitSorting,
             int page,
             int perPage)
@@ -1300,6 +1303,20 @@ namespace Reservant.Api.Services
             {
                 query = query.Where(x => x.Takeaway == isTakeaway.Value);
             }
+
+            query = reservationStateFilter switch
+            {
+                ReservationStatus.DepositNotPaid =>
+                    query.Where(x => x.Deposit != null && x.PaymentTime == null),
+                ReservationStatus.ToBeReviewed =>
+                    query.Where(x => (x.Deposit == null || x.PaymentTime != null) && x.AnsweredById == null),
+                ReservationStatus.Approved =>
+                    query.Where(x => x.IsAccepted == true),
+                ReservationStatus.Declined =>
+                    query.Where(x => x.IsAccepted == false),
+                null => query,
+                _ => throw new ArgumentOutOfRangeException(nameof(reservationStateFilter)),
+            };
 
             switch (visitSorting)
             {
@@ -1605,6 +1622,68 @@ namespace Reservant.Api.Services
             }
 
             return mergedAvailableHours;
+        }
+
+        /// <summary>
+        /// Get list of restaurant's current employees
+        /// </summary>
+        /// <param name="restaurantId">ID of the restaurants</param>
+        /// <param name="hallOnly">Show only hall employees</param>
+        /// <param name="backdoorOnly">Show only backdoor employees</param>
+        /// <param name="userId">ID of the current user (to check permissions)</param>
+        [ErrorCode(null, ErrorCodes.NotFound)]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantEmployeeAccess))]
+        public async Task<Result<List<EmployeeBasicInfoVM>>> GetEmployeesBasicInfoAsync(
+            int restaurantId, Guid userId,
+            bool hallOnly, bool backdoorOnly)
+        {
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .Include(r => r.Group)
+                .Where(r => r.RestaurantId == restaurantId)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound,
+                };
+            }
+
+            var authResult = await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId);
+            if (authResult.IsError)
+            {
+                return authResult.Errors;
+            }
+
+            var employees = context.Employments
+                .AsNoTracking()
+                .Where(e => e.RestaurantId == restaurantId && e.DateUntil == null);
+
+            if (hallOnly)
+            {
+                employees = employees.Where(e => e.IsHallEmployee);
+            }
+
+            if (backdoorOnly)
+            {
+                employees = employees.Where(e => e.IsBackdoorEmployee);
+            }
+
+            return await employees
+                .Select(e => new EmployeeBasicInfoVM
+                {
+                    EmployeeId = e.EmployeeId,
+                    FirstName = e.Employee.FirstName,
+                    LastName = e.Employee.LastName,
+                    IsHallEmployee = e.IsHallEmployee,
+                    IsBackdoorEmployee = e.IsBackdoorEmployee,
+                })
+                .ToListAsync();
+
         }
     }
 }
