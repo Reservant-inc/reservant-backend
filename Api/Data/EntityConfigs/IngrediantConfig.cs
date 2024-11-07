@@ -13,9 +13,6 @@ public class IngrediantConfig : IEntityTypeConfiguration<Ingredient>
     public void Configure(EntityTypeBuilder<Ingredient> builder)
     {
         builder.HasOne(o => o.Restaurant)
-            .WithMany()
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.Restrict);
+            .WithMany();
     }
 }
-
