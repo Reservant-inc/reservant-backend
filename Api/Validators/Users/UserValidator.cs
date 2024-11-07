@@ -51,7 +51,7 @@ public class UserValidator : AbstractValidator<Models.User>
             .When(u => u.PhoneNumber != null);
 
         RuleFor(u => u.Email)
-            .Matches("[a-zA-z0-9][\\w.-]*@[a-zA-z0-9]{2,}\\.[a-zA-Z]{2,}")
+            .EmailAddress()
             .When(u => u.Email != null);
 
 
