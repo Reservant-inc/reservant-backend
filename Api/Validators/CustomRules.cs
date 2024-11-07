@@ -12,6 +12,7 @@ using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
 using System.Text.RegularExpressions;
 using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators;
 
@@ -438,5 +439,16 @@ public static class CustomRules
             })
             .WithErrorCode(ErrorCodes.InvalidTimeSlot)
             .WithMessage("Reservations can only be made for full hours or half hours");
+    }
+
+    /// <summary>
+    /// Validates that the date is today or in the past
+    /// </summary>
+    public static IRuleBuilderOptions<T, WeeklyOpeningHours> IsValidOpeningHours<T>(this IRuleBuilder<T, WeeklyOpeningHours> builder)
+    {
+        return builder
+            .Must(woh => woh.Count == 7)
+            .WithErrorCode(ErrorCodes.MustBeValidOpeningHours)
+            .WithMessage("Opening hours of a restaurant must sepcify every day of the week");
     }
 }

@@ -271,4 +271,9 @@ public static class ErrorCodes
     /// Order cannot be edited because all the items are either taken or cancelled
     /// </summary>
     public const string OrderIsFinished = "OrderIsFinished";
+
+    /// <summary>
+    /// Opening hours of a restaurant must specify every day of the week
+    /// </summary>
+    public const string MustBeValidOpeningHours = "MustBeValidOpeningHours";
 }
