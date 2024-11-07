@@ -32,6 +32,7 @@ public class IngredientService(
     [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(request.RestaurantId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(request.RestaurantId), ErrorCodes.AccessDenied)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
     public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, Guid userId)
 {
     var result = await validationService.ValidateAsync(request, userId);
@@ -42,7 +43,7 @@ public class IngredientService(
 
     var restaurant = await dbContext.Restaurants
         .OnlyActiveRestaurants()
-        .FirstOrDefaultAsync(r => r.Group.OwnerId == userId && r.RestaurantId == request.RestaurantId);
+        .FirstOrDefaultAsync(r => r.RestaurantId == request.RestaurantId);
 
     if (restaurant == null)
     {
@@ -53,6 +54,9 @@ public class IngredientService(
             ErrorCode = ErrorCodes.NotFound
         };
     }
+
+    var authResult = await authorizationService.VerifyOwnerRole(restaurant.RestaurantId, userId);
+    if (authResult.IsError) return authResult.Errors;
 
     var ingredient = new Ingredient
     {
