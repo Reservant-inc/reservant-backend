@@ -190,7 +190,7 @@ public class AtreidesRestaurantSeeder
                     },
                     new MenuItem
                     {
-                        Name = "Fremen Bread with Melange Sauce",
+                        Name = "Fremen Bread",
                         Price = 20m,
                         AlcoholPercentage = null,
                         Restaurant = atreidesRestaurant,
