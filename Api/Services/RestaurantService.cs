@@ -25,6 +25,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Reservant.Api.Mapping;
 using Reservant.Api.Dtos.Tables;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Reservant.Api.Services
 {
@@ -1641,23 +1642,27 @@ namespace Reservant.Api.Services
                 return res.Errors;
             }
 
-            var tables = restaurant.Tables
+            var tables = context
+                .Entry(restaurant)
+                .Collection(r => r.Tables)
+                .Query()
                 .Select(t => new RestaurantTableVM
                 {
                     TableId = t.TableId,
-                    Capacity = t.Capacity,
-                    Status = TableStatus.Availiable, 
+                    Capacity = t.Capacity
                 }).ToList();
+
 
             foreach (var table in tables)
             {
 
-                table.Status = await context.Visits
-                        .AnyAsync(v => v.TableId == table.TableId &&
+                table.VisitId = (await context.Visits
+                        .FirstOrDefaultAsync(v => v.TableId == table.TableId &&
                             v.RestaurantId == restaurant.RestaurantId &&
                             v.Reservation != null &&
+                            v.Reservation.StartTime < DateTime.UtcNow &&
                             v.Reservation.EndTime > DateTime.UtcNow
-                        ) ? TableStatus.Taken : TableStatus.Availiable;
+                        ))?.VisitId;
 
             }
 

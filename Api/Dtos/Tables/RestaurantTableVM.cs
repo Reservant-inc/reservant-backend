@@ -19,8 +19,8 @@ public class RestaurantTableVM
     public required int Capacity { get; init; }
 
     /// <summary>
-    /// Current status of a table
+    /// Current visit id, if table is taken
     /// </summary>
-    public TableStatus Status { get; set; }
+    public int? VisitId { get; set; }
 
 }
