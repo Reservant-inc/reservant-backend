@@ -31,63 +31,61 @@ public class IngredientService(
     [ValidatorErrorCodes<CreateIngredientRequest>]
     [ValidatorErrorCodes<Ingredient>]
     [ErrorCode(nameof(request.RestaurantId), ErrorCodes.NotFound)]
-    [ErrorCode(nameof(request.RestaurantId), ErrorCodes.AccessDenied)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
     public async Task<Result<IngredientVM>> CreateIngredientAsync(CreateIngredientRequest request, Guid userId)
-{
-    var result = await validationService.ValidateAsync(request, userId);
-    if (!result.IsValid)
     {
-        return result;
-    }
-
-    var restaurant = await dbContext.Restaurants
-        .OnlyActiveRestaurants()
-        .FirstOrDefaultAsync(r => r.RestaurantId == request.RestaurantId);
-
-    if (restaurant == null)
-    {
-        return new ValidationFailure
+        var result = await validationService.ValidateAsync(request, userId);
+        if (!result.IsValid)
         {
-            PropertyName = nameof(request.RestaurantId),
-            ErrorMessage = ErrorCodes.NotFound,
-            ErrorCode = ErrorCodes.NotFound
+            return result;
+        }
+
+        var restaurant = await dbContext.Restaurants
+            .OnlyActiveRestaurants()
+            .FirstOrDefaultAsync(r => r.RestaurantId == request.RestaurantId);
+
+        if (restaurant == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.RestaurantId),
+                ErrorMessage = ErrorCodes.NotFound,
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        var authResult = await authorizationService.VerifyOwnerRole(restaurant.RestaurantId, userId);
+        if (authResult.IsError) return authResult.Errors;
+
+        var ingredient = new Ingredient
+        {
+            PublicName = request.PublicName,
+            UnitOfMeasurement = request.UnitOfMeasurement,
+            MinimalAmount = request.MinimalAmount,
+            AmountToOrder = request.AmountToOrder,
+            Amount = request.Amount,
+            Restaurant = restaurant
+        };
+
+        var validationResult = await validationService.ValidateAsync(ingredient, userId);
+        if (!validationResult.IsValid)
+        {
+            return validationResult;
+        }
+
+        dbContext.Ingredients.Add(ingredient);
+        await dbContext.SaveChangesAsync();
+
+        return new IngredientVM
+        {
+            IngredientId = ingredient.IngredientId,
+            PublicName = ingredient.PublicName,
+            UnitOfMeasurement = ingredient.UnitOfMeasurement,
+            MinimalAmount = ingredient.MinimalAmount,
+            AmountToOrder = ingredient.AmountToOrder,
+            Amount = ingredient.Amount
         };
     }
-
-    var authResult = await authorizationService.VerifyOwnerRole(restaurant.RestaurantId, userId);
-    if (authResult.IsError) return authResult.Errors;
-
-    var ingredient = new Ingredient
-    {
-        PublicName = request.PublicName,
-        UnitOfMeasurement = request.UnitOfMeasurement,
-        MinimalAmount = request.MinimalAmount,
-        AmountToOrder = request.AmountToOrder,
-        Amount = request.Amount,
-        Restaurant = restaurant
-    };
-
-    var validationResult = await validationService.ValidateAsync(ingredient, userId);
-    if (!validationResult.IsValid)
-    {
-        return validationResult;
-    }
-
-    dbContext.Ingredients.Add(ingredient);
-    await dbContext.SaveChangesAsync();
-
-    return new IngredientVM
-    {
-        IngredientId = ingredient.IngredientId,
-        PublicName = ingredient.PublicName,
-        UnitOfMeasurement = ingredient.UnitOfMeasurement,
-        MinimalAmount = ingredient.MinimalAmount,
-        AmountToOrder = ingredient.AmountToOrder,
-        Amount = ingredient.Amount
-    };
-}
-
 
     /// <summary>
     /// Gets the change history of an ingredient with optional filters and pagination.
