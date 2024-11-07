@@ -122,12 +122,12 @@ public class WalletService(
         //create the transaction
         var newTransaction = new PaymentTransaction
         {
-            Title = $"Deposit payment for visit in restaurant: {visit.Restaurant.Name} on: {visit.Reservation.StartTime}",
+            Title = $"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}",
             Amount = (decimal)visit.Reservation.Deposit * -1,
             Time = DateTime.UtcNow,
             UserId = user.Id,
+            User = user
         };
-
         await context.PaymentTransactions.AddAsync(newTransaction);
         await context.SaveChangesAsync();
         return new TransactionVM

@@ -37,6 +37,7 @@ public class PaymentService(
         var visit = await context.Visits
             .Where(v => v.VisitId == visitId)
             .Include(v => v.Reservation)
+            .Include(v => v.Restaurant)
             .FirstOrDefaultAsync();
         //check if the visit exists
         if (visit == null)
@@ -82,7 +83,7 @@ public class PaymentService(
         var balance = await context.PaymentTransactions
             .Where(p => p.UserId == user.Id)
             .SumAsync(p => p.Amount);
-        if (visit.Reservation.Deposit < 0 && balance < visit.Reservation.Deposit * -1)
+        if (balance < visit.Reservation.Deposit)
         {
             return new ValidationFailure
             {

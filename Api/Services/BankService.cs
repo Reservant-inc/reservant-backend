@@ -7,7 +7,7 @@ namespace Reservant.Api.Services;
 /// Service that serves as mockup of a banking app
 /// </summary>
 /// <param name="logger"></param>
-public class BankService(Logger<LoggerFactory> logger)
+public class BankService(ILogger<BankService> logger)
 {
     /// <summary>
     /// Send money to a restaurant
