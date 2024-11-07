@@ -64,7 +64,7 @@ public class BreakingBadRestaurantSeeder
     /// </summary>
     public async Task SeedAsync()
     {
-        var exampleDocument = await RequireFileUpload("test-GF.pdf", _gusFring);
+        var exampleDocument = await RequireFileUpload("test-WW.pdf", _gusFring);
 
         var losPollosRestaurant = new Restaurant
         {
