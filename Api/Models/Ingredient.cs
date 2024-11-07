@@ -40,6 +40,11 @@ public class Ingredient
     public double Amount { get; set; }
 
     /// <summary>
+    /// ID of the restaurant
+    /// </summary>
+    public int RestaurantId { get; set; }
+
+    /// <summary>
     /// Deliveries that resupplied the ingredient
     /// </summary>
     public ICollection<IngredientDelivery> Deliveries { get; set; } = null!;
