@@ -348,46 +348,35 @@ namespace Reservant.Api.Services
         /// <param name="employerId">ID of the current user (restaurant owner)</param>
         [ErrorCode(null, ErrorCodes.NotFound)]
         [ValidatorErrorCodes<AddEmployeeRequest>]
-        [ErrorCode(null, ErrorCodes.AccessDenied, "Restaurant not owned by user")]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.NotFound)]
-        [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.AccessDenied,
-            "User is not a restaurant employee or is not employee of the restaurant owner")]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.EmployeeAlreadyEmployed,
             "Employee is alredy employed in a restaurant")]
         [ErrorCode(nameof(AddEmployeeRequest.EmployeeId), ErrorCodes.MustBeCurrentUsersEmployee)]
         public async Task<Result> AddEmployeeAsync(List<AddEmployeeRequest> listRequest, int restaurantId,
             Guid employerId)
         {
-            var restaurantOwnerId = await context.Restaurants
-                .Where(r => r.RestaurantId == restaurantId)
-                .Select(r => r.Group.OwnerId)
+            var restaurant = await context.Restaurants
+                .Where(r => r.RestaurantId == restaurantId && !r.IsArchived)
                 .FirstOrDefaultAsync();
-
-
-            if (restaurantOwnerId == Guid.Empty)
+            if (restaurant is null)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = null,
+                    PropertyName = "Restaurant not found",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
 
+            var authResult = await authorizationService.VerifyOwnerRole(restaurantId, employerId);
+            if (authResult.IsError) return authResult.Errors;
+
             foreach (var request in listRequest)
             {
-                var result = await validationService.ValidateAsync(request, employerId);
-                if (!result.IsValid)
+                var result2 = await validationService.ValidateAsync(request, employerId);
+                if (!result2.IsValid)
                 {
-                    return result;
-                }
-
-                if (restaurantOwnerId != employerId)
-                {
-                    return new ValidationFailure
-                    {
-                        PropertyName = null,
-                        ErrorCode = ErrorCodes.AccessDenied
-                    };
+                    return result2;
                 }
 
                 var employee = await context.Users.FindAsync(request.EmployeeId);
@@ -397,15 +386,6 @@ namespace Reservant.Api.Services
                     {
                         PropertyName = nameof(request.EmployeeId),
                         ErrorCode = ErrorCodes.NotFound
-                    };
-                }
-
-                if (employee.EmployerId != employerId)
-                {
-                    return new ValidationFailure
-                    {
-                        PropertyName = nameof(request.EmployeeId),
-                        ErrorCode = ErrorCodes.MustBeCurrentUsersEmployee,
                     };
                 }
 
@@ -620,7 +600,7 @@ namespace Reservant.Api.Services
             restaurant.IdCardFileName = request.IdCard;
             restaurant.LogoFileName = request.Logo;
             restaurant.Location = geometryFactory.CreatePoint(new Coordinate(request.Location.Longitude,
-             request.Location.Latitude));
+            request.Location.Latitude));
 
             restaurant.OpeningHours = new WeeklyOpeningHours(request.OpeningHours);
 
