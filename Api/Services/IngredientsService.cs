@@ -107,7 +107,6 @@ public class IngredientService(
     {
         // Check if the ingredient exists
         var ingredient = await dbContext.Ingredients
-            .Include(ingredient=>ingredient.Restaurant)
             .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient == null)
@@ -121,7 +120,7 @@ public class IngredientService(
         }
 
         // Check if the user has access to the restaurant
-        var restaurantId = ingredient.Restaurant.RestaurantId;
+        var restaurantId = ingredient.RestaurantId;
 
         var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, userId);
         if (access.IsError)
@@ -183,7 +182,6 @@ public class IngredientService(
         }
 
         var ingredient = await dbContext.Ingredients
-            .Include(i => i.Restaurant)
             .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient == null)
@@ -197,7 +195,7 @@ public class IngredientService(
         }
 
         var access = await authorizationService
-                .VerifyRestaurantBackdoorAccess(ingredient.Restaurant.RestaurantId, userId);
+                .VerifyRestaurantBackdoorAccess(ingredient.RestaurantId, userId);
         if (access.IsError)
         {
             return access.Errors;
@@ -251,7 +249,6 @@ public class IngredientService(
                    ?? throw new InvalidOperationException($"User with ID {userId} not found");
 
         var ingredient = await dbContext.Ingredients
-            .Include(i => i.Restaurant)
             .FirstOrDefaultAsync(i => i.IngredientId == ingredientId);
 
         if (ingredient is null)
@@ -265,7 +262,7 @@ public class IngredientService(
         }
 
         var access = await authorizationService
-            .VerifyRestaurantBackdoorAccess(ingredient.Restaurant.RestaurantId, userId);
+            .VerifyRestaurantBackdoorAccess(ingredient.RestaurantId, userId);
         if (access.IsError)
         {
             return access.Errors;
