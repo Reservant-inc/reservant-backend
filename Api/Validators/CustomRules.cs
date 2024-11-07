@@ -368,10 +368,11 @@ public static class CustomRules
     /// <summary>
     /// Validates if string has a syntax of a phone number
     /// </summary>
-    public static IRuleBuilderOptions<T, string> IsValidPhoneNumber<T>(
-        this IRuleBuilder<T, string> builder)
+    public static IRuleBuilderOptions<T, string?> IsValidPhoneNumber<T>(
+        this IRuleBuilder<T, string?> builder)
     {
         return builder
+            .NotNull()
             .Matches(@"^\+\d+$")
             .WithErrorCode(ErrorCodes.MustBeValidPhoneNumber)
             .WithMessage("The phone number must start with '+' followed by digits.");

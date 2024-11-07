@@ -47,7 +47,7 @@ public class UserValidator : AbstractValidator<Models.User>
             .When(u => !string.IsNullOrEmpty(u.PhotoFileName));
 
         RuleFor(u => u.PhoneNumber)
-            .Matches("^(\\+\\d{1,3})?\\d{9,15}$")
+            .IsValidPhoneNumber()
             .When(u => u.PhoneNumber != null);
 
         RuleFor(u => u.Email)
