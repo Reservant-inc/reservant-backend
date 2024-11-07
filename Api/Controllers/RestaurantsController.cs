@@ -17,6 +17,8 @@ using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Models.Enums;
+
 namespace Reservant.Api.Controllers;
 
 

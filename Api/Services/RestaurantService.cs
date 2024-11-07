@@ -1307,13 +1307,24 @@ namespace Reservant.Api.Services
             query = reservationStateFilter switch
             {
                 ReservationStatus.DepositNotPaid =>
-                    query.Where(x => x.Deposit != null && x.PaymentTime == null),
-                ReservationStatus.ToBeReviewed =>
-                    query.Where(x => (x.Deposit == null || x.PaymentTime != null) && x.AnsweredById == null),
-                ReservationStatus.Approved =>
-                    query.Where(x => x.IsAccepted == true),
-                ReservationStatus.Declined =>
-                    query.Where(x => x.IsAccepted == false),
+                    query.Where(x =>
+                        x.Reservation != null
+                        && x.Reservation.Deposit != null && x.Reservation.DepositPaymentTime == null),
+                ReservationStatus.ToBeReviewedByRestaurant =>
+                    query.Where(x =>
+                        x.Reservation != null
+                        && (x.Reservation.Deposit == null || x.Reservation.DepositPaymentTime != null)
+                        && x.Reservation.Decision == null),
+                ReservationStatus.ApprovedByRestaurant =>
+                    query.Where(x =>
+                        x.Reservation != null
+                        && x.Reservation.Decision != null
+                        && x.Reservation.Decision.IsAccepted),
+                ReservationStatus.DeclinedByRestaurant =>
+                    query.Where(x =>
+                        x.Reservation != null
+                        && x.Reservation.Decision != null
+                        && !x.Reservation.Decision.IsAccepted),
                 null => query,
                 _ => throw new ArgumentOutOfRangeException(nameof(reservationStateFilter)),
             };
