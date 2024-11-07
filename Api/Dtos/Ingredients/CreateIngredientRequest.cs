@@ -33,9 +33,8 @@ public class CreateIngredientRequest
     /// </summary>
     public required double Amount { get; set; }
 
-    ///NEWLY ADDED
     /// <summary>
-    /// Id of restaurant using this ingrediants
+    /// Id of restaurant using this ingredients
     /// </summary>
     public required int RestaurantId { get; set; }
 }

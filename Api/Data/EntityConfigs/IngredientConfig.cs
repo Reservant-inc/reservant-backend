@@ -7,7 +7,7 @@ namespace Reservant.Api.Data.EntityConfigs;
 /// <summary>
 /// Entity type config for Ingredient
 /// </summary>
-public class IngrediantConfig : IEntityTypeConfiguration<Ingredient>
+public class IngredientConfig : IEntityTypeConfiguration<Ingredient>
 {
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Ingredient> builder)

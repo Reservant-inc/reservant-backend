@@ -86,8 +86,9 @@ public class WeeklyOpeningHours : ICollection<OpeningHours>
     }
 
     /// <summary>
-    /// NOT SUPPORTED. Does not make sense for this collection
-    /// NOT TRUE, OVERRITING REQUIRES REMOVAL EVEN IF ITS NOT SHOWN OPENLY
+    /// To be used by Entity Framework for updating the collection.
+    ///
+    /// Removes the OpeningHours instance from the collection
     /// </summary>
     public bool Remove(OpeningHours item)
     {
@@ -102,7 +103,6 @@ public class WeeklyOpeningHours : ICollection<OpeningHours>
 
         return false;
     }
-    // public bool Remove(OpeningHours item) => throw new NotSupportedException();
 
     /// <inheritdoc />
     public int Count => 7;
