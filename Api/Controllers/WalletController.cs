@@ -94,7 +94,7 @@ public class WalletController(
     /// <returns>payment confirmation</returns>
     [HttpPost("pay-deposit")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<WalletService>(nameof(WalletService.PayDepositAsync))]
+    [MethodErrorCodes<PaymentService>(nameof(PaymentService.PayDepositAsync))]
     public async Task<ActionResult<TransactionVM>> PayDeposit([FromQuery] int visitId) {
         var user = await userManager.GetUserAsync(User);
         if(user is null)

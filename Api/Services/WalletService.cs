@@ -95,35 +95,30 @@ public class WalletService(
     /// Make deposit for a reservation that is connected to the specified visit
     /// </summary>
     /// <param name="user">user that created the reservation</param>
-    /// <param name="visit">visit that the deposit is for</param>
+    /// <param name="title">title of the deposit transaction</param>
+    /// <param name="amount">amount to pay for the deposit transaction</param>
     /// <returns>DTO with confirmation of the payment</returns>
+    [ErrorCode(null, ErrorCodes.InsufficientFunds)]
     [MethodErrorCodes<WalletService>(nameof(GetWalletStatus))]
-    public async Task<Result<TransactionVM>> PayDepositAsync(User user, Visit visit)
+    public async Task<Result<TransactionVM>> DebitAsync(User user, string title, decimal amount)
     {
-        if (visit.Reservation == null)
+        //check for sufficient funds to cover the transaction
+        var balance = await GetWalletStatus(user);
+        if (balance.Balance < amount)
         {
             return new ValidationFailure
             {
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound,
+                ErrorCode = ErrorCodes.InsufficientFunds,
+                ErrorMessage = ErrorCodes.InsufficientFunds,
                 PropertyName = null
             };
         }
-        if (visit.Reservation.Deposit is null)
-        {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.DepositFreeVisit,
-                ErrorMessage = ErrorCodes.DepositFreeVisit,
-                PropertyName = null
-            };
-        }
-
         //create the transaction
         var newTransaction = new PaymentTransaction
         {
-            Title = $"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}",
-            Amount = (decimal)visit.Reservation.Deposit * -1,
+            //$"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}"
+            Title = title,
+            Amount = amount * -1,
             Time = DateTime.UtcNow,
             UserId = user.Id,
             User = user

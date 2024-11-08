@@ -31,7 +31,8 @@ public class PaymentService(
     [ErrorCode(null, ErrorCodes.AccessDenied)]
     [ErrorCode(null, ErrorCodes.DepositFreeVisit)]
     [ErrorCode(null, ErrorCodes.DepositAlreadyMade)]
-    [ErrorCode(null, ErrorCodes.InsufficientFunds)]
+    [MethodErrorCodes<WalletService>(nameof(WalletService.DebitAsync))]
+    [MethodErrorCodes<BankService>(nameof(BankService.SendMoneyToRestaurantAsync))]
     public async Task<Result<TransactionVM>> PayDepositAsync(User user, int visitId)
     {
         var visit = await context.Visits
@@ -79,25 +80,14 @@ public class PaymentService(
                 PropertyName = null
             };
         }
-        //check for sufficient funds to cover the transaction
-        var balance = await context.PaymentTransactions
-            .Where(p => p.UserId == user.Id)
-            .SumAsync(p => p.Amount);
-        if (balance < visit.Reservation.Deposit)
-        {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.InsufficientFunds,
-                ErrorMessage = ErrorCodes.InsufficientFunds,
-                PropertyName = null
-            };
-        }
-        bankService.SendMoneyToRestaurantAsync(visit.Restaurant, visit.Reservation.Deposit);
-        var transaction = await walletService.PayDepositAsync(user, visit);
+        var transaction = await walletService.DebitAsync(user,
+            $"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}",
+            (decimal)visit.Reservation.Deposit);
         if (transaction.IsError) {
             return transaction;
         }
         visit.Reservation.DepositPaymentTime = transaction.Value.Time;
+        bankService.SendMoneyToRestaurantAsync(visit.Restaurant, (decimal)visit.Reservation.Deposit);
         await context.SaveChangesAsync();
         return transaction;
     }
