@@ -40,6 +40,11 @@ public class Ingredient
     public double Amount { get; set; }
 
     /// <summary>
+    /// ID of the restaurant
+    /// </summary>
+    public int RestaurantId { get; set; }
+
+    /// <summary>
     /// Deliveries that resupplied the ingredient
     /// </summary>
     public ICollection<IngredientDelivery> Deliveries { get; set; } = null!;
@@ -53,4 +58,9 @@ public class Ingredient
     /// Amount correction history
     /// </summary>
     public ICollection<IngredientAmountCorrection> Corrections { get; set; } = null!;
+
+    /// <summary>
+    /// Navigational property of restaurant
+    /// </summary>
+    public Restaurant Restaurant { get; set; } = null!;
 }

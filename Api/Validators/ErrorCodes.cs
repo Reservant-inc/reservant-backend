@@ -243,9 +243,10 @@ public static class ErrorCodes
     public const string InvalidTimeSlot = "InvalidTimeSlot";
 
     /// <summary>
-    /// request was already considered
+    /// The operation cannot be performed in the current state of Visit
     /// </summary>
-    public const string AlreadyConsidered = "AlreadyConsidered";
+    public const string IncorrectVisitStatus = "IncorrectVisitStatus";
+
     /// <summary>
     /// MenuItem is not in any active Menus
     /// </summary>

@@ -15,7 +15,10 @@ using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Orders;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Reviews;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Models.Enums;
+
 namespace Reservant.Api.Controllers;
 
 
@@ -199,6 +202,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="isTakeaway">
     /// If true, only takeaway visits; if false, only dine-in visits; if null, all visits
     /// </param>
+    /// <param name="reservationStatus">Filter visits by the state of the reservation</param>
     /// <param name="visitSorting">Order visits</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -214,6 +218,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         int? tableId,
         bool? hasOrders,
         bool? isTakeaway,
+        ReservationStatus? reservationStatus,
         VisitSorting visitSorting,
         [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
@@ -226,6 +231,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             tableId,
             hasOrders,
             isTakeaway,
+            reservationStatus,
             visitSorting,
             page,
             perPage);
@@ -340,5 +346,32 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         return OkOrErrors(availableHours);
     }
 
+    /// <summary>
+    /// Get a list of employees with limited data for a specific restaurant.
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="hallOnly">Show only hall employees</param>
+    /// <param name="backdoorOnly">Show only backdoor employees</param>
+    /// <returns>List of employees with limited data</returns>
+    [HttpGet("{restaurantId:int}/employees")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesBasicInfoAsync))]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult<List<EmployeeBasicInfoVM>>> GetEmployees(
+        int restaurantId,
+        bool hallOnly,
+        bool backdoorOnly)
+    {
+        var userId = User.GetUserId();
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.GetEmployeesBasicInfoAsync(
+            restaurantId, userId.Value,
+            hallOnly, backdoorOnly);
+        return OkOrErrors(result);
+    }
 
 }

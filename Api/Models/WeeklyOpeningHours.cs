@@ -86,9 +86,23 @@ public class WeeklyOpeningHours : ICollection<OpeningHours>
     }
 
     /// <summary>
-    /// NOT SUPPORTED. Does not make sense for this collection
+    /// To be used by Entity Framework for updating the collection.
+    ///
+    /// Removes the OpeningHours instance from the collection
     /// </summary>
-    public bool Remove(OpeningHours item) => throw new NotSupportedException();
+    public bool Remove(OpeningHours item)
+    {
+        int index = Array.IndexOf(_openingHours, item);
+        if (index >= 0)
+        {
+            Array.Copy(_openingHours, index + 1, _openingHours, index, _openingHours.Length - index - 1);
+            _openingHours[_openingHours.Length - 1] = new OpeningHours();
+            _filled--;
+            return true;
+        }
+
+        return false;
+    }
 
     /// <inheritdoc />
     public int Count => 7;

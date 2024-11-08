@@ -308,6 +308,8 @@ public class RestaurantMenuService(
         }
 
         menu.IsDeleted = true;
+        await context.SaveChangesAsync();
+
         return Result.Success;
     }
 
