@@ -1642,31 +1642,24 @@ namespace Reservant.Api.Services
                 return res.Errors;
             }
 
-            var tables = context
+            return await context
                 .Entry(restaurant)
                 .Collection(r => r.Tables)
                 .Query()
                 .Select(t => new RestaurantTableVM
                 {
                     TableId = t.TableId,
-                    Capacity = t.Capacity
-                }).ToList();
-
-
-            foreach (var table in tables)
-            {
-
-                table.VisitId = (await context.Visits
-                        .FirstOrDefaultAsync(v => v.TableId == table.TableId &&
+                    Capacity = t.Capacity,
+                    VisitId = context.Visits
+                        .Where(v => v.TableId == t.TableId &&
                             v.RestaurantId == restaurant.RestaurantId &&
                             v.Reservation != null &&
+                            v.Reservation.Decision!.IsAccepted &&
                             v.Reservation.StartTime < DateTime.UtcNow &&
-                            v.Reservation.EndTime > DateTime.UtcNow
-                        ))?.VisitId;
-
-            }
-
-            return tables;
+                            v.Reservation.EndTime > DateTime.UtcNow)
+                        .Select(v => (int?)v.VisitId)
+                        .FirstOrDefault(),
+                }).ToListAsync();
         }
     }
 }
