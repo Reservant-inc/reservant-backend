@@ -84,6 +84,11 @@ public class RestaurantVM
     public required decimal? ReservationDeposit { get; init; }
 
     /// <summary>
+    /// Max reservation duration
+    /// </summary>
+    public required int MaxReservationDurationMinutes { get; set; }
+
+    /// <summary>
     /// Restaurant tags
     /// </summary>
     public required List<string> Tags { get; init; }
