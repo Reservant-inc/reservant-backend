@@ -40,6 +40,7 @@ public class PaymentService(
             .Include(v => v.Reservation)
             .Include(v => v.Restaurant)
             .FirstOrDefaultAsync();
+
         //check if the visit exists
         if (visit == null)
         {
@@ -47,9 +48,10 @@ public class PaymentService(
             {
                 ErrorCode = ErrorCodes.NotFound,
                 ErrorMessage = ErrorCodes.NotFound,
-                PropertyName = null
+                PropertyName = null,
             };
         }
+
         //check if the visit belongs to the user
         if (visit.ClientId != user.Id)
         {
@@ -57,9 +59,10 @@ public class PaymentService(
             {
                 ErrorCode = ErrorCodes.AccessDenied,
                 ErrorMessage = ErrorCodes.AccessDenied,
-                PropertyName = null
+                PropertyName = null,
             };
         }
+
         //check if reservation requires a deposit
         if (visit.Reservation!.Deposit is null)
         {
@@ -67,9 +70,10 @@ public class PaymentService(
             {
                 ErrorCode = ErrorCodes.DepositFreeVisit,
                 ErrorMessage = ErrorCodes.DepositFreeVisit,
-                PropertyName = null
+                PropertyName = null,
             };
         }
+
         //check if the deposit was already paid
         if (visit.Reservation!.DepositPaymentTime is not null)
         {
@@ -77,18 +81,23 @@ public class PaymentService(
             {
                 ErrorCode = ErrorCodes.DepositAlreadyMade,
                 ErrorMessage = ErrorCodes.DepositAlreadyMade,
-                PropertyName = null
+                PropertyName = null,
             };
         }
+
         var transaction = await walletService.DebitAsync(user,
             $"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}",
-            (decimal)visit.Reservation.Deposit);
-        if (transaction.IsError) {
+            visit.Reservation.Deposit.Value);
+        if (transaction.IsError)
+        {
             return transaction;
         }
-        visit.Reservation.DepositPaymentTime = transaction.Value.Time;
+
         bankService.SendMoneyToRestaurantAsync(visit.Restaurant, (decimal)visit.Reservation.Deposit);
+
+        visit.Reservation.DepositPaymentTime = transaction.Value.Time;
         await context.SaveChangesAsync();
+
         return transaction;
     }
 }

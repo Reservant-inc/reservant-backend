@@ -12,14 +12,14 @@ public class BankService(ILogger<BankService> logger)
     /// <summary>
     /// Send money to a restaurant
     /// </summary>
-    /// <param name="restaurant"></param>
-    /// <param name="depositAmount"></param>
-    public void SendMoneyToRestaurantAsync(Restaurant restaurant, decimal depositAmount) {
-        LoggerExtensions.BankServicePaymentProcessingInformation(logger, 
-            depositAmount, 
-            restaurant.Name, 
-            restaurant.RestaurantId, 
-            restaurant.Nip, 
+    /// <param name="restaurant">The restaurant</param>
+    /// <param name="amount">Amount of money to send</param>
+    public void SendMoneyToRestaurantAsync(Restaurant restaurant, decimal amount)
+    {
+        logger.BankServicePaymentProcessingInformation(amount,
+            restaurant.Name,
+            restaurant.RestaurantId,
+            restaurant.Nip,
             DateTime.UtcNow);
     }
 }
