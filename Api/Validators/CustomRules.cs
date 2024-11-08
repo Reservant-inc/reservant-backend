@@ -373,7 +373,6 @@ public static class CustomRules
         this IRuleBuilder<T, string?> builder)
     {
         return builder
-            .NotNull()
             .Matches(@"^\+\d+$")
             .WithErrorCode(ErrorCodes.MustBeValidPhoneNumber)
             .WithMessage("The phone number must start with '+' followed by digits.");
