@@ -127,7 +127,7 @@ public class UserController(
     [HttpGet("visits")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisits(int page = 0, int perPage = 10)
+    public async Task<ActionResult<Pagination<VisitVM>>> GetVisits(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -199,8 +199,8 @@ public class UserController(
         [FromQuery] DateTime? dateFrom,
         [FromQuery] DateTime? dateUntil,
         [FromQuery] EventParticipationCategory category = EventParticipationCategory.CreatedBy,
-        [FromQuery] EventSorting order = EventSorting.DateCreatedDesc, 
-        [FromQuery] int page = 0, 
+        [FromQuery] EventSorting order = EventSorting.DateCreatedDesc,
+        [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);

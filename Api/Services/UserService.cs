@@ -317,13 +317,13 @@ public class UserService(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page, int perPage)
+    public async Task<Result<Pagination<VisitVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
         return await dbContext.Visits
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Reservation!.StartTime > DateTime.UtcNow)
             .OrderBy(x => x.Reservation!.StartTime)
-            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 10);
     }
 
