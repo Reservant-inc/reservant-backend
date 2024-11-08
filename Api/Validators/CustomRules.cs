@@ -441,9 +441,9 @@ public static class CustomRules
     }
 
     /// <summary>
-    /// Validates that the date is today or in the past
+    /// Verify that a list of weekly opening hours is valid
     /// </summary>
-    public static IRuleBuilderOptions<T, WeeklyOpeningHours> IsValidOpeningHours<T>(this IRuleBuilder<T, WeeklyOpeningHours> builder)
+    public static IRuleBuilderOptions<T, List<OpeningHours>> IsValidOpeningHours<T>(this IRuleBuilder<T, List<OpeningHours>> builder)
     {
         return builder
             .Must(woh => woh.Count == 7)

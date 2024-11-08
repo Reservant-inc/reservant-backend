@@ -75,5 +75,8 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
         RuleFor(r => r.ReservationDeposit)
             .GreaterThan(0)
             .When(r => r.ReservationDeposit.HasValue);
+
+        RuleFor(r => r.OpeningHours)
+            .IsValidOpeningHours();
     }
 }

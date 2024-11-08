@@ -41,8 +41,5 @@ public class RestaurantValidator : AbstractValidator<Models.Restaurant>
 
         RuleFor(r => r.Location)
             .IsValidLocation();
-
-        RuleFor(r => r.OpeningHours)
-            .IsValidOpeningHours();
     }
 }
