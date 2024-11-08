@@ -13,8 +13,7 @@ public class ValidateRestaurantFirstStepRequestValidator : AbstractValidator<Val
     {
         RuleFor(x => x.Name)
             .NotEmpty()
-            .MaximumLength(50)
-            .IsValidName();
+            .MaximumLength(50);
 
         RuleFor(x => x.Nip)
             .NotEmpty()

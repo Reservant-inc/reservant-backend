@@ -18,12 +18,12 @@ public class UserValidator : AbstractValidator<Models.User>
         RuleFor(u => u.FirstName)
             .NotEmpty()
             .MaximumLength(30)
-            .IsValidName();
+            .IsValidPersonalName();
 
         RuleFor(u => u.LastName)
             .NotEmpty()
             .MaximumLength(30)
-            .IsValidName();
+            .IsValidPersonalName();
 
         RuleFor(u => u.RegisteredAt)
             .NotEmpty();

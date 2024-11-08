@@ -10,11 +10,11 @@ namespace Reservant.Api.Validators.Events;
 public class CreateEventRequestValidator : AbstractValidator<CreateEventRequest>
 {
     /// <inheritdoc />
-    public CreateEventRequestValidator(ApiDbContext context) {
+    public CreateEventRequestValidator(ApiDbContext context)
+    {
         RuleFor(e => e.Name)
             .MaximumLength(50)
-            .NotEmpty()
-            .IsValidName();
+            .NotEmpty();
 
         RuleFor(e => e.Time)
             .DateTimeInFuture();

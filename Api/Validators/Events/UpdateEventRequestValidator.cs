@@ -14,8 +14,7 @@ public class UpdateEventRequestValidator : AbstractValidator<UpdateEventRequest>
     {
         RuleFor(e => e.Name)
             .MaximumLength(50)
-            .NotEmpty()
-            .IsValidName();
+            .NotEmpty();
 
         RuleFor(e => e.MustJoinUntil)
             .LessThan(e => e.Time)

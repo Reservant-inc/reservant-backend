@@ -291,9 +291,9 @@ public static class CustomRules
     }
 
     /// <summary>
-    /// Validates that the string is a valid name
+    /// Validates that the string is a valid personal name
     /// </summary>
-    public static IRuleBuilderOptions<T, string> IsValidName<T>(
+    public static IRuleBuilderOptions<T, string> IsValidPersonalName<T>(
         this IRuleBuilder<T, string> builder)
     {
         return builder
