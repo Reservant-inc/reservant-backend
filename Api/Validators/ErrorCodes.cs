@@ -243,9 +243,10 @@ public static class ErrorCodes
     public const string InvalidTimeSlot = "InvalidTimeSlot";
 
     /// <summary>
-    /// request was already considered
+    /// The operation cannot be performed in the current state of Visit
     /// </summary>
-    public const string AlreadyConsidered = "AlreadyConsidered";
+    public const string IncorrectVisitStatus = "IncorrectVisitStatus";
+
     /// <summary>
     /// MenuItem is not in any active Menus
     /// </summary>
@@ -271,4 +272,19 @@ public static class ErrorCodes
     /// Order cannot be edited because all the items are either taken or cancelled
     /// </summary>
     public const string OrderIsFinished = "OrderIsFinished";
+
+    /// <summary>
+    /// There funds in the account balance doesn't allow this operation
+    /// </summary>
+    public const string InsufficientFunds = "InsufficientFunds";
+
+    /// <summary>
+    /// Deposit for specified visit was already made
+    /// </summary>
+    public const string DepositAlreadyMade = "DepositAlreadyMade";
+
+    /// <summary>
+    /// There is no deposit to be paid
+    /// </summary>
+    public const string NoDepositToBePaid = "NoDepositToBePaid";
 }

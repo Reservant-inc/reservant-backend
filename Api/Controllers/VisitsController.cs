@@ -67,6 +67,7 @@ public class VisitsController(
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.ApproveVisitRequestAsync))]
     public async Task<ActionResult> ApproveVisitRequest(int visitId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -85,6 +86,7 @@ public class VisitsController(
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.DeclineVisitRequestAsync))]
     public async Task<ActionResult> DeclineVisitRequest(int visitId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -94,5 +96,29 @@ public class VisitsController(
         }
 
         return OkOrErrors(await visitService.DeclineVisitRequestAsync(visitId, user));
+    }
+
+    /// <summary>
+    /// Confirm that a visit has started
+    /// </summary>
+    [HttpPost("{visitId:int}/confirm-start")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult> ConfirmStart(int visitId)
+    {
+        return OkOrErrors(await visitService.ConfirmStart(visitId, User.GetUserId()!.Value));
+    }
+
+    /// <summary>
+    /// Confirm that a visit has started
+    /// </summary>
+    [HttpPost("{visitId:int}/confirm-end")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult> ConfirmEnd(int visitId)
+    {
+        return OkOrErrors(await visitService.ConfirmEnd(visitId, User.GetUserId()!.Value));
     }
 }

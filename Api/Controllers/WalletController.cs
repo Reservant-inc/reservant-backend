@@ -16,11 +16,13 @@ namespace Reservant.Api.Controllers;
 /// </summary>
 /// <param name="userManager"></param>
 /// <param name="walletService"></param>
+/// <param name="paymentService"></param>
 [ApiController, Route("/wallet")]
 [Authorize(Roles = Roles.Customer)]
 public class WalletController(
     UserManager<User> userManager,
-    WalletService walletService
+    WalletService walletService,
+    PaymentService paymentService
 ): StrictController
 {
 
@@ -85,4 +87,21 @@ public class WalletController(
 
     }
 
+    /// <summary>
+    /// Makes a deposit payment for a specified visit
+    /// </summary>
+    /// <param name="visitId">id of the visit that requires the deposit</param>
+    /// <returns>payment confirmation</returns>
+    [HttpPost("pay-deposit")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<PaymentService>(nameof(PaymentService.PayDepositAsync))]
+    public async Task<ActionResult<TransactionVM>> PayDeposit([FromQuery] int visitId) {
+        var user = await userManager.GetUserAsync(User);
+        if(user is null)
+        {
+            return Unauthorized();
+        }
+        var result = await paymentService.PayDepositAsync(user, visitId);
+        return OkOrErrors(result);
+    }
 }
