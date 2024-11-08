@@ -12,6 +12,7 @@ using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
 using System.Text.RegularExpressions;
 using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators;
 
@@ -368,8 +369,8 @@ public static class CustomRules
     /// <summary>
     /// Validates if string has a syntax of a phone number
     /// </summary>
-    public static IRuleBuilderOptions<T, string> IsValidPhoneNumber<T>(
-        this IRuleBuilder<T, string> builder)
+    public static IRuleBuilderOptions<T, string?> IsValidPhoneNumber<T>(
+        this IRuleBuilder<T, string?> builder)
     {
         return builder
             .Matches(@"^\+\d+$")
@@ -437,5 +438,16 @@ public static class CustomRules
             })
             .WithErrorCode(ErrorCodes.InvalidTimeSlot)
             .WithMessage("Reservations can only be made for full hours or half hours");
+    }
+
+    /// <summary>
+    /// Verify that a list of weekly opening hours is valid
+    /// </summary>
+    public static IRuleBuilderOptions<T, List<OpeningHours>> IsValidOpeningHours<T>(this IRuleBuilder<T, List<OpeningHours>> builder)
+    {
+        return builder
+            .Must(woh => woh.Count == 7)
+            .WithErrorCode(ErrorCodes.MustBeValidOpeningHours)
+            .WithMessage("Opening hours of a restaurant must sepcify every day of the week");
     }
 }

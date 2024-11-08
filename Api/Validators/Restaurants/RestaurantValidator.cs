@@ -27,7 +27,6 @@ public class RestaurantValidator : AbstractValidator<Models.Restaurant>
         RuleFor(r => r.MaxReservationDurationMinutes)
             .GreaterThanOrEqualTo(Visit.MinReservationDurationMinutes);
 
-
         RuleFor(r => r.PostalIndex)
             .NotNull()
             .PostalCode();

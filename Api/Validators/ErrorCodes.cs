@@ -287,4 +287,9 @@ public static class ErrorCodes
     /// There is no deposit to be paid
     /// </summary>
     public const string NoDepositToBePaid = "NoDepositToBePaid";
+
+    /// <summary>
+    /// Opening hours of a restaurant must specify every day of the week
+    /// </summary>
+    public const string MustBeValidOpeningHours = "MustBeValidOpeningHours";
 }
