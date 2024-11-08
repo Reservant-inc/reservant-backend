@@ -102,7 +102,6 @@ public class WalletService(
     [MethodErrorCodes<WalletService>(nameof(GetWalletStatus))]
     public async Task<Result<TransactionVM>> DebitAsync(User user, string title, decimal amount)
     {
-        //check for sufficient funds to cover the transaction
         var balance = await GetWalletStatus(user);
         if (balance.Balance < amount)
         {
@@ -110,21 +109,22 @@ public class WalletService(
             {
                 ErrorCode = ErrorCodes.InsufficientFunds,
                 ErrorMessage = ErrorCodes.InsufficientFunds,
-                PropertyName = null
+                PropertyName = null,
             };
         }
-        //create the transaction
+
         var newTransaction = new PaymentTransaction
         {
-            //$"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}"
             Title = title,
             Amount = amount * -1,
             Time = DateTime.UtcNow,
             UserId = user.Id,
-            User = user
+            User = user,
         };
-        await context.PaymentTransactions.AddAsync(newTransaction);
+
+        context.PaymentTransactions.Add(newTransaction);
         await context.SaveChangesAsync();
+
         return new TransactionVM
         {
             TransactionId = newTransaction.PaymentTransactionId,
