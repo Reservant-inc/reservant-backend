@@ -1725,8 +1725,8 @@ namespace Reservant.Api.Services
                             v.RestaurantId == restaurant.RestaurantId &&
                             v.Reservation != null &&
                             v.Reservation.Decision!.IsAccepted &&
-                            v.Reservation.StartTime < DateTime.UtcNow &&
-                            v.Reservation.EndTime > DateTime.UtcNow)
+                            v.StartTime < DateTime.UtcNow &&
+                            v.EndTime > DateTime.UtcNow)
                         .Select(v => (int?)v.VisitId)
                         .FirstOrDefault(),
                 }).ToListAsync();
