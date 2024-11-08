@@ -284,12 +284,7 @@ public static class ErrorCodes
     public const string DepositAlreadyMade = "DepositAlreadyMade";
 
     /// <summary>
-    /// Visit does not require a deposit
+    /// There is no deposit to be paid
     /// </summary>
-    public const string DepositFreeVisit = "DepositFreeVisit";
-
-    /// <summary>
-    /// Specified value doesn't match the required value
-    /// </summary>
-    public const string NotMatchingValue = "NotMatchingValue";
+    public const string NoDepositToBePaid = "NoDepositToBePaid";
 }
