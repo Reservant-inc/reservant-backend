@@ -52,7 +52,7 @@ public class VisitVM
     /// <summary>
     /// Date the reservation was made
     /// </summary>
-    public required DateOnly? ReservationDate { get; set; }
+    public required DateTime? ReservationDate { get; set; }
 
     /// <summary>
     /// Optional tip
