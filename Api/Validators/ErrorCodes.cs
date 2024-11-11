@@ -292,4 +292,14 @@ public static class ErrorCodes
     /// Opening hours of a restaurant must specify every day of the week
     /// </summary>
     public const string MustBeValidOpeningHours = "MustBeValidOpeningHours";
+
+    /// <summary>
+    /// This visit has already started
+    /// </summary>
+    public const string VisitAlreadyStarted = "VisitAlreadyStarted";
+
+    /// <summary>
+    /// Order was already paid for
+    /// </summary>
+    public const string OrderAlreadyPaidFor = "OrderAlreadyPaidFor";
 }

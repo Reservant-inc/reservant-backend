@@ -14,7 +14,7 @@ namespace Reservant.Api.Controllers;
 /// Managing orders
 /// </summary>
 [ApiController, Route("/orders")]
-public class OrdersController(OrderService orderService, UserManager<User> userManager) : StrictController
+public class OrdersController(OrderService orderService, UserManager<User> userManager, MakeOrderService makeOrderService) : StrictController
 {
     /// <summary>
     /// Gets order with the given id
@@ -55,7 +55,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     [HttpPost()]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<OrderService>(nameof(OrderService.CreateOrderAsync))]
+    [MethodErrorCodes<MakeOrderService>(nameof(MakeOrderService.CreateOrderAsync))]
     public async Task<ActionResult<OrderSummaryVM>> CreateOrder(CreateOrderRequest request)
     {
         var user = await userManager.GetUserAsync(User);
@@ -64,7 +64,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
             return Unauthorized();
         }
 
-        var result = await orderService.CreateOrderAsync(request, user);
+        var result = await makeOrderService.CreateOrderAsync(request, user);
         return OkOrErrors(result);
     }
 

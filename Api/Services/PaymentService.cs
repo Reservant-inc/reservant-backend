@@ -86,4 +86,86 @@ public class PaymentService(
 
         return transaction;
     }
+
+    /// <summary>
+    /// Function for paying for a specified order before the visit starts
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="orderId"></param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.NotFound, "Order to pay for not found")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "Only the person that made the order can pay for it")]
+    [ErrorCode(null, ErrorCodes.VisitAlreadyStarted, ErrorCodes.VisitAlreadyStarted)]
+    [ErrorCode(null, ErrorCodes.OrderAlreadyPaidFor, ErrorCodes.OrderAlreadyPaidFor)]
+    [ErrorCode(null, ErrorCodes.ValueLessThanZero, "Price of the order cannot be negative")]
+    [MethodErrorCodes<WalletService>(nameof(WalletService.DebitAsync))]
+    [MethodErrorCodes<BankService>(nameof(BankService.SendMoneyToRestaurantAsync))]
+    public async Task<Result<TransactionVM>> PayForOrderAsync(User user, int orderId)
+    {
+        var order = await context.Orders
+            .Include(o => o.OrderItems)
+            .Include(o => o.Visit)
+            .ThenInclude(v => v.Reservation)
+            .Include(o => o.Visit.Restaurant)
+            .FirstOrDefaultAsync(o => o.OrderId == orderId);
+        if (order == null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Order to pay for not found"
+            };
+        }
+        if (order.Visit.ClientId != user.Id)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = "Only the person that made the order can pay for it"
+            };
+        }
+        if (order.Visit.StartTime != null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.VisitAlreadyStarted,
+                ErrorMessage = ErrorCodes.VisitAlreadyStarted
+            };
+        }
+        if (order.PaymentTime != null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.OrderAlreadyPaidFor,
+                ErrorMessage = ErrorCodes.OrderAlreadyPaidFor
+            };
+        }
+        decimal amount = 0;
+        foreach (var orderedItem in order.OrderItems)
+        {
+            amount += orderedItem.OneItemPrice * orderedItem.Amount;
+        }
+        if (amount < 0)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.ValueLessThanZero,
+                ErrorMessage = "Price of the order cannot be negative"
+            };
+        }
+        var transaction = await walletService.DebitAsync(user,
+            $"Payment for order in: {order.Visit.Restaurant.Name} on: {order.Visit.Reservation!.StartTime.ToShortDateString()}",
+            amount);
+        if (transaction.IsError)
+        {
+            return transaction;
+        }
+
+        bankService.SendMoneyToRestaurantAsync(order.Visit.Restaurant, amount);
+        
+        order.PaymentTime = DateTime.UtcNow;
+        await context.SaveChangesAsync();
+
+        return transaction;
+    }
 }

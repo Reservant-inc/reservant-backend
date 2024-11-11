@@ -26,7 +26,7 @@ public class DbSeeder(
     UserService userService,
     RestaurantService restaurantService,
     MakeReservationService makeReservationService,
-    OrderService orderService,
+    MakeOrderService makeOrderService,
     ILogger<DbSeeder> logger,
     IOptions<FileUploadsOptions> fileUploadsOptions,
     GeometryFactory geometryFactory)
@@ -3034,7 +3034,7 @@ public class DbSeeder(
             exampleCustomer
         )).OrThrow();
 
-        var orderResult = (await orderService.CreateOrderAsync(
+        var orderResult = (await makeOrderService.CreateOrderAsync(
             new CreateOrderRequest
             {
                 Items = [
