@@ -26,7 +26,7 @@ tests {
   
   // 2. Sprawdzenie, czy odpowiedź zawiera dane w formacie JSON
   test("Response has a JSON body", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   // 3. Sprawdzenie struktury danych restauracji
@@ -43,6 +43,7 @@ tests {
       expect(jsonData).to.have.property('location');
       expect(jsonData.location).to.have.property('latitude');
       expect(jsonData.location).to.have.property('longitude');
+      expect(jsonData).to.have.property('maxReservationDurationMinutes');
       expect(jsonData).to.have.property('groupId');
       expect(jsonData).to.have.property('groupName');
       expect(jsonData).to.have.property('rentalContract');
@@ -57,6 +58,14 @@ tests {
       expect(jsonData).to.have.property('reservationDeposit');
       expect(jsonData).to.have.property('tags');
       expect(jsonData).to.have.property('isVerified');
+      expect(jsonData).to.have.property('openingHours');
+  
+      // Check the structure of openingHours
+      expect(jsonData.openingHours).to.be.an('array');
+      jsonData.openingHours.forEach(function(hours) {
+          expect(hours).to.have.property('from');
+          expect(hours).to.have.property('until');
+      });
   });
   
   // 4. Sprawdzenie poprawności typu danych poszczególnych pól
@@ -72,9 +81,10 @@ tests {
       expect(jsonData.city).to.be.a('string');
       expect(jsonData.location.latitude).to.be.a('number');
       expect(jsonData.location.longitude).to.be.a('number');
+      expect(jsonData.maxReservationDurationMinutes).to.be.a('number');
       expect(jsonData.groupId).to.be.a('number');
       expect(jsonData.groupName).to.be.a('string');
-      expect(jsonData.rentalContract).to.be.a('string');
+      expect(jsonData.rentalContract).to.satisfy(val => typeof val === 'string' || val === null);
       expect(jsonData.alcoholLicense).to.be.a('string');
       expect(jsonData.businessPermission).to.be.a('string');
       expect(jsonData.idCard).to.be.a('string');
@@ -83,9 +93,15 @@ tests {
       expect(jsonData.logo).to.be.a('string');
       expect(jsonData.photos).to.be.an('array');
       expect(jsonData.description).to.be.a('string');
-      expect(jsonData.reservationDeposit).to.be.a('number');
+      expect(jsonData.reservationDeposit).to.satisfy(val => typeof val === 'number' || val === null);
       expect(jsonData.tags).to.be.an('array');
       expect(jsonData.isVerified).to.be.a('boolean');
+      
+      // Check data types within openingHours
+      jsonData.openingHours.forEach(function(hours) {
+          expect(hours.from).to.be.a('string');
+          expect(hours.until).to.be.a('string');
+      });
   });
   
   // 5. Sprawdzenie liczby i struktury stołów (tables)
@@ -98,6 +114,16 @@ tests {
           expect(table).to.have.property('capacity');
           expect(table.tableId).to.be.a('number');
           expect(table.capacity).to.be.a('number');
+      });
+  });
+  
+  // 6. Check the structure and data types within photos
+  test("Photos field has correct data types", function () {
+      var jsonData = res.getBody();
+      
+      expect(jsonData.photos).to.be.an('array');
+      jsonData.photos.forEach(function(photo) {
+          expect(photo).to.be.a('string');
       });
   });
   

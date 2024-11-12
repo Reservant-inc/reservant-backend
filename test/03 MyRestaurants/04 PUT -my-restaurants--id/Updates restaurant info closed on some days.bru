@@ -1,0 +1,231 @@
+meta {
+  name: Updates restaurant info closed on some days
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{host}}/my-restaurants/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{randomCompanyName}}",
+    "nip": "{{randomNIP}}",
+    "restaurantType": "{{randomRestaurantType}}",
+    "address": "{{randomStreetAddress}}",
+    "postalIndex": "{{randomPostalCode}}",
+    "city": "{{randomCity}}",
+    "rentalContract": "test-jd.pdf",
+    "alcoholLicense": "test-jd.pdf",
+    "businessPermission": "test-jd.pdf",
+    "idCard": "test-jd.pdf",
+    "logo": "test-jd.png",
+    "description": "{{randomLoremSentence}}",
+    "reservationDeposit": {{randomDeposit}},
+    "provideDelivery": {{randomBoolean}},
+    "maxReservationDurationMinutes": {{randomDuration}},
+    "openingHours": [
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": null,
+        "until": null
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      }
+    ],
+    "tags": [
+      "{{randomRestaurantTag}}"
+    ],
+    "photos": [
+      "test-jd.png"
+    ],
+    "location": {
+      "latitude": {{randomLatitude}},
+      "longitude": {{randomLongitude}}
+    }
+  }
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Sprawdzenie, czy odpowiedź ma JSON body
+  test("Response has a JSON body", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  // Parsing the request and response body
+  var requestData = req.getBody();
+  var responseData = res.getBody();
+  
+  // Check that each expected field is present and non-empty
+  test("name is present and not empty", function () {
+      expect(responseData).to.have.property('name');
+      expect(responseData.name).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("nip is present and not empty", function () {
+      expect(responseData).to.have.property('nip');
+      expect(responseData.nip).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("restaurantType is present and valid", function () {
+      expect(responseData).to.have.property('restaurantType');
+      expect(responseData.restaurantType).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("address is present and not empty", function () {
+      expect(responseData).to.have.property('address');
+      expect(responseData.address).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("postalIndex is present and not empty", function () {
+      expect(responseData).to.have.property('postalIndex');
+      expect(responseData.postalIndex).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("city is present and not empty", function () {
+      expect(responseData).to.have.property('city');
+      expect(responseData.city).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("location is present and valid", function () {
+      expect(responseData).to.have.property('location');
+      expect(responseData.location).to.be.an('object');
+      expect(responseData.location).to.have.property('latitude');
+      expect(responseData.location).to.have.property('longitude');
+  });
+  
+  test("Files are present", function () {
+      expect(responseData).to.have.property('rentalContract');
+      expect(responseData).to.have.property('alcoholLicense');
+      expect(responseData).to.have.property('businessPermission');
+      expect(responseData).to.have.property('idCard');
+      expect(responseData).to.have.property('logo');
+      expect(responseData.rentalContract).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.alcoholLicense).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.businessPermission).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.idCard).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.logo).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("Reservation deposit is valid", function () {
+      expect(responseData).to.have.property('reservationDeposit');
+      expect(responseData.reservationDeposit).to.be.a('number');
+  });
+  
+  test("tags and photos are present and valid", function () {
+      expect(responseData).to.have.property('tags');
+      expect(responseData.tags).to.be.an('array').that.is.not.empty;
+      expect(responseData).to.have.property('photos');
+      expect(responseData.photos).to.be.an('array').that.is.not.empty;
+  });
+  
+  // Sprawdzenie, czy każde wyjście w openingHours zawiera pola 'from' i 'until'
+  test("Each entry in openingHours contains 'from' and 'until'", function () {
+      expect(responseData).to.have.property('openingHours');
+      expect(responseData.openingHours).to.be.an('array').that.is.not.empty;
+  
+      responseData.openingHours.forEach((hourEntry, index) => {
+          expect(hourEntry).to.have.property('from').that.is.a('string').and.to.not.be.empty;
+          expect(hourEntry).to.have.property('until').that.is.a('string').and.to.not.be.empty;
+  
+          // Opcjonalnie można sprawdzić, czy pola 'from' i 'until' mają poprawny format godzinowy
+          expect(hourEntry.from).to.match(/^\d{2}:\d{2}$/);
+          expect(hourEntry.until).to.match(/^\d{2}:\d{2}$/);
+      });
+  });
+  
+  
+  // Validate that the response data structure matches the request data structure
+  test("Response structure is valid", function () {
+      expect(responseData).to.have.property('restaurantId');
+      expect(responseData).to.have.property('name');
+      expect(responseData).to.have.property('restaurantType');
+      expect(responseData).to.have.property('nip');
+      expect(responseData).to.have.property('address');
+      expect(responseData).to.have.property('postalIndex');
+      expect(responseData).to.have.property('city');
+      expect(responseData).to.have.property('location');
+      expect(responseData).to.have.property('groupId');
+      expect(responseData).to.have.property('groupName');
+      expect(responseData).to.have.property('rentalContract');
+      expect(responseData).to.have.property('alcoholLicense');
+      expect(responseData).to.have.property('businessPermission');
+      expect(responseData).to.have.property('idCard');
+      expect(responseData).to.have.property('tables');
+      expect(responseData).to.have.property('provideDelivery');
+      expect(responseData).to.have.property('logo');
+      expect(responseData).to.have.property('photos');
+      expect(responseData).to.have.property('description');
+      expect(responseData).to.have.property('reservationDeposit');
+      expect(responseData).to.have.property('tags');
+      expect(responseData).to.have.property('isVerified');
+      expect(responseData).to.have.property('maxReservationDurationMinutes');
+      expect(responseData).to.have.property('openingHours');
+  });
+  
+  // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
+  test("Response data matches request data", function () {
+      expect(responseData.name).to.eql(requestData.name);
+      expect(responseData.nip).to.eql(requestData.nip);
+      expect(responseData.restaurantType).to.eql(requestData.restaurantType);
+      expect(responseData.address).to.eql(requestData.address);
+      expect(responseData.postalIndex).to.eql(requestData.postalIndex);
+      expect(responseData.city).to.eql(requestData.city);
+      expect(responseData.location.latitude).to.eql(requestData.location.longitude); // na odwrót
+      expect(responseData.location.longitude).to.eql(requestData.location.latitude); // na odwrót
+      expect(responseData.provideDelivery).to.eql(requestData.provideDelivery);
+      expect(responseData.description).to.eql(requestData.description);
+      expect(responseData.reservationDeposit).to.eql(requestData.reservationDeposit);
+      expect(responseData.tags).to.eql(requestData.tags);
+      expect(responseData.photos).to.have.members(requestData.photos.map(p => `/uploads/${p}`));
+      expect(responseData.rentalContract).to.include(requestData.rentalContract);
+      expect(responseData.alcoholLicense).to.include(requestData.alcoholLicense);
+      expect(responseData.businessPermission).to.include(requestData.businessPermission);
+      expect(responseData.idCard).to.include(requestData.idCard);
+      expect(responseData.logo).to.include(requestData.logo);
+  
+      // Dodane sprawdzenie dla maxReservationDurationMinutes
+      expect(responseData.maxReservationDurationMinutes).to.eql(requestData.maxReservationDurationMinutes);
+  
+      // Dodane sprawdzenie dla openingHours
+      expect(responseData.openingHours).to.eql(requestData.openingHours);
+  });
+  
+}

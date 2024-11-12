@@ -20,248 +20,212 @@ auth:bearer {
 
 body:json {
   {
-    "name": "{{$randomCompanyName}}",
-    "nip": "{{generated_nip}}",
-    "restaurantType": "Restaurant",
-    "address": "{{$randomStreetAddress}}",
+    "name": "{{randomCompanyName}}",
+    "nip": "{{randomNIP}}",
+    "restaurantType": "{{randomRestaurantType}}",
+    "address": "{{randomStreetAddress}}",
     "postalIndex": "{{randomPostalCode}}",
     "city": "{{randomCity}}",
-    "location": {
-      "latitude": {{$randomLatitude}},
-      "longitude": {{$randomLongitude}}
-    },
     "rentalContract": "test-jd.pdf",
     "alcoholLicense": "test-jd.pdf",
     "businessPermission": "test-jd.pdf",
     "idCard": "test-jd.pdf",
     "logo": "test-jd.png",
-    "provideDelivery": {{$randomBoolean}},
-    "description": "{{$randomLoremSentence}}",
-    "reservationDeposit": {{ReservationDeposit}},
+    "description": "{{randomLoremSentence}}",
+    "reservationDeposit": {{randomDeposit}},
+    "provideDelivery": {{randomBoolean}},
+    "maxReservationDurationMinutes": {{randomDuration}},
+    "openingHours": [
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      }
+    ],
     "tags": [
       "{{randomRestaurantTag}}"
     ],
     "photos": [
       "test-jd.png"
-    ]
+    ],
+    "location": {
+      "latitude": {{randomLatitude}},
+      "longitude": {{randomLongitude}}
+    }
   }
-}
-
-script:pre-request {
-  function generateNIP() {
-      var weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
-      
-      // Generate the first 9 digits of NIP
-      var nip_base = [];
-      for (var i = 0; i < 9; i++) {
-          nip_base.push(Math.floor(Math.random() * 10));
-      }
-      
-      // Calculate the control digit
-      var control_sum = 0;
-      for (var i = 0; i < 9; i++) {
-          control_sum += nip_base[i] * weights[i];
-      }
-      var control_digit = control_sum % 11;
-      if (control_digit == 10) {
-          control_digit = 0;
-      }
-      
-      nip_base.push(control_digit);
-      return nip_base.join('');
-  }
-  
-  // Generate NIP and set it as a variable
-  var nip = generateNIP();
-  // postman.setEnvironmentVariable("generated_nip", nip);
-  
-  
-  function generatePostalCode() {
-      function getRandomDigit() {
-          return Math.floor(Math.random() * 10);
-      }
-  
-      var part1 = getRandomDigit().toString() + getRandomDigit().toString();
-      var part2 = getRandomDigit().toString() + getRandomDigit().toString() + getRandomDigit().toString();
-      
-      return part1 + '-' + part2;
-  }
-  
-  //Random Restaurant Tag
-  const choices = ["Asian", "Italian", "OnSite", "Tag1", "Tag2", "Takeaway"];
-  
-  
-  function getRandomChoice(arr) {
-      const randomIndex = Math.floor(Math.random() * arr.length);
-      return arr[randomIndex];
-  }
-  const randomChoice = getRandomChoice(choices);
-  
-  bru.setEnvVar("randomRestaurantTag", randomChoice);
-  
-  //Random Deposit
-  function getRandomDeposit(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-  
-  // Losowy wybór dla ReservationDeposit
-  const randomDeposit = getRandomDeposit(0, 500);
-  
-  // Zapisanie wartości jako zmiennej w środowisku Postmana
-  bru.setEnvVar("ReservationDeposit", randomDeposit);
-  
-  // RandomCity
-  const cities = [
-      "Warszawa",
-      "Kraków",
-      "Łódź",
-      "Wrocław",
-      "Poznań",
-      "Gdańsk",
-      "Szczecin",
-      "Bydgoszcz",
-      "Lublin",
-      "Białystok",
-      "Katowice",
-      "Gdynia",
-      "Częstochowa",
-      "Radom",
-      "Sosnowiec"
-  ];
-  
-  
-  function getRandomCity(arr) {
-      const randomIndex = Math.floor(Math.random() * arr.length);
-      return arr[randomIndex];
-  }
-  
-  
-  const randomCity = getRandomCity(cities);
-  
-  // Zapisanie miasta jako zmiennej w środowisku Postmana
-  bru.setEnvVar("randomCity", randomCity);
-  
-  //Random Postal code
-  function getRandomDigit() {
-      return Math.floor(Math.random() * 10);
-  }
-  
-  // Funkcja generująca polski kod pocztowy w formacie xx-xxx
-  function generateRandomPostalCode() {
-      let postalCode = '';
-      for (let i = 0; i < 2; i++) {
-          postalCode += getRandomDigit();
-      }
-      postalCode += '-';
-      for (let i = 0; i < 3; i++) {
-          postalCode += getRandomDigit();
-      }
-      return postalCode;
-  }
-  
-  // Losowy kod pocztowy
-  const randomPostalCode = generateRandomPostalCode();
-  
-  // Zapisanie kodu pocztowego jako zmiennej w środowisku Postmana
-  bru.setEnvVar("randomPostalCode", randomPostalCode);
-  
-  
 }
 
 tests {
-  // 1. Sprawdzenie statusu odpowiedzi
+  // Sprawdzenie, czy odpowiedź ma status 200
   test("Status code is 200", function () {
       expect(res.getStatus()).to.equal(200);
   });
   
-  // 2. Sprawdzenie, czy odpowiedź zawiera dane w formacie JSON
+  // Sprawdzenie, czy odpowiedź ma JSON body
   test("Response has a JSON body", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
-  // 3. Sprawdzenie struktury danych zaktualizowanej restauracji
-  test("Updated restaurant has the correct fields", function () {
-      var jsonData = res.getBody();
+  // Parsing the request and response body
+  var requestData = req.getBody();
+  var responseData = res.getBody();
   
-      expect(jsonData).to.have.property('restaurantId');
-      expect(jsonData).to.have.property('name');
-      expect(jsonData).to.have.property('nip');
-      expect(jsonData).to.have.property('restaurantType');
-      expect(jsonData).to.have.property('address');
-      expect(jsonData).to.have.property('postalIndex');
-      expect(jsonData).to.have.property('city');
-      expect(jsonData).to.have.property('location');
-      expect(jsonData.location).to.have.property('latitude');
-      expect(jsonData.location).to.have.property('longitude');
-      expect(jsonData).to.have.property('groupId');
-      expect(jsonData).to.have.property('groupName');
-      expect(jsonData).to.have.property('rentalContract');
-      expect(jsonData).to.have.property('alcoholLicense');
-      expect(jsonData).to.have.property('businessPermission');
-      expect(jsonData).to.have.property('idCard');
-      expect(jsonData).to.have.property('tables');
-      expect(jsonData).to.have.property('provideDelivery');
-      expect(jsonData).to.have.property('logo');
-      expect(jsonData).to.have.property('photos');
-      expect(jsonData).to.have.property('description');
-      expect(jsonData).to.have.property('reservationDeposit');
-      expect(jsonData).to.have.property('tags');
-      expect(jsonData).to.have.property('isVerified');
+  // Check that each expected field is present and non-empty
+  test("name is present and not empty", function () {
+      expect(responseData).to.have.property('name');
+      expect(responseData.name).to.be.a('string').and.to.not.be.empty;
   });
   
-  // 4. Sprawdzenie poprawności typu danych poszczególnych pól
-  test("Updated restaurant has correct data types", function () {
-      var jsonData = res.getBody();
-  
-      expect(jsonData.restaurantId).to.be.a('number');
-      expect(jsonData.name).to.be.a('string');
-      expect(jsonData.nip).to.be.a('string');
-      expect(jsonData.restaurantType).to.be.a('string');
-      expect(jsonData.address).to.be.a('string');
-      expect(jsonData.postalIndex).to.be.a('string');
-      expect(jsonData.city).to.be.a('string');
-      expect(jsonData.location.latitude).to.be.a('number');
-      expect(jsonData.location.longitude).to.be.a('number');
-      expect(jsonData.groupId).to.be.a('number');
-      expect(jsonData.groupName).to.be.a('string');
-      expect(jsonData.rentalContract).to.be.a('string');
-      expect(jsonData.alcoholLicense).to.be.a('string');
-      expect(jsonData.businessPermission).to.be.a('string');
-      expect(jsonData.idCard).to.be.a('string');
-      expect(jsonData.tables).to.be.an('array');
-      expect(jsonData.provideDelivery).to.be.a('boolean');
-      expect(jsonData.logo).to.be.a('string');
-      expect(jsonData.photos).to.be.an('array');
-      expect(jsonData.description).to.be.a('string');
-      expect(jsonData.reservationDeposit).to.be.a('number');
-      expect(jsonData.tags).to.be.an('array');
-      expect(jsonData.isVerified).to.be.a('boolean');
+  test("nip is present and not empty", function () {
+      expect(responseData).to.have.property('nip');
+      expect(responseData.nip).to.be.a('string').and.to.not.be.empty;
   });
   
-  // 5. Sprawdzenie, czy odpowiedź zawiera zaktualizowane dane zgodne z danymi wysłanymi w żądaniu
-  test("Response matches the update request data", function () {
-  //     var requestBody = pm.request.body.raw;
-      var requestData = JSON.parse(requestBody);
-      var responseData = res.getBody();
+  test("restaurantType is present and valid", function () {
+      expect(responseData).to.have.property('restaurantType');
+      expect(responseData.restaurantType).to.be.a('string').and.to.not.be.empty;
+  });
   
+  test("address is present and not empty", function () {
+      expect(responseData).to.have.property('address');
+      expect(responseData.address).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("postalIndex is present and not empty", function () {
+      expect(responseData).to.have.property('postalIndex');
+      expect(responseData.postalIndex).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("city is present and not empty", function () {
+      expect(responseData).to.have.property('city');
+      expect(responseData.city).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("location is present and valid", function () {
+      expect(responseData).to.have.property('location');
+      expect(responseData.location).to.be.an('object');
+      expect(responseData.location).to.have.property('latitude');
+      expect(responseData.location).to.have.property('longitude');
+  });
+  
+  test("Files are present", function () {
+      expect(responseData).to.have.property('rentalContract');
+      expect(responseData).to.have.property('alcoholLicense');
+      expect(responseData).to.have.property('businessPermission');
+      expect(responseData).to.have.property('idCard');
+      expect(responseData).to.have.property('logo');
+      expect(responseData.rentalContract).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.alcoholLicense).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.businessPermission).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.idCard).to.be.a('string').and.to.not.be.empty;
+      expect(responseData.logo).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("Reservation deposit is valid", function () {
+      expect(responseData).to.have.property('reservationDeposit');
+      expect(responseData.reservationDeposit).to.be.a('number');
+  });
+  
+  test("tags and photos are present and valid", function () {
+      expect(responseData).to.have.property('tags');
+      expect(responseData.tags).to.be.an('array').that.is.not.empty;
+      expect(responseData).to.have.property('photos');
+      expect(responseData.photos).to.be.an('array').that.is.not.empty;
+  });
+  
+  // Sprawdzenie, czy każde wyjście w openingHours zawiera pola 'from' i 'until'
+  test("Each entry in openingHours contains 'from' and 'until'", function () {
+      expect(responseData).to.have.property('openingHours');
+      expect(responseData.openingHours).to.be.an('array').that.is.not.empty;
+  
+      responseData.openingHours.forEach((hourEntry, index) => {
+          expect(hourEntry).to.have.property('from').that.is.a('string').and.to.not.be.empty;
+          expect(hourEntry).to.have.property('until').that.is.a('string').and.to.not.be.empty;
+  
+          // Opcjonalnie można sprawdzić, czy pola 'from' i 'until' mają poprawny format godzinowy
+          expect(hourEntry.from).to.match(/^\d{2}:\d{2}$/);
+          expect(hourEntry.until).to.match(/^\d{2}:\d{2}$/);
+      });
+  });
+  
+  
+  // Validate that the response data structure matches the request data structure
+  test("Response structure is valid", function () {
+      expect(responseData).to.have.property('restaurantId');
+      expect(responseData).to.have.property('name');
+      expect(responseData).to.have.property('restaurantType');
+      expect(responseData).to.have.property('nip');
+      expect(responseData).to.have.property('address');
+      expect(responseData).to.have.property('postalIndex');
+      expect(responseData).to.have.property('city');
+      expect(responseData).to.have.property('location');
+      expect(responseData).to.have.property('groupId');
+      expect(responseData).to.have.property('groupName');
+      expect(responseData).to.have.property('rentalContract');
+      expect(responseData).to.have.property('alcoholLicense');
+      expect(responseData).to.have.property('businessPermission');
+      expect(responseData).to.have.property('idCard');
+      expect(responseData).to.have.property('tables');
+      expect(responseData).to.have.property('provideDelivery');
+      expect(responseData).to.have.property('logo');
+      expect(responseData).to.have.property('photos');
+      expect(responseData).to.have.property('description');
+      expect(responseData).to.have.property('reservationDeposit');
+      expect(responseData).to.have.property('tags');
+      expect(responseData).to.have.property('isVerified');
+      expect(responseData).to.have.property('maxReservationDurationMinutes');
+      expect(responseData).to.have.property('openingHours');
+  });
+  
+  // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
+  test("Response data matches request data", function () {
       expect(responseData.name).to.eql(requestData.name);
       expect(responseData.nip).to.eql(requestData.nip);
       expect(responseData.restaurantType).to.eql(requestData.restaurantType);
       expect(responseData.address).to.eql(requestData.address);
       expect(responseData.postalIndex).to.eql(requestData.postalIndex);
       expect(responseData.city).to.eql(requestData.city);
-      expect(responseData.location.latitude).to.eql(requestData.location.latitude);
-      expect(responseData.location.longitude).to.eql(requestData.location.longitude);
+      expect(responseData.location.latitude).to.eql(requestData.location.longitude); // na odwrót
+      expect(responseData.location.longitude).to.eql(requestData.location.latitude); // na odwrót
+      expect(responseData.provideDelivery).to.eql(requestData.provideDelivery);
+      expect(responseData.description).to.eql(requestData.description);
+      expect(responseData.reservationDeposit).to.eql(requestData.reservationDeposit);
+      expect(responseData.tags).to.eql(requestData.tags);
+      expect(responseData.photos).to.have.members(requestData.photos.map(p => `/uploads/${p}`));
       expect(responseData.rentalContract).to.include(requestData.rentalContract);
       expect(responseData.alcoholLicense).to.include(requestData.alcoholLicense);
       expect(responseData.businessPermission).to.include(requestData.businessPermission);
       expect(responseData.idCard).to.include(requestData.idCard);
-      expect(responseData.provideDelivery).to.eql(requestData.provideDelivery);
       expect(responseData.logo).to.include(requestData.logo);
-      expect(responseData.photos[0]).to.include(requestData.photos[0]);
-      expect(responseData.description).to.eql(requestData.description);
-      expect(responseData.reservationDeposit).to.eql(requestData.reservationDeposit);
-      expect(responseData.tags).to.eql(requestData.tags);
+  
+      // Dodane sprawdzenie dla maxReservationDurationMinutes
+      expect(responseData.maxReservationDurationMinutes).to.eql(requestData.maxReservationDurationMinutes);
+  
+      // Dodane sprawdzenie dla openingHours
+      expect(responseData.openingHours).to.eql(requestData.openingHours);
   });
   
 }

@@ -23,7 +23,7 @@ tests {
   });
   
   test("Response has a JSON body", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   var jsonData = res.getBody();
@@ -38,7 +38,7 @@ tests {
   
   test("Login in response is correct", function () {
       var jsonData = res.getBody();
-  //     var sentLogin = pm.request.body ? JSON.parse(pm.request.body).login : null;
+      var sentLogin = req.body?.login;
       expect(jsonData.login).to.eql(sentLogin);
   });
   

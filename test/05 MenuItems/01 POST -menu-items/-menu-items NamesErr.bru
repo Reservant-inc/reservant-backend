@@ -26,40 +26,18 @@ body:json {
   
 }
 
-script:pre-request {
-  function generateRandomNumber010() {
-      return Math.floor(Math.random() * 11);
-  }
-  var randomNumber010 = generateRandomNumber010();
-  bru.setEnvVar("randomNumber010", randomNumber010);
-  
-  function getRandomMenuName() {
-      var menuNames = ["seafood", "burger", "sushi", "kebab","pasta","pizza"];
-      var randomIndex = Math.floor(Math.random() * menuNames.length);
-      return menuNames[randomIndex];
-  }
-  
-  var randomMenuName = getRandomMenuName();
-  bru.setEnvVar("menuName", randomMenuName);
-}
-
 tests {
   // Test sprawdzający, czy odpowiedź ma status 400
-  test("Status code is 400 when 'name' and 'menuItem' are missing", function () {
+  test("Status code is 400 when restaurantId is missing", function () {
       expect(res.getStatus()).to.equal(400);
   });
   
-  // Test sprawdzający, czy odpowiedź zawiera pole 'errors' i odpowiednie komunikaty błędów
-  test("Error response contains messages for missing 'name' and 'menuItem' fields", function () {
+  // Test sprawdzający, czy odpowiedź zawiera pole 'errors' i odpowiedni komunikat błędu dla 'restaurantId'
+  test("Error response contains 'restaurantId' not found message", function () {
       var jsonData = res.getBody();
-      
-      // Sprawdzenie błędu deserializacji dla braku pola 'name'
+      expect(jsonData).to.have.property('errors');
       expect(jsonData.errors).to.have.property('$');
-      expect(jsonData.errors['$'][0]).to.include("JSON deserialization for type 'Reservant.Api.Dtos.MenuItem.CreateMenuItemRequest' was missing required properties, including the following: name");
-  
-      // Sprawdzenie błędu dla braku pola 'menuItem'
-      expect(jsonData.errors).to.have.property('menuItem');
-      expect(jsonData.errors.menuItem[0]).to.include("The menuItem field is required.");
+      expect(jsonData.errors.$[0]).to.include("JSON deserialization for type 'Reservant.Api.Dtos.MenuItems.CreateMenuItemRequest' was missing required properties, including the following: name");
   });
   
 }

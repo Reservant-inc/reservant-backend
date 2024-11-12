@@ -12,39 +12,14 @@ post {
 
 body:json {
   {
-    "firstName": "John",
-    "lastName": "Doe",
-    "login": "{{$randomUserName}}",
-    "email": "johndoe@example.com",
-    "phoneNumber": "123456789",
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
+    "login": "{{randomLogin}}",
+    "email": "{{randomEmail}}",
+    "phoneNumber": "{{randomPhoneNumber}}",
     "birthDate": "2030-01-01",  // Przyszła data
-    "password": "Pa$$w0rd123"
+    "password": "{{randomPassword}}"
   }
-  
-}
-
-script:pre-request {
-  //phone number
-  function generateRandomNumberSequence(length) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += Math.floor(Math.random() * 10); 
-      }
-      return result;
-  }
-  const randomNumbers = generateRandomNumberSequence(9);
-  bru.setEnvVar("randomPhoneNumber", randomNumbers);
-  
-  //date
-  function generateFormattedDate() {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = ('0' + (today.getMonth() + 1)).slice(-2);
-      const day = ('0' + today.getDate()).slice(-2); 
-      return `${year}-${month}-${day}`;
-  }
-  const formattedDate = generateFormattedDate();
-  bru.setEnvVar("formattedDate", formattedDate);
   
 }
 
@@ -59,6 +34,7 @@ tests {
       var jsonData = res.getBody();
       expect(jsonData).to.have.property('status');
       expect(jsonData).to.have.property('errors');
+      expect(jsonData).to.have.property('errorCodes');
   });
   
   // Test sprawdzający, czy 'birthDate' jest niepoprawny (przyszła data) i zwraca odpowiedni błąd
@@ -66,20 +42,19 @@ tests {
       var responseData = res.getBody();
   
       // Sprawdzenie, czy jest błąd związany z 'birthDate' bez sprawdzania dokładnej treści
-      expect(responseData.errors).to.have.property('$.birthDate');
+      expect(responseData.errors).to.have.property('birthDate');
   });
   
-  // Opcjonalnie, sprawdzenie czy jest błąd w 'request'
+  // Opcjonalnie, sprawdzenie czy jest błąd w 'ErrorCodes'
   test("request field error is present", function () {
       var responseData = res.getBody();
       
-      expect(responseData.errors).to.have.property('request');
-      expect(responseData.errors.request[0]).to.include("The request field is required.");
+      expect(responseData.errorCodes).to.have.property('birthDate');
   });
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);

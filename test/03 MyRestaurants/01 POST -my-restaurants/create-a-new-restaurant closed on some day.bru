@@ -1,0 +1,230 @@
+meta {
+  name: create-a-new-restaurant closed on some day
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/my-restaurants
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{randomCompanyName}}",
+    "nip": "{{randomNIP}}",
+    "restaurantType": "{{randomRestaurantType}}",
+    "address": "{{randomStreetAddress}}",
+    "postalIndex": "{{randomPostalCode}}",
+    "city": "{{randomCity}}",
+    "rentalContract": "test-jd.pdf",
+    "alcoholLicense": "test-jd.pdf",
+    "businessPermission": "test-jd.pdf",
+    "idCard": "test-jd.pdf",
+    "logo": "test-jd.png",
+    "description": "{{randomLoremSentence}}",
+    "reservationDeposit": {{randomDeposit}},
+    "provideDelivery": {{randomBoolean}},
+    "maxReservationDurationMinutes": {{randomDuration}},
+    "openingHours": [
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": null,
+        "until": null
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      }
+    ],
+    "tags": [
+      "{{randomRestaurantTag}}"
+    ],
+    "photos": [
+      "test-jd.png"
+    ],
+    "location": {
+      "latitude": {{randomLatitude}},
+      "longitude": {{randomLongitude}}
+    }
+  }
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Sprawdzenie, czy odpowiedź ma JSON body
+  test("Response has a JSON body", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  // Parsing the request and response body
+  var requestData = req.getBody();
+  var responseData = res.getBody();
+  
+  // Check that each expected field is present and non-empty
+  test("name is present and not empty", function () {
+      expect(requestData).to.have.property('name');
+      expect(requestData.name).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("nip is present and not empty", function () {
+      expect(requestData).to.have.property('nip');
+      expect(requestData.nip).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("restaurantType is present and valid", function () {
+      expect(requestData).to.have.property('restaurantType');
+      expect(requestData.restaurantType).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("address is present and not empty", function () {
+      expect(requestData).to.have.property('address');
+      expect(requestData.address).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("postalIndex is present and not empty", function () {
+      expect(requestData).to.have.property('postalIndex');
+      expect(requestData.postalIndex).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("city is present and not empty", function () {
+      expect(requestData).to.have.property('city');
+      expect(requestData.city).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("location is present and valid", function () {
+      expect(requestData).to.have.property('location');
+      expect(requestData.location).to.be.an('object');
+      expect(requestData.location).to.have.property('latitude');
+      expect(requestData.location).to.have.property('longitude');
+  });
+  
+  test("Files are present", function () {
+      expect(requestData).to.have.property('rentalContract');
+      expect(requestData).to.have.property('alcoholLicense');
+      expect(requestData).to.have.property('businessPermission');
+      expect(requestData).to.have.property('idCard');
+      expect(requestData).to.have.property('logo');
+      expect(requestData.rentalContract).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.alcoholLicense).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.businessPermission).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.idCard).to.be.a('string').and.to.not.be.empty;
+      expect(requestData.logo).to.be.a('string').and.to.not.be.empty;
+  });
+  
+  test("Reservation deposit is valid", function () {
+      expect(requestData).to.have.property('reservationDeposit');
+      expect(requestData.reservationDeposit).to.be.a('number');
+  });
+  
+  test("tags and photos are present and valid", function () {
+      expect(requestData).to.have.property('tags');
+      expect(requestData.tags).to.be.an('array').that.is.not.empty;
+      expect(requestData).to.have.property('photos');
+      expect(requestData.photos).to.be.an('array').that.is.not.empty;
+  });
+  
+  // Validate that the response data structure matches the request data structure
+  test("Response structure is valid", function () {
+      expect(responseData).to.have.property('restaurantId');
+      expect(responseData).to.have.property('name');
+      expect(responseData).to.have.property('restaurantType');
+      expect(responseData).to.have.property('nip');
+      expect(responseData).to.have.property('address');
+      expect(responseData).to.have.property('postalIndex');
+      expect(responseData).to.have.property('city');
+      expect(responseData).to.have.property('location');
+      expect(responseData).to.have.property('groupId');
+      expect(responseData).to.have.property('groupName');
+      expect(responseData).to.have.property('rentalContract');
+      expect(responseData).to.have.property('alcoholLicense');
+      expect(responseData).to.have.property('businessPermission');
+      expect(responseData).to.have.property('idCard');
+      expect(responseData).to.have.property('tables');
+      expect(responseData).to.have.property('provideDelivery');
+      expect(responseData).to.have.property('logo');
+      expect(responseData).to.have.property('photos');
+      expect(responseData).to.have.property('description');
+      expect(responseData).to.have.property('reservationDeposit');
+      expect(responseData).to.have.property('tags');
+      expect(responseData).to.have.property('isVerified');
+  });
+  
+  // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
+  test("Response data matches request data", function () {
+      expect(responseData.name).to.eql(requestData.name);
+      expect(responseData.nip).to.eql(requestData.nip);
+      expect(responseData.restaurantType).to.eql(requestData.restaurantType);
+      expect(responseData.address).to.eql(requestData.address);
+      expect(responseData.postalIndex).to.eql(requestData.postalIndex);
+      expect(responseData.city).to.eql(requestData.city);
+      expect(responseData.location.latitude).to.eql(requestData.location.longitude);
+      expect(responseData.location.longitude).to.eql(requestData.location.latitude);
+      expect(responseData.provideDelivery).to.eql(requestData.provideDelivery);
+      expect(responseData.description).to.eql(requestData.description);
+      expect(responseData.reservationDeposit).to.eql(requestData.reservationDeposit);
+      expect(responseData.tags).to.eql(requestData.tags);
+      expect(responseData.photos).to.have.members(requestData.photos.map(p => `/uploads/${p}`));
+      expect(responseData.rentalContract).to.include(requestData.rentalContract);
+      expect(responseData.alcoholLicense).to.include(requestData.alcoholLicense);
+      expect(responseData.businessPermission).to.include(requestData.businessPermission);
+      expect(responseData.idCard).to.include(requestData.idCard);
+      expect(responseData.logo).to.include(requestData.logo);
+  });
+  
+  
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Sprawdź, czy restaurantId istnieje w odpowiedzi
+  if (jsonData.restaurantId) {
+      // Pobierz aktualną listę restaurantIds z środowiska (jeśli istnieje)
+      var restaurantIdsList = bru.getEnvVar("restaurantIds");
+      
+      // Jeśli restaurantIdsList istnieje, parsuj ją jako JSON, w przeciwnym razie zainicjuj jako pustą tablicę
+      if (restaurantIdsList) {
+          restaurantIdsList = JSON.parse(restaurantIdsList);
+      } else {
+          restaurantIdsList = [];
+      }
+      
+      // Dodaj nowy restaurantId do listy
+      restaurantIdsList.push(jsonData.restaurantId);
+      
+      // Zapisz zaktualizowaną listę z powrotem do środowiska
+      bru.setEnvVar("restaurantIds", JSON.stringify(restaurantIdsList));
+      
+      console.log("Dodano restaurantId: " + jsonData.restaurantId);
+  } else {
+      console.log("restaurantId nie znaleziono w odpowiedzi");
+  }
+  
+}
