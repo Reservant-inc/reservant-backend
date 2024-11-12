@@ -35,7 +35,7 @@ public class IngredientDelivery : ISoftDeletable
     /// <summary>
     /// Branded name of the ingredient as seen in the store
     /// </summary>
-    public required string StoreName { get; set; }
+    public string? StoreName { get; set; }
 
     /// <summary>
     /// Navigation property for the delivery
