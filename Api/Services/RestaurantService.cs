@@ -1460,15 +1460,11 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant</param>
         /// <param name="orderBy">Order the list by</param>
-        /// <param name="page">Page number</param>
-        /// <param name="perPage">Items per page</param>
         [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-        public async Task<Result<Pagination<IngredientVM>>> GetIngredientsAsync(
+        public async Task<Result<List<IngredientVM>>> GetIngredientsAsync(
             int restaurantId,
-            IngredientSorting orderBy,
-            int page,
-            int perPage)
+            IngredientSorting orderBy)
         {
             bool restaurantExists = await context.Restaurants
                 .OnlyActiveRestaurants()
@@ -1500,7 +1496,7 @@ namespace Reservant.Api.Services
             };
 
             // Paginacja i mapowanie do IngredientVM
-            var paginatedResult = await query
+            return await query
                 .Select(i => new IngredientVM
                 {
                     IngredientId = i.IngredientId,
@@ -1510,9 +1506,7 @@ namespace Reservant.Api.Services
                     AmountToOrder = i.AmountToOrder,
                     Amount = i.Amount
                 })
-                .PaginateAsync(page, perPage, Enum.GetNames<IngredientSorting>(), maxPerPage: 20);
-
-            return paginatedResult;
+                .ToListAsync();
         }
 
         /// <summary>
