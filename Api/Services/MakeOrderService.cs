@@ -69,6 +69,8 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
         var visit = await context.Visits
             .Where(v => v.VisitId == request.VisitId)
             .Include(visit => visit.Participants)
+            .Include(v => v.Restaurant)
+            .Include(v => v.Reservation)
             .FirstAsync();
 
         if (menuItems.Values.Any(mi => mi.RestaurantId != visit.RestaurantId))
@@ -107,7 +109,8 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
         {
             VisitId = request.VisitId,
             Note = request.Note,
-            OrderItems = orderItems
+            OrderItems = orderItems,
+            Visit = visit
         };
 
         result = await validationService.ValidateAsync(order, user.Id);
@@ -119,7 +122,7 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
         context.Add(order);
         
         if (visit.StartTime == null) {
-            var transaction = await paymentService.PayForOrderAsync(user, order.OrderId);
+            var transaction = await paymentService.PayForOrderAsync(user, order);
             if (transaction.IsError) {
                 return transaction.Errors;
             }

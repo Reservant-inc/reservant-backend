@@ -91,7 +91,7 @@ public class PaymentService(
     /// Function for paying for a specified order before the visit starts
     /// </summary>
     /// <param name="user"></param>
-    /// <param name="orderId"></param>
+    /// <param name="order"></param>
     /// <returns></returns>
     [ErrorCode(null, ErrorCodes.NotFound, "Order to pay for not found")]
     [ErrorCode(null, ErrorCodes.AccessDenied, "Only the person that made the order can pay for it")]
@@ -100,14 +100,8 @@ public class PaymentService(
     [ErrorCode(null, ErrorCodes.ValueLessThanZero, "Price of the order cannot be negative")]
     [MethodErrorCodes<WalletService>(nameof(WalletService.DebitAsync))]
     [MethodErrorCodes<BankService>(nameof(BankService.SendMoneyToRestaurantAsync))]
-    public async Task<Result<TransactionVM>> PayForOrderAsync(User user, int orderId)
+    public async Task<Result<TransactionVM>> PayForOrderAsync(User user, Order order)
     {
-        var order = await context.Orders
-            .Include(o => o.OrderItems)
-            .Include(o => o.Visit)
-            .ThenInclude(v => v.Reservation)
-            .Include(o => o.Visit.Restaurant)
-            .FirstOrDefaultAsync(o => o.OrderId == orderId);
         if (order == null)
         {
             return new ValidationFailure
