@@ -41,12 +41,13 @@ public class DebugController(
     }
 
     /// <summary>
-    /// Send a sample notification to John Doe
+    /// Send a sample notification to the current user or to John Doe if the user is not logged in
     /// </summary>
     [HttpPost("send-test-notification")]
     public async Task<ActionResult> SendTestNotification([FromServices] NotificationService service)
     {
-        await service.NotifyNewRestaurantReview(Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367"), 1);
+        var targetUserId = User.GetUserId() ?? Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367");
+        await service.NotifyNewRestaurantReview(targetUserId, 1);
         return Ok();
     }
 }
