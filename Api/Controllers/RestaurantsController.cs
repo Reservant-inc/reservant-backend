@@ -245,21 +245,16 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// </summary>
     /// <param name="restaurantId">ID of the restaurant</param>
     /// <param name="orderBy">Sorting order</param>
-    /// <param name="page">Page number</param>
-    /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of ingredients</returns>
     [HttpGet("{restaurantId:int}/ingredients")]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<IngredientVM>>> GetIngredients(
+    public async Task<ActionResult<List<IngredientVM>>> GetIngredients(
         int restaurantId,
-        [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc,
-        [FromQuery] int page = 0,
-        [FromQuery] int perPage = 20)
+        [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc)
     {
-        var result = await service.GetIngredientsAsync(restaurantId, orderBy, page, perPage);
-
+        var result = await service.GetIngredientsAsync(restaurantId, orderBy);
         return OkOrErrors(result);
     }
 
