@@ -292,4 +292,9 @@ public static class ErrorCodes
     /// Opening hours of a restaurant must specify every day of the week
     /// </summary>
     public const string MustBeValidOpeningHours = "MustBeValidOpeningHours";
+
+    /// <summary>
+    /// The client has not visited a restaurant
+    /// </summary>
+    public const string HasNotVisitedRestaurant = "HasNotVisitedRestaurant";
 }
