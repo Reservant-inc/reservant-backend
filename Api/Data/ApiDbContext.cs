@@ -59,6 +59,8 @@ public class ApiDbContext(
 
     public DbSet<ParticipationRequest> EventParticipationRequests { get; init; } = null!;
 
+    public DbSet<Report> Reports { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
