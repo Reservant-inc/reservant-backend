@@ -1462,7 +1462,7 @@ namespace Reservant.Api.Services
         /// <param name="orderBy">Order the list by</param>
         [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-        public async Task<Result<List<IngredientVM>>> GetIngredientsAsync(
+        public async Task<Result<Pagination<IngredientVM>>> GetIngredientsAsync(
             int restaurantId,
             IngredientSorting orderBy)
         {
@@ -1495,8 +1495,7 @@ namespace Reservant.Api.Services
                 _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, $"Unsupported sorting option: {orderBy}")
             };
 
-            // Paginacja i mapowanie do IngredientVM
-            return await query
+            var ingredients = await query
                 .Select(i => new IngredientVM
                 {
                     IngredientId = i.IngredientId,
@@ -1507,6 +1506,15 @@ namespace Reservant.Api.Services
                     Amount = i.Amount
                 })
                 .ToListAsync();
+
+            return new Pagination<IngredientVM>
+            {
+                Page = 0,
+                PerPage = ingredients.Count,
+                TotalPages = 1,
+                OrderByOptions = Enum.GetNames<IngredientSorting>(),
+                Items = ingredients,
+            };
         }
 
         /// <summary>

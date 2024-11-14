@@ -250,7 +250,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
-    public async Task<ActionResult<List<IngredientVM>>> GetIngredients(
+    public async Task<ActionResult<Pagination<IngredientVM>>> GetIngredients(
         int restaurantId,
         [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc)
     {
