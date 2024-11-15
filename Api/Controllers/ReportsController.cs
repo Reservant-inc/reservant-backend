@@ -23,4 +23,16 @@ public class ReportsController : StrictController
     {
         return OkOrErrors(await service.ReportCustomer(User.GetUserId()!.Value, dto));
     }
+
+    /// <summary>
+    /// Report a restaurant employee as a customer
+    /// </summary>
+    [HttpPost("report-employee")]
+    [Authorize(Roles = $"{Roles.Customer}")]
+    public async Task<ActionResult<ReportVM>> ReportEmployee(
+        ReportEmployeeRequest dto,
+        [FromServices] ReportEmployeeService service)
+    {
+        return OkOrErrors(await service.ReportEmpolyee(User.GetUserId()!.Value, dto));
+    }
 }

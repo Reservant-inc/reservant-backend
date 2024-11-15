@@ -297,4 +297,12 @@ public static class ErrorCodes
     /// The client has not visited a restaurant
     /// </summary>
     public const string HasNotVisitedRestaurant = "HasNotVisitedRestaurant";
+
+    
+    /// <summary>
+    /// The user must be an Emplyee
+    /// </summary>
+    public const string MustBeEmployeeId = "HasNotVisitedRestaurant";
+
+    
 }
