@@ -35,4 +35,17 @@ public class ReportsController : StrictController
     {
         return OkOrErrors(await service.ReportEmpolyee(User.GetUserId()!.Value, dto));
     }
+
+
+    /// <summary>
+    /// Report a lost item as a customer
+    /// </summary>
+    [HttpPost("report-lost-item")]
+    [Authorize(Roles = $"{Roles.Customer}")]
+    public async Task<ActionResult<ReportVM>> ReportLostItem(
+        ReportLostItemRequest dto,
+        [FromServices] ReportLostItemService service)
+    {
+        return OkOrErrors(await service.ReportLostItem(User.GetUserId()!.Value, dto));
+    }
 }

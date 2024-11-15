@@ -13,26 +13,23 @@ using Reservant.ErrorCodeDocs.Attributes;
 namespace Reservant.Api.Services.ReportServices;
 
 /// <summary>
-/// Creates a emplyee report
+/// Creates a lost item report
 /// </summary>
-public class ReportEmployeeService(
+public class ReportLostItemService(
     ApiDbContext context,
     ValidationService validationService,
     IMapper mapper,
-    UserManager<User> roleManager,
     AuthorizationService authorizationService)
 {
     /// <summary>
-    /// Report a employee
+    /// Reports lost item report
     /// </summary>
-    /// <param name="customerId">ID of the client reporting the emplyee</param>
+    /// <param name="customerId">ID of the client reporting the lost item</param>
     /// <param name="dto">DTO of the report</param>
-    [ValidatorErrorCodes<ReportCustomerRequest>]
-    [ErrorCode(nameof(dto.ReportedUserId), ErrorCodes.MustBeEmployeeId,
-        "Can only report emplyees that have visited the restaurant")]
+    [ValidatorErrorCodes<ReportLostItemRequest>]
     [ErrorCode(nameof(dto.VisitId), ErrorCodes.NotFound)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
-    public async Task<Result<ReportVM>> ReportEmpolyee(Guid customerId, ReportEmployeeRequest dto)
+    public async Task<Result<ReportVM>> ReportLostItem(Guid customerId, ReportLostItemRequest dto)
     {
         var validationResult = await validationService.ValidateAsync(dto, customerId);
         if (!validationResult.IsValid) return validationResult;
@@ -53,27 +50,14 @@ public class ReportEmployeeService(
             };
         }
 
-        var reportedUser = await context.Users.FindAsync(dto.ReportedUserId);
-        if (reportedUser is null || !await roleManager.IsInRoleAsync(reportedUser, Roles.RestaurantEmployee))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(dto.ReportedUserId),
-                ErrorCode = ErrorCodes.MustBeEmployeeId,
-            };
-        }
-
-        var isHallEmployee = await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, reportedUser.Id);
-        if (isHallEmployee.IsError) return isHallEmployee.Errors;
-
         var isVisitParticipant = await authorizationService.VerifyVisitParticipant(visit.VisitId, customer.Id);
         if (isVisitParticipant.IsError) return isVisitParticipant.Errors;
 
         var report = new Report
         {
             Description = dto.Description,
-            Category = ReportCategory.RestaurantEmployeeReport,
-            ReportedUser = reportedUser,
+            Category = ReportCategory.LostItem,
+            ReportedUser = null,
             ReportDate = DateTime.UtcNow,
             CreatedBy = customer,
             Visit = visit,
