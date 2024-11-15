@@ -46,6 +46,11 @@ public class Report : ISoftDeletable
     public Guid? ReportedUserId { get; set; }
 
     /// <summary>
+    /// ID of the related visit
+    /// </summary>
+    public int? VisitId { get; set; }
+
+    /// <summary>
     /// User who created the report
     /// </summary>
     public User CreatedBy { get; set; } = null!;
@@ -54,6 +59,11 @@ public class Report : ISoftDeletable
     /// User being reported
     /// </summary>
     public User? ReportedUser { get; set; }
+
+    /// <summary>
+    /// Related visit
+    /// </summary>
+    public Visit? Visit { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

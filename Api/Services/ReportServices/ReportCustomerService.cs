@@ -1,7 +1,6 @@
 using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Identity;
@@ -20,7 +19,8 @@ public class ReportCustomerService(
     ApiDbContext context,
     ValidationService validationService,
     IMapper mapper,
-    UserManager<User> roleManager)
+    UserManager<User> roleManager,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Report a customer
@@ -28,9 +28,11 @@ public class ReportCustomerService(
     /// <param name="employeeId">ID of the restaurant employee reporting the client</param>
     /// <param name="dto">DTO of the report</param>
     [ValidatorErrorCodes<ReportCustomerRequest>]
-    [ErrorCode(nameof(dto.ReportedUserId), ErrorCodes.HasNotVisitedRestaurant)]
     [ErrorCode(nameof(dto.ReportedUserId), ErrorCodes.MustBeCustomerId,
         "Can only report customers that have visited the restaurant")]
+    [ErrorCode(nameof(dto.VisitId), ErrorCodes.NotFound)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
     public async Task<Result<ReportVM>> ReportCustomer(Guid employeeId, ReportCustomerRequest dto)
     {
         var validationResult = await validationService.ValidateAsync(dto, employeeId);
@@ -52,16 +54,21 @@ public class ReportCustomerService(
             };
         }
 
-        var canReport = await HasVisitedARestaurantTheEmployeeWorksAt(dto.ReportedUserId, employeeId);
-        if (!canReport)
+        var visit = await context.Visits.FindAsync(dto.VisitId);
+        if (visit is null)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(dto.ReportedUserId),
-                ErrorCode = ErrorCodes.HasNotVisitedRestaurant,
-                ErrorMessage = "Can only report clients that have visited the restaurant",
+                PropertyName = nameof(dto.VisitId),
+                ErrorCode = ErrorCodes.NotFound,
             };
         }
+
+        var isHallEmployee = await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, employeeId);
+        if (isHallEmployee.IsError) return isHallEmployee.Errors;
+
+        var isVisitParticipant = await authorizationService.VerifyVisitParticipant(visit.VisitId, reportedUser.Id);
+        if (isVisitParticipant.IsError) return isVisitParticipant.Errors;
 
         var report = new Report
         {
@@ -70,23 +77,11 @@ public class ReportCustomerService(
             ReportedUser = reportedUser,
             ReportDate = DateTime.UtcNow,
             CreatedBy = employee,
+            Visit = visit,
         };
         context.Add(report);
         await context.SaveChangesAsync();
 
         return mapper.Map<ReportVM>(report);
-    }
-
-    /// <summary>
-    /// Check if the given client has visited a restaurant the employee works at
-    /// </summary>
-    private async Task<bool> HasVisitedARestaurantTheEmployeeWorksAt(Guid clientId, Guid employeeId)
-    {
-        return await context.Visits
-            .Where(visit => visit.ClientId == clientId || visit.Participants.Any(p => p.Id == clientId))
-            .AnyAsync(visit =>
-                visit.Restaurant.Employments.Any(
-                    employment => employment.EmployeeId == employeeId && employment.DateUntil == null)
-                || visit.Restaurant.Group.OwnerId == employeeId);
     }
 }

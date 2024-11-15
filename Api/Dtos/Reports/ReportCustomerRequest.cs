@@ -13,5 +13,10 @@ public class ReportCustomerRequest
     /// <summary>
     /// ID of the reported user
     /// </summary>
-    public Guid ReportedUserId { get; set; }
+    public required Guid ReportedUserId { get; set; }
+
+    /// <summary>
+    /// ID of the related visit
+    /// </summary>
+    public required int VisitId { get; set; }
 }
