@@ -297,4 +297,14 @@ public static class ErrorCodes
     /// The client has not visited a restaurant
     /// </summary>
     public const string HasNotVisitedRestaurant = "HasNotVisitedRestaurant";
+    
+    /// <summary>
+    /// Selected table is not available
+    /// </summary>
+    public const string TableNotAvailable = "TableNotAvailable";
+
+    /// <summary>
+    /// Invalid state of a visit
+    /// </summary>
+    public const string InvalidState = "InvalidState";
 }
