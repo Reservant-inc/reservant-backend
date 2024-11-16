@@ -48,4 +48,16 @@ public class ReportsController : StrictController
     {
         return OkOrErrors(await service.ReportLostItem(User.GetUserId()!.Value, dto));
     }
+
+    /// <summary>
+    /// Report a bug
+    /// </summary>
+    [HttpPost("report-bug")]
+    [Authorize(Roles = $"{Roles.Customer}")]
+    public async Task<ActionResult<ReportVM>> ReportBug(
+        ReportBugRequest dto,
+        [FromServices] ReportBugService service)
+    {
+        return OkOrErrors(await service.ReportBug(User.GetUserId()!.Value, dto));
+    }
 }
