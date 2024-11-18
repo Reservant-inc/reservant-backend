@@ -13,6 +13,8 @@ using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Mapping;
 using Reservant.ErrorCodeDocs.Attributes;
+using Reservant.Api.Services.ReportServices;
+using Reservant.Api.Dtos.Reports;
 
 namespace Reservant.Api.Controllers;
 
@@ -26,7 +28,8 @@ public class UserController(
     UserService userService,
     UrlService urlService,
     EventService eventService,
-    ThreadService threadService
+    ThreadService threadService,
+    ReportCustomerService reportService
     ) : StrictController
 {
     /// <summary>
@@ -271,5 +274,33 @@ public class UserController(
     public async Task<ActionResult<SettingsDto>> UpdateSettings(SettingsDto dto)
     {
         return OkOrErrors(await userService.UpdateSettings(User.GetUserId()!.Value, dto));
+    }
+
+    /// <summary>
+    /// Gets a list of reports created by the user
+    /// </summary>
+    /// <param name="dateFrom">Starting date to look for reports</param>
+    /// <param name="dateUntil">Ending date to look for reports</param>
+    /// <param name="category">category of the reports to look for</param>
+    /// <param name="reportedUserId">id of the user that was reported in the reports</param>
+    /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <returns>list of reports created by the user</returns>
+    [HttpGet("reports")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<ReportCustomerService>(nameof(ReportCustomerService.GetReportsAsync))]
+    [Authorize]
+    public async Task<ActionResult<List<ReportVM>>> GetReports(
+            [FromQuery] DateTime? dateFrom,
+            [FromQuery] DateTime? dateUntil,
+            [FromQuery] string? category,
+            [FromQuery] string? reportedUserId,
+            [FromQuery] int? restaurantId) {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+        var role = "user";
+        return OkOrErrors(await reportService.GetReportsAsync(user, role, dateFrom, dateUntil, category, reportedUserId, restaurantId));
     }
 }
