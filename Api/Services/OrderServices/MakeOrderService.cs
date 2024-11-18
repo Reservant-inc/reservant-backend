@@ -1,16 +1,15 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Orders;
-using Reservant.Api.Models.Enums;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
-using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Validators;
-using Microsoft.EntityFrameworkCore;
-using FluentValidation.Results;
+using Reservant.ErrorCodeDocs.Attributes;
 
-namespace Reservant.Api.Services;
+namespace Reservant.Api.Services.OrderServices;
 
 /// <summary>
 /// Service used for making new orders
@@ -120,7 +119,7 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
         }
 
         context.Add(order);
-        
+
         if (visit.StartTime == null) {
             var transaction = await paymentService.PayForOrderAsync(user, order);
             if (transaction.IsError) {
