@@ -1731,6 +1731,22 @@ namespace Reservant.Api.Services
                             v.EndTime > DateTime.UtcNow)
                         .Select(v => (int?)v.VisitId)
                         .FirstOrDefault(),
+                    Status = context.Visits
+                        .Where(v => v.TableId == t.TableId &&
+                            v.RestaurantId == restaurant.RestaurantId &&
+                            v.Reservation != null &&
+                            v.Reservation.Decision!.IsAccepted &&
+                            v.StartTime < DateTime.UtcNow &&
+                            v.EndTime > DateTime.UtcNow)
+                        .FirstOrDefault() != null ? TableStatus.Taken :
+                        context.Visits
+                        .Where(v => v.TableId == t.TableId &&
+                            v.RestaurantId == restaurant.RestaurantId &&
+                            v.Reservation != null &&
+                            v.Reservation.Decision!.IsAccepted &&
+                            v.StartTime < DateTime.UtcNow.AddHours(1) &&
+                            v.EndTime > DateTime.UtcNow)
+                        .FirstOrDefault() != null ? TableStatus.VisitSoon : TableStatus.Available
                 }).ToListAsync();
         }
     }
