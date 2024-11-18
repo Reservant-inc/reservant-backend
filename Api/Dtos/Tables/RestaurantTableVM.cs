@@ -27,6 +27,6 @@ public class RestaurantTableVM
     /// <summary>
     /// Current status of the table
     /// </summary>
-    public TableStatus Status { get; set; }
+    public required TableStatus Status { get; set; }
 
 }
