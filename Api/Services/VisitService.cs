@@ -30,16 +30,20 @@ public class VisitService(
     public async Task<Result<VisitVM>> GetVisitByIdAsync(int visitId, User user)
     {
         var visit = await context.Visits
+            .Include(x => x.Participants)
+            .Include(x => x.Restaurant)
             .Where(x => x.VisitId == visitId)
-            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
-
         if (visit == null)
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
         }
 
-        if (visit.ClientId != user.Id && visit.Participants.All(participant => participant.UserId != user.Id))
+        var canView =
+            visit.ClientId == user.Id
+            || visit.Participants.Contains(user)
+            || !(await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, user.Id)).IsError;
+        if (!canView)
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
