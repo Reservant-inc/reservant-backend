@@ -297,4 +297,14 @@ public static class ErrorCodes
     /// The client has not visited a restaurant
     /// </summary>
     public const string HasNotVisitedRestaurant = "HasNotVisitedRestaurant";
+
+    /// <summary>
+    /// This visit has already started
+    /// </summary>
+    public const string VisitAlreadyStarted = "VisitAlreadyStarted";
+
+    /// <summary>
+    /// Order was already paid for
+    /// </summary>
+    public const string OrderAlreadyPaidFor = "OrderAlreadyPaidFor";
 }

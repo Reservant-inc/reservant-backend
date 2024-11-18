@@ -13,6 +13,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
+using Reservant.Api.Services.OrderServices;
 using Reservant.Api.Services.VisitServices;
 
 namespace Reservant.Api.Data;
@@ -26,7 +27,7 @@ public class DbSeeder(
     UserService userService,
     RestaurantService restaurantService,
     MakeReservationService makeReservationService,
-    OrderService orderService,
+    MakeOrderService makeOrderService,
     ILogger<DbSeeder> logger,
     IOptions<FileUploadsOptions> fileUploadsOptions,
     GeometryFactory geometryFactory)
@@ -3034,7 +3035,7 @@ public class DbSeeder(
             exampleCustomer
         )).OrThrow();
 
-        var orderResult = (await orderService.CreateOrderAsync(
+        var orderResult = (await makeOrderService.CreateOrderAsync(
             new CreateOrderRequest
             {
                 Items = [
