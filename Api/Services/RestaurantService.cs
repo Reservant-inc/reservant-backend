@@ -437,7 +437,7 @@ namespace Reservant.Api.Services
         /// <param name="user">Currently logged-in user</param>
         [ErrorCode(nameof(MoveToGroupRequest.GroupId), ErrorCodes.NotFound)]
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result<RestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId,
+        public async Task<Result<MyRestaurantSummaryVM>> MoveRestaurantToGroupAsync(int restaurantId,
             MoveToGroupRequest request, User user)
         {
             var newRestaurantGroup = await context.RestaurantGroups.Include(rg => rg.Restaurants)
@@ -481,7 +481,7 @@ namespace Reservant.Api.Services
             newRestaurantGroup.Restaurants.Add(restaurant);
             context.RestaurantGroups.Update(newRestaurantGroup);
             await context.SaveChangesAsync();
-            return mapper.Map<RestaurantSummaryVM>(restaurant);
+            return mapper.Map<MyRestaurantSummaryVM>(restaurant);
         }
 
         /// <summary>

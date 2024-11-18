@@ -119,7 +119,7 @@ namespace Reservant.Api.Controllers
         [HttpPost("{restaurantId:int}/move-to-group")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.MoveRestaurantToGroupAsync))]
-        public async Task<ActionResult<RestaurantSummaryVM>> PostRestaurantToGroup(int restaurantId, MoveToGroupRequest request)
+        public async Task<ActionResult<MyRestaurantSummaryVM>> PostRestaurantToGroup(int restaurantId, MoveToGroupRequest request)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
