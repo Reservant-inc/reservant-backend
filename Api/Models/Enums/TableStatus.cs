@@ -1,22 +1,22 @@
 namespace Reservant.Api.Models.Enums;
 
 /// <summary>
-/// Restaurant type
+/// Table Status
 /// </summary>
 public enum TableStats
 {
     /// <summary>
-    /// Restauracja
+    /// Wolny
     /// </summary>
     Available,
 
     /// <summary>
-    /// Bar
+    /// Zajêty
     /// </summary>
     Taken,
 
     /// <summary>
-    /// Kawiarnia
+    /// Wkrótce wizyta
     /// </summary>
     VisitSoon
 }
