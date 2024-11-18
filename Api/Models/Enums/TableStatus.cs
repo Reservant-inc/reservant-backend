@@ -3,7 +3,7 @@ namespace Reservant.Api.Models.Enums;
 /// <summary>
 /// Table Status
 /// </summary>
-public enum TableStats
+public enum TableStatus
 {
     /// <summary>
     /// Wolny
