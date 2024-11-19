@@ -148,7 +148,7 @@ public class UserController(
     [HttpGet("visit-history")]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<VisitSummaryVM>>> GetVisitHistory(int page = 0, int perPage = 10)
+    public async Task<ActionResult<Pagination<VisitVM>>> GetVisitHistory(int page = 0, int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)

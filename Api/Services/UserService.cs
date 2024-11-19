@@ -335,7 +335,7 @@ public class UserService(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitHistoryAsync(User user, int page, int perPage)
+    public async Task<Result<Pagination<VisitVM>>> GetVisitHistoryAsync(User user, int page, int perPage)
     {
         var query = dbContext.Visits
             .Include(r => r.Participants)
@@ -345,7 +345,7 @@ public class UserService(
             .OrderByDescending(x => x.Reservation!.StartTime);
 
         var result = await query
-            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 10);
 
         return result;
