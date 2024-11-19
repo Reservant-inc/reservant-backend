@@ -159,4 +159,26 @@ public class AuthorizationService(
 
         return Result.Success;
     }
+
+    /// <summary>
+    /// Check if a user can view the details of a visit
+    /// </summary>
+    /// <param name="visit"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async ValueTask<bool> CanViewVisit(Visit visit, User user)
+    {
+        var isVisitParticipant = visit.ClientId == user.Id || visit.Participants.Contains(user);
+        if (isVisitParticipant) return true;
+
+        var isOwnerOfTheRestaurant = visit.Restaurant.Group.OwnerId == user.Id;
+        if (isOwnerOfTheRestaurant) return true;
+
+        var isEmployeeOfTheRestaurant = await context.Employments
+            .Where(e => e.RestaurantId == visit.Restaurant.RestaurantId && e.EmployeeId == user.Id)
+            .AnyAsync();
+        if (isEmployeeOfTheRestaurant) return true;
+
+        return false;
+    }
 }
