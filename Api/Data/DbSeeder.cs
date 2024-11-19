@@ -3010,14 +3010,18 @@ public class DbSeeder(
         await context.SaveChangesAsync();
     }
 
+    private const string DefaultFutureVisitCustomerUsername = "customer";
+
     /// <summary>
     /// Creates visit in the future
     /// </summary>
-    public async Task<VisitSummaryVM> AddFutureVisitAsync()
+    public async Task<VisitSummaryVM> AddFutureVisitAsync(Guid? userId)
     {
         await context.Database.BeginTransactionAsync();
 
-        var exampleCustomer = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var exampleCustomer = userId == null
+            ? await context.Users.FirstAsync(u => u.UserName == DefaultFutureVisitCustomerUsername)
+            : await context.Users.FirstAsync(u => u.Id == userId);
 
         var visitDay = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
 

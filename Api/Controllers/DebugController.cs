@@ -31,12 +31,12 @@ public class DebugController(
 
 
     /// <summary>
-    /// Creates example visit in the future
+    /// Creates an example visit in the future for the current user
     /// </summary>
     [HttpPost("add-future-visit")]
     public async Task<ActionResult<VisitSummaryVM>> AddFutureVisit()
     {
-        var result = await dbSeeder.AddFutureVisitAsync();
+        var result = await dbSeeder.AddFutureVisitAsync(User.GetUserId());
         return Ok(result);
     }
 
