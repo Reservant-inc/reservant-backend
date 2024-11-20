@@ -23,6 +23,11 @@ public class Delivery : ISoftDeletable
     public DateTime? DeliveredTime { get; set; }
 
     /// <summary>
+    /// When the delivery was canceled
+    /// </summary>
+    public DateTime? CanceledTime { get; set; }
+
+    /// <summary>
     /// ID of the restaurant
     /// </summary>
     public int RestaurantId { get; set; }
@@ -49,4 +54,9 @@ public class Delivery : ISoftDeletable
 
     /// <inheritdoc/>
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Whether the delivery is still not confirmed nor canceled
+    /// </summary>
+    public bool IsPending => DeliveredTime is null && CanceledTime is null;
 }

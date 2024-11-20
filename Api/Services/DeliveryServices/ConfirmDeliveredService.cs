@@ -41,7 +41,7 @@ public class ConfirmDeliveredService(
         var auth = await authorizationService.VerifyRestaurantBackdoorAccess(delivery.RestaurantId, userId);
         if (auth.IsError) return auth.Errors;
 
-        if (delivery.DeliveredTime is not null)
+        if (!delivery.IsPending)
         {
             return new ValidationFailure
             {

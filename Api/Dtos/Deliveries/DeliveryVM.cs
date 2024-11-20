@@ -23,6 +23,11 @@ public class DeliveryVM
     public required DateTime? DeliveredTime { get; set; }
 
     /// <summary>
+    /// When the delivery was canceled
+    /// </summary>
+    public required DateTime? CanceledTime { get; set; }
+
+    /// <summary>
     /// ID of the restaurant
     /// </summary>
     public required int RestaurantId { get; set; }

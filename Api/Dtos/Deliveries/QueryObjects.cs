@@ -15,6 +15,7 @@ public static class QueryObjects
             DeliveryId = d.DeliveryId,
             OrderTime = d.OrderTime,
             DeliveredTime = d.DeliveredTime,
+            CanceledTime = d.CanceledTime,
             UserId = d.UserId,
             UserFullName = d.User == null ? null : d.User.FirstName + " " + d.User.LastName,
             Cost = d.Ingredients.Sum(i => (decimal)i.AmountOrdered),

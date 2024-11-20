@@ -21,6 +21,11 @@ public class DeliverySummaryVM
     public required DateTime? DeliveredTime { get; set; }
 
     /// <summary>
+    /// When the delivery was canceled
+    /// </summary>
+    public required DateTime? CanceledTime { get; set; }
+
+    /// <summary>
     /// ID of the user who received the delivery
     /// </summary>
     public required Guid? UserId { get; set; }
