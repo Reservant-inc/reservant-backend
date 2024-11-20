@@ -58,4 +58,18 @@ public class DeliveriesController(DeliveryService deliveryService) : StrictContr
         return OkOrErrors(await service.ConfirmDelivered(
             deliveryId, User.GetUserId()!.Value));
     }
+
+    /// <summary>
+    /// Mark a delivery as canceled
+    /// </summary>
+    [HttpPost("{deliveryId:int}/mark-canceled")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [MethodErrorCodes<MarkCanceledService>(nameof(MarkCanceledService.MarkCanceled))]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<DeliveryVM>> MarkCanceled(
+        int deliveryId, [FromServices] MarkCanceledService service)
+    {
+        return OkOrErrors(await service.MarkCanceled(
+            deliveryId, User.GetUserId()!.Value));
+    }
 }
