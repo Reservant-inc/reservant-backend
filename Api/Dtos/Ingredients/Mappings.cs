@@ -17,5 +17,7 @@ public class Mappings : Profile
 
         CreateMap<IngredientAmountCorrection, IngredientAmountCorrectionVM>()
             .MapMemberFrom(dto => dto.CorrectionId, correction => correction.Id);
+
+        CreateMap<IngredientDelivery, IngredientDeliveryVM>();
     }
 }

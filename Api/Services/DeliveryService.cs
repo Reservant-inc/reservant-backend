@@ -1,9 +1,9 @@
-﻿using Reservant.ErrorCodeDocs.Attributes;
+﻿using AutoMapper;
+using Reservant.ErrorCodeDocs.Attributes;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Deliveries;
-using Reservant.Api.Dtos.Ingredients;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -16,7 +16,8 @@ namespace Reservant.Api.Services;
 public class DeliveryService(
     ApiDbContext context,
     ValidationService validationService,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    IMapper mapper)
 {
     /// <summary>
     /// Get information about a delivery
@@ -30,6 +31,7 @@ public class DeliveryService(
 
 
         var delivery = await context.Deliveries
+            .Include(d => d.Ingredients)
             .FirstOrDefaultAsync(d => d.DeliveryId == deliveryId);
 
         if (delivery == null)
@@ -47,27 +49,7 @@ public class DeliveryService(
             return access.Errors;
         }
 
-        return new DeliveryVM
-        {
-            DeliveryId = delivery.DeliveryId,
-            OrderTime = delivery.OrderTime,
-            DeliveredTime = delivery.DeliveredTime,
-            RestaurantId = delivery.RestaurantId,
-            UserId = delivery.UserId,
-            Ingredients = await context.Entry(delivery)
-                            .Collection(d => d.Ingredients)
-                            .Query()
-                            .Select(i => new IngredientDeliveryVM
-                            {
-                                DeliveryId = i.DeliveryId,
-                                IngredientId = i.IngredientId,
-                                AmountOrdered = i.AmountOrdered,
-                                AmountDelivered = i.AmountDelivered,
-                                ExpiryDate = i.ExpiryDate,
-                                StoreName = i.StoreName,
-                            })
-                            .ToListAsync()
-        };
+        return mapper.Map<DeliveryVM>(delivery);
     }
 
     /// <summary>
@@ -130,27 +112,6 @@ public class DeliveryService(
         context.Deliveries.Add(delivery);
         await context.SaveChangesAsync();
 
-        return new DeliveryVM
-        {
-            DeliveryId = delivery.DeliveryId,
-            OrderTime = delivery.OrderTime,
-            DeliveredTime = delivery.DeliveredTime,
-            RestaurantId = delivery.RestaurantId,
-            UserId = delivery.UserId,
-            Ingredients = await context.Entry(delivery)
-                            .Collection(d => d.Ingredients)
-                            .Query()
-                            .Select(i => new IngredientDeliveryVM
-                            {
-                                DeliveryId = i.DeliveryId,
-                                IngredientId = i.IngredientId,
-                                AmountOrdered = i.AmountOrdered,
-                                AmountDelivered = i.AmountDelivered,
-                                ExpiryDate = i.ExpiryDate,
-                                StoreName = i.StoreName,
-                            })
-                            .ToListAsync()
-        };
-
+        return mapper.Map<DeliveryVM>(delivery);
     }
 }
