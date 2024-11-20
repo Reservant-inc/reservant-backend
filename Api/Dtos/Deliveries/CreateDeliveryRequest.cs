@@ -15,5 +15,5 @@ public class CreateDeliveryRequest
     /// <summary>
     /// Ingredients ordered
     /// </summary>
-    public required List<IngredientDeliveryVM> Ingredients { get; init; }
+    public required List<NewIngredientDelivery> Ingredients { get; init; }
 }

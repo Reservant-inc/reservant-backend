@@ -111,7 +111,6 @@ public class DeliveryService(
         var ingredients = request.Ingredients
             .Select(i => new IngredientDelivery
             {
-                DeliveryId = i.DeliveryId,
                 IngredientId = i.IngredientId,
                 AmountOrdered = i.AmountOrdered,
                 AmountDelivered = i.AmountDelivered,
