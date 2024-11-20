@@ -307,4 +307,9 @@ public static class ErrorCodes
     /// Order was already paid for
     /// </summary>
     public const string OrderAlreadyPaidFor = "OrderAlreadyPaidFor";
+
+    /// <summary>
+    /// Delivery has already been confirmed or canceled
+    /// </summary>
+    public const string DeliveryNotPending = "DeliveryNotPending";
 }
