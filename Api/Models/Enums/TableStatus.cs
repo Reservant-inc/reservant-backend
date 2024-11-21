@@ -6,17 +6,17 @@ namespace Reservant.Api.Models.Enums;
 public enum TableStatus
 {
     /// <summary>
-    /// Wolny
+    /// There is no Visit currently
     /// </summary>
     Available,
 
     /// <summary>
-    /// Zajêty
+    /// There is currently a Visit at this table
     /// </summary>
     Taken,
 
     /// <summary>
-    /// Wkrótce wizyta
+    /// There will be a Visit soon
     /// </summary>
-    VisitSoon
+    VisitSoon,
 }
