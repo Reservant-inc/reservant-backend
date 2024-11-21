@@ -1682,6 +1682,11 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
+        /// Time span within which a visit is considered to be "soon"
+        /// </summary>
+        private static readonly TimeSpan VisitSoonTimeSpan = TimeSpan.FromHours(1);
+
+        /// <summary>
         /// Returns tables for the given restaurant
         /// </summary>
         /// <param name="restaurantId"></param>
@@ -1714,6 +1719,9 @@ namespace Reservant.Api.Services
                 return res.Errors;
             }
 
+            var now = DateTime.UtcNow;
+            var visitSoonThreshold = now + VisitSoonTimeSpan;
+
             return await context
                 .Entry(restaurant)
                 .Collection(r => r.Tables)
@@ -1723,14 +1731,30 @@ namespace Reservant.Api.Services
                     TableId = t.TableId,
                     Capacity = t.Capacity,
                     VisitId = context.Visits
-                        .Where(v => v.TableId == t.TableId &&
+                        .Where(v =>
+                            v.TableId == t.TableId &&
                             v.RestaurantId == restaurant.RestaurantId &&
-                            v.Reservation != null &&
-                            v.Reservation.Decision!.IsAccepted &&
-                            v.StartTime < DateTime.UtcNow &&
-                            v.EndTime > DateTime.UtcNow)
+                            v.StartTime <= now &&
+                            v.EndTime > now)
                         .Select(v => (int?)v.VisitId)
                         .FirstOrDefault(),
+                    Status =
+                        context.Visits
+                            .Any(v =>
+                                v.TableId == t.TableId &&
+                                v.RestaurantId == restaurant.RestaurantId &&
+                                v.StartTime <= now &&
+                                v.EndTime == null)
+                        ? TableStatus.Taken
+                        : context.Visits
+                            .Any(v =>
+                                v.TableId == t.TableId &&
+                                v.RestaurantId == restaurant.RestaurantId &&
+                                v.Reservation != null &&
+                                v.Reservation!.Decision!.IsAccepted &&
+                                v.Reservation!.StartTime <= visitSoonThreshold)
+                            ? TableStatus.VisitSoon
+                            : TableStatus.Available,
                 }).ToListAsync();
         }
     }

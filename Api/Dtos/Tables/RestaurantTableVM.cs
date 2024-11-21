@@ -23,4 +23,10 @@ public class RestaurantTableVM
     /// </summary>
     public int? VisitId { get; set; }
 
+
+    /// <summary>
+    /// Current status of the table
+    /// </summary>
+    public required TableStatus Status { get; set; }
+
 }
