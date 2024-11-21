@@ -5,6 +5,11 @@ using Reservant.Api.Options;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
+using Reservant.Api.Dtos.Auth;
+using Reservant.Api.Validation;
+using Reservant.Api.Validators;
+using Reservant.ErrorCodeDocs.Attributes;
+using ValidationFailure = FluentValidation.Results.ValidationFailure;
 
 namespace Reservant.Api.Services
 {
@@ -45,6 +50,32 @@ namespace Reservant.Api.Services
             return token;
         }
 
+        /// <summary>
+        /// Change a user's password
+        /// </summary>
+        [ErrorCode(nameof(dto.OldPassword), ErrorCodes.IncorrectPassword)]
+        [ErrorCode(nameof(dto.NewPassword), ErrorCodes.IdentityError, "Invalid new password")]
+        public async Task<Result> ChangePassword(ChangePasswordRequest dto, Guid userId)
+        {
+            var user = await userManager.FindByIdAsync(userId.ToString()) ??
+                       throw new InvalidOperationException("User authenticated but cannot be found");
+            var result = await userManager.ChangePasswordAsync(user, dto.OldPassword, dto.NewPassword);
+            if (result.Succeeded)
+            {
+                return Result.Success;
+            }
 
+            if (result.Errors.Any(e => e.Code == "PasswordMismatch"))
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(dto.OldPassword),
+                    ErrorCode = ErrorCodes.IncorrectPassword,
+                    ErrorMessage = "Incorrect password",
+                };
+            }
+
+            return ValidationUtils.AsValidationErrors(nameof(dto.NewPassword), result);
+        }
     }
 }

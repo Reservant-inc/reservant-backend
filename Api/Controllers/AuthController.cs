@@ -243,4 +243,15 @@ public class AuthController(
             Roles = roles.ToList()
         });
     }
+
+    /// <summary>
+    /// Change the current user's password
+    /// </summary>
+    [HttpPost("change-password")]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult> ChangePassword(ChangePasswordRequest dto)
+    {
+        return OkOrErrors(await authService.ChangePassword(dto, User.GetUserId()!.Value));
+    }
 }

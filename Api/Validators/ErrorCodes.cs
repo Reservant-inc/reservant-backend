@@ -312,4 +312,9 @@ public static class ErrorCodes
     /// Delivery has already been confirmed or canceled
     /// </summary>
     public const string DeliveryNotPending = "DeliveryNotPending";
+
+    /// <summary>
+    /// Password is incorrect
+    /// </summary>
+    public const string IncorrectPassword = "IncorrectPassword";
 }
