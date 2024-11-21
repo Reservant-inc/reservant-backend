@@ -302,7 +302,7 @@ public static class ErrorCodes
     /// <summary>
     /// The user must be an Emplyee
     /// </summary>
-    public const string MustBeEmployeeId = "HasNotVisitedRestaurant";
+    public const string MustBeEmployeeId = "MustBeEmployeeId";
 
     
 }

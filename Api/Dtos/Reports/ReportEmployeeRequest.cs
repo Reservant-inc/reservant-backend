@@ -1,7 +1,7 @@
 namespace Reservant.Api.Dtos.Reports;
 
 /// <summary>
-/// Request to report a customer
+/// Request to report an emplyee
 /// </summary>
 public class ReportEmployeeRequest
 {

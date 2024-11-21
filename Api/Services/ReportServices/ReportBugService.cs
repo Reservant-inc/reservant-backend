@@ -26,7 +26,6 @@ public class ReportBugService(
     /// <param name="userId">ID of the user reporting the bug</param>
     /// <param name="dto">DTO of the report</param>
     [ValidatorErrorCodes<ReportBugRequest>]
-    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
     public async Task<Result<ReportVM>> ReportBug(Guid userId, ReportBugRequest dto)
     {
         var validationResult = await validationService.ValidateAsync(dto, userId);

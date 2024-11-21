@@ -1,7 +1,7 @@
 namespace Reservant.Api.Dtos.Reports;
 
 /// <summary>
-/// Request to report a lost item
+/// Request to report bug
 /// </summary>
 public class ReportBugRequest
 {

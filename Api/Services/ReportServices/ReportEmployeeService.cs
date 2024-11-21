@@ -64,7 +64,14 @@ public class ReportEmployeeService(
         }
 
         var isHallEmployee = await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, reportedUser.Id);
-        if (isHallEmployee.IsError) return isHallEmployee.Errors;
+        if (isHallEmployee.IsError) 
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(dto.ReportedUserId),
+                ErrorCode = ErrorCodes.MustBeEmployeeId,
+            };
+        }
 
         var isVisitParticipant = await authorizationService.VerifyVisitParticipant(visit.VisitId, customer.Id);
         if (isVisitParticipant.IsError) return isVisitParticipant.Errors;

@@ -17,6 +17,7 @@ public class ReportsController : StrictController
     /// </summary>
     [HttpPost("report-customer")]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<ReportVM>> ReportCustomer(
         ReportCustomerRequest dto,
         [FromServices] ReportCustomerService service)
@@ -29,6 +30,7 @@ public class ReportsController : StrictController
     /// </summary>
     [HttpPost("report-employee")]
     [Authorize(Roles = $"{Roles.Customer}")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<ReportVM>> ReportEmployee(
         ReportEmployeeRequest dto,
         [FromServices] ReportEmployeeService service)
@@ -42,6 +44,7 @@ public class ReportsController : StrictController
     /// </summary>
     [HttpPost("report-lost-item")]
     [Authorize(Roles = $"{Roles.Customer}")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<ReportVM>> ReportLostItem(
         ReportLostItemRequest dto,
         [FromServices] ReportLostItemService service)
@@ -53,7 +56,8 @@ public class ReportsController : StrictController
     /// Report a bug
     /// </summary>
     [HttpPost("report-bug")]
-    [Authorize(Roles = $"{Roles.Customer}")]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<ReportVM>> ReportBug(
         ReportBugRequest dto,
         [FromServices] ReportBugService service)
