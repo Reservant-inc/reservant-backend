@@ -1,3 +1,5 @@
+using Reservant.Api.Models;
+
 namespace Reservant.Api.Dtos.Users;
 
 /// <summary>
@@ -5,11 +7,11 @@ namespace Reservant.Api.Dtos.Users;
 /// </summary>
 public class UpdateUserDetailsRequest
 {
+
     /// <summary>
-    /// User's phone number
+    /// Full phone number with country code
     /// </summary>
-    /// <example>+48123456789</example>
-    public required string PhoneNumber { get; init; }
+    public required PhoneNumber PhoneNumber { get; init; }
 
     /// <summary>
     /// First name

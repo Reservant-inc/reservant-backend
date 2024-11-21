@@ -44,5 +44,8 @@ public class UserConfig : IEntityTypeConfiguration<User>
             .WithMany(mt => mt.Participants);
 
         builder.HasOne(user => user.Photo).WithMany();
+
+        builder.OwnsOne(u => u.FullPhoneNumber);
+
     }
 }

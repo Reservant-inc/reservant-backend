@@ -1,4 +1,6 @@
-﻿namespace Reservant.Api.Dtos.Users;
+﻿using Reservant.Api.Models;
+
+namespace Reservant.Api.Dtos.Users;
 
 /// <summary>
 /// Information about a user found using search
@@ -29,4 +31,9 @@ public class FoundUserVM
     /// Is the user friends with the current user?
     /// </summary>
     public required FriendStatus FriendStatus { get; init; }
+
+    /// <summary>
+    /// Full phone number with country code
+    /// </summary>
+    public required PhoneNumber? PhoneNumber { get; init; }
 }

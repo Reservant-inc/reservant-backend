@@ -21,6 +21,7 @@ public class Mappings : Profile
             .MapUploadPath(dto => dto.Photo, user => user.PhotoFileName, urlService)
             .MapMemberFrom(dto => dto.Login, user => user.UserName)
             .MapMemberFrom(dto => dto.Employments,
-                user => user.Employments.Where(employment => employment.DateUntil == null));
+                user => user.Employments.Where(employment => employment.DateUntil == null))
+            .MapMemberFrom(dto => dto.PhoneNumber, user => user.FullPhoneNumber);
     }
 }

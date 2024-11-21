@@ -46,9 +46,9 @@ public class UserValidator : AbstractValidator<Models.User>
             .FileUploadName(FileClass.Image, uploadService)
             .When(u => !string.IsNullOrEmpty(u.PhotoFileName));
 
-        RuleFor(u => u.PhoneNumber)
+        RuleFor(u => u.FullPhoneNumber)
             .IsValidPhoneNumber()
-            .When(u => u.PhoneNumber != null);
+            .When(u => u.FullPhoneNumber != null);
 
         RuleFor(u => u.Email)
             .EmailAddress()

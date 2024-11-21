@@ -33,8 +33,6 @@ public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustom
             .MaximumLength(50);
 
         RuleFor(r => r.PhoneNumber)
-            .NotEmpty()
-            .MaximumLength(15)
             .IsValidPhoneNumber();
 
         RuleFor(r => r.BirthDate)

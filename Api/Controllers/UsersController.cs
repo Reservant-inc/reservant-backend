@@ -80,7 +80,7 @@ namespace Reservant.Api.Controllers
                 UserId = emp.Id,
                 Login = emp.UserName!,
                 Email = emp.Email!,
-                PhoneNumber = emp.PhoneNumber!,
+                PhoneNumber = emp.FullPhoneNumber,
                 FirstName = emp.FirstName,
                 LastName = emp.LastName,
                 RegisteredAt = emp.RegisteredAt,

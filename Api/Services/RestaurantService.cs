@@ -531,7 +531,7 @@ namespace Reservant.Api.Services
                     FirstName = e.Employee.FirstName,
                     LastName = e.Employee.LastName,
                     BirthDate = e.Employee.BirthDate!.Value,
-                    PhoneNumber = e.Employee.PhoneNumber!,
+                    PhoneNumber = e.Employee.FullPhoneNumber!,
                     IsBackdoorEmployee = e.IsBackdoorEmployee,
                     IsHallEmployee = e.IsHallEmployee,
                     DateFrom = e.DateFrom,

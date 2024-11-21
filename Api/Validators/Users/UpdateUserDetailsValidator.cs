@@ -23,8 +23,6 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
             .IsValidPersonalName();
 
         RuleFor(r => r.PhoneNumber)
-            .NotEmpty()
-            .MaximumLength(15)
             .IsValidPhoneNumber();
 
         RuleFor(r => r.BirthDate)

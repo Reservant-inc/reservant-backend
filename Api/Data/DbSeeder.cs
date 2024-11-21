@@ -34,6 +34,7 @@ public class DbSeeder(
     private const string ExampleUploadsPath = "./example-uploads";
     private readonly FileExtensionContentTypeProvider _contentTypeProvider = new();
 
+
     /// <summary>
     /// Add sample data to the database
     /// </summary>
@@ -45,13 +46,14 @@ public class DbSeeder(
         await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.CustomerSupportAgent));
         await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.CustomerSupportManager));
 
+
         var bok1 = (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
         {
             Email = "support@mail.com",
             Password = "Pa$$w0rd",
             FirstName = "Pracownik BOK",
             LastName = "Przykładowski",
-            PhoneNumber = "+48123456789"
+            PhoneNumber = new PhoneNumber("+48", "111222333")
         }, Guid.Parse("fced96c1-dad9-49ff-a598-05e1c5e433aa"))).OrThrow();
 
         var bok2 = (await userService.RegisterCustomerSupportAgentAsync(new RegisterCustomerSupportAgentRequest
@@ -60,7 +62,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Kierownik BOK",
             LastName = "Przykładowski",
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             IsManager = true
         }, Guid.Parse("3f97a9d9-21b5-40ae-b178-bfe071de723c"))).OrThrow();
 
@@ -70,7 +72,7 @@ public class DbSeeder(
             LastName = "Doe",
             Login = "JD",
             Email = "john@doe.pl",
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1990, 2, 3)
         }, Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367"))).OrThrow();
@@ -82,7 +84,7 @@ public class DbSeeder(
             LastName = "Ymus",
             Login = "AY",
             Email = "anon@ymus.pl",
-            PhoneNumber = "+48987654321",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1989, 1, 2)
         }, Guid.Parse("28b618d7-2f32-4f0c-823d-e63ffa56e47f"))).OrThrow();
@@ -94,7 +96,7 @@ public class DbSeeder(
             LastName = "White",
             Login = "WW",
             Email = "walter@white.pl",
-            PhoneNumber = "+48475927476",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1991, 3, 2)
         }, Guid.Parse("e20eeb3b-563c-480a-8b8c-85b3afac7c66"))).OrThrow();
@@ -106,7 +108,7 @@ public class DbSeeder(
             LastName = "Riv",
             Login = "GR",
             Email = "geralt@riv.pl",
-            PhoneNumber = "+48049586273",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1986, 12, 12)
         }, Guid.Parse("5ad4c90f-c52a-4b14-a8e5-e12eecfd4c8c"))).OrThrow();
@@ -118,7 +120,7 @@ public class DbSeeder(
             LastName = "Atreides",
             Login = "PA",
             Email = "paul@atreides.pl",
-            PhoneNumber = "+48423597532",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(1978, 4, 20)
         }, Guid.Parse("f1e788f1-523c-4aa9-b26f-5eb43ce59573"))).OrThrow();
@@ -130,7 +132,7 @@ public class DbSeeder(
             LastName = "Kowalski",
             Login = "KK",
             Email = "krzysztof.kowalski@gmail.com",
-            PhoneNumber = "+48999999999",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             Password = "Pa$$w0rd",
             BirthDate = new DateOnly(2002, 1, 1)
         }, Guid.Parse("558614c5-ba9f-4c1a-ba1c-07b2b67c37e9"))).OrThrow();
@@ -143,7 +145,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Customer",
             LastName = "Przykładowski",
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             BirthDate = new DateOnly(2000, 1, 1)
         }, Guid.Parse("e08ff043-f8d2-45d2-b89c-aec4eb6a1f29"))).OrThrow();
 
@@ -154,7 +156,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Ewa",
             LastName = "Przykładowska",
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             BirthDate = new DateOnly(2000, 1, 1)
         }, Guid.Parse("86a24e58-cb06-4db0-a346-f75125722edd"))).OrThrow();
 
@@ -165,7 +167,7 @@ public class DbSeeder(
             Password = "Pa$$w0rd",
             FirstName = "Kacper",
             LastName = "Testowy",
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "111222333"),
             BirthDate = new DateOnly(2000, 1, 1)
         }, Guid.Parse("a79631a0-a3bf-43fa-8fbe-46e5ee697eeb"))).OrThrow();
 
@@ -1418,7 +1420,7 @@ public class DbSeeder(
             FirstName = "Pracownik Sali",
             LastName = "Przykładowski",
             BirthDate = new DateOnly(2001, 5, 5),
-            PhoneNumber = "+48123456789"
+            PhoneNumber = new PhoneNumber("+48", "111222333")
         }, johnDoe, Guid.Parse("22781e02-d83a-44ef-8cf4-735e95d9a0b2"))).OrThrow();
         (await restaurantService.AddEmployeeAsync(
             new List<AddEmployeeRequest> {
@@ -1439,7 +1441,7 @@ public class DbSeeder(
             FirstName = "Pracownik Zaplecza",
             LastName = "Przykładowski",
             BirthDate = new DateOnly(2001, 5, 5),
-            PhoneNumber = "+48123456789"
+            PhoneNumber = new PhoneNumber("+48", "111222333")
         }, johnDoe, Guid.Parse("06c12721-e59e-402f-aafb-2b43a4dd23f2"))).OrThrow();
         (await restaurantService.AddEmployeeAsync(
             new List<AddEmployeeRequest> {
@@ -1697,7 +1699,7 @@ public class DbSeeder(
             FirstName = "Pracownik Dwa",
             LastName = "Przykładowski",
             BirthDate = new DateOnly(2002, 1, 1),
-            PhoneNumber = "+48123456789"
+            PhoneNumber = new PhoneNumber("+48", "111222333")
         }, johnDoe, Guid.Parse("f1b1b494-85f2-4dc7-856d-d04d1ce50d65"))).OrThrow();
         (await restaurantService.AddEmployeeAsync(
             new List<AddEmployeeRequest> {
