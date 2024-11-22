@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services.VisitServices;
 
@@ -38,6 +39,13 @@ public class UpdateVisitTableService(
     /// If it does not have a reservation, the end time is calculated as the start time plus the restaurant's maximum duration for a visit.</item>
     /// </list>
     /// </remarks>
+    [ErrorCode(nameof(visitId), ErrorCodes.NotFound)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
+    [ErrorCode(null, ErrorCodes.IncorrectVisitStatus)]
+    [ErrorCode(nameof(newTableId), ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.InvalidState,
+        "Invalid state of the visit: visit has not started and there is no reservation")]
+    [ErrorCode(nameof(newTableId), ErrorCodes.TableNotAvailable)]
     public async Task<Result> UpdateVisitTableAsync(int visitId, int newTableId, Guid currentUserId)
     {
         // Pobierz wizytę
