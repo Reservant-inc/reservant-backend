@@ -50,7 +50,7 @@ public class DeliveriesController(DeliveryService deliveryService) : StrictContr
     /// </summary>
     [HttpPost("{deliveryId:int}/confirm-delivered")]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
-    [MethodErrorCodes<DeliveryService>(nameof(ConfirmDeliveredService.ConfirmDelivered))]
+    [MethodErrorCodes<ConfirmDeliveredService>(nameof(ConfirmDeliveredService.ConfirmDelivered))]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<DeliveryVM>> ConfirmDelivered(
         int deliveryId, [FromServices] ConfirmDeliveredService service)
