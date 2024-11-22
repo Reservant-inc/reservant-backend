@@ -317,4 +317,12 @@ public static class ErrorCodes
     /// Password is incorrect
     /// </summary>
     public const string IncorrectPassword = "IncorrectPassword";
+
+
+    /// <summary>
+    /// The user must be an Emplyee
+    /// </summary>
+    public const string MustBeEmployeeId = "MustBeEmployeeId";
+
+
 }
