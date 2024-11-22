@@ -149,7 +149,7 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     public bool IsArchived { get; set; }
 
     /// <summary>
-    /// 
+    /// User's phone number
     /// </summary>
     [ProtectedPersonalData]
     public PhoneNumber? FullPhoneNumber { get; set; } = null!;
