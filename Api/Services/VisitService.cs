@@ -1,10 +1,8 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
-using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
@@ -59,7 +57,7 @@ public class VisitService(
     [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
     [ErrorCode(nameof(visitId), ErrorCodes.IncorrectVisitStatus, "Reservation already reviewed or deposit not paid")]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User not qualified to reject")]
-    public async Task<Result> ApproveVisitRequestAsync(int visitId,User currentUser)
+    public async Task<Result> ApproveVisitRequestAsync(int visitId, User currentUser)
     {
         var visitFound = await context.Visits
             .FirstOrDefaultAsync(e => e.VisitId == visitId);
@@ -76,7 +74,7 @@ public class VisitService(
 
         var result = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
 
-        if(result.IsError)
+        if (result.IsError)
         {
             return new ValidationFailure
             {
@@ -103,7 +101,7 @@ public class VisitService(
         };
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId,visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId, visitId);
 
         return Result.Success;
     }
@@ -116,7 +114,7 @@ public class VisitService(
     [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
     [ErrorCode(nameof(visitId), ErrorCodes.IncorrectVisitStatus, "Reservation already reviewed or deposit not paid")]
     [ErrorCode(null, ErrorCodes.AccessDenied, "User not qualified to reject")]
-    public async Task<Result> DeclineVisitRequestAsync(int visitId,User currentUser)
+    public async Task<Result> DeclineVisitRequestAsync(int visitId, User currentUser)
     {
         var visitFound = await context.Visits
             .FirstOrDefaultAsync(e => e.VisitId == visitId);
@@ -133,7 +131,7 @@ public class VisitService(
 
         var result = await authorizationService.VerifyRestaurantHallAccess(visitFound.RestaurantId, currentUser.Id);
 
-        if(result.IsError)
+        if (result.IsError)
         {
             return new ValidationFailure
             {
@@ -160,7 +158,7 @@ public class VisitService(
         };
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId,visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId, visitId);
 
         return Result.Success;
     }

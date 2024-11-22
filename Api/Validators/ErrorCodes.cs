@@ -325,4 +325,14 @@ public static class ErrorCodes
     public const string MustBeEmployeeId = "MustBeEmployeeId";
 
 
+
+    /// <summary>
+    /// Selected table is not available
+    /// </summary>
+    public const string TableNotAvailable = "TableNotAvailable";
+
+    /// <summary>
+    /// Invalid state of a visit
+    /// </summary>
+    public const string InvalidState = "InvalidState";
 }

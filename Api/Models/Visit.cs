@@ -170,4 +170,15 @@ public class Visit : ISoftDeletable
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Check whether the visit has already started
+    /// </summary>
+    public bool HasStarted() => StartTime is not null;
+
+    /// <summary>
+    /// Check whether the visit has already ended
+    /// </summary>
+    /// <returns></returns>
+    public bool HasEnded() => EndTime is not null;
 }
