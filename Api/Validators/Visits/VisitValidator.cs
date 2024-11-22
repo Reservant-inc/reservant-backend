@@ -21,7 +21,7 @@ public class VisitValidator : AbstractValidator<Models.Visit>
             .NotNull()
             .WithMessage("Takeaway field must be specified.");
 
-        RuleFor(v => new Tuple<int, int>(v.RestaurantId, v.TableId))
+        RuleFor(v => new Tuple<int, int?>(v.RestaurantId, v.TableId))
             .TableExistsInRestaurant(dbContext);
 
     }

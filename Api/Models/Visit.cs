@@ -125,7 +125,7 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// ID of the table within the restaurant
     /// </summary>
-    public int TableId { get; set; }
+    public int? TableId { get; set; }
 
     /// <summary>
     /// Actual start time of the visit
@@ -161,7 +161,7 @@ public class Visit : ISoftDeletable
     /// <summary>
     /// Navigational collection for the table
     /// </summary>
-    public Table Table { get; set; } = null!;
+    public Table? Table { get; set; } = null!;
 
     /// <summary>
     /// Navigational property for restaurant

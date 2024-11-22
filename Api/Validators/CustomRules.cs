@@ -180,12 +180,14 @@ public static class CustomRules
     /// <summary>
     /// Validates that the given Table ID exists within the specified Restaurant ID.
     /// </summary>
-    public static IRuleBuilderOptions<T, Tuple<int, int>> TableExistsInRestaurant<T>(this IRuleBuilder<T, Tuple<int, int>> builder, ApiDbContext dbContext)
+    public static IRuleBuilderOptions<T, Tuple<int, int?>> TableExistsInRestaurant<T>(this IRuleBuilder<T, Tuple<int, int?>> builder, ApiDbContext dbContext)
     {
         return builder
             .MustAsync(async (tuple, cancellationToken) =>
             {
                 var (restaurantId, tableId) = tuple;
+                if (tableId is null) return true;
+
                 return await dbContext.Tables
                     .AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId, cancellationToken);
             })
