@@ -1,3 +1,4 @@
+using Reservant.Api.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Reservant.Api.Dtos.Auth;
@@ -21,4 +22,9 @@ public class UserVM
     /// User roles
     /// </summary>
     public required IList<string> Roles { get; init; }
+
+    /// <summary>
+    /// Phone number with country code
+    /// </summary>
+    public required PhoneNumber? PhoneNumber { get; init; }
 }

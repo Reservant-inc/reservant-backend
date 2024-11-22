@@ -13,6 +13,7 @@ using Reservant.Api.Dtos.Location;
 using System.Text.RegularExpressions;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Reservant.Api.Validators;
 
@@ -369,11 +370,11 @@ public static class CustomRules
     /// <summary>
     /// Validates if string has a syntax of a phone number
     /// </summary>
-    public static IRuleBuilderOptions<T, string?> IsValidPhoneNumber<T>(
-        this IRuleBuilder<T, string?> builder)
+    public static IRuleBuilderOptions<T, PhoneNumber?> IsValidPhoneNumber<T>(
+        this IRuleBuilder<T, PhoneNumber?> builder)
     {
         return builder
-            .Matches(@"^\+\d+$")
+            .Must( b => b is null || (new Regex(@"^\d+$").IsMatch(b!.Number) && new Regex(@"^\+\d+$").IsMatch(b!.Code)))
             .WithErrorCode(ErrorCodes.MustBeValidPhoneNumber)
             .WithMessage("The phone number must start with '+' followed by digits.");
     }
