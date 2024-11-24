@@ -77,7 +77,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <response code="400">Restaurant already verified</response>
     [HttpPost("{restaurantId:int}/verify")]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.CustomerSupportAgent)]
+    [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.SetVerifiedIdAsync))]
     public async Task<ActionResult> SetVerifiedId(int restaurantId)
     {

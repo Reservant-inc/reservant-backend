@@ -27,6 +27,7 @@ public class UserService(
     UserManager<User> userManager,
     ApiDbContext dbContext,
     ValidationService validationService,
+    UserManager<User> roleManager,
     UrlService urlService,
     IMapper mapper)
 {
@@ -485,8 +486,9 @@ public class UserService(
 
         var viewModel = mapper.Map<UserEmployeeVM>(requestedUser);
 
+        User? currentUser = await dbContext.Users.FindAsync(currentUserId);
         // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
-        if (requestedUser.EmployerId == currentUserId)
+        if (requestedUser.EmployerId == currentUserId || currentUser!=null && await roleManager.IsInRoleAsync(currentUser, Roles.Customer))
         {
             // Zwrót pełnych danych dla pracownika
             return viewModel;
