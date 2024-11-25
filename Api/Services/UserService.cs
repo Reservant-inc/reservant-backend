@@ -598,7 +598,7 @@ public class UserService(
     /// <summary>
     /// bans user based on id
     /// </summary>
-    /// <param name="UserId">ID of the user</param>
+    /// <param name="UserId">ID of the user to be banned</param>
     /// <param name="Dto">Dto of ban</param>
     /// <param name="CurrentUser">current user</param>
     public async Task<Result> BanUserAsync(User CurrentUser ,Guid UserId, BanDto Dto)
@@ -620,7 +620,7 @@ public class UserService(
                 ErrorCode = ErrorCodes.MustBeCustomerSupportAgent,
             };
         }
-        if(user.BannedUntil!=null && user.BannedUntil<DateTime.UtcNow.Date)
+        if(user.BannedUntil!=null && user.BannedUntil>DateTime.UtcNow.Date)
         {
             return new ValidationFailure
             {
@@ -646,7 +646,7 @@ public class UserService(
     /// <summary>
     /// unban user based on id
     /// </summary>
-    /// <param name="UserId">ID of the user</param>
+    /// <param name="UserId">ID of the user to be unbanned</param>
     /// <param name="CurrentUser">current user</param>
     public async Task<Result> UnbanUserAsync(User CurrentUser ,Guid UserId)
     {
@@ -668,6 +668,44 @@ public class UserService(
             };
         }
         if (user.BannedUntil==null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(UserId),
+                ErrorCode = ErrorCodes.InvalidState,
+            };
+        }
+
+        user.BannedUntil = null;
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// remove expired bans
+    /// </summary>
+    /// <param name="UserId">ID of the user to be unbanned</param>
+    public async Task<Result> removeExpiredBansAsync(Guid UserId)
+    {
+        var user = await dbContext.Users.Where(u => u.Id.Equals(UserId)).FirstOrDefaultAsync();
+        if (user == null)        
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(UserId),
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+        if (user.BannedUntil==null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(UserId),
+                ErrorCode = ErrorCodes.InvalidState,
+            };
+        }
+        if(user.BannedUntil>DateTime.UtcNow.Date)
         {
             return new ValidationFailure
             {

@@ -108,12 +108,19 @@ public class AuthController(
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
-        if(user.BannedUntil!=null && user.BannedUntil>DateTime.UtcNow.Date)
+        if(user.BannedUntil!=null)
         {
-            return Problem(
+            if(user.BannedUntil>DateTime.UtcNow.Date)
+            {
+                return Problem(
                 title: "You are banned until: "+user.BannedUntil,
                 statusCode: StatusCodes.Status403Forbidden);
-        }  
+            }
+            else
+            {
+                await userService.removeExpiredBansAsync(user.Id);
+            }
+        }
 
         if (!await userManager.CheckPasswordAsync(user, request.Password))
         {
@@ -239,12 +246,19 @@ public class AuthController(
             return Unauthorized();
         }
 
-        if(user.BannedUntil!=null && user.BannedUntil>DateTime.UtcNow.Date)
+        if(user.BannedUntil!=null)
         {
-            return Problem(
+            if(user.BannedUntil>DateTime.UtcNow.Date)
+            {
+                return Problem(
                 title: "You are banned until: "+user.BannedUntil,
                 statusCode: StatusCodes.Status403Forbidden);
-        }  
+            }
+            else
+            {
+                await userService.removeExpiredBansAsync(user.Id);
+            }
+        } 
 
         var token = authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
