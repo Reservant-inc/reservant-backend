@@ -28,6 +28,7 @@ public class UserService(
     ApiDbContext dbContext,
     ValidationService validationService,
     UrlService urlService,
+    UserManager<User> roleManager,
     IMapper mapper)
 {
     /// <summary>
@@ -54,7 +55,8 @@ public class UserService(
             FullPhoneNumber = request.PhoneNumber,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
-            RegisteredAt = DateTime.UtcNow
+            RegisteredAt = DateTime.UtcNow,
+            BannedUntil = null
         };
 
         var validationResult = await validationService.ValidateAsync(user, null);
@@ -99,7 +101,8 @@ public class UserService(
             BirthDate = request.BirthDate,
             FullPhoneNumber = request.PhoneNumber,
             RegisteredAt = DateTime.UtcNow,
-            Employer = employer
+            Employer = employer,
+            BannedUntil = null
         };
 
         var validationResult = await validationService.ValidateAsync(employee, employer.Id);
@@ -143,7 +146,8 @@ public class UserService(
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
-            RegisteredAt = DateTime.UtcNow
+            RegisteredAt = DateTime.UtcNow,
+            BannedUntil = null
         };
 
         result = await validationService.ValidateAsync(user, null);
@@ -586,5 +590,95 @@ public class UserService(
         {
             Language = user.Language.ToString(),
         };
+    }
+
+
+
+
+    /// <summary>
+    /// bans user based on id
+    /// </summary>
+    /// <param name="UserId">ID of the user</param>
+    /// <param name="Dto">Dto of ban</param>
+    /// <param name="CurrentUser">current user</param>
+    public async Task<Result> BanUserAsync(User CurrentUser ,Guid UserId, BanDto Dto)
+    {
+        var user = await dbContext.Users.Where(u => u.Id.Equals(UserId)).FirstOrDefaultAsync();
+        if (user == null)        
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(UserId),
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+        if (!await roleManager.IsInRoleAsync(CurrentUser, Roles.CustomerSupportAgent))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(CurrentUser.Id),
+                ErrorCode = ErrorCodes.MustBeCustomerSupportAgent,
+            };
+        }
+        if(user.BannedUntil!=null && user.BannedUntil<DateTime.UtcNow.Date)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(UserId),
+                ErrorCode = ErrorCodes.InvalidState,
+            };
+        }
+        if (CurrentUser.Id==UserId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(CurrentUser.Id),
+                ErrorCode = ErrorCodes.AccessDenied,
+            };
+        }
+
+        user.BannedUntil = DateTime.UtcNow.Add(Dto.timeSpan);
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success;
+    }
+
+    /// <summary>
+    /// unban user based on id
+    /// </summary>
+    /// <param name="UserId">ID of the user</param>
+    /// <param name="CurrentUser">current user</param>
+    public async Task<Result> UnbanUserAsync(User CurrentUser ,Guid UserId)
+    {
+        var user = await dbContext.Users.Where(u => u.Id.Equals(UserId)).FirstOrDefaultAsync();
+        if (user == null)        
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(UserId),
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+        if (!await roleManager.IsInRoleAsync(CurrentUser, Roles.CustomerSupportAgent))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(CurrentUser.Id),
+                ErrorCode = ErrorCodes.MustBeCustomerSupportAgent,
+            };
+        }
+        if (user.BannedUntil==null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(UserId),
+                ErrorCode = ErrorCodes.InvalidState,
+            };
+        }
+
+        user.BannedUntil = null;
+        await dbContext.SaveChangesAsync();
+
+        return Result.Success;
     }
 }

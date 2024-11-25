@@ -153,4 +153,9 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// </summary>
     [ProtectedPersonalData]
     public PhoneNumber? FullPhoneNumber { get; set; } = null!;
+
+    /// <summary>
+    /// Precise time of beeing unbanned
+    /// </summary>
+    public required DateTime? BannedUntil { get; set; }
 }
