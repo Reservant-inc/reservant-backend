@@ -1723,7 +1723,7 @@ namespace Reservant.Api.Services
             var now = DateTime.UtcNow;
             var visitSoonThreshold = now + VisitSoonTimeSpan;
 
-            return await context
+            var query = context
                 .Entry(restaurant)
                 .Collection(r => r.Tables)
                 .Query()
@@ -1756,7 +1756,15 @@ namespace Reservant.Api.Services
                                 v.Reservation!.StartTime <= visitSoonThreshold)
                             ? TableStatus.VisitSoon
                             : TableStatus.Available,
-                }).ToListAsync();
+                });
+
+
+            return orderBy switch
+            {
+                TableSorting.StatusAsc => await query.OrderBy(t => t.Status).ToListAsync(),
+                TableSorting.StatusDesc => await query.OrderByDescending(t => t.Status).ToListAsync(),
+                _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, null)
+            };
         }
     }
 }

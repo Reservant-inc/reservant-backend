@@ -387,7 +387,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             return Unauthorized();
         }
 
-        var tables = await service.GetTablesAsync(restaurantId, user);
+        var tables = await service.GetTablesAsync(restaurantId, user, orderBy);
         return OkOrErrors(tables);
     }
 }
