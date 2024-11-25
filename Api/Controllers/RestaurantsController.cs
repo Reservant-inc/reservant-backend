@@ -98,7 +98,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <returns>List of orders with pagination</returns>
     [HttpGet("{restaurantId:int}/orders")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner},{Roles.CustomerSupportAgent}")]
     public async Task<ActionResult<Pagination<OrderSummaryVM>>> GetOrders(int restaurantId, [FromQuery] bool returnFinished = false, [FromQuery] int page = 0, [FromQuery] int perPage = 10, [FromQuery] OrderSorting? orderBy = null, int? tableId = null, Guid? assignedEmployeeId = null )
     {
         var userId = User.GetUserId();
@@ -211,7 +211,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/visits")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetVisitsInRestaurantAsync))]
-    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee},{Roles.CustomerSupportAgent}")]
     public async Task<ActionResult<Pagination<VisitVM>>> GetVisitsInRestaurant(
         int restaurantId,
         DateOnly? dateStart,
@@ -311,7 +311,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId">ID of the restaurant</param>
     /// <returns>The found list of menuItems</returns>
     [HttpGet("{restaurantId:int}/menu-items")]
-    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}")]
+    [Authorize(Roles = $"{Roles.Customer}, {Roles.RestaurantEmployee}, {Roles.CustomerSupportAgent}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
     {
@@ -352,7 +352,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [HttpGet("{restaurantId:int}/employees")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesBasicInfoAsync))]
-    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee},{Roles.CustomerSupportAgent}")]
     public async Task<ActionResult<List<EmployeeBasicInfoVM>>> GetEmployees(
         int restaurantId,
         bool hallOnly,
@@ -376,7 +376,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId"></param>
     /// <returns></returns>
     [HttpGet("{restaurantId:int}/tables")]
-    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner},{Roles.CustomerSupportAgent}")]
     public async Task<ActionResult<List<RestaurantTableVM>>> GetTables(int restaurantId)
     {
         var user = await userManager.GetUserAsync(User);

@@ -488,7 +488,7 @@ public class UserService(
 
         User? currentUser = await dbContext.Users.FindAsync(currentUserId);
         // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
-        if (requestedUser.EmployerId == currentUserId || currentUser!=null && await roleManager.IsInRoleAsync(currentUser, Roles.Customer))
+        if (requestedUser.EmployerId == currentUserId || currentUser!=null && await roleManager.IsInRoleAsync(currentUser, Roles.CustomerSupportAgent))
         {
             // Zwrót pełnych danych dla pracownika
             return viewModel;
