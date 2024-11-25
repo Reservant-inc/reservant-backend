@@ -16,6 +16,7 @@ namespace Reservant.Api.Controllers;
 [ApiController, Route("/reports")]
 public class ReportsController(
     ReportCustomerService service,
+    ReportService reportService,
     UserManager<User> userManager) : StrictController
 {
     /// <summary>
@@ -40,7 +41,7 @@ public class ReportsController(
     /// <returns>list of reports accessible by customer support employees</returns>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportCustomerService>(nameof(ReportCustomerService.GetReportsAsync))]
+    [MethodErrorCodes<ReportService>(nameof(ReportService.GetReportsAsync))]
     [Authorize(Roles = $"{Roles.CustomerSupportManager}, {Roles.CustomerSupportAgent}")]
     public async Task<ActionResult<List<ReportVM>>> GetReports(
         [FromQuery]DateTime? dateFrom,
@@ -54,14 +55,6 @@ public class ReportsController(
         {
             return Unauthorized();
         }
-        string role;
-        if (User.IsInRole(Roles.CustomerSupportManager)) {
-            role = Roles.CustomerSupportManager;
-        }
-        else
-        {
-            role = Roles.CustomerSupportAgent;
-        }
-        return OkOrErrors(await service.GetReportsAsync(user, role, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+        return OkOrErrors(await reportService.GetReportsAsync(dateFrom, dateUntil, category, reportedUserId, restaurantId));
     }
 }

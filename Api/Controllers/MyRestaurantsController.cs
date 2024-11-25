@@ -26,7 +26,7 @@ namespace Reservant.Api.Controllers
     public class MyRestaurantsController(
         RestaurantService restaurantService,
         UserManager<User> userManager,
-        ReportCustomerService reportService)
+        ReportService reportService)
         : StrictController
     {
         /// <summary>
@@ -262,22 +262,21 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet("{restaurantId:int}/reports")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes<ReportCustomerService>(nameof(ReportCustomerService.GetReportsAsync))]
+        [MethodErrorCodes<ReportService>(nameof(ReportService.GetMyRestaurantsReportsAsync))]
         [Authorize(Roles = Roles.RestaurantOwner)]
         public async Task<ActionResult<List<ReportVM>>> GetReports(
             [FromQuery] DateTime? dateFrom,
             [FromQuery] DateTime? dateUntil,
             [FromQuery] string? category,
             [FromQuery] string? reportedUserId,
-            [FromQuery] int? restaurantId)
+            [FromQuery] int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
             {
                 return Unauthorized();
             }
-            var role = Roles.RestaurantOwner;
-            return OkOrErrors(await reportService.GetReportsAsync(user, role, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+            return OkOrErrors(await reportService.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
         }
     }
 }

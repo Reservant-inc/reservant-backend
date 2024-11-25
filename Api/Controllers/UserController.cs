@@ -29,7 +29,7 @@ public class UserController(
     UrlService urlService,
     EventService eventService,
     ThreadService threadService,
-    ReportCustomerService reportService
+    ReportService reportService
     ) : StrictController
 {
     /// <summary>
@@ -287,7 +287,7 @@ public class UserController(
     /// <returns>list of reports created by the user</returns>
     [HttpGet("reports")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportCustomerService>(nameof(ReportCustomerService.GetReportsAsync))]
+    [MethodErrorCodes<ReportService>(nameof(ReportService.GetReportsAsync))]
     [Authorize]
     public async Task<ActionResult<List<ReportVM>>> GetReports(
             [FromQuery] DateTime? dateFrom,
@@ -300,7 +300,6 @@ public class UserController(
         {
             return Unauthorized();
         }
-        var role = "user";
-        return OkOrErrors(await reportService.GetReportsAsync(user, role, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+        return OkOrErrors(await reportService.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
     }
 }

@@ -87,58 +87,5 @@ public class ReportCustomerService(
         return mapper.Map<ReportVM>(report);
     }
 
-    /// <summary>
-    /// One function for getting all the reports
-    /// </summary>
-    /// <param name="user">user that calls the function</param>
-    /// <param name="role">Role of the user</param>
-    /// <param name="dateFrom">Starting date to look for reports</param>
-    /// <param name="dateUntil">Ending date to look for reports</param>
-    /// <param name="category">category of the reports to look for</param>
-    /// <param name="reportedUserId">id of the user that was reported in the reports</param>
-    /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
-    /// <returns>list of reports that match given parameters</returns>
-    public async Task<Result<List<ReportVM>>> GetReportsAsync(
-        User user,
-        string role,
-        DateTime? dateFrom,
-        DateTime? dateUntil,
-        string? category,
-        string? reportedUserId,
-        int? restaurantId)
-    {
-        IQueryable<Report> reports = context.Reports;
-        switch (role)
-        {
-            case Roles.RestaurantOwner:
-                reports = reports.Where(r => r.Visit!.Restaurant.Group.OwnerId == user.Id);
-                break;
-            case Roles.CustomerSupportManager:
-                break;
-            case Roles.CustomerSupportAgent:
-                break;
-            default:
-                reports = reports.Where(r => r.CreatedById == user.Id);
-                break;
-        }
-
-        if (dateFrom is not null)
-        {
-            reports = reports.Where(r => r.ReportDate >= dateFrom);
-        }
-        if (dateUntil is not null)
-        {
-            reports = reports.Where(r => r.ReportDate <= dateUntil);
-        }
-        if (category is not null)
-        {
-            reports = reports.Where(r => r.ReportedUserId!.Value.ToString() == reportedUserId);
-        }
-        if (restaurantId is not null)
-        {
-            reports = reports.Where(r => r.Visit!.RestaurantId == restaurantId);
-        }
-        var res = await reports.ToListAsync();
-        return mapper.Map<List<ReportVM>>(res);
-    }
+   
 }
