@@ -1691,10 +1691,11 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="restaurantId"></param>
         /// <param name="user"></param>
+        /// <param name="orderBy"></param>
         /// <returns></returns>
 
         [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
-        public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId, User user)
+        public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId, User user, TableSorting orderBy)
         {
             var restaurant = await context.Restaurants
                 .AsNoTracking()

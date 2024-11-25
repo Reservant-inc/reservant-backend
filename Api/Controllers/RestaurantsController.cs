@@ -374,10 +374,12 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// Gets a list of tables in a restaurant
     /// </summary>
     /// <param name="restaurantId"></param>
+    /// <param name="orderBy"></param>
     /// <returns></returns>
     [HttpGet("{restaurantId:int}/tables")]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
-    public async Task<ActionResult<List<RestaurantTableVM>>> GetTables(int restaurantId)
+    public async Task<ActionResult<List<RestaurantTableVM>>> GetTables(
+        int restaurantId, TableSorting orderBy = TableSorting.StatusAsc)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
