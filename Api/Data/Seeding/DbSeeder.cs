@@ -4,17 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Auth;
+using Reservant.Api.Dtos.OrderItems;
+using Reservant.Api.Dtos.Orders;
+using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
-using Reservant.Api.Data.RestaurantSeeders;
-using Reservant.Api.Dtos.OrderItems;
-using Reservant.Api.Dtos.Orders;
-using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Services.VisitServices;
 
-namespace Reservant.Api.Data;
+namespace Reservant.Api.Data.Seeding;
 
 /// <summary>
 /// Service for adding sample data to the database
@@ -33,11 +32,11 @@ public class DbSeeder
     private readonly GeometryFactory _geometryFactory;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ILogger<DbSeeder> _logger;
-    
+
     /// <summary>
     /// Konstuktor
     /// </summary>
-    /// <param name="context"></param> 
+    /// <param name="context"></param>
     /// <param name="roleManager"></param>
     /// <param name="userService"></param>
     /// <param name="restaurantService"></param>
@@ -389,7 +388,7 @@ public class DbSeeder
 
         await _context.SaveChangesAsync();
     }
-    
+
     /// <summary>
     /// Creates visit in the future
     /// </summary>
@@ -443,7 +442,7 @@ public class DbSeeder
 
 
     /// <summary>
-    /// 
+    ///
     /// </summary>
     /// <param name="fileName"></param>
     /// <param name="owner"></param>

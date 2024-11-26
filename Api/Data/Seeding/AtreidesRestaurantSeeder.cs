@@ -6,7 +6,7 @@ using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
 
-namespace Reservant.Api.Data.RestaurantSeeders;
+namespace Reservant.Api.Data.Seeding;
 
 /// <summary>
 /// Seeder class for Atreides' restaurant

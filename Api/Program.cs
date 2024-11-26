@@ -10,6 +10,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Reservant.Api;
 using Reservant.Api.Data;
+using Reservant.Api.Data.Seeding;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
 using Reservant.Api.Mapping;

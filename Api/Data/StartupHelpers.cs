@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using Reservant.Api.Data.Seeding;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
 
