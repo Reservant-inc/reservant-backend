@@ -122,6 +122,48 @@ public class UserSeeder
         users.Customer3 = await users.CreateCustomer(
             "customer3", "Kacper", "Testowy", "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb", false);
 
+        users.JohnDoe.IncomingRequests = [
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 7, 18, 52, 2),
+                DateRead = new DateTime(2024, 8, 7, 20, 30, 0),
+                DateAccepted = new DateTime(2024, 8, 7, 20, 30, 19),
+                Sender = users.KrzysztofKowalski,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 10, 13, 2, 50),
+                DateRead = new DateTime(2024, 8, 11, 10, 14, 8),
+                Sender = users.Customer1,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 11, 15, 8, 29),
+                Sender = users.Customer3,
+            },
+        ];
+
+        users.JohnDoe.OutgoingRequests = [
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 43, 8),
+                DateRead = new DateTime(2024, 8, 13, 16, 20, 9),
+                DateAccepted = new DateTime(2024, 8, 13, 16, 20, 53),
+                Receiver = users.WalterWhite,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 43, 50),
+                DateRead = new DateTime(2024, 8, 14, 12, 3, 2),
+                Receiver = users.PaulAtreides,
+            },
+            new FriendRequest
+            {
+                DateSent = new DateTime(2024, 8, 13, 15, 44, 16),
+                Receiver = users.GeraltRiv,
+            },
+        ];
+
         return users;
     }
 
