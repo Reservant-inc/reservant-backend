@@ -894,21 +894,19 @@ namespace Reservant.Api.Services
             {
                 
             }
-            else if (roles.Contains(Roles.RestaurantEmployee))
+            else if ((await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId)).IsError)
             {
-                var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
-                    e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
-                if (!isEmployeeAtRestaurant)
+            var authResult = await authorizationService.VerifyOwnerRole(restaurantId, userId);
+            if (authResult.IsError) return authResult.Errors;
+
+                return new ValidationFailure
                 {
-                    return new ValidationFailure
-                    {
-                        PropertyName = null,
-                        ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
-                        ErrorCode = ErrorCodes.AccessDenied
-                    };
-                }
+                    PropertyName = null,
+                    ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };              
             }
-            else if (roles.Contains(Roles.RestaurantOwner))
+            else if ((await authorizationService.VerifyOwnerRole(restaurantId, userId)).IsError)
             {
                 if (restaurant.Group.OwnerId != userId)
                 {
@@ -1231,9 +1229,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            User? user = context.Users.FirstOrDefault(u => u.Id == userId);
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
-            if (authResult.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            if (await CheckBokAuthorizationAsync(authResult,user))
             {
                 return authResult.Errors;
             }
@@ -1361,11 +1359,11 @@ namespace Reservant.Api.Services
             int perPage = 10)
         {
 
-            User? user = context.Users.FirstOrDefault(u => u.Id == userId);
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             var access = await authorizationService
                 .VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
-            if (access.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            if (await CheckBokAuthorizationAsync(access,user))
             {
                 return access.Errors;
             }
@@ -1657,10 +1655,10 @@ namespace Reservant.Api.Services
                 };
             }
 
-            User? user = context.Users.FirstOrDefault(u => u.Id == userId);
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             var authResult = await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId);
-            if (authResult.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            if (await CheckBokAuthorizationAsync(authResult,user))
             {
                 return authResult.Errors;
             }
@@ -1725,7 +1723,7 @@ namespace Reservant.Api.Services
 
             var res = await authorizationService.VerifyRestaurantHallAccess(restaurantId, user.Id);
 
-            if (res.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            if (await CheckBokAuthorizationAsync(res,user))
             {
                 return res.Errors;
             }
@@ -1768,5 +1766,17 @@ namespace Reservant.Api.Services
                             : TableStatus.Available,
                 }).ToListAsync();
         }
+
+        /// <summary>
+        /// Checks if the user is authorized to function used by BOK employees based on the result and user role.
+        /// </summary>
+        /// <param name="res">The result object containing error information.</param>
+        /// <param name="user">The user object to check authorization for.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating whether the user is authorized.</returns>
+        public async Task<bool> CheckBokAuthorizationAsync(Result res, User? user)
+        {
+            return res.IsError && user != null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent);
+        }
+
     }
 }
