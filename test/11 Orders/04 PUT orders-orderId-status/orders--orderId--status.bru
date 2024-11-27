@@ -1,29 +1,35 @@
 meta {
-  name: orders--ordersId--cancel
+  name: orders--orderId--status
   type: http
-  seq: 5
+  seq: 1
 }
 
-post {
-  url: {{host}}/orders/:id/cancel
-  body: none
+put {
+  url: {{host}}/orders/:id/status
+  body: json
   auth: bearer
 }
 
 params:path {
-  id: {{randomNumber010}}
+  id: 1
 }
 
 auth:bearer {
   token: {{JD}}
 }
 
-script:pre-request {
-  function generateRandomNumber010() {
-      return Math.floor(Math.random() * 11)+1;
+body:json {
+  {
+    "employeeIds": [
+      
+    ],
+    "items": [
+      {
+        "menuItemId": 3,
+        "status": "InProgress"
+      }
+    ]
   }
-  var randomNumber010 = generateRandomNumber010();
-  bru.setEnvVar("randomNumber010", randomNumber010);
 }
 
 tests {
