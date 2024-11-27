@@ -269,7 +269,7 @@ namespace Reservant.Api.Controllers
             [FromQuery] DateTime? dateUntil,
             [FromQuery] string? category,
             [FromQuery] string? reportedUserId,
-            [FromQuery] int restaurantId)
+            int restaurantId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
