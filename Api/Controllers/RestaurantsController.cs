@@ -164,12 +164,14 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="orderBy">Order of the reviews</param>
     /// <param name="page">Page number of the reviews</param>
     /// <param name="perPage">Number of reviews per page</param>
+    /// <param name="name"></param>
+    /// <param name="surname"></param>
     [HttpGet("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetReviewsAsync))]
-    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10, [FromQuery] string? name = null, [FromQuery] string? surname = null)
     {
-        var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage);
+        var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage, name, surname);
         return OkOrErrors(result);
     }
 
