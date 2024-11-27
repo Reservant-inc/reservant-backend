@@ -1,70 +1,39 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
-using Reservant.Api.Options;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Data.Seeding;
 
 /// <summary>
-/// Seeder class for John Doe's restaurant
+/// Restaurant seeder for John Doe's
 /// </summary>
-public class JohnDoesRestaurantSeeder
+public class JohnDoesRestaurantSeeder(
+    ApiDbContext context,
+    UserService userService,
+    RestaurantService restaurantService,
+    GeometryFactory geometryFactory
+    ) : RestaurantSeeder(context, userService, restaurantService)
 {
-    private readonly ApiDbContext _context;
-    private readonly UserService _userService;
-    private readonly RestaurantService _restaurantService;
-    private readonly ILogger<JohnDoesRestaurantSeeder> _logger;
-    private readonly IOptions<FileUploadsOptions> _fileUploadsOptions;
-    private readonly GeometryFactory _geometryFactory;
-    private readonly User _johnDoe;
-    private readonly RestaurantGroup _johnDoesGroup;
-    private readonly User _verifier;
+    /// <inheritdoc />
+    protected override int RandomSeed => 1;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JohnDoesRestaurantSeeder"/> class.
-    /// </summary>
-    /// <param name="context">The database context</param>
-    /// <param name="userService">The user service</param>
-    /// <param name="restaurantService">The restaurant service</param>
-    /// <param name="logger">The logger</param>
-    /// <param name="fileUploadsOptions">The file uploads options</param>
-    /// <param name="geometryFactory">The geometry factory</param>
-    /// <param name="johnDoe">The owner user</param>
-    /// <param name="johnDoesGroup">The restaurant group</param>
-    /// <param name="verifier">The verifier user</param>
-    public JohnDoesRestaurantSeeder(
-        ApiDbContext context,
-        UserService userService,
-        RestaurantService restaurantService,
-        ILogger<JohnDoesRestaurantSeeder> logger,
-        IOptions<FileUploadsOptions> fileUploadsOptions,
-        GeometryFactory geometryFactory,
-        User johnDoe,
-        RestaurantGroup johnDoesGroup,
-        User verifier)
+    /// <inheritdoc />
+    protected override List<string> GetMenuItemPhotoFileNames() =>
+    [
+        "pierogi.png", "piwo.png", "pizza.png", "ResPizza1.jpg", "ResPizza2.jpg", "ResSushi1.jpg",
+    ];
+
+    /// <inheritdoc />
+    protected override User GetRestaurantOwner(UserSeeder users) => users.JohnDoe;
+
+    /// <inheritdoc />
+    protected override async Task<Restaurant> CreateRestaurant(User owner, UserSeeder users)
     {
-        _context = context;
-        _userService = userService;
-        _restaurantService = restaurantService;
-        _logger = logger;
-        _fileUploadsOptions = fileUploadsOptions;
-        _geometryFactory = geometryFactory;
-        _johnDoe = johnDoe;
-        _johnDoesGroup = johnDoesGroup;
-        _verifier = verifier;
-    }
+        var verifier = users.CustomerSupportAgent;
+        var exampleDocument = await RequireFileUpload("test-jd.pdf");
 
-    /// <summary>
-    /// Seeds data for John Doe's restaurant.
-    /// </summary>
-    public async Task SeedAsync()
-    {
-        var exampleDocument = await RequireFileUpload("test-jd.pdf", _johnDoe);
-
-        var johnDoes = new Restaurant
+        return new Restaurant
         {
             Name = "John Doe's",
             RestaurantType = RestaurantType.Restaurant,
@@ -72,8 +41,8 @@ public class JohnDoesRestaurantSeeder
             Address = "ul. Marszałkowska 2",
             PostalIndex = "00-000",
             City = "Warszawa",
-            Location = _geometryFactory.CreatePoint(new Coordinate(20.91364863552046, 52.39625635)),
-            Group = _johnDoesGroup,
+            Location = geometryFactory.CreatePoint(new Coordinate(20.91364863552046, 52.39625635)),
+            Group = CreateRestaurantGroup(owner),
             RentalContractFileName = null,
             AlcoholLicenseFileName = null!,
             AlcoholLicense = exampleDocument,
@@ -83,450 +52,224 @@ public class JohnDoesRestaurantSeeder
             IdCardFileName = null!,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = await RequireFileUpload("ResLogo2.png", _johnDoe),
+            Logo = await RequireFileUpload("ResLogo2.png"),
             ProvideDelivery = true,
             Description = "The first example restaurant",
-            Tags = await _context.RestaurantTags
-                .Where(rt => rt.Name == "OnSite" || rt.Name == "Takeaway")
-                .ToListAsync(),
-            VerifierId = _verifier.Id,
+            Tags = await RequireRestaurantTags(["OnSite", "Takeaway"]),
+            VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(
                 new TimeOnly(10, 00), new TimeOnly(22, 00),
                 new TimeOnly(10, 00), new TimeOnly(23, 00)),
+            Tables = new List<Table>
+            {
+                new() { TableId = 1, Capacity = 4, },
+                new() { TableId = 2, Capacity = 4, },
+                new() { TableId = 3, Capacity = 6, },
+                new() { TableId = 4, Capacity = 2, },
+            },
+            Photos = await RequireRestaurantPhotos("ResInside5.jpg"),
         };
-
-        johnDoes.Tables = new List<Table>
-        {
-            new()
-            {
-                Restaurant = johnDoes,
-                TableId = 1,
-                Capacity = 4
-            },
-            new()
-            {
-                Restaurant = johnDoes,
-                TableId = 2,
-                Capacity = 4
-            },
-            new()
-            {
-                Restaurant = johnDoes,
-                TableId = 3,
-                Capacity = 6
-            },
-            new()
-            {
-                Restaurant = johnDoes,
-                TableId = 4,
-                Capacity = 2
-            }
-        };
-
-        johnDoes.Photos = new List<RestaurantPhoto>
-        {
-            new()
-            {
-                Restaurant = johnDoes,
-                Order = 1,
-                PhotoFileName = null!,
-                Photo = await RequireFileUpload("ResInside5.jpg", _johnDoe)
-            }
-        };
-
-        // Ingredients (up to 15)
-        var ingredients = new List<Ingredient>
-        {
-            new Ingredient { PublicName = "Dough", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 0
-            new Ingredient { PublicName = "Tomato Sauce", UnitOfMeasurement = UnitOfMeasurement.Liter }, // 1
-            new Ingredient { PublicName = "Mozzarella", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 2
-            new Ingredient { PublicName = "Pepperoni", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 3
-            new Ingredient { PublicName = "Basil", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 4
-            new Ingredient { PublicName = "Olives", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 5
-            new Ingredient { PublicName = "Mushrooms", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 6
-            new Ingredient { PublicName = "Onions", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 7
-            new Ingredient { PublicName = "Bell Peppers", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 8
-            new Ingredient { PublicName = "Pineapple", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 9
-            new Ingredient { PublicName = "Ham", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 10
-            new Ingredient { PublicName = "Chicken", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 11
-            new Ingredient { PublicName = "Beef", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 12
-            new Ingredient { PublicName = "BBQ Sauce", UnitOfMeasurement = UnitOfMeasurement.Liter }, // 13
-            new Ingredient { PublicName = "Cheddar", UnitOfMeasurement = UnitOfMeasurement.Gram } // 14
-        };
-
-        _context.Ingredients.AddRange(ingredients);
-
-        // Menus (4-5 menus)
-        var menus = new List<Menu>
-        {
-            new Menu
-            {
-                Name = "Classic Pizzas",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Food,
-                Restaurant = johnDoes,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Margherita",
-                        Price = 25m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResPizza1.jpg", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Dough
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },  // Tomato Sauce
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 }, // Mozzarella
-                            new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 5 }    // Basil
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Pepperoni",
-                        Price = 30m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResPizza2.jpg", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 50 }  // Pepperoni
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Four Seasons",
-                        Price = 35m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("pierogi.png", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 30 }, // Mushrooms
-                            new IngredientMenuItem { Ingredient = ingredients[10], AmountUsed = 30 }, // Ham
-                            new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 20 }, // Olives
-                            new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 20 }  // Onions
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Vegetarian",
-                        Price = 28m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResSushi1.jpg", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 30 }, // Mushrooms
-                            new IngredientMenuItem { Ingredient = ingredients[8], AmountUsed = 30 }, // Bell Peppers
-                            new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 20 }, // Olives
-                            new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 5 }  // Basil
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Mexican",
-                        Price = 32m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResPizza1.jpg", _johnDoe), // Reusing image
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
-                            new IngredientMenuItem { Ingredient = ingredients[13], AmountUsed = 50 }, // BBQ Sauce
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[12], AmountUsed = 50 }, // Beef
-                            new IngredientMenuItem { Ingredient = ingredients[8], AmountUsed = 30 }, // Bell Peppers
-                            new IngredientMenuItem { Ingredient = ingredients[7], AmountUsed = 20 }, // Onions
-                            new IngredientMenuItem { Ingredient = ingredients[14], AmountUsed = 50 } // Cheddar
-                        }
-                    }
-                }
-            },
-            new Menu
-            {
-                Name = "Specialty Pizzas",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Food,
-                Restaurant = johnDoes,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Hawaiian",
-                        Price = 32m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResPizza2.jpg", _johnDoe), // Reusing image
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[10], AmountUsed = 50 }, // Ham
-                            new IngredientMenuItem { Ingredient = ingredients[9], AmountUsed = 50 }   // Pineapple
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "BBQ Chicken",
-                        Price = 35m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("pierogi.png", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
-                            new IngredientMenuItem { Ingredient = ingredients[13], AmountUsed = 50 }, // BBQ Sauce
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[11], AmountUsed = 50 } // Chicken
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Meat Lovers",
-                        Price = 38m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResSushi1.jpg", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 },
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[3], AmountUsed = 30 }, // Pepperoni
-                            new IngredientMenuItem { Ingredient = ingredients[10], AmountUsed = 30 }, // Ham
-                            new IngredientMenuItem { Ingredient = ingredients[11], AmountUsed = 30 }, // Chicken
-                            new IngredientMenuItem { Ingredient = ingredients[12], AmountUsed = 30 } // Beef
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Seafood Delight",
-                        Price = 40m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResInside5.jpg", _johnDoe), // Using interior photo
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            // Assuming we have seafood ingredients
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Quattro Formaggi",
-                        Price = 33m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResPizza1.jpg", _johnDoe), // Reusing image
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Dough
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },  // Tomato Sauce
-                            new IngredientMenuItem { Ingredient = ingredients[2], AmountUsed = 50 },  // Mozzarella
-                            new IngredientMenuItem { Ingredient = ingredients[14], AmountUsed = 50 }, // Cheddar
-                            // Assuming other cheeses are added as ingredients
-                            new IngredientMenuItem { Ingredient = new Ingredient { PublicName = "Parmesan", UnitOfMeasurement = UnitOfMeasurement.Gram }, AmountUsed = 50 },
-                            new IngredientMenuItem { Ingredient = new Ingredient { PublicName = "Gorgonzola", UnitOfMeasurement = UnitOfMeasurement.Gram }, AmountUsed = 50 }
-                        }
-                    }
-                }
-            },
-            new Menu
-            {
-                Name = "Vegan Pizzas",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Food,
-                Restaurant = johnDoes,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Vegan Delight",
-                        Price = 30m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("pierogi.png", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Dough
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },  // Tomato Sauce
-                            // Assuming vegan cheese is added as an ingredient
-                            new IngredientMenuItem { Ingredient = new Ingredient { PublicName = "Vegan Cheese", UnitOfMeasurement = UnitOfMeasurement.Gram }, AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[6], AmountUsed = 30 }, // Mushrooms
-                            new IngredientMenuItem { Ingredient = ingredients[8], AmountUsed = 30 }, // Bell Peppers
-                            new IngredientMenuItem { Ingredient = ingredients[5], AmountUsed = 20 }  // Olives
-                        }
-                    },
-                    new MenuItem
-                    {
-                        Name = "Vegan Margherita",
-                        Price = 28m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("ResSushi1.jpg", _johnDoe),
-                        Ingredients = new List<IngredientMenuItem>
-                        {
-                            new IngredientMenuItem { Ingredient = ingredients[0], AmountUsed = 200 }, // Dough
-                            new IngredientMenuItem { Ingredient = ingredients[1], AmountUsed = 50 },  // Tomato Sauce
-                            new IngredientMenuItem { Ingredient = new Ingredient { PublicName = "Vegan Mozzarella", UnitOfMeasurement = UnitOfMeasurement.Gram }, AmountUsed = 100 },
-                            new IngredientMenuItem { Ingredient = ingredients[4], AmountUsed = 5 }    // Basil
-                        }
-                    }
-                }
-            },
-            new Menu
-            {
-                Name = "Beverages",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Food,
-                Restaurant = johnDoes,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Coca-Cola",
-                        Price = 5m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _johnDoe), // Using available image
-                    },
-                    new MenuItem
-                    {
-                        Name = "Orange Juice",
-                        Price = 6m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _johnDoe),
-                    },
-                    new MenuItem
-                    {
-                        Name = "Mineral Water",
-                        Price = 4m,
-                        AlcoholPercentage = null,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _johnDoe),
-                    }
-                }
-            },
-            new Menu
-            {
-                Name = "Alcoholic Beverages",
-                DateFrom = new DateOnly(2024, 1, 1),
-                DateUntil = null,
-                MenuType = MenuType.Alcohol,
-                Restaurant = johnDoes,
-                MenuItems = new List<MenuItem>
-                {
-                    new MenuItem
-                    {
-                        Name = "Beer",
-                        Price = 8m,
-                        AlcoholPercentage = 5m,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _johnDoe),
-                    },
-                    new MenuItem
-                    {
-                        Name = "Red Wine",
-                        Price = 15m,
-                        AlcoholPercentage = 12m,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _johnDoe),
-                    },
-                    new MenuItem
-                    {
-                        Name = "White Wine",
-                        Price = 15m,
-                        AlcoholPercentage = 12m,
-                        Restaurant = johnDoes,
-                        PhotoFileName = null!,
-                        Photo = await RequireFileUpload("piwo.png", _johnDoe),
-                    }
-                }
-            }
-        };
-
-        johnDoes.Menus = menus;
-
-        _context.Restaurants.Add(johnDoes);
-
-        // Save changes
-        await _context.SaveChangesAsync();
     }
 
-    /// <summary>
-    /// Creates weekly opening hours.
-    /// </summary>
-    /// <param name="from">Weekday opening time</param>
-    /// <param name="until">Weekday closing time</param>
-    /// <param name="weekendFrom">Weekend opening time</param>
-    /// <param name="weekendUntil">Weekend closing time</param>
-    /// <param name="openOnSunday">Indicates if open on Sunday</param>
-    /// <returns>A WeeklyOpeningHours object</returns>
-    private static WeeklyOpeningHours CreateOpeningHours(
-        TimeOnly from, TimeOnly until,
-        TimeOnly weekendFrom, TimeOnly weekendUntil,
-        bool openOnSunday = true)
-    {
-        return new WeeklyOpeningHours(new List<OpeningHours>
+    /// <inheritdoc />
+    protected override Ingredient[] CreateIngredients() =>
+    [
+        new Ingredient
         {
-            new OpeningHours { From = from, Until = until }, // Monday
-            new OpeningHours { From = from, Until = until }, // Tuesday
-            new OpeningHours { From = from, Until = until }, // Wednesday
-            new OpeningHours { From = from, Until = until }, // Thursday
-            new OpeningHours { From = from, Until = until }, // Friday
-            new OpeningHours { From = weekendFrom, Until = weekendUntil }, // Saturday
-            openOnSunday ? new OpeningHours { From = weekendFrom, Until = weekendUntil } : new OpeningHours() // Sunday
-        });
-    }
+            PublicName = "Dough",
+            UnitOfMeasurement = UnitOfMeasurement.Gram,
+            Corrections = [
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 1000,
+                    NewAmount = 950,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-12),
+                    User = RestaurantOwner,
+                    Comment = "Adjusted inventory after delivery",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 950,
+                    NewAmount = 900,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-11),
+                    User = FindEmployeeByLogin("backdoors"),
+                    Comment = "Used for special catering order",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 900,
+                    NewAmount = 850,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-10),
+                    User = RestaurantOwner,
+                    Comment = "Prepared extra dough for weekend rush",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 850,
+                    NewAmount = 800,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-9),
+                    User = RestaurantOwner,
+                    Comment = "Adjusted inventory after spoilage",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 800,
+                    NewAmount = 750,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-8),
+                    User = FindEmployeeByLogin("backdoors"),
+                    Comment = "Used for testing new recipe",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 750,
+                    NewAmount = 700,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-7),
+                    User = FindEmployeeByLogin("backdoors"),
+                    Comment = "Prepared dough for special event",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 700,
+                    NewAmount = 650,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-6),
+                    User = RestaurantOwner,
+                    Comment = "Adjusted inventory after staff meal",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 650,
+                    NewAmount = 600,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-5),
+                    User = FindEmployeeByLogin("backdoors"),
+                    Comment = "Used for charity event",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 600,
+                    NewAmount = 550,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-4),
+                    User = RestaurantOwner,
+                    Comment = "Prepared dough for school workshop",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 550,
+                    NewAmount = 500,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-3),
+                    User = RestaurantOwner,
+                    Comment = "Adjusted inventory after stocktake",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 500,
+                    NewAmount = 450,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-2),
+                    User = FindEmployeeByLogin("backdoors"),
+                    Comment = "Used for experimental dish",
+                },
+                new IngredientAmountCorrection
+                {
+                    OldAmount = 450,
+                    NewAmount = 400,
+                    CorrectionDate = DateTime.UtcNow.AddDays(-1),
+                    User = FindEmployeeByLogin("backdoors"),
+                    Comment = "Prepared dough for family gathering",
+                },
+            ],
+        }, // 0
+        new Ingredient { PublicName = "Tomato Sauce", UnitOfMeasurement = UnitOfMeasurement.Liter }, // 1
+        new Ingredient { PublicName = "Mozzarella", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 2
+        new Ingredient { PublicName = "Pepperoni", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 3
+        new Ingredient { PublicName = "Basil", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 4
+        new Ingredient { PublicName = "Olives", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 5
+        new Ingredient { PublicName = "Mushrooms", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 6
+        new Ingredient { PublicName = "Onions", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 7
+        new Ingredient { PublicName = "Bell Peppers", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 8
+        new Ingredient { PublicName = "Pineapple", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 9
+        new Ingredient { PublicName = "Ham", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 10
+        new Ingredient { PublicName = "Chicken", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 11
+        new Ingredient { PublicName = "Beef", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 12
+        new Ingredient { PublicName = "BBQ Sauce", UnitOfMeasurement = UnitOfMeasurement.Liter }, // 13
+        new Ingredient { PublicName = "Cheddar", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 14
+    ];
 
-    /// <summary>
-    /// Requires a file upload to be present and owned by the specified user.
-    /// </summary>
-    /// <param name="fileName">The file name</param>
-    /// <param name="owner">The owner user</param>
-    /// <returns>The FileUpload object</returns>
-    private async Task<FileUpload> RequireFileUpload(string fileName, User owner)
-    {
-        var upload = await _context.FileUploads.FirstOrDefaultAsync(x => x.FileName == fileName) ??
-               throw new InvalidDataException($"Upload {fileName} not found");
-        if (upload.UserId != owner.Id)
+    /// <inheritdoc />
+    protected override List<Menu> CreateMenus() =>
+    [
+        new Menu
         {
-            throw new InvalidDataException($"Upload {fileName} is not owned by {owner.UserName}");
-        }
+            Name = "Classic Pizzas",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            MenuItems = [
+                CreateRandomMenuItem("Margherita"),
+                CreateRandomMenuItem("Pepperoni"),
+                CreateRandomMenuItem("Four Seasons"),
+                CreateRandomMenuItem("Vegeterian"),
+                CreateRandomMenuItem("Mexican"),
+            ],
+        },
 
-        return upload;
-    }
+        new Menu
+        {
+            Name = "Specialty Pizzas",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            MenuItems = [
+                CreateRandomMenuItem("Hawaiian"),
+                CreateRandomMenuItem("BBQ Chicken"),
+                CreateRandomMenuItem("Meat Lovers"),
+                CreateRandomMenuItem("Seafood Delight"),
+                CreateRandomMenuItem("Quattro Formaggi"),
+            ],
+        },
+        new Menu
+        {
+            Name = "Vegan Pizzas",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            MenuItems = [
+                CreateRandomMenuItem("Vegan Delight"),
+                CreateRandomMenuItem("Vegan Margherita"),
+            ],
+        },
+        new Menu
+        {
+            Name = "Beverages",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            MenuItems = [
+                CreateRandomMenuItem("Coca-Cola"),
+                CreateRandomMenuItem("Orange Juice"),
+                CreateRandomMenuItem("Mineral Water"),
+            ],
+        },
+        new Menu
+        {
+            Name = "Alcoholic Beverages",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Alcohol,
+            MenuItems = [
+                CreateRandomMenuItem("Beer", 5m),
+                CreateRandomMenuItem("Red Wine", 12m),
+                CreateRandomMenuItem("White Wine", 12m),
+            ],
+        },
+    ];
+
+    /// <inheritdoc />
+    protected async override Task<List<User>> CreateEmployees() =>
+    [
+        await CreateRestaurantEmployee(
+            "hall", "Pracownik Sali", "Przykładowski",
+            "22781e02-d83a-44ef-8cf4-735e95d9a0b2", true, false),
+        await CreateRestaurantEmployee(
+            "backdoors", "Pracownik Zaplecza", "Przykładowski",
+            "06c12721-e59e-402f-aafb-2b43a4dd23f2", true, false),
+    ];
 }

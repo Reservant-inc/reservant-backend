@@ -36,4 +36,20 @@ public static class StartupHelpers
             await seeder.SeedDataAsync();
         }
     }
+
+    /// <summary>
+    /// Add database seeding services to the collection
+    /// </summary>
+    public static void AddDbSeedingServices(this IServiceCollection services)
+    {
+        var restaurantSeeders = typeof(DbSeeder).Assembly
+            .DefinedTypes
+            .Where(x => x.IsAssignableTo(typeof(RestaurantSeeder)) && x != typeof(RestaurantSeeder));
+        foreach (var seederType in restaurantSeeders)
+        {
+            services.AddScoped(typeof(RestaurantSeeder), seederType);
+        }
+
+        services.AddScoped<DbSeeder>();
+    }
 }

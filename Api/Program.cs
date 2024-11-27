@@ -57,7 +57,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ValidationService>();
 
 builder.Services.AddDbContext<ApiDbContext>();
-builder.Services.AddScoped<DbSeeder>();
+builder.Services.AddDbSeedingServices();
 builder.Services.AddIdentityServices(builder.Configuration);
 
 builder.Services.AddMappingServices();

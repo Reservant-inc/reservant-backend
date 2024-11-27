@@ -34,7 +34,7 @@ public class UserService(
     /// Used to generate restaurant employee's logins:
     /// '{employer's login}{separator}{employees's login}'
     /// </summary>
-    private const string RestaurantEmployeeLoginSeparator = "+";
+    public const string RestaurantEmployeeLoginSeparator = "+";
 
     /// <summary>
     /// Register a new restaurant Customer Support Agent.
