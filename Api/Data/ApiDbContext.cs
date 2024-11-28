@@ -59,6 +59,8 @@ public class ApiDbContext(
 
     public DbSet<ParticipationRequest> EventParticipationRequests { get; init; } = null!;
 
+    public DbSet<Report> Reports { get; init; } = null!;
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
@@ -96,15 +98,18 @@ public class ApiDbContext(
     {
         base.OnModelCreating(builder);
 
+
         builder.ApplyConfigurationsFromAssembly(typeof(ApiDbContext).Assembly);
 
         builder.Entity<Notification>()
             .HasQueryFilter(n => n.TargetUserId == _userId);
 
+
         var softDeletableEntities =
             from entity in builder.Model.GetEntityTypes()
             where entity.ClrType.IsAssignableTo(typeof(ISoftDeletable))
             select entity;
+
         foreach (var entity in softDeletableEntities)
         {
             SetSoftDeletableQueryFilterMethod

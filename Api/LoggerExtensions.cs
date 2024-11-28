@@ -33,4 +33,17 @@ public static partial class LoggerExtensions
     [LoggerMessage(Level = LogLevel.Error, EventId = 1003, EventName = "Reservant.Api.FirebaseMessagingError",
         Message = "Failed to send a Firebase push notification to user ID {UserId}")]
     public static partial void FirebaseMessagingError(this ILogger logger, Exception ex, Guid userId);
+
+    /// <summary>
+    /// Succeeded in making a payment in banking service
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="depositAmount"></param>
+    /// <param name="name"></param>
+    /// <param name="restaurantId"></param>
+    /// <param name="nip"></param>
+    /// <param name="dateTime"></param>
+    [LoggerMessage(Level = LogLevel.Information, EventId = 1004, EventName = "Reservant.Api.BankServicePaymentProcessingInformation",
+    Message = "{DepositAmount} was transferred to restaurant {Name} with id {RestaurantId} and NIP {Nip} on {DateTime}")]
+    public static partial void BankServicePaymentProcessingInformation(this ILogger logger, decimal depositAmount, string name, int restaurantId, string nip, DateTime dateTime);
 }

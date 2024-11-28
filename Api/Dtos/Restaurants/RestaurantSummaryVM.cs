@@ -59,6 +59,11 @@ public class RestaurantSummaryVM
     public required decimal? ReservationDeposit { get; init; }
 
     /// <summary>
+    /// Max reservation duration
+    /// </summary>
+    public required int MaxReservationDurationMinutes { get; set; }
+
+    /// <summary>
     /// Whether we provide delivery for the restaurant
     /// </summary>
     public required bool ProvideDelivery { get; init; }

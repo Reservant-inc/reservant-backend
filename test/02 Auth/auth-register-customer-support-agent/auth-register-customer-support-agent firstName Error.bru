@@ -13,25 +13,13 @@ post {
 body:json {
   {
     "firstName": "12345",
-    "lastName": "Doe",
-    "email": "johndoe@example.com",
-    "phoneNumber": "123456789",
-    "password": "pa$$w0rd",
-    "isManager": false
+    "lastName": "{{randomLastName}}",
+    "email": "{{randomEmail}}",
+    "phoneNumber": "{{randomPhoneNumber}}",
+    "password": "{{randomPassword}}",
+    "isManager": {{randomBoolean}}
   }
   
-}
-
-script:pre-request {
-  function generateRandomNumberSequence(length) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += Math.floor(Math.random() * 10); 
-      }
-      return result;
-  }
-  const randomNumbers = generateRandomNumberSequence(9);
-  bru.setEnvVar("randomPhoneNumber", randomNumbers);
 }
 
 tests {
@@ -49,19 +37,19 @@ tests {
   });
   
   // Test sprawdzający, czy odpowiedź zawiera błąd dotyczący formatowania hasła
-  test("Password error for missing uppercase letter", function () {
+  test("Not valid name", function () {
       var responseData = res.getBody();
       
-      expect(responseData.errors).to.have.property('');
-      expect(responseData.errors[""][0]).to.include("Passwords must have at least one uppercase ('A'-'Z').");
+      expect(responseData.errors).to.have.property('firstName');
+      expect(responseData.errors.firstName[0]).to.include("The name must contain only letters, spaces, hyphens, apostrophes, or periods.");
       
-      expect(responseData.errorCodes).to.have.property('');
-      expect(responseData.errorCodes[""][0]).to.include("IdentityError");
+      expect(responseData.errorCodes).to.have.property('firstName');
+      expect(responseData.errorCodes.firstName[0]).to.include("MustBeValidName");
   });
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);

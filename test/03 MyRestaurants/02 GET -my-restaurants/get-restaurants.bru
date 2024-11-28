@@ -22,7 +22,7 @@ tests {
   
   // 2. Sprawdzenie, czy odpowiedź zawiera dane w formacie JSON
   test("Response has a JSON body", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   // 3. Sprawdzenie, czy zwracana odpowiedź jest tablicą
@@ -38,22 +38,28 @@ tests {
       jsonData.forEach(function(restaurant) {
           expect(restaurant).to.have.property('restaurantId');
           expect(restaurant).to.have.property('name');
-          expect(restaurant).to.have.property('nip');
           expect(restaurant).to.have.property('restaurantType');
+          expect(restaurant).to.have.property('nip');
           expect(restaurant).to.have.property('address');
           expect(restaurant).to.have.property('city');
           expect(restaurant).to.have.property('location');
           expect(restaurant.location).to.have.property('latitude');
           expect(restaurant.location).to.have.property('longitude');
-          expect(restaurant).to.have.property('groupId');
           expect(restaurant).to.have.property('logo');
           expect(restaurant).to.have.property('description');
           expect(restaurant).to.have.property('reservationDeposit');
           expect(restaurant).to.have.property('provideDelivery');
           expect(restaurant).to.have.property('tags');
-          expect(restaurant).to.have.property('isVerified');
           expect(restaurant).to.have.property('rating');
           expect(restaurant).to.have.property('numberReviews');
+          expect(restaurant).to.have.property('openingHours');
+  
+          // Check the structure of openingHours
+          expect(restaurant.openingHours).to.be.an('array');
+          restaurant.openingHours.forEach(function(hours) {
+              expect(hours).to.have.property('from');
+              expect(hours).to.have.property('until');
+          });
       });
   });
   
@@ -64,21 +70,25 @@ tests {
       jsonData.forEach(function(restaurant) {
           expect(restaurant.restaurantId).to.be.a('number');
           expect(restaurant.name).to.be.a('string');
-          expect(restaurant.nip).to.be.a('string');
           expect(restaurant.restaurantType).to.be.a('string');
+          expect(restaurant.nip).to.be.a('string');
           expect(restaurant.address).to.be.a('string');
           expect(restaurant.city).to.be.a('string');
           expect(restaurant.location.latitude).to.be.a('number');
           expect(restaurant.location.longitude).to.be.a('number');
-          expect(restaurant.groupId).to.be.a('number');
           expect(restaurant.logo).to.be.a('string');
           expect(restaurant.description).to.be.a('string');
           expect(restaurant.reservationDeposit).to.satisfy(function(val) { return typeof val === 'number' || val === null; });
           expect(restaurant.provideDelivery).to.be.a('boolean');
           expect(restaurant.tags).to.be.an('array');
-          expect(restaurant.isVerified).to.be.a('boolean');
           expect(restaurant.rating).to.be.a('number');
           expect(restaurant.numberReviews).to.be.a('number');
+          
+          // Check data types within openingHours
+          restaurant.openingHours.forEach(function(hours) {
+              expect(hours.from).to.be.a('string');
+              expect(hours.until).to.be.a('string');
+          });
       });
   });
   

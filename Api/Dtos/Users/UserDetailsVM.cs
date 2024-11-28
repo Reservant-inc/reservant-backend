@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Users;
 
@@ -26,10 +27,9 @@ public class UserDetailsVM
     public required string Email { get; init; }
 
     /// <summary>
-    /// User's phone number
+    /// Full phone number with country code
     /// </summary>
-    /// <example>+48123456789</example>
-    public required string PhoneNumber { get; init; }
+    public required PhoneNumber? PhoneNumber { get; init; }
 
     /// <summary>
     /// First name

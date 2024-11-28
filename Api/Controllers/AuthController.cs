@@ -54,7 +54,8 @@ public class AuthController(
         {
             UserId = employee.Id,
             Login = employee.UserName!,
-            Roles = await userManager.GetRolesAsync(employee)
+            Roles = await userManager.GetRolesAsync(employee),
+            PhoneNumber = employee.FullPhoneNumber
         });
     }
 
@@ -77,7 +78,8 @@ public class AuthController(
         {
             UserId = user.Id,
             Login = user.UserName!,
-            Roles = await userManager.GetRolesAsync(user)
+            Roles = await userManager.GetRolesAsync(user),
+            PhoneNumber = user.FullPhoneNumber
         });
     }
 
@@ -199,7 +201,8 @@ public class AuthController(
         {
             UserId = user.Id,
             Login = user.UserName!,
-            Roles = await userManager.GetRolesAsync(user)
+            Roles = await userManager.GetRolesAsync(user),
+            PhoneNumber = user.FullPhoneNumber
         });
     }
 
@@ -242,5 +245,16 @@ public class AuthController(
             Language = user.Language.ToString(),
             Roles = roles.ToList()
         });
+    }
+
+    /// <summary>
+    /// Change the current user's password
+    /// </summary>
+    [HttpPost("change-password")]
+    [Authorize]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult> ChangePassword(ChangePasswordRequest dto)
+    {
+        return OkOrErrors(await authService.ChangePassword(dto, User.GetUserId()!.Value));
     }
 }

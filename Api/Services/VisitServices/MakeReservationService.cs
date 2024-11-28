@@ -61,19 +61,6 @@ public class MakeReservationService(
             };
         }
 
-        var table = await FindSmallestAvailableTableFor(
-            request.TotalNumberOfPeople, restaurant,
-            from: request.Date, until: request.EndTime);
-        if (table is null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "No available tables for the requested time slot",
-                ErrorCode = ErrorCodes.NoAvailableTable,
-            };
-        }
-
         var participants = await FindParticipantsByIds(request.ParticipantIds);
         var visit = new Visit
         {
@@ -90,8 +77,26 @@ public class MakeReservationService(
             },
             Tip = request.Tip,
             Takeaway = request.Takeaway,
-            TableId = table.TableId,
         };
+
+        if (!request.Takeaway)
+        {
+            var table = await FindSmallestAvailableTableFor(
+            request.TotalNumberOfPeople, restaurant,
+            from: request.Date, until: request.EndTime);
+            if (table is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "No available tables for the requested time slot",
+                    ErrorCode = ErrorCodes.NoAvailableTable,
+                };
+            }
+
+            visit.TableId = table.TableId;
+
+        }
 
         context.Add(visit);
         var validationResult = await validationService.ValidateAsync(visit, client.Id);

@@ -44,5 +44,18 @@ public class UserConfig : IEntityTypeConfiguration<User>
             .WithMany(mt => mt.Participants);
 
         builder.HasOne(user => user.Photo).WithMany();
+
+        builder.Property(u => u.FullPhoneNumber)
+            .HasConversion(
+                number => EncodePhoneNumber(number!),
+                str => DecodePhoneNumber(str));
     }
+
+    private static string EncodePhoneNumber(PhoneNumber number) =>
+        $"{number.Code} {number.Number}";
+
+    private static PhoneNumber DecodePhoneNumber(string str) =>
+        str.Split(' ') is [var code, var number]
+            ? new PhoneNumber(code, number)
+            : throw new FormatException("Encoded phone number is invalid");
 }

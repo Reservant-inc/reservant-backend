@@ -20,7 +20,6 @@ namespace Reservant.Api.Services;
 public class OrderService(
     UserManager<User> userManager,
     ApiDbContext context,
-    ValidationService validationService,
     AuthorizationService authorizationService,
     IMapper mapper)
 {
@@ -32,8 +31,8 @@ public class OrderService(
     /// <returns></returns>
     public async Task<Result<OrderVM>> GetOrderById(int id, ClaimsPrincipal claim)
     {
-
         var order = await context.Orders
+            .AsNoTracking()
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.MenuItem)
             .Include(o => o.AssignedEmployee)
@@ -44,54 +43,26 @@ public class OrderService(
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound
+                ErrorCode = ErrorCodes.NotFound,
             };
         }
 
-        var visit = await context.Visits
+        order.Visit = await context.Visits
+            .AsNoTracking()
             .Include(v => v.Participants)
             .Include(v => v.Restaurant)
             .ThenInclude(v => v.Group)
-            .FirstOrDefaultAsync(v => v.Orders.Contains(order));
+            .SingleAsync(v => v.VisitId == order.VisitId);
 
-        var user = await userManager.GetUserAsync(claim);
-        var roles = await userManager.GetRolesAsync(user!);
-
-        if (roles.Contains(Roles.RestaurantOwner))
-        {
-            if (visit!.Restaurant.Group.OwnerId != user!.Id)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
-        }
-        else if (roles.Contains(Roles.Customer)
-            && visit!.ClientId != user!.Id
-            && !visit.Participants.Contains(user))
+        var user = await userManager.GetUserAsync(claim)
+                   ?? throw new InvalidOperationException("User authenticated but cannot be found");
+        if (!await authorizationService.CanViewVisit(order.Visit, user))
         {
             return new ValidationFailure
             {
                 PropertyName = null,
-                ErrorCode = ErrorCodes.AccessDenied
+                ErrorCode = ErrorCodes.AccessDenied,
             };
-        }
-        else if (roles.Contains(Roles.RestaurantEmployee))
-        {
-            var employment = await context.Employments
-                .Where(e => e.EmployeeId == user!.Id)
-                .ToListAsync();
-
-            if (!employment.Any(e => e.RestaurantId == visit!.RestaurantId))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
-            }
         }
 
         return mapper.Map<OrderVM>(order);
@@ -142,104 +113,7 @@ public class OrderService(
         return Result.Success;
     }
 
-    /// <summary>
-    /// Creating new order
-    /// </summary>
-    [ErrorCode(nameof(request.Items), ErrorCodes.NotFound,
-        "Some of the menu items were not found")]
-    [ErrorCode(nameof(request.Items), ErrorCodes.BelongsToAnotherRestaurant,
-        "Order must only include items from the visit's restaurant")]
-    [ErrorCode(nameof(request.Items), ErrorCodes.NotInAMenu,
-        "Order must only include items that are included in an active menu")]
-    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
-    [ValidatorErrorCodes<CreateOrderRequest>]
-    [ValidatorErrorCodes<Order>]
-    public async Task<Result<OrderSummaryVM>> CreateOrderAsync(CreateOrderRequest request, User user)
-    {
-        var todaysDate = DateOnly.FromDateTime(DateTime.UtcNow);
-        var result = await validationService.ValidateAsync(request, user.Id);
-        if (!result.IsValid)
-        {
-            return result;
-        }
 
-        var menuItemIds = request.Items.Select(i => i.MenuItemId).ToList();
-        var menuItems = await context.MenuItems
-            .Where(mi => menuItemIds.Contains(mi.MenuItemId))
-            .ToDictionaryAsync(mi => mi.MenuItemId);
-
-        if (menuItems.Count != request.Items.Count)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(request.Items),
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = "Some of the menu items were not found",
-            };
-        }
-
-        var access = await authorizationService
-            .VerifyVisitParticipant(request.VisitId, user.Id);
-        if (access.IsError)
-        {
-            return access.Errors;
-        }
-
-        var visit = await context.Visits
-            .Where(v => v.VisitId == request.VisitId)
-            .Include(visit => visit.Participants)
-            .FirstAsync();
-
-        if (menuItems.Values.Any(mi => mi.RestaurantId != visit.RestaurantId))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(request.Items),
-                ErrorCode = ErrorCodes.BelongsToAnotherRestaurant,
-                ErrorMessage = "Order must only include items from the visit's restaurant",
-            };
-        }
-
-        var availableMenuItemCount = await context.MenuItems
-            .Where(mi => menuItemIds.Contains(mi.MenuItemId))
-            .CountAsync(mi => mi.Menus.Any(m => m.DateUntil == null || m.DateUntil >= todaysDate));
-
-        if (availableMenuItemCount != menuItems.Count)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(request.Items),
-                ErrorCode = ErrorCodes.NotInAMenu,
-                ErrorMessage = "All menuItems must be in a publicly available menu",
-            };
-        }
-
-        var orderItems = request.Items.Select(c => new OrderItem
-        {
-            MenuItemId = c.MenuItemId,
-            Amount = c.Amount,
-            OneItemPrice = menuItems[c.MenuItemId].Price,
-            Status = OrderStatus.InProgress,
-        }).ToList();
-
-        var order = new Order
-        {
-            VisitId = request.VisitId,
-            Note = request.Note,
-            OrderItems = orderItems
-        };
-
-        result = await validationService.ValidateAsync(order, user.Id);
-        if (!result.IsValid)
-        {
-            return result;
-        }
-
-        context.Add(order);
-        await context.SaveChangesAsync();
-
-        return mapper.Map<OrderSummaryVM>(order);
-    }
     /// <summary>
     /// Update status of the order by updating the list of states of included menu items
     /// </summary>

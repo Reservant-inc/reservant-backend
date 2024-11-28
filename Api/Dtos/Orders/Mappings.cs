@@ -18,13 +18,13 @@ public class Mappings : Profile
             .MapMemberFrom(dto => dto.Cost,
                 order => order.OrderItems.Sum(oi => oi.OneItemPrice * oi.Amount))
             .MapMemberFrom(dto => dto.Status, order =>
-                order.OrderItems.Max(oi => oi.Status));
+                order.OrderItems.Min(oi => oi.Status));
 
         CreateMap<Order, OrderVM>()
             .MapMemberFrom(dto => dto.Cost,
                 order => order.OrderItems.Sum(oi => oi.OneItemPrice * oi.Amount))
             .MapMemberFrom(dto => dto.Status, order =>
-                order.OrderItems.Max(oi => oi.Status))
+                order.OrderItems.Min(oi => oi.Status))
             .MapMemberFrom(dto => dto.Items,
                 order => order.OrderItems);
     }

@@ -147,4 +147,10 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// Property that indicates if the user was deleted
     /// </summary>
     public bool IsArchived { get; set; }
+
+    /// <summary>
+    /// User's phone number
+    /// </summary>
+    [ProtectedPersonalData]
+    public PhoneNumber? FullPhoneNumber { get; set; } = null!;
 }

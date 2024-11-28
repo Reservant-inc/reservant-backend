@@ -103,6 +103,37 @@ public class AuthorizationService(
     }
 
     /// <summary>
+    /// Verify that the user is an employee or the owner of the restaurant.
+    /// Return a validation error if not.
+    /// </summary>
+    /// <param name="restaurantId">ID of the restaurant</param>
+    /// <param name="userId">ID of the user</param>
+    /// <returns></returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    public async Task<Result> VerifyRestaurantEmployeeAccess(int restaurantId, Guid userId)
+    {
+        var userHasBackdoorsAccess = await context.Restaurants
+            .AsNoTracking()
+            .OnlyActiveRestaurants()
+            .Where(r => r.RestaurantId == restaurantId)
+            .Select(r => r.Group.OwnerId == userId
+                         || r.Employments.Any(e =>
+                             e.DateUntil == null && e.EmployeeId == userId))
+            .SingleOrDefaultAsync();
+        if (!userHasBackdoorsAccess)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User must either be an employee or the owner of the restaurant",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        return Result.Success;
+    }
+
+    /// <summary>
     /// Verify that the user is the visit's participant
     /// </summary>
     /// <param name="visitId">ID of the visit</param>
@@ -127,5 +158,27 @@ public class AuthorizationService(
         }
 
         return Result.Success;
+    }
+
+    /// <summary>
+    /// Check if a user can view the details of a visit
+    /// </summary>
+    /// <param name="visit"></param>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    public async ValueTask<bool> CanViewVisit(Visit visit, User user)
+    {
+        var isVisitParticipant = visit.ClientId == user.Id || visit.Participants.Contains(user);
+        if (isVisitParticipant) return true;
+
+        var isOwnerOfTheRestaurant = visit.Restaurant.Group.OwnerId == user.Id;
+        if (isOwnerOfTheRestaurant) return true;
+
+        var isEmployeeOfTheRestaurant = await context.Employments
+            .Where(e => e.RestaurantId == visit.Restaurant.RestaurantId && e.EmployeeId == user.Id)
+            .AnyAsync();
+        if (isEmployeeOfTheRestaurant) return true;
+
+        return false;
     }
 }

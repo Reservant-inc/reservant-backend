@@ -1,4 +1,5 @@
 using Reservant.Api.Dtos.Employments;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Users;
 
@@ -32,10 +33,11 @@ public class UserEmployeeVM
     /// </summary>
     public required DateOnly BirthDate { get; init; }
 
+
     /// <summary>
-    /// User's phone number
+    /// Full phone number with country code
     /// </summary>
-    public required string? PhoneNumber { get; set; }
+    public required PhoneNumber? PhoneNumber { get; set; }
 
     /// <summary>
     /// Employee's employments

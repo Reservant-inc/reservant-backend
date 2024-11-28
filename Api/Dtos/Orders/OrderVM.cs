@@ -38,4 +38,9 @@ public class OrderVM
     /// Serving employee
     /// </summary>
     public UserSummaryVM? AssignedEmployee { get; set; }
+
+    /// <summary>
+    /// Optional note
+    /// </summary>
+    public required string? Note { get; set; }
 }

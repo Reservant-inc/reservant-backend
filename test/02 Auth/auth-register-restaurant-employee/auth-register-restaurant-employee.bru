@@ -16,76 +16,14 @@ auth:bearer {
 
 body:json {
   {
-    "login": "{{$randomUserName}}",
-    "firstName": "{{$randomFirstName}}",
-    "lastName": "{{$randomLastName}}",
+    "login": "{{randomLogin}}",
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
     "phoneNumber": "{{randomPhoneNumber}}",
-    "birthDate": "{{formattedDate}}",
-    "password": "{{$randomAlphaNumeric.LENGTH(10)}}"
+    "birthDate": "{{randomBirthDate}}",
+    "password": "{{randomPassword}}"
   }
   
-}
-
-script:pre-request {
-  function generateRandomNumberSequence(length) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += Math.floor(Math.random() * 10); 
-      }
-      return result;
-  }
-  
-  function generateFormattedDate() {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = ('0' + (today.getMonth() + 1)).slice(-2);
-      const day = ('0' + today.getDate()).slice(-2); 
-      return `${year}-${month}-${day}`;
-  }
-  const formattedDate = generateFormattedDate();
-  bru.setEnvVar("formattedDate", formattedDate);
-  
-  
-  
-  
-  //old
-  const randomNumbers = generateRandomNumberSequence(9);
-  bru.setEnvVar("randomPhoneNumber", randomNumbers);
-  
-  function generateRandomString(length, chars) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-  }
-  
-  const randomLogin = generateRandomString(8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
-  const randomFirstName = generateRandomString(6, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
-  const randomLastName = generateRandomString(6, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
-  const randomPhoneNumber = Math.floor(Math.random() * 900000000) + 100000000;
-  const specialCharacters = '!@#$%^&*()_+[]{}|;:,.<>?';
-  const upperCase = generateRandomString(1, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-  const lowerCase = generateRandomString(6, 'abcdefghijklmnopqrstuvwxyz');
-  const number = generateRandomString(1, '0123456789');
-  const specialChar = generateRandomString(1, specialCharacters);
-  const randomPassword = upperCase + lowerCase + number + specialChar + generateRandomString(3, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
-  
-  bru.setVar("random_login", randomLogin);
-  bru.setVar("random_firstName", randomFirstName);
-  bru.setVar("random_lastName", randomLastName);
-  bru.setVar("random_phoneNumber", randomPhoneNumber);
-  bru.setVar("random_password", randomPassword);
-  
-  const employeeData = {
-      login: randomLogin,
-      firstName: randomFirstName,
-      lastName: randomLastName,
-      phoneNumber: randomPhoneNumber.toString(),
-      password: randomPassword
-  };
-  
-  bru.setVar("employee_data", JSON.stringify(employeeData));
 }
 
 tests {
@@ -96,12 +34,11 @@ tests {
   
   // Test to check if the response has a JSON body
   test("Response has a JSON body", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   // Parsing the request and response body
-  // var requestBody = pm.request.body.raw;
-  var requestData = JSON.parse(requestBody);
+  var requestData = req.getBody();
   var responseData = res.getBody();
   
   // Check that each expected field is present and non-empty
@@ -157,7 +94,7 @@ tests {
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);

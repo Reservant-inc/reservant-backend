@@ -1,0 +1,102 @@
+meta {
+  name: Updates restaurant info hours error
+  type: http
+  seq: 15
+}
+
+put {
+  url: {{host}}/my-restaurants/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "name": "{{randomCompanyName}}",
+    "nip": "{{randomNIP}}",
+    "restaurantType": "{{randomRestaurantType}}",
+    "address": "{{randomStreetAddress}}",
+    "postalIndex": "{{randomPostalCode}}",
+    "city": "{{randomCity}}",
+    "rentalContract": "test-jd.pdf",
+    "alcoholLicense": "test-jd.pdf",
+    "businessPermission": "test-jd.pdf",
+    "idCard": "test-jd.pdf",
+    "logo": "test-jd.png",
+    "description": "{{randomLoremSentence}}",
+    "reservationDeposit": {{randomDeposit}},
+    "provideDelivery": {{randomBoolean}},
+    "maxReservationDurationMinutes": {{randomDuration}},
+    "openingHours": [
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": null,
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      },
+      {
+        "from": "{{randomHourStartString}}",
+        "until": "{{randomHourEndString}}"
+      }
+    ],
+    "tags": [
+      "{{randomRestaurantTag}}"
+    ],
+    "photos": [
+      "test-jd.png"
+    ],
+    "location": {
+      "latitude": {{randomLatitude}},
+      "longitude": {{randomLongitude}}
+    }
+  }
+}
+
+tests {
+  // Sprawdzenie, czy odpowiedź ma status 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Sprawdzenie, czy odpowiedź zawiera wymagane elementy 'status' i 'errors'
+  test("Error response contains required elements", function () {
+      var jsonData = res.getBody();
+      expect(jsonData).to.have.property('status');
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  // Testy dla błędu związanego z błędną godziną otwarcia restuaracji
+  test("Error for unknown invalid hour is present", function () {
+      var responseData = res.getBody();
+  
+      // Sprawdzenie błędu dla niepoprawnego typu 'openingHours'
+      expect(responseData.errors).to.have.property('$.openingHours[2].from');
+  });
+  
+}

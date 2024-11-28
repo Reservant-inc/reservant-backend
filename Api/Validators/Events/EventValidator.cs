@@ -13,8 +13,7 @@ public class EventValidator : AbstractValidator<Models.Event>
     {
         RuleFor(e => e.Name)
             .MaximumLength(50)
-            .NotEmpty()
-            .IsValidName();
+            .NotEmpty();
 
         RuleFor(x => x.Description)
             .Length(0, 200)

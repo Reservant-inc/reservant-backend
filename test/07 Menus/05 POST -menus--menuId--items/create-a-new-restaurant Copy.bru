@@ -179,12 +179,11 @@ tests {
   
   // Sprawdzenie, czy odpowiedź ma JSON body
   test("Response has a JSON body", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   // Parsing the request and response body
-  // var requestBody = pm.request.body.raw;
-  var requestData = JSON.parse(requestBody);
+var requestData = req.getBody();
   var responseData = res.getBody();
   
   // Check that each expected field is present and non-empty

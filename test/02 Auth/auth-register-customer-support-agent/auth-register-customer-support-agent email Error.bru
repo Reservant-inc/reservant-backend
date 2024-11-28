@@ -12,26 +12,14 @@ post {
 
 body:json {
   {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "invalidemail",
-    "phoneNumber": "123456789",
-    "password": "pa$$w0rd",
-    "isManager": false
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
+    "email": "invalidemailxd",
+    "phoneNumber": "{{randomPhoneNumber}}",
+    "password": "{{randomPassword}}",
+    "isManager": {{randomBoolean}}
   }
   
-}
-
-script:pre-request {
-  function generateRandomNumberSequence(length) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += Math.floor(Math.random() * 10); 
-      }
-      return result;
-  }
-  const randomNumbers = generateRandomNumberSequence(9);
-  bru.setEnvVar("randomPhoneNumber", randomNumbers);
 }
 
 tests {
@@ -48,15 +36,19 @@ tests {
   });
   
   // Test sprawdzający, czy pole 'email' jest niepoprawne i zwraca odpowiedni błąd
-  test("Email format is invalid", function () {
+  test("email format is invalid", function () {
       var responseData = res.getBody();
+  
       expect(responseData.errors).to.have.property('email');
-      expect(responseData.errors.email[0]).to.include("The Email field is not a valid e-mail address.");
+      expect(responseData.errors.email[0]).to.include("'Email' is not a valid email address.");
+  
+      expect(responseData.errorCodes).to.have.property('email');
+      expect(responseData.errorCodes.email[0]).to.include("EmailValidator");
   });
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);

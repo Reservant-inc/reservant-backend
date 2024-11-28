@@ -32,22 +32,23 @@ public class DebugController(
 
 
     /// <summary>
-    /// Creates example visit in the future
+    /// Creates an example visit in the future for the current user
     /// </summary>
     [HttpPost("add-future-visit")]
     public async Task<ActionResult<VisitSummaryVM>> AddFutureVisit()
     {
-        var result = await dbSeeder.AddFutureVisitAsync();
+        var result = await dbSeeder.AddFutureVisitAsync(User.GetUserId());
         return Ok(result);
     }
 
     /// <summary>
-    /// Send a sample notification to John Doe
+    /// Send a sample notification to the current user or to John Doe if the user is not logged in
     /// </summary>
     [HttpPost("send-test-notification")]
     public async Task<ActionResult> SendTestNotification([FromServices] NotificationService service)
     {
-        await service.NotifyNewRestaurantReview(Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367"), 1);
+        var targetUserId = User.GetUserId() ?? Guid.Parse("e5779baf-5c9b-4638-b9e7-ec285e57b367");
+        await service.NotifyNewRestaurantReview(targetUserId, 1);
         return Ok();
     }
 }

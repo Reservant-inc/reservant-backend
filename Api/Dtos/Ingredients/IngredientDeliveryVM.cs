@@ -33,5 +33,5 @@ public class IngredientDeliveryVM
     /// <summary>
     /// Name of the actual product ordered
     /// </summary>
-    public required string StoreName { get; set; }
+    public required string? StoreName { get; set; }
 }

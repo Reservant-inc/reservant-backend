@@ -16,8 +16,7 @@ public class CreateRestaurantRequestValidator : AbstractValidator<CreateRestaura
     {
         RuleFor(r => r.Name)
             .NotEmpty()
-            .MaximumLength(50)
-            .IsValidName();
+            .MaximumLength(50);
 
         RuleFor(r => r.MaxReservationDurationMinutes)
             .GreaterThanOrEqualTo(Visit.MinReservationDurationMinutes);
@@ -67,5 +66,12 @@ public class CreateRestaurantRequestValidator : AbstractValidator<CreateRestaura
         RuleForEach(r => r.Photos)
             .FileUploadName(FileClass.Image, uploadService)
             .NotNull();
+
+        RuleFor(r => r.ReservationDeposit)
+            .GreaterThan(0)
+            .When(r => r.ReservationDeposit.HasValue);
+
+        RuleFor(r => r.OpeningHours)
+            .IsValidOpeningHours();
     }
 }

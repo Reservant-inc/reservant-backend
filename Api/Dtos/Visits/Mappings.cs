@@ -19,6 +19,10 @@ public class Mappings : Profile
                 visit => visit.Reservation!.StartTime)
             .MapMemberFrom(dto => dto.EndTime,
                 visit => visit.Reservation!.EndTime)
+            .MapMemberFrom(dto => dto.ActualStartTime,
+                visit => visit.StartTime)
+            .MapMemberFrom(dto => dto.ActualEndTime,
+                visit => visit.EndTime)
             .MapMemberFrom(dto => dto.Deposit,
                 visit => visit.Reservation == null
                     ? null : visit.Reservation.Deposit);
@@ -28,6 +32,10 @@ public class Mappings : Profile
                 visit => visit.Reservation!.StartTime)
             .MapMemberFrom(dto => dto.EndTime,
                 visit => visit.Reservation!.EndTime)
+            .MapMemberFrom(dto => dto.ActualStartTime,
+                visit => visit.StartTime)
+            .MapMemberFrom(dto => dto.ActualEndTime,
+                visit => visit.EndTime)
             .MapMemberFrom(dto => dto.PaymentTime,
                 visit => visit.Reservation == null
                     ? null : visit.Reservation.DepositPaymentTime)

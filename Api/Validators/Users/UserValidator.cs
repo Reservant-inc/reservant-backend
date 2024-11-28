@@ -18,12 +18,12 @@ public class UserValidator : AbstractValidator<Models.User>
         RuleFor(u => u.FirstName)
             .NotEmpty()
             .MaximumLength(30)
-            .IsValidName();
+            .IsValidPersonalName();
 
         RuleFor(u => u.LastName)
             .NotEmpty()
             .MaximumLength(30)
-            .IsValidName();
+            .IsValidPersonalName();
 
         RuleFor(u => u.RegisteredAt)
             .NotEmpty();
@@ -46,6 +46,14 @@ public class UserValidator : AbstractValidator<Models.User>
             .FileUploadName(FileClass.Image, uploadService)
             .When(u => !string.IsNullOrEmpty(u.PhotoFileName));
 
-        
+        RuleFor(u => u.FullPhoneNumber)
+            .IsValidPhoneNumber()
+            .When(u => u.FullPhoneNumber != null);
+
+        RuleFor(u => u.Email)
+            .EmailAddress()
+            .When(u => u.Email != null);
+
+
     }
 }

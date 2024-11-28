@@ -67,6 +67,7 @@ public class VisitsController(
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.ApproveVisitRequestAsync))]
     public async Task<ActionResult> ApproveVisitRequest(int visitId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -85,6 +86,7 @@ public class VisitsController(
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.RestaurantOwner + "," + Roles.RestaurantEmployee)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.DeclineVisitRequestAsync))]
     public async Task<ActionResult> DeclineVisitRequest(int visitId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -94,5 +96,49 @@ public class VisitsController(
         }
 
         return OkOrErrors(await visitService.DeclineVisitRequestAsync(visitId, user));
+    }
+
+    /// <summary>
+    /// Confirm that a visit has started
+    /// </summary>
+    [HttpPost("{visitId:int}/confirm-start")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult> ConfirmStart(int visitId)
+    {
+        return OkOrErrors(await visitService.ConfirmStart(visitId, User.GetUserId()!.Value));
+    }
+
+    /// <summary>
+    /// Confirm that a visit has started
+    /// </summary>
+    [HttpPost("{visitId:int}/confirm-end")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult> ConfirmEnd(int visitId)
+    {
+        return OkOrErrors(await visitService.ConfirmEnd(visitId, User.GetUserId()!.Value));
+    }
+
+    /// <summary>
+    /// Update the table assigned to a visit
+    /// </summary>
+    /// <param name="visitId">ID of the visit</param>
+    /// <param name="request">Request containing the new table ID</param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    [HttpPut("{visitId:int}/table")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    [MethodErrorCodes<UpdateVisitTableService>(nameof(UpdateVisitTableService.UpdateVisitTableAsync))]
+    public async Task<ActionResult> UpdateVisitTable(
+        int visitId, UpdateVisitTableRequest request, [FromServices] UpdateVisitTableService service)
+    {
+        var currentUserId = User.GetUserId()!.Value;
+        var result = await service.UpdateVisitTableAsync(visitId, request.TableId, currentUserId);
+        return OkOrErrors(result);
     }
 }

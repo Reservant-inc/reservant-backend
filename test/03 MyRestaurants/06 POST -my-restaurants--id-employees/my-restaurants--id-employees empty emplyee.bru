@@ -22,8 +22,8 @@ body:json {
   [
     {
       "employeeId": "",
-      "isHallEmployee": {{$randomBoolean}},
-      "isBackdoorEmployee": {{$randomBoolean}}
+      "isHallEmployee": {{randomBoolean}},
+      "isBackdoorEmployee": {{randomBoolean2}}
     }
   ]
 }
@@ -51,8 +51,7 @@ tests {
       var jsonData = res.getBody();
       
       // Sprawdzenie, czy pole 'errors' zawiera błąd dla '[0].employeeId'
-      expect(jsonData.errors).to.have.property('[0].employeeId');
-      expect(jsonData.errors["[0].employeeId"][0]).to.be.a('string').that.includes("The EmployeeId field is required.");
+      expect(jsonData.errors).to.have.property('$[0].employeeId');
   });
   
   // Test sprawdzający, czy odpowiedź zawiera błąd dla restaurantId

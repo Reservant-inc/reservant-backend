@@ -51,7 +51,7 @@ public class UserService(
             Id = id ?? Guid.NewGuid(),
             UserName = request.Email.Trim(),
             Email = request.Email.Trim(),
-            PhoneNumber = request.PhoneNumber.Trim(),
+            FullPhoneNumber = request.PhoneNumber,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             RegisteredAt = DateTime.UtcNow
@@ -97,7 +97,7 @@ public class UserService(
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
-            PhoneNumber = request.PhoneNumber.Trim(),
+            FullPhoneNumber = request.PhoneNumber,
             RegisteredAt = DateTime.UtcNow,
             Employer = employer
         };
@@ -139,7 +139,7 @@ public class UserService(
             Id = id ?? Guid.NewGuid(),
             UserName = request.Login.Trim(),
             Email = request.Email.Trim(),
-            PhoneNumber = request.PhoneNumber.Trim(),
+            FullPhoneNumber = request.PhoneNumber,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
@@ -261,7 +261,7 @@ public class UserService(
             };
         }
 
-        employee.PhoneNumber = request.PhoneNumber.Trim();
+        employee.FullPhoneNumber = request.PhoneNumber;
         employee.FirstName = request.FirstName.Trim();
         employee.LastName = request.LastName.Trim();
         employee.BirthDate = request.BirthDate;
@@ -291,7 +291,7 @@ public class UserService(
             return result;
         }
 
-        user.PhoneNumber = request.PhoneNumber.Trim();
+        user.FullPhoneNumber = request.PhoneNumber;
         user.FirstName = request.FirstName.Trim();
         user.LastName = request.LastName.Trim();
         user.BirthDate = request.BirthDate;
@@ -317,13 +317,13 @@ public class UserService(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitsAsync(User user, int page, int perPage)
+    public async Task<Result<Pagination<VisitVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
         return await dbContext.Visits
             .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Reservation!.StartTime > DateTime.UtcNow)
             .OrderBy(x => x.Reservation!.StartTime)
-            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 10);
     }
 
@@ -335,7 +335,7 @@ public class UserService(
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<VisitSummaryVM>>> GetVisitHistoryAsync(User user, int page, int perPage)
+    public async Task<Result<Pagination<VisitVM>>> GetVisitHistoryAsync(User user, int page, int perPage)
     {
         var query = dbContext.Visits
             .Include(r => r.Participants)
@@ -345,7 +345,7 @@ public class UserService(
             .OrderByDescending(x => x.Reservation!.StartTime);
 
         var result = await query
-            .ProjectTo<VisitSummaryVM>(mapper.ConfigurationProvider)
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, [], maxPerPage: 10);
 
         return result;
@@ -386,7 +386,7 @@ public class UserService(
         user.Email = null;
         user.EmailConfirmed = false;
         user.NormalizedEmail = null;
-        user.PhoneNumber = null;
+        user.FullPhoneNumber = null;
         user.PhoneNumberConfirmed = false;
         user.FirstName = "DELETED";
         user.LastName = "DELETED";
@@ -441,6 +441,7 @@ public class UserService(
                         ? FriendStatus.OutgoingRequest
                         : FriendStatus.Stranger)
                     .FirstOrDefault(),
+                PhoneNumber = u.FullPhoneNumber
             };
 
         query = filter switch

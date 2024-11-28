@@ -25,6 +25,16 @@ public class VisitVM
     public required DateTime EndTime { get; set; }
 
     /// <summary>
+    /// Actual start time of the visit
+    /// </summary>
+    public required DateTime? ActualStartTime { get; set; }
+
+    /// <summary>
+    /// Actual end time of the visit
+    /// </summary>
+    public required DateTime? ActualEndTime { get; set; }
+
+    /// <summary>
     /// Number of people who do not have an account
     /// </summary>
     public required int NumberOfGuests { get; set; }
@@ -42,7 +52,7 @@ public class VisitVM
     /// <summary>
     /// Date the reservation was made
     /// </summary>
-    public required DateOnly? ReservationDate { get; set; }
+    public required DateTime? ReservationDate { get; set; }
 
     /// <summary>
     /// Optional tip

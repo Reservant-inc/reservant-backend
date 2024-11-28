@@ -12,26 +12,14 @@ post {
 
 body:json {
   {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "johndoe@example.com",
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
+    "email": "{{randomEmail}}",
     "phoneNumber": "12345abc",
-    "password": "pa$$w0rd",
-    "isManager": false
+    "password": "{{randomPassword}}",
+    "isManager": {{randomBoolean}}
   }
   
-}
-
-script:pre-request {
-  function generateRandomNumberSequence(length) {
-      let result = '';
-      for (let i = 0; i < length; i++) {
-          result += Math.floor(Math.random() * 10); 
-      }
-      return result;
-  }
-  const randomNumbers = generateRandomNumberSequence(9);
-  bru.setEnvVar("randomPhoneNumber", randomNumbers);
 }
 
 tests {
@@ -56,7 +44,7 @@ tests {
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)
   var jsonData = res.getBody();
-  // var sentData = pm.request.body ? JSON.parse(pm.request.body).Data : null;
+  var sentData = req.body?.Data;
   
   test("Response data matches request data", function () {
       expect(jsonData.Data).to.eql(sentData);

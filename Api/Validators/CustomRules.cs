@@ -12,6 +12,8 @@ using NetTopologySuite.Geometries;
 using Reservant.Api.Dtos.Location;
 using System.Text.RegularExpressions;
 using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Reservant.Api.Validators;
 
@@ -179,12 +181,14 @@ public static class CustomRules
     /// <summary>
     /// Validates that the given Table ID exists within the specified Restaurant ID.
     /// </summary>
-    public static IRuleBuilderOptions<T, Tuple<int, int>> TableExistsInRestaurant<T>(this IRuleBuilder<T, Tuple<int, int>> builder, ApiDbContext dbContext)
+    public static IRuleBuilderOptions<T, Tuple<int, int?>> TableExistsInRestaurant<T>(this IRuleBuilder<T, Tuple<int, int?>> builder, ApiDbContext dbContext)
     {
         return builder
             .MustAsync(async (tuple, cancellationToken) =>
             {
                 var (restaurantId, tableId) = tuple;
+                if (tableId is null) return true;
+
                 return await dbContext.Tables
                     .AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId, cancellationToken);
             })
@@ -290,9 +294,9 @@ public static class CustomRules
     }
 
     /// <summary>
-    /// Validates that the string is a valid name
+    /// Validates that the string is a valid personal name
     /// </summary>
-    public static IRuleBuilderOptions<T, string> IsValidName<T>(
+    public static IRuleBuilderOptions<T, string> IsValidPersonalName<T>(
         this IRuleBuilder<T, string> builder)
     {
         return builder
@@ -368,11 +372,11 @@ public static class CustomRules
     /// <summary>
     /// Validates if string has a syntax of a phone number
     /// </summary>
-    public static IRuleBuilderOptions<T, string> IsValidPhoneNumber<T>(
-        this IRuleBuilder<T, string> builder)
+    public static IRuleBuilderOptions<T, PhoneNumber?> IsValidPhoneNumber<T>(
+        this IRuleBuilder<T, PhoneNumber?> builder)
     {
         return builder
-            .Matches(@"^\+\d+$")
+            .Must( b => b is null || (new Regex(@"^\d+$").IsMatch(b!.Number) && new Regex(@"^\+\d+$").IsMatch(b!.Code)))
             .WithErrorCode(ErrorCodes.MustBeValidPhoneNumber)
             .WithMessage("The phone number must start with '+' followed by digits.");
     }
@@ -437,5 +441,16 @@ public static class CustomRules
             })
             .WithErrorCode(ErrorCodes.InvalidTimeSlot)
             .WithMessage("Reservations can only be made for full hours or half hours");
+    }
+
+    /// <summary>
+    /// Verify that a list of weekly opening hours is valid
+    /// </summary>
+    public static IRuleBuilderOptions<T, List<OpeningHours>> IsValidOpeningHours<T>(this IRuleBuilder<T, List<OpeningHours>> builder)
+    {
+        return builder
+            .Must(woh => woh.Count == 7)
+            .WithErrorCode(ErrorCodes.MustBeValidOpeningHours)
+            .WithMessage("Opening hours of a restaurant must sepcify every day of the week");
     }
 }

@@ -45,6 +45,11 @@ public class Order : ISoftDeletable
     /// </summary>
     public Guid? AssignedEmployeeId { get; set; } = null!;
 
+    /// <summary>
+    /// Time the order was paid for
+    /// </summary>
+    public DateTime? PaymentTime { get; set; } = null!;
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }

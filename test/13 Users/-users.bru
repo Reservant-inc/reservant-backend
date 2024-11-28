@@ -24,7 +24,7 @@ tests {
   });
   
   test("Response is JSON", function () {
-  //     pm.response.to.be.json;
+       res.getHeader('Content-Type', 'application/json');
   });
   
   test("Response body has correct structure and data types", function () {

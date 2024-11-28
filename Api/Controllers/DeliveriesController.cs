@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos.Deliveries;
 using Reservant.Api.Identity;
 using Reservant.Api.Services;
+using Reservant.Api.Services.DeliveryServices;
 
 namespace Reservant.Api.Controllers;
 
@@ -42,5 +43,33 @@ public class DeliveriesController(DeliveryService deliveryService) : StrictContr
     {
         return OkOrErrors(await deliveryService.PostDelivery(
             request, User.GetUserId()!.Value));
+    }
+
+    /// <summary>
+    /// Confirm that a delivery has been delivered and update ingredient amounts
+    /// </summary>
+    [HttpPost("{deliveryId:int}/confirm-delivered")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [MethodErrorCodes<ConfirmDeliveredService>(nameof(ConfirmDeliveredService.ConfirmDelivered))]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<DeliveryVM>> ConfirmDelivered(
+        int deliveryId, [FromServices] ConfirmDeliveredService service)
+    {
+        return OkOrErrors(await service.ConfirmDelivered(
+            deliveryId, User.GetUserId()!.Value));
+    }
+
+    /// <summary>
+    /// Mark a delivery as canceled
+    /// </summary>
+    [HttpPost("{deliveryId:int}/mark-canceled")]
+    [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
+    [MethodErrorCodes<MarkCanceledService>(nameof(MarkCanceledService.MarkCanceled))]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<DeliveryVM>> MarkCanceled(
+        int deliveryId, [FromServices] MarkCanceledService service)
+    {
+        return OkOrErrors(await service.MarkCanceled(
+            deliveryId, User.GetUserId()!.Value));
     }
 }

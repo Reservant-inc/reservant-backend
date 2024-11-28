@@ -5,6 +5,9 @@ using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Wallets;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
+using FluentValidation.Results;
+using Reservant.Api.Validators;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Reservant.Api.Services;
 
@@ -88,4 +91,46 @@ public class WalletService(
 
     }
 
+    /// <summary>
+    /// Make deposit for a reservation that is connected to the specified visit
+    /// </summary>
+    /// <param name="user">user that created the reservation</param>
+    /// <param name="title">title of the deposit transaction</param>
+    /// <param name="amount">amount to pay for the deposit transaction</param>
+    /// <returns>DTO with confirmation of the payment</returns>
+    [ErrorCode(null, ErrorCodes.InsufficientFunds)]
+    [MethodErrorCodes<WalletService>(nameof(GetWalletStatus))]
+    public async Task<Result<TransactionVM>> DebitAsync(User user, string title, decimal amount)
+    {
+        var balance = await GetWalletStatus(user);
+        if (balance.Balance < amount)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.InsufficientFunds,
+                ErrorMessage = ErrorCodes.InsufficientFunds,
+                PropertyName = null,
+            };
+        }
+
+        var newTransaction = new PaymentTransaction
+        {
+            Title = title,
+            Amount = amount * -1,
+            Time = DateTime.UtcNow,
+            UserId = user.Id,
+            User = user,
+        };
+
+        context.PaymentTransactions.Add(newTransaction);
+        await context.SaveChangesAsync();
+
+        return new TransactionVM
+        {
+            TransactionId = newTransaction.PaymentTransactionId,
+            Title = newTransaction.Title,
+            Amount = newTransaction.Amount,
+            Time = newTransaction.Time,
+        };
+    }
 }

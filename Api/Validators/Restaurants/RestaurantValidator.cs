@@ -13,8 +13,7 @@ public class RestaurantValidator : AbstractValidator<Models.Restaurant>
     {
         RuleFor(r => r.Name)
             .NotEmpty()
-            .MaximumLength(50)
-            .IsValidName();
+            .MaximumLength(50);
 
         RuleFor(r => r.Nip)
             .NotNull()
@@ -26,7 +25,6 @@ public class RestaurantValidator : AbstractValidator<Models.Restaurant>
 
         RuleFor(r => r.MaxReservationDurationMinutes)
             .GreaterThanOrEqualTo(Visit.MinReservationDurationMinutes);
-
 
         RuleFor(r => r.PostalIndex)
             .NotNull()

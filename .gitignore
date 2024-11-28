@@ -487,3 +487,4 @@ $RECYCLE.BIN/
 *.db*
 
 uploads
+test/environments/Local.bru

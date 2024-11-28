@@ -1,0 +1,64 @@
+meta {
+  name: my-restaurants--id-employees
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/my-restaurants/:id/employees
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  [
+    {
+      "employeeId": "{{userId}}",
+      "isHallEmployee": {{randomBoolean}},
+      "isBackdoorEmployee": {{randomBoolean}}
+    }
+  ]
+}
+
+script:post-response {
+  // Pobierz aktualną listę restaurantIds i firstRestaurantId
+  var restaurantIds = JSON.parse(bru.getEnvVar("restaurantIds"));
+  var firstRestaurantId = bru.getEnvVar("firstRestaurantId");
+  
+  // Znajdź indeks firstRestaurantId w liście restaurantIds
+  var index = restaurantIds.indexOf(firstRestaurantId);
+  
+  // Jeśli firstRestaurantId istnieje w liście, usuń go
+  if (index !== -1) {
+      restaurantIds.splice(index, 1);
+  }
+  
+  // Ustaw firstRestaurantId na pierwszą wartość z listy, jeśli lista nie jest pusta
+  if (restaurantIds.length > 0) {
+      firstRestaurantId = restaurantIds[0];
+  }
+  
+  // Zapisz zaktualizowaną listę i nową wartość firstRestaurantId w środowisku
+  bru.setEnvVar("restaurantIds", JSON.stringify(restaurantIds));
+  bru.setEnvVar("firstRestaurantId", firstRestaurantId);
+  
+  console.log("Zaktualizowano firstRestaurantId: " + firstRestaurantId);
+  console.log("Zaktualizowana lista restaurantIds: " + JSON.stringify(restaurantIds));
+  
+}
+
+tests {
+  // Test sprawdzający, czy status odpowiedzi to 204 No Content
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+}

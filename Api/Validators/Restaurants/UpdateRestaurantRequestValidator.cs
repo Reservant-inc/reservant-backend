@@ -16,8 +16,7 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
     {
         RuleFor(r => r.Name)
             .NotEmpty()
-            .MaximumLength(50)
-            .IsValidName();
+            .MaximumLength(50);
 
         RuleFor(r => r.Nip)
             .NotNull()
@@ -71,5 +70,12 @@ public class UpdateRestaurantRequestValidator : AbstractValidator<UpdateRestaura
 
         RuleFor(r => r.Location)
             .IsValidGeolocation();
+
+        RuleFor(r => r.ReservationDeposit)
+            .GreaterThan(0)
+            .When(r => r.ReservationDeposit.HasValue);
+
+        RuleFor(r => r.OpeningHours)
+            .IsValidOpeningHours();
     }
 }
