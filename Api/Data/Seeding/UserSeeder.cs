@@ -180,7 +180,7 @@ public class UserSeeder
             Password = ExamplePassword,
             FirstName = firstName,
             LastName = lastName,
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "123456789"),
             BirthDate =new DateOnly(1990, 2, 3),
         }, Guid.Parse(id))).OrThrow();
 
@@ -200,7 +200,7 @@ public class UserSeeder
             Password = ExamplePassword,
             FirstName = firstName,
             LastName = lastName,
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "123456789"),
             IsManager = isManager,
         }, Guid.Parse(id))).OrThrow();
     }
