@@ -1691,10 +1691,11 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="restaurantId"></param>
         /// <param name="user"></param>
+        /// <param name="orderBy"></param>
         /// <returns></returns>
 
         [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
-        public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId, User user)
+        public async Task<Result<List<RestaurantTableVM>>> GetTablesAsync(int restaurantId, User user, TableSorting orderBy)
         {
             var restaurant = await context.Restaurants
                 .AsNoTracking()
@@ -1722,7 +1723,7 @@ namespace Reservant.Api.Services
             var now = DateTime.UtcNow;
             var visitSoonThreshold = now + VisitSoonTimeSpan;
 
-            return await context
+            var query = context
                 .Entry(restaurant)
                 .Collection(r => r.Tables)
                 .Query()
@@ -1755,7 +1756,16 @@ namespace Reservant.Api.Services
                                 v.Reservation!.StartTime <= visitSoonThreshold)
                             ? TableStatus.VisitSoon
                             : TableStatus.Available,
-                }).ToListAsync();
+                });
+
+            query = orderBy switch
+            {
+                TableSorting.StatusAsc => query.OrderBy(t => t.Status),
+                TableSorting.StatusDesc => query.OrderByDescending(t => t.Status),
+                _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, null),
+            };
+
+            return await query.ToListAsync();
         }
     }
 }
