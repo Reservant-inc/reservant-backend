@@ -1,6 +1,7 @@
 using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Identity;
@@ -9,6 +10,7 @@ using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
+using System.Net.WebSockets;
 
 namespace Reservant.Api.Services.ReportServices;
 
@@ -84,4 +86,6 @@ public class ReportCustomerService(
 
         return mapper.Map<ReportVM>(report);
     }
+
+   
 }

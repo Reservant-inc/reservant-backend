@@ -11,6 +11,9 @@ using Reservant.Api.Dtos.Menus;
 using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Services.ReportServices;
+using Reservant.Api.Dtos.Reports;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Controllers
 {
@@ -21,7 +24,9 @@ namespace Reservant.Api.Controllers
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
     [Authorize(Roles = Roles.RestaurantOwner)]
-    public class MyRestaurantsController(RestaurantService restaurantService, UserManager<User> userManager)
+    public class MyRestaurantsController(
+        RestaurantService restaurantService,
+        UserManager<User> userManager)
         : StrictController
     {
         /// <summary>
@@ -206,7 +211,7 @@ namespace Reservant.Api.Controllers
         {
             var userId = User.GetUserId();
 
-            var result = await restaurantService.GetMenusOwnerAsync(restaurantId,userId!.Value);
+            var result = await restaurantService.GetMenusOwnerAsync(restaurantId, userId!.Value);
             return OkOrErrors(result);
         }
 
@@ -221,7 +226,7 @@ namespace Reservant.Api.Controllers
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetMenuItemsCustomerAsync))]
         public async Task<ActionResult<List<MenuItemVM>>> GetMenuItems(int restaurantId)
         {
-           var userId = User.GetUserId();
+            var userId = User.GetUserId();
 
             var res = await restaurantService.GetMenuItemsOwnerAsync(userId!.Value, restaurantId);
             return OkOrErrors(res);
@@ -244,6 +249,36 @@ namespace Reservant.Api.Controllers
 
             var result = await restaurantService.ArchiveRestaurantAsync(restaurantId, user);
             return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Finds reports created by the user filtered by optional filters
+        /// </summary>
+        /// <param name="dateFrom">Starting date to look for reports</param>
+        /// <param name="dateUntil">Ending date to look for reports</param>
+        /// <param name="category">category of the reports to look for</param>
+        /// <param name="reportedUserId">id of the user that was reported in the reports</param>
+        /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+        /// <param name="service"></param>
+        /// <returns></returns>
+        [HttpGet("{restaurantId:int}/reports")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetMyRestaurantsReportsAsync))]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        public async Task<ActionResult<List<ReportVM>>> GetReports(
+            [FromQuery] DateTime? dateFrom,
+            [FromQuery] DateTime? dateUntil,
+            [FromQuery] ReportCategory? category,
+            [FromQuery] Guid? reportedUserId,
+            int restaurantId,
+            [FromServices] GetReportsService service)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+            return OkOrErrors(await service.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
         }
     }
 }

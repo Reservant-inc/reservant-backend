@@ -13,6 +13,9 @@ using Reservant.Api.Dtos.Users;
 using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Mapping;
 using Reservant.ErrorCodeDocs.Attributes;
+using Reservant.Api.Services.ReportServices;
+using Reservant.Api.Dtos.Reports;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Controllers;
 
@@ -271,5 +274,35 @@ public class UserController(
     public async Task<ActionResult<SettingsDto>> UpdateSettings(SettingsDto dto)
     {
         return OkOrErrors(await userService.UpdateSettings(User.GetUserId()!.Value, dto));
+    }
+
+    /// <summary>
+    /// Gets a list of reports created by the user
+    /// </summary>
+    /// <param name="dateFrom">Starting date to look for reports</param>
+    /// <param name="dateUntil">Ending date to look for reports</param>
+    /// <param name="category">category of the reports to look for</param>
+    /// <param name="reportedUserId">id of the user that was reported in the reports</param>
+    /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="service"></param>
+    /// <returns>list of reports created by the user</returns>
+    [HttpGet("reports")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetReportsAsync))]
+    [Authorize]
+    public async Task<ActionResult<List<ReportVM>>> GetReports(
+        [FromQuery] DateTime? dateFrom,
+        [FromQuery] DateTime? dateUntil,
+        [FromQuery] ReportCategory? category,
+        [FromQuery] Guid? reportedUserId,
+        [FromQuery] int? restaurantId,
+        [FromServices] GetReportsService service)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+        return OkOrErrors(await service.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
     }
 }
