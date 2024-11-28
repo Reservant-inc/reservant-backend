@@ -13,6 +13,7 @@ using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Services.ReportServices;
 using Reservant.Api.Dtos.Reports;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Controllers
 {
@@ -267,7 +268,7 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<List<ReportVM>>> GetReports(
             [FromQuery] DateTime? dateFrom,
             [FromQuery] DateTime? dateUntil,
-            [FromQuery] string? category,
+            [FromQuery] ReportCategory? category,
             [FromQuery] Guid? reportedUserId,
             int restaurantId,
             [FromServices] GetReportsService service)

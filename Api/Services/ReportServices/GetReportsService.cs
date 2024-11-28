@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 
 namespace Reservant.Api.Services.ReportServices;
@@ -29,7 +30,7 @@ public class GetReportsService(
     public async Task<Result<List<ReportVM>>> GetReportsAsync(
         DateTime? dateFrom,
         DateTime? dateUntil,
-        string? category,
+        ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId)
     {
@@ -54,7 +55,7 @@ public class GetReportsService(
         User user,
         DateTime? dateFrom,
         DateTime? dateUntil,
-        string? category,
+        ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId)
     {
@@ -78,7 +79,7 @@ public class GetReportsService(
         User user,
         DateTime? dateFrom,
         DateTime? dateUntil,
-        string? category,
+        ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId)
     {
@@ -102,7 +103,7 @@ public class GetReportsService(
     private static IQueryable<Report> FilterReportsQuery(IQueryable<Report> reports,
         DateTime? dateFrom,
         DateTime? dateUntil,
-        string? category,
+        ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId)
     {
@@ -115,6 +116,10 @@ public class GetReportsService(
             reports = reports.Where(r => r.ReportDate <= dateUntil);
         }
         if (category is not null)
+        {
+            reports = reports.Where(r => r.Category == category);
+        }
+        if (reportedUserId is not null)
         {
             reports = reports.Where(r => r.ReportedUserId == reportedUserId);
         }

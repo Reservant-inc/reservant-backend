@@ -15,6 +15,7 @@ using Reservant.Api.Mapping;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Services.ReportServices;
 using Reservant.Api.Dtos.Reports;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Controllers;
 
@@ -292,7 +293,7 @@ public class UserController(
     public async Task<ActionResult<List<ReportVM>>> GetReports(
         [FromQuery] DateTime? dateFrom,
         [FromQuery] DateTime? dateUntil,
-        [FromQuery] string? category,
+        [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
         [FromServices] GetReportsService service)

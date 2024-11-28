@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Services.ReportServices;
 using Reservant.Api.Validation;
 using Reservant.ErrorCodeDocs.Attributes;
@@ -45,7 +46,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     public async Task<ActionResult<List<ReportVM>>> GetReports(
         [FromQuery] DateTime? dateFrom,
         [FromQuery] DateTime? dateUntil,
-        [FromQuery] string? category,
+        [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
         [FromServices] GetReportsService service)
