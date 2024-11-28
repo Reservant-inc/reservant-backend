@@ -12,6 +12,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Options;
 using Reservant.Api.Services;
+using Reservant.Api.Services.OrderServices;
 using Reservant.Api.Services.VisitServices;
 
 namespace Reservant.Api.Data.Seeding;
@@ -24,7 +25,7 @@ public class DbSeeder(
     RoleManager<IdentityRole<Guid>> roleManager,
     UserService userService,
     MakeReservationService makeReservationService,
-    OrderService orderService,
+    MakeOrderService makeOrderService,
     IOptions<FileUploadsOptions> fileUploadsOptions,
     ILogger<DbSeeder> logger,
     IServiceProvider serviceProvider)
@@ -460,14 +461,18 @@ public class DbSeeder(
         await context.SaveChangesAsync();
     }
 
+    private const string DefaultFutureVisitCustomerUsername = "customer";
+
     /// <summary>
     /// Creates visit in the future
     /// </summary>
-    public async Task<VisitSummaryVM> AddFutureVisitAsync()
+    public async Task<VisitSummaryVM> AddFutureVisitAsync(Guid? userId)
     {
         await context.Database.BeginTransactionAsync();
 
-        var exampleCustomer = await context.Users.FirstAsync(u => u.UserName == "customer");
+        var exampleCustomer = userId == null
+            ? await context.Users.FirstAsync(u => u.UserName == DefaultFutureVisitCustomerUsername)
+            : await context.Users.FirstAsync(u => u.Id == userId);
 
         var visitDay = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1));
 
@@ -485,7 +490,7 @@ public class DbSeeder(
             exampleCustomer
         )).OrThrow();
 
-        var orderResult = (await orderService.CreateOrderAsync(
+        var orderResult = (await makeOrderService.CreateOrderAsync(
             new CreateOrderRequest
             {
                 Items = [

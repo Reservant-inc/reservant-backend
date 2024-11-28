@@ -123,7 +123,7 @@ public abstract class RestaurantSeeder(ApiDbContext context, UserService userSer
             FirstName = firstName,
             LastName = lastName,
             BirthDate = new DateOnly(2001, 5, 5),
-            PhoneNumber = "+48123456789",
+            PhoneNumber = new PhoneNumber("+48", "123456789"),
         }, _restaurantOwner, Guid.Parse(id))).OrThrow();
 
         (await restaurantService.AddEmployeeAsync(
