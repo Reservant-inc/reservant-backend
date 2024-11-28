@@ -38,6 +38,8 @@ public class DbSeeder(
     /// </summary>
     public async Task SeedDataAsync()
     {
+        await context.Database.BeginTransactionAsync();
+
         await CreateRoles();
 
         var users = await UserSeeder.CreateUsers(userService);
@@ -356,7 +358,7 @@ public class DbSeeder(
             ]
         };
 
-        await context.MessageThreads.AddAsync(exampleJDThread);
+        context.MessageThreads.Add(exampleJDThread);
 
         var exampleJDGroupThread = new MessageThread
         {
@@ -400,6 +402,11 @@ public class DbSeeder(
                 }
             ]
         };
+
+        context.MessageThreads.Add(exampleJDGroupThread);
+
+        await context.SaveChangesAsync();
+        await context.Database.CommitTransactionAsync();
     }
 
     /// <summary>
