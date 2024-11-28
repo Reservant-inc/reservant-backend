@@ -1758,13 +1758,14 @@ namespace Reservant.Api.Services
                             : TableStatus.Available,
                 });
 
-
-            return orderBy switch
+            query = orderBy switch
             {
-                TableSorting.StatusAsc => await query.OrderBy(t => t.Status).ToListAsync(),
-                TableSorting.StatusDesc => await query.OrderByDescending(t => t.Status).ToListAsync(),
-                _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, null)
+                TableSorting.StatusAsc => query.OrderBy(t => t.Status),
+                TableSorting.StatusDesc => query.OrderByDescending(t => t.Status),
+                _ => throw new ArgumentOutOfRangeException(nameof(orderBy), orderBy, null),
             };
+
+            return await query.ToListAsync();
         }
     }
 }
