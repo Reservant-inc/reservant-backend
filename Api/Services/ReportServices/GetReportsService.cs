@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Reports;
-using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 
@@ -13,7 +13,7 @@ namespace Reservant.Api.Services.ReportServices;
 /// </summary>
 /// <param name="mapper"></param>
 /// <param name="context"></param>
-public class ReportService(
+public class GetReportsService(
     IMapper mapper,
     ApiDbContext context)
 {
@@ -30,12 +30,12 @@ public class ReportService(
         DateTime? dateFrom,
         DateTime? dateUntil,
         string? category,
-        string? reportedUserId,
+        Guid? reportedUserId,
         int? restaurantId)
     {
         IQueryable<Report> reports = context.Reports;
 
-        reports = specifyQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
         var res = await reports.ToListAsync();
         return mapper.Map<List<ReportVM>>(res);
     }
@@ -51,18 +51,18 @@ public class ReportService(
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <returns>list of reports that match given parameters</returns>
     public async Task<Result<List<ReportVM>>> GetMyReportsAsync(
-    User user,
-    DateTime? dateFrom,
-    DateTime? dateUntil,
-    string? category,
-    string? reportedUserId,
-    int? restaurantId)
+        User user,
+        DateTime? dateFrom,
+        DateTime? dateUntil,
+        string? category,
+        Guid? reportedUserId,
+        int? restaurantId)
     {
-        IQueryable<Report> reports = context.Reports.Where(r => r.CreatedById == user.Id);
-
-        reports = specifyQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
-        var res = await reports.ToListAsync();
-        return mapper.Map<List<ReportVM>>(res);
+        var reports = context.Reports.Where(r => r.CreatedById == user.Id);
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
+        return await reports
+            .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
+            .ToListAsync();
     }
     /// <summary>
     /// Function for getting the reports as a restaurant owner
@@ -75,18 +75,18 @@ public class ReportService(
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <returns>list of reports that match given parameters</returns>
     public async Task<Result<List<ReportVM>>> GetMyRestaurantsReportsAsync(
-    User user,
-    DateTime? dateFrom,
-    DateTime? dateUntil,
-    string? category,
-    string? reportedUserId,
-    int? restaurantId)
+        User user,
+        DateTime? dateFrom,
+        DateTime? dateUntil,
+        string? category,
+        Guid? reportedUserId,
+        int? restaurantId)
     {
-        IQueryable<Report> reports = context.Reports.Where(r => r.Visit!.Restaurant.Group.OwnerId == user.Id);
-
-        reports = specifyQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
-        var res = await reports.ToListAsync();
-        return mapper.Map<List<ReportVM>>(res);
+        var reports = context.Reports.Where(r => r.Visit!.Restaurant.Group.OwnerId == user.Id);
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
+        return await reports
+            .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
+            .ToListAsync();
     }
 
     /// <summary>
@@ -99,11 +99,11 @@ public class ReportService(
     /// <param name="reportedUserId"></param>
     /// <param name="restaurantId"></param>
     /// <returns></returns>
-    private static IQueryable<Report> specifyQuery(IQueryable<Report> reports,
+    private static IQueryable<Report> FilterReportsQuery(IQueryable<Report> reports,
         DateTime? dateFrom,
         DateTime? dateUntil,
         string? category,
-        string? reportedUserId,
+        Guid? reportedUserId,
         int? restaurantId)
     {
         if (dateFrom is not null)
@@ -116,7 +116,7 @@ public class ReportService(
         }
         if (category is not null)
         {
-            reports = reports.Where(r => r.ReportedUserId!.Value.ToString() == reportedUserId);
+            reports = reports.Where(r => r.ReportedUserId == reportedUserId);
         }
         if (restaurantId is not null)
         {

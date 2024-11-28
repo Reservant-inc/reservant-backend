@@ -14,10 +14,7 @@ namespace Reservant.Api.Controllers;
 /// Managing reports
 /// </summary>
 [ApiController, Route("/reports")]
-public class ReportsController(
-    ReportCustomerService service,
-    ReportService reportService,
-    UserManager<User> userManager) : StrictController
+public class ReportsController(UserManager<User> userManager) : StrictController
 {
     /// <summary>
     /// Report a customer as a restaurant employee
@@ -25,7 +22,8 @@ public class ReportsController(
     [HttpPost("report-customer")]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     public async Task<ActionResult<ReportVM>> ReportCustomer(
-        ReportCustomerRequest dto)
+        ReportCustomerRequest dto,
+        [FromServices] ReportCustomerService service)
     {
         return OkOrErrors(await service.ReportCustomer(User.GetUserId()!.Value, dto));
     }
@@ -38,23 +36,25 @@ public class ReportsController(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="service"></param>
     /// <returns>list of reports accessible by customer support employees</returns>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportService>(nameof(ReportService.GetReportsAsync))]
+    [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetReportsAsync))]
     [Authorize(Roles = $"{Roles.CustomerSupportManager}, {Roles.CustomerSupportAgent}")]
     public async Task<ActionResult<List<ReportVM>>> GetReports(
-        [FromQuery]DateTime? dateFrom,
-        [FromQuery]DateTime? dateUntil,
-        [FromQuery]string? category,
-        [FromQuery]string? reportedUserId,
-        [FromQuery]int? restaurantId)
+        [FromQuery] DateTime? dateFrom,
+        [FromQuery] DateTime? dateUntil,
+        [FromQuery] string? category,
+        [FromQuery] Guid? reportedUserId,
+        [FromQuery] int? restaurantId,
+        [FromServices] GetReportsService service)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await reportService.GetReportsAsync(dateFrom, dateUntil, category, reportedUserId, restaurantId));
+        return OkOrErrors(await service.GetReportsAsync(dateFrom, dateUntil, category, reportedUserId, restaurantId));
     }
 }

@@ -28,8 +28,7 @@ public class UserController(
     UserService userService,
     UrlService urlService,
     EventService eventService,
-    ThreadService threadService,
-    ReportService reportService
+    ThreadService threadService
     ) : StrictController
 {
     /// <summary>
@@ -284,22 +283,25 @@ public class UserController(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="service"></param>
     /// <returns>list of reports created by the user</returns>
     [HttpGet("reports")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportService>(nameof(ReportService.GetReportsAsync))]
+    [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetReportsAsync))]
     [Authorize]
     public async Task<ActionResult<List<ReportVM>>> GetReports(
-            [FromQuery] DateTime? dateFrom,
-            [FromQuery] DateTime? dateUntil,
-            [FromQuery] string? category,
-            [FromQuery] string? reportedUserId,
-            [FromQuery] int? restaurantId) {
+        [FromQuery] DateTime? dateFrom,
+        [FromQuery] DateTime? dateUntil,
+        [FromQuery] string? category,
+        [FromQuery] Guid? reportedUserId,
+        [FromQuery] int? restaurantId,
+        [FromServices] GetReportsService service)
+    {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await reportService.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+        return OkOrErrors(await service.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
     }
 }

@@ -25,8 +25,7 @@ namespace Reservant.Api.Controllers
     [Authorize(Roles = Roles.RestaurantOwner)]
     public class MyRestaurantsController(
         RestaurantService restaurantService,
-        UserManager<User> userManager,
-        ReportService reportService)
+        UserManager<User> userManager)
         : StrictController
     {
         /// <summary>
@@ -259,24 +258,26 @@ namespace Reservant.Api.Controllers
         /// <param name="category">category of the reports to look for</param>
         /// <param name="reportedUserId">id of the user that was reported in the reports</param>
         /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+        /// <param name="service"></param>
         /// <returns></returns>
         [HttpGet("{restaurantId:int}/reports")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes<ReportService>(nameof(ReportService.GetMyRestaurantsReportsAsync))]
+        [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetMyRestaurantsReportsAsync))]
         [Authorize(Roles = Roles.RestaurantOwner)]
         public async Task<ActionResult<List<ReportVM>>> GetReports(
             [FromQuery] DateTime? dateFrom,
             [FromQuery] DateTime? dateUntil,
             [FromQuery] string? category,
-            [FromQuery] string? reportedUserId,
-            int restaurantId)
+            [FromQuery] Guid? reportedUserId,
+            int restaurantId,
+            [FromServices] GetReportsService service)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
             {
                 return Unauthorized();
             }
-            return OkOrErrors(await reportService.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+            return OkOrErrors(await service.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
         }
     }
 }
