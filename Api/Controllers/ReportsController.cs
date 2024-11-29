@@ -113,7 +113,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [Authorize(Roles = $"{Roles.CustomerSupportAgent},{Roles.CustomerSupportManager}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<PutReportResolutionService>(nameof(PutReportResolutionService.ResolveReport))]
-    public async Task<ActionResult<ReportVM>> ResolveReport(
+    public async Task<ActionResult<ReportResolutionVM>> ResolveReport(
         int reportId,
         ResolveReportRequest dto,
         [FromServices] PutReportResolutionService service)
