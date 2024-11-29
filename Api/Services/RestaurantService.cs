@@ -888,46 +888,10 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var roles = await userManager.GetRolesAsync(user);
-
-            if (roles.Contains(Roles.CustomerSupportAgent))
+            if (!await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
             {
-                
-            }
-            else if (roles.Contains(Roles.RestaurantEmployee))
-            {
-                var isEmployeeAtRestaurant = await context.Employments.AnyAsync(e =>
-                    e.EmployeeId == userId && e.RestaurantId == restaurantId && e.DateUntil == null);
-                if (!isEmployeeAtRestaurant)
-                {
-                    return new ValidationFailure
-                    {
-                        PropertyName = null,
-                        ErrorMessage = $"User with ID {userId} is not employed at restaurant with ID {restaurantId}",
-                        ErrorCode = ErrorCodes.AccessDenied
-                    };
-                }
-            }
-            else if (roles.Contains(Roles.RestaurantOwner))
-            {
-                if (restaurant.Group.OwnerId != userId)
-                {
-                    return new ValidationFailure
-                    {
-                        PropertyName = null,
-                        ErrorMessage = "User is not owner of the restaurant",
-                        ErrorCode = ErrorCodes.AccessDenied
-                    };
-                }
-            }
-            else
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = null,
-                    ErrorMessage = "User must be employed in the restaurant or be its owner",
-                    ErrorCode = ErrorCodes.AccessDenied
-                };
+                var authResult = await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId);
+                if (authResult.IsError) return authResult.Errors;
             }
 
             var ordersQuery = context.Orders
@@ -1231,11 +1195,11 @@ namespace Reservant.Api.Services
                 };
             }
 
-            User? user = context.Users.FirstOrDefault(u => u.Id == userId);
-            var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
-            if (authResult.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            var user = await context.Users.SingleAsync(u => u.Id == userId);
+            if (!await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
             {
-                return authResult.Errors;
+                var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
+                if (authResult.IsError) return authResult.Errors;
             }
 
             IQueryable<Visit> query = context.Visits
@@ -1360,14 +1324,11 @@ namespace Reservant.Api.Services
             int page = 0,
             int perPage = 10)
         {
-
-            User? user = context.Users.FirstOrDefault(u => u.Id == userId);
-
-            var access = await authorizationService
-                .VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
-            if (access.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            var user = await context.Users.SingleAsync(u => u.Id == currentUserId);
+            if (!await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
             {
-                return access.Errors;
+                var authResult = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, currentUserId);
+                if (authResult.IsError) return authResult.Errors;
             }
 
             var query = context.Deliveries
@@ -1657,12 +1618,11 @@ namespace Reservant.Api.Services
                 };
             }
 
-            User? user = context.Users.FirstOrDefault(u => u.Id == userId);
-
-            var authResult = await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId);
-            if (authResult.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            var user = await context.Users.SingleAsync(u => u.Id == userId);
+            if (!await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
             {
-                return authResult.Errors;
+                var authResult = await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId);
+                if (authResult.IsError) return authResult.Errors;
             }
 
             var employees = context.Employments
@@ -1723,11 +1683,10 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var res = await authorizationService.VerifyRestaurantHallAccess(restaurantId, user.Id);
-
-            if (res.IsError && user!=null && !await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
+            if (!await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
             {
-                return res.Errors;
+                var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, user.Id);
+                if (authResult.IsError) return authResult.Errors;
             }
 
             var now = DateTime.UtcNow;
