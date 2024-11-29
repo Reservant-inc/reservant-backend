@@ -118,7 +118,7 @@ public class AuthController(
             }
             else
             {
-                await userService.removeExpiredBansAsync(user.Id);
+                await userService.RemoveExpiredBan(user.Id);
             }
         }
 
@@ -256,7 +256,7 @@ public class AuthController(
             }
             else
             {
-                await userService.removeExpiredBansAsync(user.Id);
+                await userService.RemoveExpiredBan(user.Id);
             }
         } 
 

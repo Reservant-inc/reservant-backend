@@ -8,5 +8,5 @@ public class BanDto
     /// <summary>
     /// Duration of ban
     /// </summary>
-    public required TimeSpan timeSpan { get; set; }
+    public required TimeSpan TimeSpan { get; set; }
 }   
