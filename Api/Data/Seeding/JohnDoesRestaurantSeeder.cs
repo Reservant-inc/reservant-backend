@@ -263,7 +263,7 @@ public class JohnDoesRestaurantSeeder(
     ];
 
     /// <inheritdoc />
-    protected async override Task<List<User>> CreateEmployees() =>
+    protected override async Task<List<User>> CreateEmployees() =>
     [
         await CreateRestaurantEmployee(
             "hall", "Pracownik Sali", "Przykładowski",
