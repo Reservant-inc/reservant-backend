@@ -10,6 +10,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Reservant.Api;
 using Reservant.Api.Data;
+using Reservant.Api.Data.Seeding;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
 using Reservant.Api.Mapping;
@@ -56,7 +57,7 @@ builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 builder.Services.AddScoped<ValidationService>();
 
 builder.Services.AddDbContext<ApiDbContext>();
-builder.Services.AddScoped<DbSeeder>();
+builder.Services.AddDbSeedingServices();
 builder.Services.AddIdentityServices(builder.Configuration);
 
 builder.Services.AddMappingServices();

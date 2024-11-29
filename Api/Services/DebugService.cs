@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
+using Reservant.Api.Data.Seeding;
 using Reservant.Api.Options;
 
 namespace Reservant.Api.Services;
