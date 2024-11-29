@@ -69,21 +69,130 @@ public class JohnDoes2RestaurantSeeder(
     }
 
     /// <inheritdoc />
-    protected override Ingredient[] CreateIngredients() => [];
+    protected override Ingredient[] CreateIngredients() =>
+    [
+        new Ingredient { PublicName = "Dough", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 0
+        new Ingredient { PublicName = "Tomato Sauce", UnitOfMeasurement = UnitOfMeasurement.Liter }, // 1
+        new Ingredient { PublicName = "Mozzarella", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 2
+        new Ingredient { PublicName = "Pepperoni", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 3
+        new Ingredient { PublicName = "Basil", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 4
+        new Ingredient { PublicName = "Olives", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 5
+        new Ingredient { PublicName = "Mushrooms", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 6
+        new Ingredient { PublicName = "Onions", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 7
+        new Ingredient { PublicName = "Bell Peppers", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 8
+        new Ingredient { PublicName = "Pineapple", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 9
+        new Ingredient { PublicName = "Ham", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 10
+        new Ingredient { PublicName = "Chicken", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 11
+        new Ingredient { PublicName = "Beef", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 12
+        new Ingredient { PublicName = "BBQ Sauce", UnitOfMeasurement = UnitOfMeasurement.Liter }, // 13
+        new Ingredient { PublicName = "Cheddar", UnitOfMeasurement = UnitOfMeasurement.Gram }, // 14
+    ];
 
     /// <inheritdoc />
     protected override List<Menu> CreateMenus() =>
     [
         new Menu
         {
-            Name = "Menu jedzeniowe 2",
+            Name = "Pizze Klasyczne",
+            AlternateName = "Classic Pizzas",
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            MenuItems =
-            [
-                CreateRandomMenuItem("Pierogi"),
-                CreateRandomMenuItem("Sushi"),
+            MenuItems = [
+                CreateRandomMenuItem("Margherita"),
+                CreateRandomMenuItem("Pepperoni"),
+                CreateRandomMenuItem("Four Seasons"),
+                CreateRandomMenuItem("Vegetarian"),
+                CreateRandomMenuItem("Mexican"),
+                CreateRandomMenuItem("Cheese Lover"),
+                CreateRandomMenuItem("Spicy Italian"),
+                CreateRandomMenuItem("Mediterranean"),
+                CreateRandomMenuItem("Truffle Mushroom"),
+                CreateRandomMenuItem("Meat Feast"),
+                CreateRandomMenuItem("Pesto Delight"),
+                CreateRandomMenuItem("Garlic Supreme"),
+                CreateRandomMenuItem("Seafood Special"),
+                CreateRandomMenuItem("Smoky Bacon"),
+            ],
+        },
+        new Menu
+        {
+            Name = "Pizze Specjalne",
+            AlternateName = "Specialty Pizzas",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            MenuItems = [
+                CreateRandomMenuItem("Hawaiian"),
+                CreateRandomMenuItem("BBQ Chicken"),
+                CreateRandomMenuItem("Meat Lovers"),
+                CreateRandomMenuItem("Seafood Delight"),
+                CreateRandomMenuItem("Quattro Formaggi"),
+                CreateRandomMenuItem("Veggie Supreme"),
+                CreateRandomMenuItem("Buffalo Chicken"),
+                CreateRandomMenuItem("Mediterranean"),
+                CreateRandomMenuItem("Spicy Jalapeño"),
+                CreateRandomMenuItem("Truffle Mushroom"),
+                CreateRandomMenuItem("Pesto Chicken"),
+                CreateRandomMenuItem("Philly Cheesesteak"),
+                CreateRandomMenuItem("Margherita Deluxe"),
+                CreateRandomMenuItem("Spinach & Artichoke"),
+                CreateRandomMenuItem("Taco Fiesta"),
+                CreateRandomMenuItem("Caprese"),
+            ],
+        },
+        new Menu
+        {
+            Name = "Pizze Wegańskie",
+            AlternateName = "Vegan Pizzas",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            MenuItems = [
+                CreateRandomMenuItem("Vegan Delight"),
+                CreateRandomMenuItem("Vegan Margherita"),
+                CreateRandomMenuItem("Spicy Vegan BBQ"),
+                CreateRandomMenuItem("Mediterranean Veggie Vegan"),
+                CreateRandomMenuItem("Vegan Pesto Paradise"),
+                CreateRandomMenuItem("Mushroom & Spinach Vegan"),
+                CreateRandomMenuItem("Roasted Veggie Vegan"),
+            ],
+        },
+        new Menu
+        {
+            Name = "Napoje",
+            AlternateName = "Beverages",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Food,
+            MenuItems = [
+                CreateRandomMenuItem("Coca-Cola"),
+                CreateRandomMenuItem("Orange Juice"),
+                CreateRandomMenuItem("Mineral Water"),
+                CreateRandomMenuItem("Pepsi"),
+                CreateRandomMenuItem("Lemonade"),
+                CreateRandomMenuItem("Iced Tea"),
+                CreateRandomMenuItem("Sparkling Water"),
+                CreateRandomMenuItem("Apple Juice"),
+                CreateRandomMenuItem("Cold Brew Coffee"),
+                CreateRandomMenuItem("Ginger Ale"),
+                CreateRandomMenuItem("Energy Drink"),
+            ],
+        },
+        new Menu
+        {
+            Name = "Napoje Alkoholowe",
+            AlternateName = "Alcoholic Beverages",
+            DateFrom = new DateOnly(2024, 1, 1),
+            DateUntil = null,
+            MenuType = MenuType.Alcohol,
+            MenuItems = [
+                CreateRandomMenuItem("Beer", "Piwo", 5m),
+                CreateRandomMenuItem("Red Wine", "Wino czerwone", 12m),
+                CreateRandomMenuItem("White Wine", "Wino białe", 12m),
+                CreateRandomMenuItem("Whiskey", 40m),
+                CreateRandomMenuItem("Gin and Tonic", 12m),
+                CreateRandomMenuItem("Margarita", 15m),
             ],
         },
     ];

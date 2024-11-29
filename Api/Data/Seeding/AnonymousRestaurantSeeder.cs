@@ -117,7 +117,17 @@ public class AnonymousRestaurantSeeder(
             {
                 CreateRandomMenuItem("Spaghetti Bolognese"),
                 CreateRandomMenuItem("Penne Arrabiata"),
-                CreateRandomMenuItem("Garlic Bread"),
+                CreateRandomMenuItem("Garlic Bread", "Chleb czosnkowy"),
+                CreateRandomMenuItem("Margherita Pizza", "Pizza Margherita"),
+                CreateRandomMenuItem("Lasagna", "Lasagne"),
+                CreateRandomMenuItem("Carbonara Pasta", "Pasta alla Carbonara"),
+                CreateRandomMenuItem("Seafood Risotto", "Risotto ai Frutti di Mare"),
+                CreateRandomMenuItem("Stuffed Pasta Shells", "Conchiglioni Ripieni"),
+                CreateRandomMenuItem("Chicken Parmigiana", "Pollo alla Parmigiana"),
+                CreateRandomMenuItem("Minestrone Soup", "Minestrone"),
+                CreateRandomMenuItem("Eggplant Parmesan", "Melanzane alla Parmigiana"),
+                CreateRandomMenuItem("Tiramisu"),
+                CreateRandomMenuItem("Focaccia Bread", "Focaccia"),
             },
         },
         new Menu
@@ -128,8 +138,15 @@ public class AnonymousRestaurantSeeder(
             MenuType = MenuType.Food,
             MenuItems = new List<MenuItem>
             {
-                CreateRandomMenuItem("Caesar Salad"),
-                CreateRandomMenuItem("Greek Salad"),
+                CreateRandomMenuItem("Caesar Salad", "Salade César"),
+                CreateRandomMenuItem("Greek Salad", "Χωριάτικη Σαλάτα"),
+                CreateRandomMenuItem("Caprese Salad", "Insalata Caprese"),
+                CreateRandomMenuItem("Nicoise Salad", "Sekude Niçoise"),
+                CreateRandomMenuItem("Cobb Salad", "Ensalada Cobb"),
+                CreateRandomMenuItem("Waldorf Salad", "Waldorfsalat"),
+                CreateRandomMenuItem("Tabbouleh"),
+                CreateRandomMenuItem("Fattoush"),
+                CreateRandomMenuItem("Garden Salad", "Salata Verde"),
             },
         },
         new Menu

@@ -102,7 +102,16 @@ public class KowalskisRestaurantSeeder(
                     CreateRandomMenuItem("Massaman Curry"),
                     CreateRandomMenuItem("Tom Yum Soup"),
                     CreateRandomMenuItem("Pineapple Fried Rice"),
-
+                    CreateRandomMenuItem("Som Tum", "ส้มตำ"),
+                    CreateRandomMenuItem("Pad See Ew", "ผัดซีอิ๊ว"),
+                    CreateRandomMenuItem("Panang Curry", "พะแนง"),
+                    CreateRandomMenuItem("Tom Kha Gai", "ต้มข่าไก่"),
+                    CreateRandomMenuItem("Thai Basil Chicken", "ผัดกะเพราไก่"),
+                    CreateRandomMenuItem("Mango Sticky Rice", "ข้าวเหนียวมะม่วง"),
+                    CreateRandomMenuItem("Chicken Satay", "สะเต๊ะไก่"),
+                    CreateRandomMenuItem("Larb", "ลาบ"),
+                    CreateRandomMenuItem("Thai Fried Spring Rolls", "ปอเปี๊ยะทอด"),
+                    CreateRandomMenuItem("Crispy Pork Belly with Kale", "คะน้าหมูกรอบ"),
                 ],
             },
             new Menu
@@ -113,10 +122,17 @@ public class KowalskisRestaurantSeeder(
                 MenuType = MenuType.Food,
                 MenuItems = new List<MenuItem>
                 {
-                    CreateRandomMenuItem("Sushi Set"),
-                    CreateRandomMenuItem("Chicken Teriyaki"),
-                    CreateRandomMenuItem("Ramen"),
                     CreateRandomMenuItem("Beef Udon"),
+                    CreateRandomMenuItem("Sushi", "寿司"),
+                    CreateRandomMenuItem("Ramen", "ラーメン"),
+                    CreateRandomMenuItem("Tempura", "天ぷら"),
+                    CreateRandomMenuItem("Udon", "うどん"),
+                    CreateRandomMenuItem("Teriyaki Chicken", "照り焼きチキン"),
+                    CreateRandomMenuItem("Tonkatsu", "豚カツ"),
+                    CreateRandomMenuItem("Miso Soup", "味噌汁"),
+                    CreateRandomMenuItem("Sashimi", "刺身"),
+                    CreateRandomMenuItem("Okonomiyaki", "お好み焼き"),
+                    CreateRandomMenuItem("Edamame", "枝豆"),
                 },
             },
             new Menu
@@ -129,6 +145,16 @@ public class KowalskisRestaurantSeeder(
                 {
                     CreateRandomMenuItem("Butter Chicken"),
                     CreateRandomMenuItem("Vegetable Curry"),
+                    CreateRandomMenuItem("Chicken Tikka Masala", "चिकन टिक्का मसाला"),
+                    CreateRandomMenuItem("Lamb Rogan Josh", "लंब रोज़ान जोश"),
+                    CreateRandomMenuItem("Paneer Butter Masala", "पनीर बटर मसाला"),
+                    CreateRandomMenuItem("Palak Paneer", "पालक पनीर"),
+                    CreateRandomMenuItem("Biryani", "बिरयानी"),
+                    CreateRandomMenuItem("Chole Bhature", "छोले भटूरे"),
+                    CreateRandomMenuItem("Aloo Gobi", "आलू गोभी"),
+                    CreateRandomMenuItem("Naan", "नान"),
+                    CreateRandomMenuItem("Samosa", "समोसा"),
+                    CreateRandomMenuItem("Dosa", "दोसा"),
                 },
             },
             new Menu
@@ -140,6 +166,11 @@ public class KowalskisRestaurantSeeder(
                 MenuItems = [
                     CreateRandomMenuItem("Green Tea"),
                     CreateRandomMenuItem("Mango Lassi"),
+                    CreateRandomMenuItem("Masala Chai"),
+                    CreateRandomMenuItem("Lemon Water"),
+                    CreateRandomMenuItem("Rose Lemonade"),
+                    CreateRandomMenuItem("Sweet Lassi"),
+                    CreateRandomMenuItem("Tamarind Juice"),
                 ],
             },
             new Menu

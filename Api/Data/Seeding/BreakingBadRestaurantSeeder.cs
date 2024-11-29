@@ -103,6 +103,22 @@ public class BreakingBadRestaurantSeeder(
             MenuItems = [
                 CreateRandomMenuItem("Classic Chicken"),
                 CreateRandomMenuItem("Spicy Fried Chicken"),
+                CreateRandomMenuItem("Buttermilk Fried Chicken"),
+                CreateRandomMenuItem("Honey Glazed Fried Chicken"),
+                CreateRandomMenuItem("Garlic Parmesan Chicken"),
+                CreateRandomMenuItem("Crispy Chicken Tenders"),
+                CreateRandomMenuItem("Buffalo Fried Chicken"),
+                CreateRandomMenuItem("BBQ Fried Chicken"),
+                CreateRandomMenuItem("Lemon Pepper Fried Chicken"),
+                CreateRandomMenuItem("Korean Fried Chicken"),
+                CreateRandomMenuItem("Southern Fried Chicken"),
+                CreateRandomMenuItem("Cajun Fried Chicken"),
+                CreateRandomMenuItem("Fried Chicken Wings"),
+                CreateRandomMenuItem("Fried Chicken Sandwich"),
+                CreateRandomMenuItem("Chili Lime Fried Chicken"),
+                CreateRandomMenuItem("Herb-Crusted Fried Chicken"),
+                CreateRandomMenuItem("Fried Chicken with Gravy"),
+
             ],
         },
         new Menu
@@ -114,6 +130,14 @@ public class BreakingBadRestaurantSeeder(
             MenuItems = [
                 CreateRandomMenuItem("Classic Beef Burger"),
                 CreateRandomMenuItem("Chicken Burger"),
+                CreateRandomMenuItem("Cheeseburger"),
+                CreateRandomMenuItem("Bacon Burger"),
+                CreateRandomMenuItem("Veggie Burger"),
+                CreateRandomMenuItem("BBQ Bacon Burger"),
+                CreateRandomMenuItem("Mushroom Swiss Burger"),
+                CreateRandomMenuItem("Spicy Jalapeño Burger"),
+                CreateRandomMenuItem("Fish Burger"),
+                CreateRandomMenuItem("Double Cheeseburger"),
             ],
         },
         new Menu
@@ -125,6 +149,10 @@ public class BreakingBadRestaurantSeeder(
             MenuItems = [
                 CreateRandomMenuItem("French Fries"),
                 CreateRandomMenuItem("Coleslaw"),
+                CreateRandomMenuItem("Onion Rings"),
+                CreateRandomMenuItem("Garlic Bread"),
+                CreateRandomMenuItem("Mashed Potatoes"),
+                CreateRandomMenuItem("Sweet Potato Fries"),
             ],
         },
         new Menu
@@ -136,6 +164,8 @@ public class BreakingBadRestaurantSeeder(
             MenuItems = [
                 CreateRandomMenuItem("Soft Drink"),
                 CreateRandomMenuItem("Iced Tea"),
+                CreateRandomMenuItem("Iced Coffee"),
+                CreateRandomMenuItem("Peach Iced Tea"),
             ],
         },
         new Menu

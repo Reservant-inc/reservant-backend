@@ -93,9 +93,18 @@ public class ArrakisSpiceDinerSeeder(
             {
                 CreateRandomMenuItem("Spice Sandworm"),
                 CreateRandomMenuItem("Fremen Bread"),
+                CreateRandomMenuItem("Sietch Stew"),
+                CreateRandomMenuItem("Arrakis Roasted Lamb"),
+                CreateRandomMenuItem("Dune Spice Soup"),
+                CreateRandomMenuItem("Fremen Fish Tacos"),
+                CreateRandomMenuItem("Shai-Hulud Shawarma"),
+                CreateRandomMenuItem("Dune Desert Porridge"),
+                CreateRandomMenuItem("Water of Life Cocktail"),
+                CreateRandomMenuItem("Chalmun's Spice Cake"),
+                CreateRandomMenuItem("Sardaukar Steak"),
+                CreateRandomMenuItem("Harkonnen Hot Wings"),
             },
         },
-
         new Menu
         {
             Name = "Spice Sweets",
@@ -105,8 +114,15 @@ public class ArrakisSpiceDinerSeeder(
             MenuItems = new List<MenuItem>
             {
                 CreateRandomMenuItem("Spice Cake"),
+                CreateRandomMenuItem("Cinnamon Spice Cookies"),
+                CreateRandomMenuItem("Gingerbread Truffles"),
+                CreateRandomMenuItem("Chili Chocolate Mousse"),
+                CreateRandomMenuItem("Cardamom Panna Cotta"),
+                CreateRandomMenuItem("Turmeric Honeycomb"),
+                CreateRandomMenuItem("Clove Caramel Flan"),
+                CreateRandomMenuItem("Saffron Almond Baklava"),
+                CreateRandomMenuItem("Pepper Spice Brownies"),
             },
         },
-
     ];
 }
