@@ -281,7 +281,7 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Reject a ParticipationRequest as the event creator
+        /// Reject a ParticipationRequest as the event creator, or remove from participants if accepted.
         /// </summary>
         /// <param name="eventId">ID of the event</param>
         /// <param name="userId">ID of the request sender</param>
@@ -303,6 +303,7 @@ namespace Reservant.Api.Services
                 };
             }
 
+
             var request = await context.EventParticipationRequests
                 .FirstOrDefaultAsync(pr => pr.EventId == eventId && pr.UserId == userId);
 
@@ -314,6 +315,11 @@ namespace Reservant.Api.Services
                     ErrorMessage = "User already rejected",
                     ErrorCode = ErrorCodes.UserAlreadyRejected
                 };
+            }
+
+            if(request is { DateAccepted: DateTime })
+            {
+                request.DateAccepted = null;
             }
 
             request.DateDeleted = DateTime.Now;
