@@ -108,7 +108,7 @@ namespace Reservant.Api.Services
                     };
                 }
 
-                query = query.Where(r => r.Reviews.Average(review => (double?)review.Stars) >= minRating);
+                query = query.Where(r => (r.Reviews.Average(review => (double?)review.Stars) ?? 0) >= minRating);
             }
 
             if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
