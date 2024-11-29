@@ -213,7 +213,7 @@ public abstract class RestaurantSeeder(ApiDbContext context, UserService userSer
     /// <summary>
     /// Create a menu item with randomized properties
     /// </summary>
-    protected MenuItem CreateRandomMenuItem(string name, decimal? alcoholPercentage = null) =>
+    protected MenuItem CreateRandomMenuItem(string name, string? alternateName, decimal? alcoholPercentage = null) =>
         new()
         {
             Name = name,
@@ -224,6 +224,12 @@ public abstract class RestaurantSeeder(ApiDbContext context, UserService userSer
             Ingredients = FindRandomIngredientsForMenuItem(),
             Restaurant = _restaurant,
         };
+
+    /// <summary>
+    /// Create a menu item with randomized properties
+    /// </summary>
+    protected MenuItem CreateRandomMenuItem(string name, decimal? alcoholPercentage = null) =>
+        CreateRandomMenuItem(name, null, alcoholPercentage);
 
     private decimal NextRandomPrice() =>
         Math.Round(MinMenuItemPrice + (decimal)_random.NextDouble() * (MaxMenuItemPrice - MinMenuItemPrice), 2);
