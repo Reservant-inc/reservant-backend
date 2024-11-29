@@ -45,6 +45,11 @@ public abstract class RestaurantSeeder(ApiDbContext context, UserService userSer
         _employees = await CreateEmployees();
 
         var ingredients = CreateIngredients();
+        foreach (var ingredient in ingredients)
+        {
+            ingredient.Restaurant = _restaurant;
+        }
+
         context.AddRange(ingredients.AsEnumerable());
         _ingredients = ingredients;
 
