@@ -10,6 +10,11 @@ namespace Reservant.Api.Models;
 public class MenuItem : ISoftDeletable
 {
     /// <summary>
+    /// Max length of the name or alternate name
+    /// </summary>
+    public const int MaxNameLength = 50;
+
+    /// <summary>
     /// Unique ID
     /// </summary>
     [Key]
@@ -24,13 +29,13 @@ public class MenuItem : ISoftDeletable
     /// <summary>
     /// Nazwa
     /// </summary>
-    [StringLength(20)]
+    [StringLength(MaxNameLength)]
     public required string Name { get; set; }
 
     /// <summary>
     /// Name in another language
     /// </summary>
-    [StringLength(20)]
+    [StringLength(MaxNameLength)]
     public string? AlternateName { get; set; }
 
     /// <summary>

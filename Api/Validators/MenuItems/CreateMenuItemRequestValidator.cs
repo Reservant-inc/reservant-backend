@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Reservant.Api.Dtos.MenuItems;
+using Reservant.Api.Models;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Validators.MenuItems;
@@ -20,10 +21,10 @@ public class CreateMenuItemRequestValidator : AbstractValidator<CreateMenuItemRe
 
         RuleFor(m => m.Name)
             .NotEmpty()
-            .MaximumLength(20);
+            .MaximumLength(MenuItem.MaxNameLength);
 
         RuleFor(m => m.AlternateName)
-            .MaximumLength(20);
+            .MaximumLength(MenuItem.MaxNameLength);
 
         RuleFor(m => m.AlcoholPercentage)
             .InclusiveBetween(0, 100)
