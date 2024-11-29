@@ -18,7 +18,7 @@ namespace Reservant.Api.Controllers
     /// </summary>
     [ApiController, Route("/users")]
     public class UsersController(
-        UserService userService, 
+        UserService userService,
         UrlService urlService,
         UserManager<User> userManager) : StrictController
     {
@@ -109,13 +109,14 @@ namespace Reservant.Api.Controllers
             var result = await userService.GetUserDetailsAsync(userId, User.GetUserId()!.Value);
             return OkOrErrors(result);
         }
-        
+
         /// <summary>
-        /// Ban user based on id 
+        /// Ban user based on id
         /// </summary>
-        [HttpPost("/{userId}/ban")]
+        [HttpPost("{userId}/ban")]
         [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.BanUserAsync))]
         public async Task<ActionResult> BanUser(
             Guid userId,
             BanDto dto
@@ -132,11 +133,12 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
-        /// Unban user based on id 
+        /// Unban user based on id
         /// </summary>
-        [HttpPost("/{userId}/unban")]
+        [HttpPost("{userId}/unban")]
         [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.UnbanUserAsync))]
         public async Task<ActionResult> UnbanUser(
             Guid userId
         )
@@ -151,6 +153,6 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(result);
         }
 
-        
+
     }
 }

@@ -28,7 +28,6 @@ public class UserService(
     ApiDbContext dbContext,
     ValidationService validationService,
     UrlService urlService,
-    UserManager<User> roleManager,
     IMapper mapper)
 {
     /// <summary>
@@ -598,6 +597,8 @@ public class UserService(
     /// <param name="userId">ID of the user to be banned</param>
     /// <param name="dto">Dto of ban</param>
     /// <param name="currentUser">current user</param>
+    [ErrorCode(nameof(userId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(userId), ErrorCodes.InvalidState, "User is already banned")]
     public async Task<Result> BanUserAsync(User currentUser, Guid userId, BanDto dto)
     {
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -609,28 +610,12 @@ public class UserService(
                 ErrorCode = ErrorCodes.NotFound,
             };
         }
-        if (!await roleManager.IsInRoleAsync(currentUser, Roles.CustomerSupportAgent))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(currentUser.Id),
-                ErrorCode = ErrorCodes.MustBeCustomerSupportAgent,
-            };
-        }
         if(user.BannedUntil != null && user.BannedUntil > DateTime.UtcNow.Date)
         {
             return new ValidationFailure
             {
                 PropertyName = nameof(userId),
                 ErrorCode = ErrorCodes.InvalidState,
-            };
-        }
-        if (currentUser.Id == userId)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(currentUser.Id),
-                ErrorCode = ErrorCodes.AccessDenied,
             };
         }
 
@@ -645,6 +630,8 @@ public class UserService(
     /// </summary>
     /// <param name="userId">ID of the user to be unbanned</param>
     /// <param name="currentUser">current user</param>
+    [ErrorCode(nameof(userId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(userId), ErrorCodes.InvalidState, "User is not banned")]
     public async Task<Result> UnbanUserAsync(User currentUser, Guid userId)
     {
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -654,14 +641,6 @@ public class UserService(
             {
                 PropertyName = nameof(userId),
                 ErrorCode = ErrorCodes.NotFound,
-            };
-        }
-        if (!await roleManager.IsInRoleAsync(currentUser, Roles.CustomerSupportAgent))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(currentUser.Id),
-                ErrorCode = ErrorCodes.MustBeCustomerSupportAgent,
             };
         }
         if (user.BannedUntil == null)
