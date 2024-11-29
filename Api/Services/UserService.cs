@@ -661,31 +661,15 @@ public class UserService(
     /// <summary>
     /// Reset BannedUntil for a user after the ban time has expierd
     /// </summary>
-    /// <param name="userId">ID of the user to be unbanned</param>
-    public async Task<Result> RemoveExpiredBan(Guid userId)
+    /// <param name="user">User to be unbanned</param>
+    [ErrorCode(nameof(user), ErrorCodes.InvalidState)]
+    private async Task<Result> RemoveExpiredBan(User user)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user == null)
+        if (user.BannedUntil == null || user.BannedUntil > DateTime.UtcNow)
         {
             return new ValidationFailure
             {
-                PropertyName = nameof(userId),
-                ErrorCode = ErrorCodes.NotFound,
-            };
-        }
-        if (user.BannedUntil == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(userId),
-                ErrorCode = ErrorCodes.InvalidState,
-            };
-        }
-        if(user.BannedUntil > DateTime.UtcNow.Date)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(userId),
+                PropertyName = nameof(user),
                 ErrorCode = ErrorCodes.InvalidState,
             };
         }
@@ -694,5 +678,25 @@ public class UserService(
         await dbContext.SaveChangesAsync();
 
         return Result.Success;
+    }
+
+    /// <summary>
+    /// Check if the user is banned and correct BannedUntil if it is outdated
+    /// </summary>
+    /// <returns>True if the user is banned, false otherwise</returns>
+    public async ValueTask<bool> IsUserBanned(User user)
+    {
+        if (user.BannedUntil == null)
+        {
+            return false;
+        }
+
+        if (user.BannedUntil > DateTime.UtcNow.Date)
+        {
+            return true;
+        }
+
+        await RemoveExpiredBan(user);
+        return false;
     }
 }

@@ -96,8 +96,10 @@ public class AuthController(
     /// <param name="request"> Login request DTO</param>
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Incorrect login or password </request>
+    /// <request code="403">The user is banned</request>
     [HttpPost("login")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+    [ProducesResponseType(typeof(YouAreBannedDto), 403)]
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
         var user = await userManager.FindByNameAsync(request.Login.Trim());
@@ -108,18 +110,15 @@ public class AuthController(
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
-        if(user.BannedUntil!=null)
+        if (await userService.IsUserBanned(user))
         {
-            if(user.BannedUntil>DateTime.UtcNow.Date)
+            return new ObjectResult(new YouAreBannedDto
             {
-                return Problem(
-                title: "You are banned until: "+user.BannedUntil,
-                statusCode: StatusCodes.Status403Forbidden);
-            }
-            else
+                BannedUntil = user.BannedUntil!.Value,
+            })
             {
-                await userService.RemoveExpiredBan(user.Id);
-            }
+                StatusCode = 403,
+            };
         }
 
         if (!await userManager.CheckPasswordAsync(user, request.Password))
@@ -239,6 +238,7 @@ public class AuthController(
     [HttpPost("refresh-token")]
     [ProducesResponseType(200)]
     [Authorize]
+    [ProducesResponseType(typeof(YouAreBannedDto), 403)]
     public async Task<ActionResult<UserInfo>> RefreshTokenAsync() {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
@@ -246,19 +246,16 @@ public class AuthController(
             return Unauthorized();
         }
 
-        if(user.BannedUntil!=null)
+        if (await userService.IsUserBanned(user))
         {
-            if(user.BannedUntil>DateTime.UtcNow.Date)
+            return new ObjectResult(new YouAreBannedDto
             {
-                return Problem(
-                title: "You are banned until: "+user.BannedUntil,
-                statusCode: StatusCodes.Status403Forbidden);
-            }
-            else
+                BannedUntil = user.BannedUntil!.Value,
+            })
             {
-                await userService.RemoveExpiredBan(user.Id);
-            }
-        } 
+                StatusCode = 403,
+            };
+        }
 
         var token = authService.GenerateSecurityToken(user);
         var jwt = _handler.WriteToken(token);
