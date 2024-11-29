@@ -54,22 +54,45 @@ public class DbSeeder(
         await context.SaveChangesAsync();
 
         var johnDoes = await context.Restaurants.SingleAsync(r => r.Name == "John Doe's");
+        var kowalskis = await context.Restaurants.SingleAsync(r => r.Name == "Kowalski's");
         var visits = new List<Visit>
         {
             new()
             {
-                Restaurant = johnDoes,
-                NumberOfGuests = 1,
-                Client = users.Customer1,
-                Participants = [users.Customer2, users.Customer3],
+                Restaurant = kowalskis,
+                NumberOfGuests = 0,
+                Client = users.JohnDoe,
+                Participants = [users.Customer1, users.Customer2, users.Customer3],
                 Reservation = new Reservation
                 {
-                    StartTime = new DateTime(2024, 1, 1, 17, 0, 0),
+                    StartTime = new DateTime(2024, 10, 17, 18, 0, 0),
+                    EndTime = new DateTime(2024, 10, 17, 18, 30, 0),
                     Deposit = null,
-                    ReservationDate = new DateTime(2024, 1, 1, 22, 32, 00),
+                    ReservationDate = new DateTime(2024, 10, 15, 15, 02, 00),
                 },
-                Takeaway = true,
+                StartTime = new DateTime(2024, 10, 17, 18, 02, 33),
+                EndTime = new DateTime(2024, 10, 17, 18, 32, 07),
+                Takeaway = false,
                 TableId = 1,
+                Tip = null,
+            },
+            new()
+            {
+                Restaurant = kowalskis,
+                NumberOfGuests = 0,
+                Client = users.Customer1,
+                Participants = [users.JohnDoe],
+                Reservation = new Reservation
+                {
+                    StartTime = new DateTime(2024, 10, 24, 18, 0, 0),
+                    EndTime = new DateTime(2024, 10, 24, 18, 30, 0),
+                    Deposit = null,
+                    ReservationDate = new DateTime(2024, 10, 20, 20, 10, 04),
+                },
+                StartTime = new DateTime(2024, 10, 24, 18, 02, 33),
+                EndTime = new DateTime(2024, 10, 24, 18, 32, 07),
+                Takeaway = false,
+                TableId = 2,
                 Tip = null,
             },
             new()
@@ -81,12 +104,15 @@ public class DbSeeder(
                 Reservation = new Reservation
                 {
                     StartTime = new DateTime(2024, 1, 4, 18, 0, 0),
+                    EndTime = new DateTime(2024, 1, 4, 19, 0, 0),
                     ReservationDate = new DateTime(2024, 1, 1, 22, 32, 00),
                     Deposit = null,
                 },
                 Takeaway = false,
                 TableId = 2,
                 Tip = 10m,
+                StartTime = new DateTime(2024, 1, 4, 18, 1, 0),
+                EndTime = new DateTime(2024, 1, 4, 19, 7, 0),
             },
             new()
             {
@@ -96,12 +122,15 @@ public class DbSeeder(
                 Reservation = new Reservation
                 {
                     StartTime = new DateTime(2024, 1, 5, 18, 0, 0),
+                    EndTime = new DateTime(2024, 1, 5, 19, 0, 0),
                     ReservationDate = new DateTime(2024, 1, 1, 15, 32, 00),
                     Deposit = null,
                 },
                 Takeaway = false,
                 TableId = 1,
                 Tip = 25m,
+                StartTime = new DateTime(2024, 1, 5, 18, 1, 0),
+                EndTime = new DateTime(2024, 1, 5, 19, 7, 0),
             },
         };
 
