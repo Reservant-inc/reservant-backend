@@ -36,12 +36,12 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-employee")]
     [Authorize(Roles = $"{Roles.Customer}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportEmployeeService>(nameof(ReportEmployeeService.ReportEmpolyee))]
+    [MethodErrorCodes<ReportEmployeeService>(nameof(ReportEmployeeService.ReportEmployee))]
     public async Task<ActionResult<ReportVM>> ReportEmployee(
         ReportEmployeeRequest dto,
         [FromServices] ReportEmployeeService service)
     {
-        return OkOrErrors(await service.ReportEmpolyee(User.GetUserId()!.Value, dto));
+        return OkOrErrors(await service.ReportEmployee(User.GetUserId()!.Value, dto));
     }
 
 

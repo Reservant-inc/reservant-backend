@@ -9,6 +9,7 @@ using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Reservant.Api.Controllers
 {
@@ -16,7 +17,10 @@ namespace Reservant.Api.Controllers
     /// Fetching information about other users and managing employees
     /// </summary>
     [ApiController, Route("/users")]
-    public class UsersController(UserService userService, UrlService urlService) : StrictController
+    public class UsersController(
+        UserService userService,
+        UrlService urlService,
+        UserManager<User> userManager) : StrictController
     {
         /// <summary>
         /// Find users
@@ -105,5 +109,50 @@ namespace Reservant.Api.Controllers
             var result = await userService.GetUserDetailsAsync(userId, User.GetUserId()!.Value);
             return OkOrErrors(result);
         }
+
+        /// <summary>
+        /// Ban user based on id
+        /// </summary>
+        [HttpPost("{userId}/ban")]
+        [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.BanUserAsync))]
+        public async Task<ActionResult> BanUser(
+            Guid userId,
+            BanDto dto
+        )
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await userService.BanUserAsync(user,userId,dto);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Unban user based on id
+        /// </summary>
+        [HttpPost("{userId}/unban")]
+        [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.UnbanUserAsync))]
+        public async Task<ActionResult> UnbanUser(
+            Guid userId
+        )
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await userService.UnbanUserAsync(user,userId);
+            return OkOrErrors(result);
+        }
+
+
     }
 }

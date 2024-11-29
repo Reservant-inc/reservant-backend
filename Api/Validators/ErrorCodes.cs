@@ -335,4 +335,9 @@ public static class ErrorCodes
     /// Invalid state of a visit
     /// </summary>
     public const string InvalidState = "InvalidState";
+
+    /// <summary>
+    /// Must be customer support agent
+    /// </summary>
+    public const string MustBeCustomerSupportAgent = "MustBeCustomerSupportAgent";
 }

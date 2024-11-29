@@ -32,7 +32,7 @@ public class ReportEmployeeService(
         "Can only report emplyees that have visited the restaurant")]
     [ErrorCode(nameof(dto.VisitId), ErrorCodes.NotFound)]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
-    public async Task<Result<ReportVM>> ReportEmpolyee(Guid customerId, ReportEmployeeRequest dto)
+    public async Task<Result<ReportVM>> ReportEmployee(Guid customerId, ReportEmployeeRequest dto)
     {
         var validationResult = await validationService.ValidateAsync(dto, customerId);
         if (!validationResult.IsValid) return validationResult;

@@ -96,8 +96,10 @@ public class AuthController(
     /// <param name="request"> Login request DTO</param>
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Incorrect login or password </request>
+    /// <request code="403">The user is banned</request>
     [HttpPost("login")]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+    [ProducesResponseType(typeof(YouAreBannedDto), 403)]
     public async Task<ActionResult<UserInfo>> LoginUser(LoginRequest request)
     {
         var user = await userManager.FindByNameAsync(request.Login.Trim());
@@ -106,6 +108,17 @@ public class AuthController(
             return Problem(
                 title: "Incorrect login or password",
                 statusCode: StatusCodes.Status401Unauthorized);
+        }
+
+        if (await userService.IsUserBanned(user))
+        {
+            return new ObjectResult(new YouAreBannedDto
+            {
+                BannedUntil = user.BannedUntil!.Value,
+            })
+            {
+                StatusCode = 403,
+            };
         }
 
         if (!await userManager.CheckPasswordAsync(user, request.Password))
@@ -225,11 +238,23 @@ public class AuthController(
     [HttpPost("refresh-token")]
     [ProducesResponseType(200)]
     [Authorize]
+    [ProducesResponseType(typeof(YouAreBannedDto), 403)]
     public async Task<ActionResult<UserInfo>> RefreshTokenAsync() {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
+        }
+
+        if (await userService.IsUserBanned(user))
+        {
+            return new ObjectResult(new YouAreBannedDto
+            {
+                BannedUntil = user.BannedUntil!.Value,
+            })
+            {
+                StatusCode = 403,
+            };
         }
 
         var token = authService.GenerateSecurityToken(user);
