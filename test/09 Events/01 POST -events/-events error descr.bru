@@ -15,11 +15,15 @@ auth:bearer {
 }
 
 body:json {
-  {
+  
+  {  
+    "name": "{{randomCompanyName}}",
     "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam viverra libero non lorem gravida, ac maximus ligula faucibus. Integer vel libero vel risus commodo gravida. Sed cursus, felis vel consectetur elementum, lorem odio aliquam dui, et dignissim eros libero a nisi. Cras et urna a arcu condimentum imperdiet. Suspendisse potenti. Duis finibus, mi eget varius tempor, ex urna sodales lacus, et faucibus dolor odio vitae nisl. Nulla facilisi. Vivamus sed dolor a erat sodales iaculis ac nec arcu. Donec euismod, elit a luctus efficitur, quam est condimentum lectus, et tincidunt mi lorem nec ante. Fusce euismod feugiat turpis sit amet aliquam. Proin consectetur dolor ut quam ullamcorper sollicitudin aaaaaaa",
     "time": "{{time}}",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "{{mustJoinUntil}}",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": {{randomRestaurantId}},
+    "photo": "test-jd.png"
   }
   
   

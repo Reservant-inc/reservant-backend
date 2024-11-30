@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  eventId: {{randomEventId}}
+  eventId: 1
 }
 
 auth:bearer {
@@ -20,11 +20,15 @@ auth:bearer {
 
 body:json {
   {
+    "name": "{{randomCompanyName}}",
     "description": "Michał Adamowicz (ur. w 1954 w ZSRR, zm. 5 września 1982 w Lubinie) – elektryk z Zakładów Górniczych Lubin, członek NSZZ Solidarność. Adamowicz był jednym z protestujących podczas manifestacji, która odbyła się 31 sierpnia 1982 roku w Lubinie. Tego dnia rano wyszedł do pracy, którą skończył o 14:00. Wtedy dowiedział się o planowanej na godzinę 16:00 manifestacji. Poszedł tam wraz z grupą kolegów, by, jak to ujął, trochę powalczyć z komunistami. Brał udział w układaniu krzyża z kwiatów, wykrzykiwał hasła. W tym samym czasie, Milicja Obywatelska zgromadziła w pobliżu centrum miasta znaczne siły, które zostały dodatkowo wzmocnione przez dwa plutony funkcjonariuszy ZOMO z Legnicy uzbrojonych w karabinki AK. Adamowicz wraz z innymi rzucił się do ucieczki na dźwięk salwy z ostrej amunicji. Pocisk dosięgnął go o godz. 17:30. Adamowicz zmarł w szpitalu. Bezpośrednią przyczyną zgonu była rana postrzałowa głowy. Demonstracja z 31 sierpnia 1982 roku, nazywana jest obecnie",
     "time": "{{time}}",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "{{mustJoinUntil}}",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": {{randomRestaurantId}},
+    "photo": "test-jd.png"
   }
+  
 }
 
 script:pre-request {
