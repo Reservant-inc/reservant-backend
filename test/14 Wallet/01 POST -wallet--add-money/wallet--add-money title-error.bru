@@ -1,0 +1,38 @@
+meta {
+  name: wallet--add-money title-error
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/wallet/add-money
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "title": "{{randomText}}",
+    "amount": {{randomNumber100500}}
+  }
+}
+
+tests {
+  test("Response status is 400", function() {
+    expect(res.getStatus()).to.equal(400)
+  })
+  
+  const jsonData = res.getBody()
+  
+  test("The length of title must be 50 chars or fewer error expected", function () {
+      expect(jsonData.errors['title']).to.include("The length of 'Title' must be 50 characters or fewer. You entered 140 characters.");
+  });
+  
+  test("ErrorCodes contains 'MaximumLengthValidator'", function () {
+      expect(jsonData.errorCodes["title"]).to.include("MaximumLengthValidator");
+  });
+}
