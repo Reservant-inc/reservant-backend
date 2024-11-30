@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  eventId: {{randomEventId}}
+  eventId: 1
 }
 
 auth:bearer {
@@ -19,134 +19,89 @@ auth:bearer {
 }
 
 body:json {
+  
   {
+    "name": "{{randomCompanyName}}",
     "description": "{{groupName}}",
     "time": "{{time}}",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "{{mustJoinUntil}}",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": 1,
+    "photo": "test-jd.png"
   }
-}
-
-script:pre-request {
-  //lorem
-  function getRandomText(maxLength) {
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ';
-      let result = '';
-      const randomLength = Math.floor(Math.random() * (maxLength + 1));
-      for (let i = 0; i < randomLength; i++) {
-          result += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return result;
-  }
-  const maxLength = 200;
-  const randomText = getRandomText(maxLength);
-  bru.setEnvVar("randomText", randomText);
-  console.log("Random Text: ", randomText);
-  
-  
-  // Pobierz listę restaurantIds ze zmiennej środowiskowej
-  var restaurantIds = bru.getEnvVar("restaurantIds");
-  
-  // Upewnij się, że restaurantIds to tablica
-  if (restaurantIds && typeof restaurantIds === 'string') {
-      restaurantIds = JSON.parse(restaurantIds);
-  }
-  
-  // Sprawdź, czy lista nie jest pusta
-  if (restaurantIds && restaurantIds.length > 0) {
-      // Losuj jeden element z listy
-      var randomRestaurantId = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
-      
-      // Zapisz wylosowany restaurantId do zmiennej środowiskowej
-      bru.setEnvVar("randomRestaurantId", randomRestaurantId);
-      console.log("Random restaurantId selected:", randomRestaurantId);
-  } else {
-      console.log("No restaurantIds available.");
-  }
-  
-  
-  
-  
-  // Funkcja do generowania losowej daty w przyszłości
-  function generateFutureDate() {
-      const now = new Date();
-      // Dodaj losowy przedział czasu (1-10 dni) w milisekundach
-      const futureTime = now.getTime() + Math.floor(Math.random() * 10 + 1) * 24 * 60 * 60 * 1000;
-      return new Date(futureTime).toISOString();
-  }
-  
-  // Funkcja do generowania daty przed danym czasem (np. przed `time`)
-  function generatePastDateBefore(futureDate) {
-      const future = new Date(futureDate);
-      // Odejmij losowy czas (1-5 godzin) od futureDate
-      const pastTime = future.getTime() - Math.floor(Math.random() * 5 + 1) * 60 * 60 * 1000;
-      return new Date(pastTime).toISOString();
-  }
-  
-  // Generowanie przyszłej daty dla 'time'
-  const time = generateFutureDate();
-  
-  // Generowanie daty przed 'time' dla 'mustJoinUntil'
-  const mustJoinUntil = generatePastDateBefore(time);
-  
-  // Zapisz wartości w zmiennych środowiskowych
-  bru.setEnvVar("time", time);
-  bru.setEnvVar("mustJoinUntil", mustJoinUntil);
-  
-  console.log("Generated time:", time);
-  console.log("Generated mustJoinUntil:", mustJoinUntil);
-  
-  // Pobierz listę eventIds z środowiska
-  var eventIdsList = bru.getEnvVar("eventIdsList");
-  
-  // Sprawdź, czy lista eventIdsList nie jest pusta
-  if (eventIdsList && eventIdsList.length > 0) {
-      // Parsuj listę (jeśli została zapisana jako string JSON)
-      eventIdsList = JSON.parse(eventIdsList);
-      
-      // Losuj indeks z listy
-      var randomIndex = Math.floor(Math.random() * eventIdsList.length);
-      
-      // Pobierz losowe eventId
-      var randomEventId = eventIdsList[randomIndex];
-      
-      // Zapisz losowe eventId do środowiska
-      bru.setEnvVar("randomEventId", randomEventId);
-      
-      console.log("Losowy eventId: " + randomEventId);
-  } else {
-      console.log("Lista eventIdsList jest pusta lub nie istnieje");
-  }
-  
-  
-  
 }
 
 tests {
-  // Pobierz odpowiedź z serwera
-  var jsonData = res.getBody();
+  // Pobierz odpowiedź z serwera jako obiekt JSON
+  const responseBody = res.getBody();
   
-  // Test, czy odpowiedź zawiera wszystkie właściwe pola z odpowiednimi typami
+  // Test: Odpowiedź zawiera wszystkie wymagane pola z odpowiednimi typami
   test("Response contains all required fields with correct types", function () {
-      // Status code
+      // Sprawdzenie statusu odpowiedzi
       expect(res.getStatus()).to.equal(200);
-      
-      // Sprawdzanie właściwości i ich typów
-      expect(jsonData).to.have.property('eventId').that.is.a('number');
-      expect(jsonData).to.have.property('createdAt').that.is.a('string');
-      expect(jsonData).to.have.property('description').that.is.a('string');
-      expect(jsonData).to.have.property('time').that.is.a('string');
-      expect(jsonData).to.have.property('mustJoinUntil').that.is.a('string');
-      expect(jsonData).to.have.property('creatorId').that.is.a('string');
-      expect(jsonData).to.have.property('creatorFullName').that.is.a('string');
-      expect(jsonData).to.have.property('restaurantId').that.is.a('number');
-      expect(jsonData).to.have.property('restaurantName').that.is.a('string');
-      
-      // Sprawdzenie 'visitId' może być null lub liczbą
-      expect(jsonData.visitId === null || typeof jsonData.visitId === 'number').to.be.true;
-      
-      // 'interested' musi być tablicą
-      expect(jsonData).to.have.property('interested').that.is.an('array');
+  
+      // Walidacja głównych pól
+      expect(responseBody).to.have.property("eventId").that.is.a("number");
+      expect(responseBody).to.have.property("name").that.is.a("string");
+      expect(responseBody).to.have.property("createdAt").that.is.a("string");
+      expect(responseBody).to.have.property("description").that.is.a("string");
+      expect(responseBody).to.have.property("time").that.is.a("string");
+      expect(responseBody).to.have.property("maxPeople").that.is.a("number");
+      expect(responseBody).to.have.property("mustJoinUntil").that.is.a("string");
+      expect(responseBody).to.have.property("photo").that.is.a("string");
+  
+      // Walidacja pola 'creator'
+      expect(responseBody).to.have.property("creator").that.is.an("object");
+      const creator = responseBody.creator;
+      expect(creator).to.have.property("userId").that.is.a("string");
+      expect(creator).to.have.property("firstName").that.is.a("string");
+      expect(creator).to.have.property("lastName").that.is.a("string");
+      expect(creator).to.have.property("photo").that.is.a("string");
+  
+      // Walidacja pola 'restaurant'
+      expect(responseBody).to.have.property("restaurant").that.is.an("object");
+      const restaurant = responseBody.restaurant;
+      expect(restaurant).to.have.property("restaurantId").that.is.a("number");
+      expect(restaurant).to.have.property("name").that.is.a("string");
+      expect(restaurant).to.have.property("restaurantType").that.is.a("string");
+      expect(restaurant).to.have.property("address").that.is.a("string");
+      expect(restaurant).to.have.property("city").that.is.a("string");
+      expect(restaurant).to.have.property("location").that.is.an("object");
+      expect(restaurant.location).to.have.property("latitude").that.is.a("number");
+      expect(restaurant.location).to.have.property("longitude").that.is.a("number");
+      expect(restaurant).to.have.property("logo").that.is.a("string");
+      expect(restaurant).to.have.property("description").that.is.a("string");
+      expect(restaurant).to.have.property("reservationDeposit").that.is.a("number");
+      expect(restaurant).to.have.property("maxReservationDurationMinutes").that.is.a("number");
+      expect(restaurant).to.have.property("provideDelivery").that.is.a("boolean");
+      expect(restaurant).to.have.property("tags").that.is.an("array");
+      expect(restaurant).to.have.property("rating").that.is.a("number");
+      expect(restaurant).to.have.property("numberReviews").that.is.a("number");
+      expect(restaurant).to.have.property("openingHours").that.is.an("array");
+      expect(restaurant).to.have.property("isArchived").that.is.a("boolean");
+  
+      // Walidacja elementów w tablicy 'openingHours'
+      restaurant.openingHours.forEach((hours, index) => {
+          test(`Opening hours item at index ${index} is valid`, function () {
+              expect(hours).to.have.property("from").that.is.a("string");
+              expect(hours).to.have.property("until").that.is.a("string");
+          });
+      });
+  
+      // Walidacja pola 'visitId'
+      expect(responseBody).to.have.property("visitId");
+      expect(responseBody.visitId === null || typeof responseBody.visitId === "number").to.be.true;
+  
+      // Walidacja pola 'participants'
+      expect(responseBody).to.have.property("participants").that.is.an("array");
+      responseBody.participants.forEach((participant, index) => {
+          test(`Participant at index ${index} has correct fields`, function () {
+              expect(participant).to.have.property("userId").that.is.a("string");
+              expect(participant).to.have.property("firstName").that.is.a("string");
+              expect(participant).to.have.property("lastName").that.is.a("string");
+              expect(participant).to.have.property("photo").that.is.a("string");
+          });
+      });
   });
   
 }
