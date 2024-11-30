@@ -1430,11 +1430,14 @@ namespace Reservant.Api.Services
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant</param>
         /// <param name="orderBy">Order the list by</param>
+        /// <param name="userId">Current user ID for permission checking</param>
         [ErrorCode(null, ErrorCodes.NotFound, "Restaurant not found")]
+        [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
         public async Task<Result<Pagination<IngredientVM>>> GetIngredientsAsync(
             int restaurantId,
-            IngredientSorting orderBy)
+            IngredientSorting orderBy,
+            Guid userId)
         {
             bool restaurantExists = await context.Restaurants
                 .OnlyActiveRestaurants()
@@ -1448,6 +1451,9 @@ namespace Reservant.Api.Services
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
+
+            var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, userId);
+            if (access.IsError) return access.Errors;
 
             IQueryable<Ingredient> query = context.MenuItems
                 .AsSplitQuery()

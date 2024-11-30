@@ -254,7 +254,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         int restaurantId,
         [FromQuery] IngredientSorting orderBy = IngredientSorting.NameAsc)
     {
-        var result = await service.GetIngredientsAsync(restaurantId, orderBy);
+        var result = await service.GetIngredientsAsync(restaurantId, orderBy, User.GetUserId()!.Value);
         return OkOrErrors(result);
     }
 
