@@ -1,0 +1,20 @@
+meta {
+  name: -auth-is-unique-login Login unavailable
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/auth/is-unique-login?login=JD
+  body: none
+  auth: none
+}
+
+params:query {
+  login: JD
+}
+
+assert {
+  res.status: eq 200
+  res.body: eq false
+}

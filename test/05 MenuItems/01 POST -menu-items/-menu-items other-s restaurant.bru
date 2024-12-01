@@ -29,7 +29,26 @@ body:json {
 
 tests {
   // Test sprawdzający, czy odpowiedź ma status 400
-  test("Status code is 400 when restaurant is someone else'", function () {
+  test("Status code is 400 when restaurant is someone else's", function () {
       expect(res.getStatus()).to.equal(400);
   });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiednie komunikaty w 'errors'
+  test("Errors field contains the appropriate error message", function () {
+      var jsonData = res.getBody();
+  
+      // Sprawdzenie, czy w 'errors' znajduje się komunikat 'User is not the owner of the restaurant.'
+      expect(jsonData.errors).to.have.property('');
+      expect(jsonData.errors[""][0]).to.equal("User is not the owner of the restaurant.");
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera kod błędu 'AccessDenied' w 'errorCodes'
+  test("ErrorCodes field contains AccessDenied code", function () {
+      var jsonData = res.getBody();
+  
+      // Sprawdzenie, czy w 'errorCodes' znajduje się 'AccessDenied'
+      expect(jsonData.errorCodes).to.have.property('');
+      expect(jsonData.errorCodes[""][0]).to.equal("AccessDenied");
+  });
+  
 }

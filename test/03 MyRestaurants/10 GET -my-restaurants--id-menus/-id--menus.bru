@@ -81,4 +81,26 @@ tests {
   test("Menu IDs have been saved to environment", function () {
       expect(bru.getEnvVar("menuIds")).to.eql(JSON.stringify(menuIds));
   });
+  
+  
+  // Sprawdzamy, czy odpowiedź zawiera dane restauracji
+  if (jsonData.length > 0) {
+      // Tworzymy listę wszystkich restaurantId
+      var menuIdsJD = jsonData.map(function(menu) {
+          return menu.menuId;
+      });
+  
+      // Zapisujemy listę restaurantIds do środowiska jako JSON
+      bru.setEnvVar("menuIdsJD", JSON.stringify(menuIdsJD));
+      console.log("List of restaurant IDs saved to environment:", menuIdsJD);
+  } else {
+      console.warn("Response does not contain any restaurant data.");
+  }
+  
+  if (jsonData.length > 0) {
+      var firstMenuId = jsonData[0].menuId;
+      bru.setEnvVar("firstMenuId", firstMenuId);
+      console.log("First menu ID saved to environment:", firstMenuId);
+  }
+  
 }

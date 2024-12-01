@@ -1,0 +1,39 @@
+meta {
+  name: -menu-items With non-existent ingredient
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{host}}/menu-items
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "restaurantId": {{firstRestaurantId}},
+    "price": {{randomInt}},
+    "name": "{{menuName}}",
+    "alternateName": "{{menuName}}",
+    "alcoholPercentage": {{randomDouble0to3}},
+    "photo": "test-jd.png",
+      "ingredients": [
+        {
+          "ingredientId": 99999,
+          "publicName": "{{newIngredient.publicName}}",
+          "amountUsed": {{randomNumber01}}
+        }
+      ]
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.errors.ingredients: contains "One or more ingredients were not found in the database"
+  res.body.errorCodes.ingredients: contains "NotFound"
+}

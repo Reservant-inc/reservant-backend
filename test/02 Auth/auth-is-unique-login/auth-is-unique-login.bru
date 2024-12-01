@@ -1,0 +1,20 @@
+meta {
+  name: auth-is-unique-login
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/auth/is-unique-login?login={{randomLogin}}
+  body: none
+  auth: none
+}
+
+params:query {
+  login: {{randomLogin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: eq true
+}

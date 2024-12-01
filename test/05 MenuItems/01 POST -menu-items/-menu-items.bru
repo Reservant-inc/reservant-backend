@@ -69,4 +69,8 @@ tests {
   bru.setEnvVar("menuItemIdsList", JSON.stringify(menuItemIds));
   console.log("Updated menuItemIdsList:", menuItemIds);
   
+  
+  var jsonData = res.getBody();
+  bru.setEnvVar("newMenuItemId", jsonData.menuItemId);
+  
 }

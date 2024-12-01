@@ -21,10 +21,7 @@ body:json {
     "minimalAmount": {{minimalAmount}},
     "amountToOrder": {{amountToOrder}},
     "amount": -10,  // Błędna wartość (ujemna)
-    "menuItem": {
-      "menuItemId": {{randomMenuItemId}},
-      "amountUsed": {{randomInt}}
-    }
+    "restaurantId": {{firstRestaurantId}}
   }
   
 }
@@ -32,5 +29,17 @@ body:json {
 tests {
   test("Status code is 400", function () {
       expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test sprawdzający, czy odpowiedź zawiera odpowiednie komunikaty błędów
+  test("Error response contains messages for 'amount' less than zero", function () {
+      var jsonData = res.getBody();
+      
+      // Sprawdzenie obecności pola 'errors'
+      expect(jsonData).to.have.property('errors');
+      
+      // Sprawdzenie, czy 'errors' zawiera odpowiednie komunikaty dla 'minimalAmount'
+      expect(jsonData.errors['amount'][0]).to.include("The value must be greater than or equal to zero.");
+      expect(jsonData.errorCodes['amount'][0]).to.include("ValueLessThanZero");
   });
 }

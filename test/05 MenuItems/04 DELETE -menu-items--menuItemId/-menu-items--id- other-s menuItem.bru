@@ -19,11 +19,11 @@ auth:bearer {
 }
 
 script:pre-request {
-  function generateRandomNumber010() {
-      return Math.floor(Math.random() * 11);
-  }
-  var randomNumber010 = generateRandomNumber010();
-  bru.setEnvVar("randomNumber010", randomNumber010);
+  // function generateRandomNumber010() {
+  //     return Math.floor(Math.random() * 11);
+  // }
+  // var randomNumber010 = generateRandomNumber010();
+  // bru.setEnvVar("randomNumber010", randomNumber010);
 }
 
 tests {
