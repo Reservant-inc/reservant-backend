@@ -1,0 +1,100 @@
+meta {
+  name: -user-threads
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/user/threads
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.have.property('page').that.is.a('number');
+      expect(jsonData).to.have.property('totalPages').that.is.a('number');
+      expect(jsonData).to.have.property('perPage').that.is.a('number');
+      expect(jsonData).to.have.property('orderByOptions').that.is.an('array');
+      expect(jsonData).to.have.property('items').that.is.an('array').that.is.not.empty;
+  });
+  
+  test("Page and pagination values are consistent", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.page).to.be.at.least(0);
+      expect(jsonData.totalPages).to.be.at.least(1);
+      expect(jsonData.perPage).to.be.at.least(1);
+  });
+  
+  test("OrderByOptions can be empty but valid", function () {
+      const jsonData = res.getBody();
+      expect(jsonData.orderByOptions).to.be.an('array');
+  });
+  
+  test("Items have correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          expect(item).to.have.property('threadId').that.is.a('number');
+          expect(item).to.have.property('title').that.is.a('string');
+          expect(item).to.have.property('participants').that.is.an('array').that.is.not.empty;
+      });
+  });
+  
+  test("Participants have correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          item.participants.forEach(participant => {
+              expect(participant).to.have.property('userId').that.is.a('string');
+              expect(participant).to.have.property('firstName').that.is.a('string');
+              expect(participant).to.have.property('lastName').that.is.a('string');
+              expect(participant).to.have.property('photo').that.satisfy(value => value === null || typeof value === 'string');
+          });
+      });
+  });
+  
+  test("Thread IDs are unique", function () {
+      const jsonData = res.getBody();
+      const threadIds = jsonData.items.map(item => item.threadId);
+  
+      expect(new Set(threadIds).size).to.equal(threadIds.length);
+  });
+  
+  test("Thread titles are non-empty strings", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          expect(item.title).to.be.a('string').that.is.not.empty;
+      });
+  });
+  
+  test("Participant photo field is valid or null", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          item.participants.forEach(participant => {
+              if (participant.photo !== null) {
+                  expect(participant.photo).to.match(/^\/uploads\/[a-zA-Z0-9-_]+\.(jpg|jpeg|png|gif)$/);
+              }
+          });
+      });
+  });
+  
+  
+}

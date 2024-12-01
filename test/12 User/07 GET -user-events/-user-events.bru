@@ -1,0 +1,120 @@
+meta {
+  name: -user-events
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/user/events
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.have.property('page').that.is.a('number');
+      expect(jsonData).to.have.property('totalPages').that.is.a('number');
+      expect(jsonData).to.have.property('perPage').that.is.a('number');
+      expect(jsonData).to.have.property('orderByOptions').that.is.an('array');
+      expect(jsonData).to.have.property('items').that.is.an('array').that.is.not.empty;
+  });
+  
+  test("Page and pagination values are consistent", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.page).to.be.at.least(0);
+      expect(jsonData.totalPages).to.be.at.least(1);
+      expect(jsonData.perPage).to.be.at.least(1);
+  });
+  
+  test("OrderByOptions contains valid values", function () {
+      const jsonData = res.getBody();
+      const validOptions = ["DateCreatedAsc", "DateCreatedDesc", "DateAsc", "DateDesc"];
+      
+      jsonData.orderByOptions.forEach(option => {
+          expect(validOptions).to.include(option);
+      });
+  });
+  test("Items have correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          expect(item).to.have.property('eventId').that.is.a('number');
+          expect(item).to.have.property('name').that.is.a('string');
+          expect(item).to.have.property('description').that.is.a('string');
+          expect(item).to.have.property('time').that.is.a('string');
+          expect(item).to.have.property('maxPeople').that.is.a('number');
+          expect(item).to.have.property('mustJoinUntil').that.is.a('string');
+          expect(item).to.have.property('creator').that.is.an('object');
+          expect(item).to.have.property('restaurant').that.is.an('object');
+          expect(item).to.have.property('numberInterested').that.is.a('number');
+          expect(item).to.have.property('photo').that.is.a('string');
+      });
+  });
+  test("Creator has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          const creator = item.creator;
+  
+          expect(creator).to.have.property('userId').that.is.a('string');
+          expect(creator).to.have.property('firstName').that.is.a('string');
+          expect(creator).to.have.property('lastName').that.is.a('string');
+          expect(creator).to.have.property('photo').that.satisfy(value => value === null || typeof value === 'string');
+      });
+  });
+  test("Restaurant has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          const restaurant = item.restaurant;
+  
+          expect(restaurant).to.have.property('restaurantId').that.is.a('number');
+          expect(restaurant).to.have.property('name').that.is.a('string');
+          expect(restaurant).to.have.property('restaurantType').that.is.a('string');
+          expect(restaurant).to.have.property('address').that.is.a('string');
+          expect(restaurant).to.have.property('city').that.is.a('string');
+          expect(restaurant).to.have.property('location').that.is.an('object');
+          expect(restaurant.location).to.have.property('latitude').that.is.a('number');
+          expect(restaurant.location).to.have.property('longitude').that.is.a('number');
+          expect(restaurant).to.have.property('logo').that.is.a('string');
+          expect(restaurant).to.have.property('description').that.is.a('string');
+          expect(restaurant).to.have.property('reservationDeposit').that.satisfy(value => value === null || typeof value === 'number');
+          expect(restaurant).to.have.property('maxReservationDurationMinutes').that.is.a('number');
+          expect(restaurant).to.have.property('provideDelivery').that.is.a('boolean');
+          expect(restaurant).to.have.property('tags').that.is.an('array');
+          expect(restaurant).to.have.property('rating').that.is.a('number');
+          expect(restaurant).to.have.property('numberReviews').that.is.a('number');
+          expect(restaurant).to.have.property('openingHours').that.is.an('array');
+  
+          restaurant.openingHours.forEach(hours => {
+              expect(hours).to.have.property('from').that.is.a('string');
+              expect(hours).to.have.property('until').that.is.a('string');
+          });
+      });
+  });
+  
+  test("Photo field is a valid string path", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          expect(item.photo).to.match(/^\/uploads\/[a-zA-Z0-9-_]+\.(jpg|jpeg|png|gif)$/);
+      });
+  });
+  
+  
+}

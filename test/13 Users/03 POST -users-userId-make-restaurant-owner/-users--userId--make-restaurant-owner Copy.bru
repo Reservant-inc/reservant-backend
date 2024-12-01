@@ -1,17 +1,17 @@
 meta {
-  name: -users--employeeId- errId
+  name: -users--userId--make-restaurant-owner Copy
   type: http
-  seq: 5
+  seq: 2
 }
 
-get {
-  url: {{host}}/users/:employeeId
+post {
+  url: {{host}}/users/:userId/make-restaurant-owner
   body: none
   auth: bearer
 }
 
 params:path {
-  employeeId: {{randomString}}
+  userId: {{randomString}}
 }
 
 auth:bearer {
@@ -37,7 +37,9 @@ script:pre-request {
 }
 
 tests {
-  test("Response status is 400", function () {
-      expect(res.getStatus()).to.equal(400);
+  test("Response status is 404", function () {
+      expect(res.getStatus()).to.equal(404);
   });
+  
+  
 }
