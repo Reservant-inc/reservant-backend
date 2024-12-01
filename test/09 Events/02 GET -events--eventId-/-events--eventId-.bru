@@ -14,14 +14,12 @@ params:path {
   eventId: 1
 }
 
-script:pre-request {
+tests {
   // Pobierz body odpowiedzi
-  var responseBody = bru.response.body;
-  
-  // Parsuj body do obiektu JSON
-  var responseJson = JSON.parse(responseBody);
+  var responseJson = res.getBody();
   
   // Sprawdź, czy istnieje pole 'items' w odpowiedzi i czy zawiera dane
+  test("Check items in response", function(){
   if (responseJson.items && responseJson.items.length > 0) {
       // Pobierz listę eventId z pola 'items'
       var eventIdsList = responseJson.items.map(item => item.eventId);
@@ -39,5 +37,6 @@ script:pre-request {
   } else {
       console.log("Pole 'items' jest puste lub nie istnieje");
   }
+  })
   
 }

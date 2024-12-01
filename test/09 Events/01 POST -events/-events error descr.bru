@@ -119,7 +119,7 @@ tests {
   // Test, czy 'errors' zawiera wiadomość o zbyt długim opisie
   test("Error contains description length message", function () {
       expect(jsonData.errors).to.have.property('description');
-      expect(jsonData.errors.description[0]).to.include("'Description' must be between 0 and 200 characters.");
+      expect(jsonData.errors.description[0]).to.include("The length of 'Description' must be 200 characters or fewer. You entered 715 characters.");
   });
   
   // Test, czy odpowiedź zawiera właściwość 'errorCodes'
@@ -130,7 +130,7 @@ tests {
   // Test, czy 'errorCodes' zawiera odpowiedni kod błędu 'LengthValidator'
   test("ErrorCodes contains LengthValidator", function () {
       expect(jsonData.errorCodes).to.have.property('description');
-      expect(jsonData.errorCodes.description[0]).to.eql("LengthValidator");
+      expect(jsonData.errorCodes.description[0]).to.eql("MaximumLengthValidator");
   });
   
 }
