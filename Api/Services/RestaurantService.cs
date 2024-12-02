@@ -62,12 +62,13 @@ namespace Reservant.Api.Services
         /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
         /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
         /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
+        /// <param name="switchToUnverfied"></param>
         /// <returns></returns>
         public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
             double? origLat, double? origLon,
             string? name, HashSet<string> tags, int? minRating,
             double? lat1, double? lon1, double? lat2, double? lon2,
-            int page, int perPage)
+            int page, int perPage, bool switchToUnverfied=false)
         {
             IQueryable<Restaurant> query = context.Restaurants
                 .AsNoTracking()
@@ -108,7 +109,9 @@ namespace Reservant.Api.Services
                     };
                 }
 
-                query = query.Where(r => (r.Reviews.Average(review => (double?)review.Stars) ?? 0) >= minRating);
+                query = query.Where(r => (
+                    r.Reviews.Average(review => (double?)review.Stars) ?? 0) >= minRating
+                );
             }
 
             if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
@@ -173,6 +176,8 @@ namespace Reservant.Api.Services
             {
                 query = query.OrderBy(r => r.Name);
             }
+
+            query = query.Where(r => switchToUnverfied?r.VerifierId==null:r.VerifierId!=null);
 
             var nearRestaurants = await query
                 .Select(r => new NearRestaurantVM
