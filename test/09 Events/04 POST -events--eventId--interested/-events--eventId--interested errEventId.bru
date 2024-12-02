@@ -18,30 +18,6 @@ auth:bearer {
   token: {{JD}}
 }
 
-script:pre-request {
-  // Pobierz listę eventIds z środowiska
-  var eventIdsList = bru.getEnvVar("eventIdsList");
-  
-  // Sprawdź, czy lista eventIdsList nie jest pusta
-  if (eventIdsList && eventIdsList.length > 0) {
-      // Parsuj listę (jeśli została zapisana jako string JSON)
-      eventIdsList = JSON.parse(eventIdsList);
-      
-      // Losuj indeks z listy
-      var randomIndex = Math.floor(Math.random() * eventIdsList.length);
-      
-      // Pobierz losowe eventId
-      var randomEventId = eventIdsList[randomIndex];
-      
-      // Zapisz losowe eventId do środowiska
-      bru.setEnvVar("randomEventId", randomEventId);
-      
-      console.log("Losowy eventId: " + randomEventId);
-  } else {
-      console.log("Lista eventIdsList jest pusta lub nie istnieje");
-  }
-}
-
 tests {
   // Pobierz odpowiedź z serwera
   var jsonData = res.getBody();
@@ -53,12 +29,12 @@ tests {
   
   // Test, czy odpowiedź zawiera błąd "Event not found"
   test("Event not found error message exists", function () {
-      expect(jsonData.errors[""]).to.include("Event not found");
+      expect(jsonData.errors['eventId']).to.include("Event not found");
   });
   
   // Test, czy errorCodes zawiera "NotFound"
   test("ErrorCodes contains 'NotFound'", function () {
-      expect(jsonData.errorCodes[""]).to.include("NotFound");
+      expect(jsonData.errorCodes['eventId']).to.include("NotFound");
   });
   
   // Nie usuwaj eventId z listy, ponieważ odpowiedź to błąd
