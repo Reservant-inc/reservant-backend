@@ -8,6 +8,7 @@ using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Mapping;
 using Reservant.Api.Push;
+using Reservant.Api.Identity;
 
 namespace Reservant.Api.Services;
 
@@ -378,8 +379,13 @@ public class NotificationService(
     /// <param name="reportId"></param>
     /// <returns></returns>
     public async Task NotifyNewEscalatedReport(int reportId) {
-        var managers = await context.Users.Where(r => r.Email == "manager@mail.com").ToListAsync();
-        foreach(var manager in managers)
+        var managers =
+            from user in context.Users
+            join userRole in context.UserRoles on user.Id equals userRole.UserId
+            join role in context.Roles on userRole.RoleId equals role.Id
+            where role.Name == Roles.CustomerSupportManager
+            select user;
+        foreach (var manager in managers)
         {
             await NotifyUser(
                 manager.Id,
