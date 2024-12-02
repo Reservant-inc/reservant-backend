@@ -358,15 +358,16 @@ public class UserService(
     /// <summary>
     /// Mark a user as deleted
     /// </summary>
-    /// <param name="id">ID of the user</param>
-    /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
+    /// <param name="id">ID of the user to ban</param>
+    /// <param name="requesterId">Id of user requesting account deletion</param>
+    /// <param name="isCurrentUser">If true, it means its user request to delete his own account (skips employee validation)</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result> ArchiveUserAsync(Guid id, Guid employerId)
+    public async Task<Result> ArchiveUserAsync(Guid id, Guid requesterId, bool isCurrentUser)
     {
-        var user = await dbContext.Users
+        var userToBan = await dbContext.Users
             .Include(user => user.Employments)
             .FirstOrDefaultAsync(x => x.Id == id);
-        if (user is null)
+        if (userToBan is null)
         {
             return new ValidationFailure
             {
@@ -376,7 +377,7 @@ public class UserService(
             };
         }
 
-        if (user.EmployerId != employerId)
+        if (userToBan.EmployerId != requesterId && !isCurrentUser)
         {
             return new ValidationFailure
             {
@@ -386,19 +387,19 @@ public class UserService(
             };
         }
 
-        user.BirthDate = null;
-        user.Email = null;
-        user.EmailConfirmed = false;
-        user.NormalizedEmail = null;
-        user.FullPhoneNumber = null;
-        user.PhoneNumberConfirmed = false;
-        user.FirstName = "DELETED";
-        user.LastName = "DELETED";
-        user.Photo = null;
-        user.PhotoFileName = null;
-        user.IsArchived = true;
+        userToBan.BirthDate = null;
+        userToBan.Email = null;
+        userToBan.EmailConfirmed = false;
+        userToBan.NormalizedEmail = null;
+        userToBan.FullPhoneNumber = null;
+        userToBan.PhoneNumberConfirmed = false;
+        userToBan.FirstName = "DELETED";
+        userToBan.LastName = "DELETED";
+        userToBan.Photo = null;
+        userToBan.PhotoFileName = null;
+        userToBan.IsArchived = true;
 
-        foreach (var employment in user.Employments)
+        foreach (var employment in userToBan.Employments)
         {
             employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
         }

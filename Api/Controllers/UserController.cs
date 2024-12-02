@@ -164,14 +164,14 @@ public class UserController(
     }
 
     /// <summary>
-    /// Mark an employee as deleted
+    /// Mark an user or employee as deleted
     /// </summary>
-    /// <param name="employeeId">ID of the employee</param>
+    /// <param name="idToDelete">ID of the user or employee</param>
     /// <returns></returns>
-    [HttpDelete("{employeeId}")]
-    [Authorize(Roles = $"{Roles.RestaurantOwner}")]
+    [HttpDelete("{idToDelete}")]
+    [Authorize(Roles = $"{Roles.RestaurantOwner}, {Roles.Customer}")]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    public async Task<ActionResult> ArchiveUser(Guid employeeId)
+    public async Task<ActionResult> ArchiveUser(Guid idToDelete)
     {
         var user = await userManager.GetUserAsync(User);
 
@@ -180,7 +180,9 @@ public class UserController(
             return Unauthorized();
         }
 
-        var result = await userService.ArchiveUserAsync(employeeId, user.Id);
+        var isCurrentUser = user.Id == idToDelete;
+
+        var result = await userService.ArchiveUserAsync(idToDelete, user.Id, isCurrentUser);
         return OkOrErrors(result);
     }
 
