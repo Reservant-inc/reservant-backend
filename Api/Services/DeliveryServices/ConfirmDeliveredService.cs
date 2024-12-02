@@ -36,7 +36,17 @@ public class ConfirmDeliveredService(
         var delivery = await context.Deliveries
             .Include(d => d.Ingredients)
             .ThenInclude(i => i.Ingredient)
-            .SingleAsync(d => d.DeliveryId == deliveryId);
+            .FirstOrDefaultAsync(d => d.DeliveryId == deliveryId);
+
+        if (delivery == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(deliveryId),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Delivery not found",
+            };
+        }
 
         var auth = await authorizationService.VerifyRestaurantBackdoorAccess(delivery.RestaurantId, userId);
         if (auth.IsError) return auth.Errors;
