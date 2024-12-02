@@ -8,10 +8,10 @@ public class AvailableHoursVM
     /// <summary>
     /// Available from
     /// </summary>
-    public TimeOnly From { get; set; }
+    public TimeOnly? From { get; set; }
 
     /// <summary>
     /// Available until
     /// </summary>
-    public TimeOnly Until { get; set; }
+    public TimeOnly? Until { get; set; }
 }
