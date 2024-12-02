@@ -180,9 +180,7 @@ public class UserController(
             return Unauthorized();
         }
 
-        var isCurrentUser = user.Id == idToDelete;
-
-        var result = await userService.ArchiveUserAsync(idToDelete, user.Id, isCurrentUser);
+        var result = await userService.ArchiveUserAsync(idToDelete, user.Id);
         return OkOrErrors(result);
     }
 

@@ -360,10 +360,11 @@ public class UserService(
     /// </summary>
     /// <param name="id">ID of the user to ban</param>
     /// <param name="requesterId">Id of user requesting account deletion</param>
-    /// <param name="isCurrentUser">If true, it means its user request to delete his own account (skips employee validation)</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result> ArchiveUserAsync(Guid id, Guid requesterId, bool isCurrentUser)
+    public async Task<Result> ArchiveUserAsync(Guid id, Guid requesterId)
     {
+        var isCurrentUser = id == requesterId;
+        
         var userToBan = await dbContext.Users
             .Include(user => user.Employments)
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -376,6 +377,7 @@ public class UserService(
                 ErrorMessage = ErrorCodes.NotFound
             };
         }
+
 
         if (userToBan.EmployerId != requesterId && !isCurrentUser)
         {
