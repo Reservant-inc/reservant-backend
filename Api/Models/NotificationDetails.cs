@@ -168,7 +168,7 @@ public class NotificationParticipationRequestResponse : NotificationDetails
 /// <summary>
 /// Details for a new participation requests response notification
 /// </summary>
-public class NotificationVisitApprovedDeclined  : NotificationDetails
+public class NotificationVisitApprovedDeclined : NotificationDetails
 {
     /// <summary>
     /// Visit ID
@@ -195,7 +195,7 @@ public class NotificationVisitApprovedDeclined  : NotificationDetails
 /// <summary>
 /// Details for a new message notification
 /// </summary>
-public class NotificationNewMessage  : NotificationDetails
+public class NotificationNewMessage : NotificationDetails
 {
     /// <summary>
     /// Message ID
@@ -262,4 +262,19 @@ public class NotificationNewReservation : NotificationDetails
     /// Whether the reservation is for a takeaway
     /// </summary>
     public required bool Takeaway { get; set; }
+}
+
+/// <summary>
+/// Details of a notification about new escalated report
+/// </summary>
+public class NotificationNewEscalatedReportDetails : NotificationDetails
+{
+    /// <summary>
+    /// ID of the report
+    /// </summary>
+    public required int reportId { get; set; }
+    /// <summary>
+    /// Date of the report escalation
+    /// </summary>
+    public required DateTime EscalationTime { get; set; }
 }

@@ -260,6 +260,7 @@ namespace Reservant.Api.Controllers
         /// <param name="reportedUserId">id of the user that was reported in the reports</param>
         /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
         /// <param name="service"></param>
+        /// <param name="status">status of the reports considered in the search</param>
         /// <returns></returns>
         [HttpGet("{restaurantId:int}/reports")]
         [ProducesResponseType(200), ProducesResponseType(400)]
@@ -271,14 +272,15 @@ namespace Reservant.Api.Controllers
             [FromQuery] ReportCategory? category,
             [FromQuery] Guid? reportedUserId,
             int restaurantId,
-            [FromServices] GetReportsService service)
+            [FromServices] GetReportsService service,
+            [FromQuery] ReportStatus status = ReportStatus.All)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
             {
                 return Unauthorized();
             }
-            return OkOrErrors(await service.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+            return OkOrErrors(await service.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
         }
     }
 }
