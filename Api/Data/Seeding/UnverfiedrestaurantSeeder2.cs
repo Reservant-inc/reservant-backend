@@ -18,7 +18,7 @@ public class UnverfiedrestaurantSeeder2(
 
     /// <inheritdoc />
     protected override List<string> GetMenuItemPhotoFileNames() =>
-        ["ResBurger1.jpg", "ResBurger2.jpg", "sushi.png", "wege.png", "woda.png"];
+    ["ResBurger1.jpg", "ResBurger2.jpg", "sushi.png", "wege.png", "woda.png"];
 
     /// <inheritdoc />
     protected override User GetRestaurantOwner(UserSeeder users) => users.AnonYmus;
