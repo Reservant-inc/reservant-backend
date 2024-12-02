@@ -10,6 +10,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Reservant.Api.Dtos.Wallets;
 
 namespace Reservant.Api.Controllers
 {
@@ -20,6 +21,7 @@ namespace Reservant.Api.Controllers
     public class UsersController(
         UserService userService,
         UrlService urlService,
+        WalletService walletService,
         UserManager<User> userManager) : StrictController
     {
         /// <summary>
@@ -152,7 +154,26 @@ namespace Reservant.Api.Controllers
             var result = await userService.UnbanUserAsync(user,userId);
             return OkOrErrors(result);
         }
+        /// <summary>
+        /// As a customer support representative get transaction history of any user
+        /// </summary>
+        /// <param name="userId">ID of the user we are looking for</param>
+        /// <param name="page">number of the page we are looking for</param>
+        /// <param name="perPage">number of items on page </param>
+        /// <returns>paginated list of transactions made by the user</returns>
+        [HttpGet("{userId:int}/payment-history")]
+        [ProducesResponseType(200)]
+        [MethodErrorCodes<WalletService>(nameof(WalletService.GetTransactionHistory))]
+        [Authorize(Roles = $"{Roles.CustomerSupportAgent}, {Roles.CustomerSupportManager}")]
+        public async Task<ActionResult<Pagination<TransactionVM>>> GetUsersPaymentHistory(int userId, int page = 0, int perPage = 10) {
+            var user = await userManager.GetUserAsync (User);
+            if (user is null) {
+                return Unauthorized();
+            }
 
+            var result = await walletService.GetTransactionHistory(page, perPage, user);
+            return OkOrErrors(result);
+        }
 
     }
 }
