@@ -371,4 +371,23 @@ public class NotificationService(
                 visitData.photoFileName);
         }
     }
+
+    /// <summary>
+    /// Notifies all customer support managers about a new escalated report
+    /// </summary>
+    /// <param name="reportId"></param>
+    /// <returns></returns>
+    public async Task NotifyNewEscalatedReport(int reportId) {
+        var managers = await context.Users.Where(r => r.Email == "manager@mail.com").ToListAsync();
+        foreach(var manager in managers)
+        {
+            await NotifyUser(
+                manager.Id,
+                new NotificationNewEscalatedReportDetails { 
+                    reportId = reportId,
+                    EscalationTime = DateTime.UtcNow
+                }
+                );
+        }
+    }
 }

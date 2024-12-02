@@ -81,6 +81,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="status"></param>
     /// <param name="service"></param>
     /// <returns>list of reports accessible by customer support employees</returns>
     [HttpGet]
@@ -93,13 +94,35 @@ public class ReportsController(UserManager<User> userManager) : StrictController
         [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
-        [FromServices] GetReportsService service)
+        [FromServices] GetReportsService service,
+        [FromQuery] ReportStatus status = ReportStatus.All)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await service.GetReportsAsync(dateFrom, dateUntil, category, reportedUserId, restaurantId));
+        return OkOrErrors(await service.GetReportsAsync(dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
+    }
+
+    /// <summary>
+    /// As a customer support agent escalate report to customer support manager level
+    /// </summary>
+    /// <param name="reportId">ID of the report to escalate</param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    [HttpPost("{reportId:int}/escalate")]
+    [Authorize(Roles = Roles.CustomerSupportAgent)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<ReportEscalatingService>(nameof(ReportEscalatingService.EscalateReportAsync))]
+    public async Task<ActionResult<ReportVM>> EscalateReport(
+        int reportId,
+        [FromServices] ReportEscalatingService service
+        ) {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null) {
+            return Unauthorized();
+        }
+        return OkOrErrors(await service.EscalateReportAsync(reportId, user));
     }
 }
