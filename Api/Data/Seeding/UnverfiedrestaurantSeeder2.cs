@@ -27,17 +27,16 @@ public class UnverfiedrestaurantSeeder2(
     protected override async Task<Restaurant> CreateRestaurant(User owner, UserSeeder users)
     {
         var exampleDocument = await RequireFileUpload("test-AY.pdf");
-        var verifier = users.CustomerSupportAgent;
 
         return new Restaurant
         {
             Name = "Unverided' Restaurant1",
             RestaurantType = RestaurantType.Restaurant,
-            Nip = "6667676878",
-            Address = "ul. 123",
-            PostalIndex = "00-000",
+            Nip = "3424567891",
+            Address = "ul. 113",
+            PostalIndex = "00-001",
             City = "Warszawa",
-            Location = geometryFactory.CreatePoint(new Coordinate(20.90990467467737, 52.397394571933175)),
+            Location = geometryFactory.CreatePoint(new Coordinate(20.81990467467737, 52.347394571933175)),
             Group = CreateRestaurantGroup(owner),
             RentalContractFileName = null,
             RentalContract = exampleDocument,
@@ -51,10 +50,10 @@ public class UnverfiedrestaurantSeeder2(
             LogoFileName = null!,
             Logo = await RequireFileUpload("ResLogo1.png"),
             ProvideDelivery = true,
-            Description = "The second example restaurant",
+            Description = "The second unverided example restaurant",
             Photos = await RequireRestaurantPhotos("ResInside1.jpg"),
             Tags = await RequireRestaurantTags("OnSite", "Takeaway"),
-            VerifierId = verifier.Id,
+            VerifierId = null,
             OpeningHours = CreateOpeningHours(
                 new TimeOnly(10, 00), new TimeOnly(22, 00),
                 new TimeOnly(10, 00), new TimeOnly(23, 00)),

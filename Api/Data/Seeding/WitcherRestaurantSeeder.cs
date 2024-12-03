@@ -58,7 +58,7 @@ public class WitcherRestaurantSeeder(
             Description = "A rustic inn serving hearty meals from the Witcher universe",
             Photos = await RequireRestaurantPhotos("ResInside4.jpg"),
             Tags = await RequireRestaurantTags("OnSite"),
-            VerifierId = null,
+            VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(
                 new TimeOnly(12, 00), new TimeOnly(22, 00),
                 new TimeOnly(12, 00), new TimeOnly(23, 00)),

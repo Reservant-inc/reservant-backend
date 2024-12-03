@@ -67,7 +67,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     }
 
     /// <summary>
-    /// Find unveryfied restaurants as BOk restaurants by different criteria
+    /// Find unveryfied restaurants by different criteria
     /// </summary>
     /// <remarks>
     /// Returns them sorted from the nearest to the farthest if origLat and origLon are provided;
@@ -86,6 +86,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
     /// <returns></returns>
     [HttpGet("unverified")]
+    [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindUnverifedRestaurants(
         double? origLat, double? origLon,
@@ -94,11 +95,18 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         double? lat1, double? lon1, double? lat2, double? lon2,
         int page = 0, int perPage = 10)
     {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
         var result = await service.FindRestaurantsAsync(
             origLat, origLon,
             name, tags, minRating,
             lat1, lon1, lat2, lon2,
             page, perPage,
+            user,
             true);
         return OkOrErrors(result);
     }
