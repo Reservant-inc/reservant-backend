@@ -15,7 +15,7 @@ params:path {
 }
 
 auth:bearer {
-  token: {{JD}}
+  token: {{BOKManager}}
 }
 
 script:pre-request {
@@ -37,8 +37,8 @@ script:pre-request {
 }
 
 tests {
-  test("Response status is 404", function () {
-      expect(res.getStatus()).to.equal(404);
+  test("Response status is 400", function () {
+      expect(res.getStatus()).to.equal(400);
   });
   
   

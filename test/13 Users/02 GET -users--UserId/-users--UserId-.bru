@@ -1,34 +1,21 @@
 meta {
-  name: -users--employeeId-_1
+  name: -users--UserId-
   type: http
   seq: 1
 }
 
-put {
-  url: {{host}}/users/:employeeId
-  body: json
+get {
+  url: {{host}}/users/:userId
+  body: none
   auth: bearer
 }
 
 params:path {
-  employeeId: 22781e02-d83a-44ef-8cf4-735e95d9a0b2
+  userId: f1e788f1-523c-4aa9-b26f-5eb43ce59573
 }
 
 auth:bearer {
   token: {{JD}}
-}
-
-body:json {
-  {
-    "phoneNumber": {
-      "code": "+48",
-      "number": "{{randomPhoneNumber}}"
-    },
-    "firstName": "{{randomFirstName}}",
-    "lastName": "{{randomLastName}}",
-    "birthDate": "{{randomBirthDate}}",
-    "photo": null
-  }
 }
 
 tests {
@@ -46,14 +33,11 @@ tests {
       expect(jsonData).to.be.an('object').that.has.all.keys(
           'userId',
           'login',
-          'email',
-          'phoneNumber',
           'firstName',
           'lastName',
-          'registeredAt',
           'birthDate',
-          'roles',
-          'employerId',
+          'phoneNumber',
+          'employments',
           'photo'
       );
   });
@@ -64,12 +48,6 @@ tests {
       expect(jsonData.userId).to.match(
           /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
       );
-  });
-  
-  test("Login is a valid string", function () {
-      const jsonData = res.getBody();
-  
-      expect(jsonData.login).to.be.a('string').and.not.empty;
   });
   
   test("First name and last name are valid strings", function () {

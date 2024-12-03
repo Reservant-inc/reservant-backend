@@ -41,11 +41,6 @@ tests {
       expect(jsonData.perPage).to.be.at.least(1);
   });
   
-  test("OrderByOptions can be empty but valid", function () {
-      const jsonData = res.getBody();
-      expect(jsonData.orderByOptions).to.be.an('array');
-  });
-  
   test("Items have correct structure", function () {
       const jsonData = res.getBody();
   

@@ -16,10 +16,13 @@ auth:bearer {
 
 body:json {
   {
-    "phoneNumber": "+48123456789",
-    "firstName": "John",
-    "lastName": "Doe",
-    "birthDate": "1998-12-31",
+    "phoneNumber": {
+      "code": "+48",
+      "number": "{{randomPhoneNumber}}"
+    },
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
+    "birthDate": "{{randomBirthDate}}",
     "photo": null
   }
 }
@@ -36,45 +39,38 @@ tests {
   test("Response body has correct structure", function () {
       const jsonData = res.getBody();
   
-      // Sprawdzenie struktury podstawowej
-      expect(jsonData).to.have.property('status').that.equals(400);
-      expect(jsonData).to.have.property('errors').that.is.an('object');
-  
-      // Sprawdzenie struktury errors
-      const errors = jsonData.errors;
-      expect(errors).to.have.property('request').that.is.an('array').that.is.not.empty;
-      expect(errors).to.have.property('$.phoneNumber').that.is.an('array').that.is.not.empty;
-  
-      // Sprawdzenie każdego błędu w "request"
-      errors.request.forEach(error => {
-          expect(error).to.be.a('string');
-      });
-  
-      // Sprawdzenie każdego błędu w "$.phoneNumber"
-      errors['$.phoneNumber'].forEach(error => {
-          expect(error).to.be.a('string');
-      });
-  });
-  
-  test("Errors include specific messages", function () {
-      const jsonData = res.getBody();
-      const requestErrors = jsonData.errors.request;
-      const phoneNumberErrors = jsonData.errors['$.phoneNumber'];
-  
-      // Sprawdzenie konkretnych komunikatów błędów
-      expect(requestErrors).to.include("The request field is required.");
-      expect(phoneNumberErrors).to.include(
-          "The JSON value could not be converted to Reservant.Api.Models.PhoneNumber. Path: $.phoneNumber | LineNumber: 1 | BytePositionInLine: 31."
+      expect(jsonData).to.have.all.keys(
+          'userId',
+          'login',
+          'email',
+          'phoneNumber',
+          'firstName',
+          'lastName',
+          'registeredAt',
+          'birthDate',
+          'roles',
+          'employerId',
+          'photo'
       );
   });
   
-  test("Errors object keys are as expected", function () {
+  test("First name and last name are strings", function () {
       const jsonData = res.getBody();
-      const errorKeys = Object.keys(jsonData.errors);
   
-      // Sprawdzenie, czy klucze w errors są zgodne z oczekiwanymi
-      expect(errorKeys).to.have.members(['request', '$.phoneNumber']);
+      expect(jsonData.firstName).to.be.a('string');
+      expect(jsonData.lastName).to.be.a('string')
   });
+  
+  test("BirthDate is a valid date", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.birthDate).to.match(/^\d{4}-\d{2}-\d{2}$/);
+  });
+  
+  
+  
+  
+  
   
   
 }

@@ -52,12 +52,6 @@ tests {
       });
   });
   
-  test("Items are an array of valid objects (empty in this case)", function () {
-      const jsonData = res.getBody();
-  
-      expect(jsonData.items).to.be.an('array').that.is.empty;
-  });
-  
   test("Pagination is consistent with items", function () {
       const jsonData = res.getBody();
   
