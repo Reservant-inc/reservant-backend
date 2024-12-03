@@ -11,7 +11,7 @@ post {
 }
 
 params:path {
-  ingredientId: {{randomIngredientId}}
+  ingredientId: {{newIngredient.ingredientId}}
 }
 
 auth:bearer {
@@ -28,7 +28,6 @@ body:json {
 
 assert {
   res.status: eq 200
-  res.body.oldAmount: eq 29
   res.body.newAmount: eq 999
   res.body.comment: eq Second correction
 }

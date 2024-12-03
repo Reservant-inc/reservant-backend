@@ -1,0 +1,21 @@
+meta {
+  name: 03 MyRestaurants
+}
+
+script:post-response {
+  // Pobierz odpowiedź JSON
+  const response = request.response.body;
+  
+  // Parsuj odpowiedź
+  const data = JSON.parse(response);
+  
+  // Wyciągnij wszystkie restaurantId
+  const restaurantIds = data.map(item => item.restaurantId);
+  
+  // Zapisz do zmiennej globalnej w Bruno
+  environment.setGlobalVariable("restaurantIds", JSON.stringify(restaurantIds));
+  
+  // Logowanie (opcjonalne, do debugowania)
+  console.log("Zapisano restaurantIds:", restaurantIds);
+  
+}

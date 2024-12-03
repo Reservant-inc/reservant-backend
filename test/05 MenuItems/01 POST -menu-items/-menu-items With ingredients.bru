@@ -1,0 +1,39 @@
+meta {
+  name: -menu-items With ingredients
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{host}}/menu-items
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "restaurantId": {{firstRestaurantId}},
+    "price": {{randomInt}},
+    "name": "{{menuName}}",
+    "alternateName": "{{menuName}}",
+    "alcoholPercentage": {{randomDouble0to3}},
+    "photo": "test-jd.png",
+      "ingredients": [
+        {
+          "ingredientId": {{newIngredient.ingredientId}},
+          "publicName": "{{newIngredient.publicName}}",
+          "amountUsed": {{randomNumber01}}
+        }
+      ]
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isDefined
+  res.body.ingredients: length 1
+}

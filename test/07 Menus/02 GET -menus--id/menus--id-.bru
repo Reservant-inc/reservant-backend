@@ -36,6 +36,7 @@ script:pre-request {
       console.error("Lista menuIds jest pusta lub nie została znaleziona.");
   }
   
+  
 }
 
 tests {
@@ -87,5 +88,27 @@ tests {
           expect(item).to.have.property('photo').that.is.a('string');
       });
   });
+  
+  
+  var jsonData = res.getBody();
+  
+  if (jsonData && jsonData.menuItems) {
+      // Extract all menuItemIds from the menuItems array
+      var menuItemIds = jsonData.menuItems.map(function (item) {
+          return item.menuItemId;
+      });
+  
+      // Save the menuItemIds array to the environment
+      bru.setEnvVar("menuItemIds", JSON.stringify(menuItemIds));
+      var firstMenuItemId = menuItemIds[0]
+      bru.setEnvVar("firstMenuItemId", firstMenuItemId);
+      console.log("Menu items Ids saved to environment:", menuItemIds);
+  } else {
+      console.warn("Response does not contain menuItems or is invalid.");
+  }
+  
+  
+  
+  
   
 }

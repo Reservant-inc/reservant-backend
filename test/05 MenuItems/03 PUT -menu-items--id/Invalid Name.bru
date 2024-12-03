@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  id: {{randomMenuItemId}}
+  id: {{newMenuItemId}}
 }
 
 auth:bearer {
@@ -21,7 +21,7 @@ auth:bearer {
 body:json {
   {
     "price": {{randomInt}}, 
-    "name": "@$$$$$$$$NHJKGGHNUIHI (*U",
+    "name": "@$$$$$$$$NHJKGGHNUIHI (*UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU",
     "alternateName": "{{menuName}}",
     "alcoholPercentage": {{randomDouble0to3}},
     "photo": "test-jd.png",
@@ -42,7 +42,7 @@ tests {
       // Sprawdzenie błędu dla długości 'name' przekraczającej maksymalny dozwolony limit
       expect(jsonData).to.have.property('errors');
       expect(jsonData.errors).to.have.property('name');
-      expect(jsonData.errors.name[0]).to.include("The length of 'Name' must be 20 characters or fewer. You entered 25 characters.");
+      expect(jsonData.errors.name[0]).to.include("The length of 'Name' must be 50 characters or fewer. You entered 65 characters.");
   });
   
 }

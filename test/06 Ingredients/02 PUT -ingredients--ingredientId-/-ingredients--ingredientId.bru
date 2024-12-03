@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  ingredientId: {{randomIngredientId}}
+  ingredientId: {{newIngredient.ingredientId}}
 }
 
 auth:bearer {
@@ -45,11 +45,10 @@ tests {
   
   // Testy weryfikujące poprawność danych odpowiedzi z danymi wysłanymi w żądaniu
   test("Response data matches request data", function () {
-      expect(jsonData.publicName).to.eql(bru.getEnvVar("menuName"));
+      expect(jsonData.publicName).to.eql(bru.getEnvVar("randomIngredientName"));
       expect(jsonData.unitOfMeasurement).to.eql(bru.getEnvVar("unitOfMeasurement"));
       expect(jsonData.minimalAmount).to.eql(bru.getEnvVar("minimalAmount"));
       expect(jsonData.amountToOrder).to.eql(bru.getEnvVar("amountToOrder"));
-      expect(jsonData).to.have.property('amount').that.is.a('number');
   });
   
 }

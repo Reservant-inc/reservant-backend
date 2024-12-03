@@ -1,0 +1,21 @@
+meta {
+  name: 02 Auth
+}
+
+script:pre-request {
+  // Generowanie randomowego Firebase Token
+  function generateFirebaseToken() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let token = "";
+      for (let i = 0; i < 128; i++) {
+          token += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return token;
+  }
+  
+  
+  const randomFirebaseToken = generateFirebaseToken();
+  
+  bru.setEnvVar("randomFirebaseToken", randomFirebaseToken);
+  console.log("Generated Firebase Token: ", randomFirebaseToken);
+}

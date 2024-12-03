@@ -1,0 +1,21 @@
+meta {
+  name: -auth-is-unique-login Error login field is required
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/auth/is-unique-login
+  body: none
+  auth: none
+}
+
+params:query {
+  : 
+}
+
+assert {
+  res.status: eq 400
+  res.body.errors: isDefined
+  res.body.errors.login: contains "The login field is required."
+}

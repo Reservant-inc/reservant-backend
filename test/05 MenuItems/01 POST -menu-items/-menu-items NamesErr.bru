@@ -28,12 +28,12 @@ body:json {
 
 tests {
   // Test sprawdzający, czy odpowiedź ma status 400
-  test("Status code is 400 when restaurantId is missing", function () {
+  test("Status code is 400 when name is missing", function () {
       expect(res.getStatus()).to.equal(400);
   });
   
   // Test sprawdzający, czy odpowiedź zawiera pole 'errors' i odpowiedni komunikat błędu dla 'restaurantId'
-  test("Error response contains 'restaurantId' not found message", function () {
+  test("Error response contains 'name' not found message", function () {
       var jsonData = res.getBody();
       expect(jsonData).to.have.property('errors');
       expect(jsonData.errors).to.have.property('$');
