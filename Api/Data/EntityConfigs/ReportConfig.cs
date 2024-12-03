@@ -15,5 +15,10 @@ public class ReportConfig : IEntityTypeConfiguration<Report>
         builder.HasOne(report => report.ReportedUser).WithMany();
         builder.HasOne(report => report.CreatedBy).WithMany();
         builder.HasOne(report => report.Visit).WithMany();
+        
+        builder.OwnsOne(x => x.Resolution, navigationBuilder =>
+        {
+            navigationBuilder.WithOwner().HasForeignKey("ReportId");
+        });
     }
 }
