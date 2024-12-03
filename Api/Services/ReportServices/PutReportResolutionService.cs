@@ -7,6 +7,7 @@ using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services.ReportServices
 {
@@ -25,6 +26,9 @@ namespace Reservant.Api.Services.ReportServices
         /// <param name="userId">ID of the support staff resolving the report.</param>
         /// <param name="reportId">ID of the report to resolve.</param>
         /// <param name="dto">Resolution details provided by the support staff.</param>
+        [ValidatorErrorCodes<ResolveReportRequest>]
+        [ErrorCode(nameof(reportId), ErrorCodes.NotFound, "The specified report does not exist.")]
+        [ErrorCode(nameof(reportId), ErrorCodes.AlreadyResolved, "The report has already been resolved.")]
         public async Task<Result<ReportVM>> ResolveReport(Guid userId, int reportId, ResolveReportRequest dto)
         {
             var validationResult = await validationService.ValidateAsync(dto, userId);
@@ -45,8 +49,8 @@ namespace Reservant.Api.Services.ReportServices
                 return new ValidationFailure
                 {
                     PropertyName = nameof(reportId),
-                    ErrorMessage = "Report has not been found.",
-                    ErrorCode = ErrorCodes.NotFound
+                    ErrorMessage = "The specified report does not exist.",
+                    ErrorCode = ErrorCodes.NotFound,
                 };
             }
 
@@ -55,7 +59,7 @@ namespace Reservant.Api.Services.ReportServices
                 return new ValidationFailure
                 {
                     PropertyName = nameof(reportId),
-                    ErrorMessage = "Report has already been resolved.",
+                    ErrorMessage = "The report has already been resolved.",
                     ErrorCode = ErrorCodes.AlreadyResolved,
                 };
             }
