@@ -10,6 +10,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
 using Reservant.Api.Services.UserServices;
+using Reservant.Api.Dtos.Wallets;
 
 namespace Reservant.Api.Controllers
 {
@@ -154,6 +155,36 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(result);
         }
 
+        /// <summary>
+        /// As a customer support representative get transaction history of any user
+        /// </summary>
+        /// <param name="userId">ID of the user we are looking for</param>
+        /// <param name="page">number of the page we are looking for</param>
+        /// <param name="perPage">number of items on page </param>
+        /// <param name="walletService"></param>
+        /// <returns>paginated list of transactions made by the user</returns>
+        [HttpGet("{userId:Guid}/payment-history")]
+        [ProducesResponseType(200), ProducesResponseType(404)]
+        [MethodErrorCodes<WalletService>(nameof(WalletService.GetTransactionHistory))]
+        [Authorize(Roles = $"{Roles.CustomerSupportAgent}, {Roles.CustomerSupportManager}")]
+        public async Task<ActionResult<Pagination<TransactionVM>>> GetUsersPaymentHistory(
+            [FromServices] WalletService walletService,
+            Guid userId, int page = 0, int perPage = 10)
+        {
+            var bokEmployee = await userManager.GetUserAsync (User);
+            if (bokEmployee is null) {
+                return Unauthorized();
+            }
+
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var result = await walletService.GetTransactionHistory(page, perPage, user);
+            return OkOrErrors(result);
+        }
 
     }
 }
