@@ -9,7 +9,7 @@ using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Reservant.Api.Services.UserServices;
 
 namespace Reservant.Api.Controllers
 {
@@ -116,10 +116,11 @@ namespace Reservant.Api.Controllers
         [HttpPost("{userId}/ban")]
         [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes<UserService>(nameof(UserService.BanUserAsync))]
+        [MethodErrorCodes<BanUserService>(nameof(BanUserService.BanUser))]
         public async Task<ActionResult> BanUser(
             Guid userId,
-            BanDto dto
+            BanDto dto,
+            [FromServices] BanUserService service
         )
         {
             var user = await userManager.GetUserAsync(User);
@@ -128,7 +129,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await userService.BanUserAsync(user,userId,dto);
+            var result = await service.BanUser(user,userId,dto);
             return OkOrErrors(result);
         }
 

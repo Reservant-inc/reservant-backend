@@ -594,40 +594,6 @@ public class UserService(
     }
 
     /// <summary>
-    /// bans user based on id
-    /// </summary>
-    /// <param name="userId">ID of the user to be banned</param>
-    /// <param name="dto">Dto of ban</param>
-    /// <param name="currentUser">current user</param>
-    [ErrorCode(nameof(userId), ErrorCodes.NotFound)]
-    [ErrorCode(nameof(userId), ErrorCodes.InvalidState, "User is already banned")]
-    public async Task<Result> BanUserAsync(User currentUser, Guid userId, BanDto dto)
-    {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user == null)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(userId),
-                ErrorCode = ErrorCodes.NotFound,
-            };
-        }
-        if(user.BannedUntil != null && user.BannedUntil > DateTime.UtcNow.Date)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(userId),
-                ErrorCode = ErrorCodes.InvalidState,
-            };
-        }
-
-        user.BannedUntil = DateTime.UtcNow.Add(dto.TimeSpan);
-        await dbContext.SaveChangesAsync();
-
-        return Result.Success;
-    }
-
-    /// <summary>
     /// unban user based on id
     /// </summary>
     /// <param name="userId">ID of the user to be unbanned</param>
