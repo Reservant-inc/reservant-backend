@@ -1,0 +1,54 @@
+meta {
+  name: -threads titleErr
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/threads
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "title": "{{randomGeneratedText}}",
+    "participantIds": [
+      "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb"
+    ]
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  test("Response is not empty", function () {
+      expect(res.getBody()?.toString()).not.to.be.empty;
+  });
+  
+  
+  // // Test, czy 'errorCodes' zawiera kod błędu title: "MaximumLengthValidator"
+  // test("ErrorCodes contains title: MaximumLengthValidator text ", function () {
+  //     expect(jsonData.errorCodes).to.have.property('title');
+  //     expect(jsonData.errorCodes.mustJoinUntil[0]).to.eql("MaximumLengthValidator");
+  // });
+  
+  // Test, czy 'errorCodes' zawiera tytuł: "MaximumLengthValidator"
+  test("ErrorCodes contains title: MaximumLengthValidator", function () {
+      // Sprawdź, czy istnieje 'title' w 'errorCodes'
+      expect(jsonData.errorCodes).to.have.property('title');
+      // Sprawdź, czy pierwszy element w 'errorCodes.title' jest równy "MaximumLengthValidator"
+      expect(jsonData.errorCodes.title[0]).to.eql("MaximumLengthValidator");
+  });
+  
+}

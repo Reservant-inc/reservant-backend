@@ -1,0 +1,55 @@
+meta {
+  name: -threads--threadId--messages contentErr
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/threads/:id/messages
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "contents": "{{randomGeneratedTextLong}}"
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  // Test, czy odpowiedź zawiera właściwość 'errors'
+  test("Response contains errors property", function () {
+      expect(jsonData).to.have.property('errors');
+  });
+  
+  test("Error contains contents length message", function () {
+      expect(jsonData.errors).to.have.property('contents');
+      expect(jsonData.errors.contents[0]).to.include( "Contents cannot be longer than 200 characters.");
+  });
+  
+  test("Response contains errorCodes property", function () {
+      expect(jsonData).to.have.property('errorCodes');
+  });
+  
+  test("ErrorCodes contains LengthValidator", function () {
+      expect(jsonData.errorCodes).to.have.property('contents');
+      expect(jsonData.errorCodes.contents[0]).to.eql("MaximumLengthValidator");
+  });
+  
+}

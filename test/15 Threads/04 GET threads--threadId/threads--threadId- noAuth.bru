@@ -1,0 +1,22 @@
+meta {
+  name: threads--threadId- noAuth
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/threads/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 4
+}
+
+tests {
+  test("Status code is 401", function () {
+      expect(res.getStatus()).to.equal(401);
+  });
+  
+}

@@ -1,0 +1,26 @@
+meta {
+  name: -threads noAuth
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/threads
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "Test",
+    "participantIds": [
+      "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb"
+    ]
+  }
+}
+
+tests {
+  test("Status code is 401", function () {
+      expect(res.getStatus()).to.equal(401);
+  });
+}

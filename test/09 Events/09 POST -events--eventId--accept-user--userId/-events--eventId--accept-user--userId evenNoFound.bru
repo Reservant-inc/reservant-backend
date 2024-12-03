@@ -1,0 +1,26 @@
+meta {
+  name: -events--eventId--accept-user--userId evenNoFound
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/events/:eventId/accept-user/:userId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: a79631a0-a3bf-43fa-8fbe-46e5ee697eeb
+  eventId: 3
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  
+  
+  
+}
