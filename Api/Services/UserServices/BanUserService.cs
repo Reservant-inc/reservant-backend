@@ -24,7 +24,7 @@ public class BanUserService(ApiDbContext dbContext)
     [ErrorCode(nameof(userId), ErrorCodes.InvalidState, "User is already banned")]
     public async Task<Result> BanUser(User currentUser, Guid userId, BanDto dto)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await FindUserWithId(userId);
         if (user == null)
         {
             return new ValidationFailure
@@ -33,7 +33,9 @@ public class BanUserService(ApiDbContext dbContext)
                 ErrorCode = ErrorCodes.NotFound,
             };
         }
-        if(user.BannedUntil != null && user.BannedUntil > DateTime.UtcNow.Date)
+
+        var now = DateTime.UtcNow;
+        if (user.IsBannedAt(now))
         {
             return new ValidationFailure
             {
@@ -42,9 +44,14 @@ public class BanUserService(ApiDbContext dbContext)
             };
         }
 
-        user.BannedUntil = DateTime.UtcNow.Add(dto.TimeSpan);
+        user.BannedUntil = now.Add(dto.TimeSpan);
         await dbContext.SaveChangesAsync();
 
         return Result.Success;
+    }
+
+    private async Task<User?> FindUserWithId(Guid userId)
+    {
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
     }
 }

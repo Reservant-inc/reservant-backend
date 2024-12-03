@@ -158,4 +158,9 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// Precise time of beeing unbanned
     /// </summary>
     public required DateTime? BannedUntil { get; set; }
+
+    /// <summary>
+    /// Check whether the user is banned at a certain point in time
+    /// </summary>
+    public bool IsBannedAt(DateTime pointInTime) => pointInTime < BannedUntil;
 }

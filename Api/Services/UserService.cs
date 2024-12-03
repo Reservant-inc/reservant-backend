@@ -611,6 +611,7 @@ public class UserService(
                 ErrorCode = ErrorCodes.NotFound,
             };
         }
+
         if (user.BannedUntil == null)
         {
             return new ValidationFailure
@@ -657,11 +658,6 @@ public class UserService(
         if (user.BannedUntil == null)
         {
             return false;
-        }
-
-        if (user.BannedUntil > DateTime.UtcNow.Date)
-        {
-            return true;
         }
 
         await RemoveExpiredBan(user);
