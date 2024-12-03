@@ -42,7 +42,10 @@ namespace Reservant.Api.Services.ReportServices
 
             var report = await context.Reports
                 .Include(r => r.Resolution)
+                .Include(r => r.CreatedBy)
+                .Include(r => r.ReportedUser)
                 .FirstOrDefaultAsync(r => r.ReportId == reportId);
+
 
             if (report is null)
             {

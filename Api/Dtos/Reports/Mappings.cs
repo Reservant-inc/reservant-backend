@@ -1,4 +1,5 @@
 using AutoMapper;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Reports
@@ -11,28 +12,20 @@ namespace Reservant.Api.Dtos.Reports
         /// <inheritdoc />
         public Mappings()
         {
+            // Mapowanie User → UserSummaryVM
+            CreateMap<User, UserSummaryVM>();
+
+            // Mapowanie Report → ReportVM
             CreateMap<Report, ReportVM>()
-                // Mapowanie pola CreatedBy
-                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src =>
-                    $"{src.CreatedBy.FirstName} {src.CreatedBy.LastName}"))
-                
-                // Mapowanie pola ResolvedBy
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.CreatedBy))
                 .ForMember(dest => dest.ResolvedBy, opt => opt.MapFrom(src =>
                     src.Resolution != null && src.Resolution.ResolvedBy != null
                         ? $"{src.Resolution.ResolvedBy.FirstName} {src.Resolution.ResolvedBy.LastName}"
                         : null))
-                
-                // Mapowanie pola SupportComment
                 .ForMember(dest => dest.SupportComment, opt => opt.MapFrom(src =>
-                    src.Resolution != null
-                        ? src.Resolution.SupportComment
-                        : null))
-                
-                // Mapowanie pola ResolutionDate
+                    src.Resolution != null ? src.Resolution.SupportComment : null))
                 .ForMember(dest => dest.ResolutionDate, opt => opt.MapFrom(src =>
-                    src.Resolution != null
-                        ? src.Resolution.Date
-                        : (DateTime?)null));
+                    src.Resolution != null ? src.Resolution.Date : (DateTime?)null));
         }
     }
 }
