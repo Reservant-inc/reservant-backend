@@ -1,0 +1,26 @@
+meta {
+  name: auth-register-firebase-token
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/auth/register-firebase-token
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "deviceToken": "APA91bGzOj-Nx03AC9YhJ_BV4-6bCx1ZYgQv4LYFQzBL_d27HUB-V3MwCnNv3YpVgYtH9C" 
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isEmpty
+}

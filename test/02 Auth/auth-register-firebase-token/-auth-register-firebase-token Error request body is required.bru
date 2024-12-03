@@ -1,0 +1,22 @@
+meta {
+  name: -auth-register-firebase-token Error request body is required
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/auth/register-firebase-token
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 400
+  res.body.errors: isDefined
+  res.body.errors.request: contains "The request field is required."
+  res.body.errors['']: contains "A non-empty request body is required."
+}

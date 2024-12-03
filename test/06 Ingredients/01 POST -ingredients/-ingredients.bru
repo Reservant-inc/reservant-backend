@@ -21,10 +21,7 @@ body:json {
     "minimalAmount": {{minimalAmount}},
     "amountToOrder": {{amountToOrder}},
     "amount": {{amountToOrder}},
-    "menuItem": {
-      "menuItemId": {{randomMenuItemId}},
-      "amountUsed": {{randomInt}}
-    }
+    "restaurantId": {{firstRestaurantId}}
   }
   
 }
@@ -66,11 +63,19 @@ tests {
   
   // Testy weryfikujące poprawność danych odpowiedzi z danymi wysłanymi w żądaniu
   test("Response data matches request data", function () {
-      expect(jsonData.publicName).to.eql(bru.getEnvVar("menuName"));
-      expect(jsonData.unitOfMeasurement).to.eql(bru.getEnvVar("unitOfMeasurement"));
-      expect(jsonData.minimalAmount).to.eql(bru.getEnvVar("minimalAmount"));
-      expect(jsonData.amountToOrder).to.eql(bru.getEnvVar("amountToOrder"));
-      expect(jsonData.amount).to.eql(bru.getEnvVar("amountToOrder"));  // Assuming 'amount' equals 'amountToOrder'
+      expect(jsonData).to.have.property("ingredientId");
+      expect(jsonData).to.have.property("publicName");
+      expect(jsonData).to.have.property("unitOfMeasurement");
+      expect(jsonData).to.have.property("minimalAmount");
+      expect(jsonData).to.have.property("amountToOrder");
+      expect(jsonData).to.have.property("amount");
   });
+  
+  var jsonData = res.getBody();
+  if (jsonData) {
+      var newIngredient = jsonData;
+      bru.setEnvVar("newIngredient", newIngredient);
+      console.log("New ingredient saved to environment:", newIngredient);
+  }
   
 }

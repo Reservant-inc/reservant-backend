@@ -7,20 +7,19 @@ meta {
 put {
   url: {{host}}/menu-items/:menuItemId
   body: json
-  auth: none
+  auth: bearer
 }
 
 params:path {
-  menuItemId: 1
+  menuItemId: {{firstMenuItemId}}
 }
 
-headers {
-  Authorization: Bearer {{JD}}
+auth:bearer {
+  token: {{JD}}
 }
 
 body:json {
   {
-    "menuItemId": 1,
     "price": 39,
     "name": "Pizza z mozzarellą",
     "alternateName": null,
@@ -28,15 +27,15 @@ body:json {
     "photo": "ResPizza1.jpg",
     "ingredients": [
       {
-        "ingredientId": 1,
+        "ingredientId": 50,
         "amountUsed": 300
       },
       {
-        "ingredientId": 2,
+        "ingredientId": 59,
         "amountUsed": 200
       },
       {
-        "ingredientId": 4,
+        "ingredientId": 58,
         "amountUsed": 400
       }
     ]
@@ -45,11 +44,11 @@ body:json {
 }
 
 assert {
-  res.body.ingredients[0].ingredientId: eq 1
+  res.body.ingredients[0].ingredientId: eq 50
   res.body.ingredients[0].amountUsed: eq 300
-  res.body.ingredients[1].ingredientId: eq 2
+  res.body.ingredients[1].ingredientId: eq 59
   res.body.ingredients[1].amountUsed: eq 200
-  res.body.ingredients[2].ingredientId: eq 4
+  res.body.ingredients[2].ingredientId: eq 58
   res.body.ingredients[2].amountUsed: eq 400
   res.status: eq 200
 }

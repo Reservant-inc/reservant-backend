@@ -1,0 +1,26 @@
+meta {
+  name: auth-unregister-firebase-token
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/auth/unregister-firebase-token
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "deviceToken": "dJfC5AFsjm2X:APA91bGvNPOa3Dbx_-rS_XsrtYUYyDj7h1DxYQqf9DXV3uKsJ9H2DfNbmDbJ5QmlDjFtpxDjfksmR5qpQPmfZ3HNjMzFkLLCbR7j8RhkPyv6R5"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isEmpty
+}

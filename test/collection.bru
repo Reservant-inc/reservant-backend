@@ -306,4 +306,10 @@ script:pre-request {
   bru.setEnvVar("randomOutOfRangeAlcoholPercentage", randomOutOfRangeAlcoholPercentage);
   console.log("Generated random out-of-range alcohol percentage:", randomOutOfRangeAlcoholPercentage);
   
+  function generateRandomNumber010() {
+      return Math.floor(Math.random() * 11);
+  }
+  var randomNumber010 = generateRandomNumber010();
+  bru.setEnvVar("randomNumber010", randomNumber010);
+  
 }

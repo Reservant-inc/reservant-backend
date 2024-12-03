@@ -1,0 +1,21 @@
+meta {
+  name: -auth-register-firebase-token Error unauthorized
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/auth/register-firebase-token
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "deviceToken": "string"
+  }
+}
+
+assert {
+  res.status: eq 401
+}
