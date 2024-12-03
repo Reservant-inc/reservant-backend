@@ -25,7 +25,7 @@ namespace Reservant.Api.Services.ReportServices
         /// <param name="userId">ID of the support staff resolving the report.</param>
         /// <param name="reportId">ID of the report to resolve.</param>
         /// <param name="dto">Resolution details provided by the support staff.</param>
-        public async Task<Result<ReportResolutionVM>> ResolveReport(Guid userId, int reportId, ResolveReportRequest dto)
+        public async Task<Result<ReportVM>> ResolveReport(Guid userId, int reportId, ResolveReportRequest dto)
         {
             var validationResult = await validationService.ValidateAsync(dto, userId);
             if (!validationResult.IsValid) return validationResult;
@@ -45,7 +45,8 @@ namespace Reservant.Api.Services.ReportServices
                 return new ValidationFailure
                 {
                     PropertyName = nameof(reportId),
-                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "Report has not been found.",
+                    ErrorCode = ErrorCodes.NotFound
                 };
             }
 
@@ -55,6 +56,7 @@ namespace Reservant.Api.Services.ReportServices
                 {
                     PropertyName = nameof(reportId),
                     ErrorMessage = "Report has already been resolved.",
+                    ErrorCode = ErrorCodes.AlreadyResolved,
                 };
             }
 
@@ -68,16 +70,7 @@ namespace Reservant.Api.Services.ReportServices
             context.Update(report);
             await context.SaveChangesAsync();
 
-            var vm = new ReportResolutionVM
-            {
-                ReportId = report.ReportId,
-                SupportComment = report.Resolution.SupportComment,
-                ResolvedBy = $"{user.FirstName} {user.LastName}",
-                ResolvedDate = report.Resolution.Date,
-                ReportDescription = report.Description
-            };
-
-            return mapper.Map<ReportResolutionVM>(report);
+            return mapper.Map<ReportVM>(report);
         }
     }
 }

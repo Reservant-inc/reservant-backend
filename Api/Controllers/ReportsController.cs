@@ -109,11 +109,11 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     /// <param name="reportId">The ID of the report to resolve.</param>
     /// <param name="dto">The resolution details.</param>
     /// <param name="service">The service handling the resolution.</param>
-    [HttpPut("{reportId}/resolution")]
-    [Authorize(Roles = $"{Roles.CustomerSupportAgent},{Roles.CustomerSupportManager}")]
+    [HttpPut("{reportId:int}/resolution")]
+    [Authorize(Roles = Roles.CustomerSupportAgent)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<PutReportResolutionService>(nameof(PutReportResolutionService.ResolveReport))]
-    public async Task<ActionResult<ReportResolutionVM>> ResolveReport(
+    public async Task<ActionResult<ReportVM>> ResolveReport(
         int reportId,
         ResolveReportRequest dto,
         [FromServices] PutReportResolutionService service)

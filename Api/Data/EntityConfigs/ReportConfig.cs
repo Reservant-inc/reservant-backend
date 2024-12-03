@@ -19,8 +19,6 @@ public class ReportConfig : IEntityTypeConfiguration<Report>
         builder.OwnsOne(x => x.Resolution, navigationBuilder =>
         {
             navigationBuilder.WithOwner().HasForeignKey("ReportId");
-            navigationBuilder.Property(rr => rr.SupportComment).IsRequired();
-            navigationBuilder.HasOne(rr => rr.ResolvedBy).WithMany();
         });
     }
 }
