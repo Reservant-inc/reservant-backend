@@ -1,0 +1,49 @@
+meta {
+  name: -threads--threadId- titleErr
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{host}}/threads/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "title": "{{randomGeneratedText}}"
+  }
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Test, czy status kod jest 400
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+  
+  test("Response is not empty", function () {
+      expect(res.getBody()?.toString()).not.to.be.empty;
+  });
+  
+  
+  // Test, czy 'errorCodes' zawiera tytuł: "MaximumLengthValidator"
+  test("ErrorCodes contains title: MaximumLengthValidator", function () {
+      // Sprawdź, czy istnieje 'title' w 'errorCodes'
+      expect(jsonData.errorCodes).to.have.property('title');
+      // Sprawdź, czy pierwszy element w 'errorCodes.title' jest równy "MaximumLengthValidator"
+      expect(jsonData.errorCodes.title[0]).to.eql("MaximumLengthValidator");
+  });
+  
+}

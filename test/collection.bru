@@ -306,4 +306,81 @@ script:pre-request {
   bru.setEnvVar("randomOutOfRangeAlcoholPercentage", randomOutOfRangeAlcoholPercentage);
   console.log("Generated random out-of-range alcohol percentage:", randomOutOfRangeAlcoholPercentage);
   
+  
+  // Funkcja generująca losowy tekst powyżej 86 znaków
+  function generateRandomText() {
+      // Lista fragmentów do generowania tekstu
+      const textParts = [
+          "Lorem ipsum dolor sit amet",
+          "consectetur adipiscing elit",
+          "sed do eiusmod tempor incididunt",
+          "ut labore et dolore magna aliqua",
+          "ut enim ad minim veniam",
+          "quis nostrud exercitation ullamco laboris",
+          "ex ea commodo consequat",
+          "duis aute irure dolor in reprehenderit",
+          "in voluptate velit esse cillum dolore",
+          "eu fugiat nulla pariatur",
+          "excepteur sint occaecat cupidatat non proident",
+          "sunt in culpa qui officia deserunt mollit anim id est laborum"
+      ];
+  
+      // Zmienna do przechowywania wygenerowanego tekstu
+      let randomText = "";
+  
+      // Generuj tekst, aż jego długość przekroczy 86 znaków
+      while (randomText.length <= 86) {
+          const randomIndex = Math.floor(Math.random() * textParts.length);
+          randomText += textParts[randomIndex] + " ";
+      }
+  
+      // Usuń zbędne spacje i zwróć wynik
+      return randomText.trim();
+  }
+  
+  // Zapisz wygenerowany tekst do zmiennej środowiskowej
+  bru.setEnvVar("randomGeneratedText", generateRandomText());
+  
+  // Potwierdzenie, że tekst został zapisany
+  console.log("Losowy tekst został zapisany do zmiennej środowiskowej 'randomGeneratedText'.");
+  
+  
+  // Funkcja generująca losowy tekst powyżej 200 znaków
+  function generateRandomTextLong() {
+      // Lista fragmentów do generowania tekstu
+      const textParts = [
+          "Lorem ipsum dolor sit amet",
+          "consectetur adipiscing elit",
+          "sed do eiusmod tempor incididunt",
+          "ut labore et dolore magna aliqua",
+          "ut enim ad minim veniam",
+          "quis nostrud exercitation ullamco laboris",
+          "ex ea commodo consequat",
+          "duis aute irure dolor in reprehenderit",
+          "in voluptate velit esse cillum dolore",
+          "eu fugiat nulla pariatur",
+          "excepteur sint occaecat cupidatat non proident",
+          "sunt in culpa qui officia deserunt mollit anim id est laborum"
+      ];
+  
+      // Zmienna do przechowywania wygenerowanego tekstu
+      let randomText = "";
+  
+      // Generuj tekst, aż jego długość przekroczy 86 znaków
+      while (randomText.length <= 200) {
+          const randomIndex = Math.floor(Math.random() * textParts.length);
+          randomText += textParts[randomIndex] + " ";
+      }
+  
+      // Usuń zbędne spacje i zwróć wynik
+      return randomText.trim();
+  }
+  
+  // Zapisz wygenerowany tekst do zmiennej środowiskowej
+  bru.setEnvVar("randomGeneratedTextLong", generateRandomTextLong());
+  
+  // Potwierdzenie, że tekst został zapisany
+  console.log("Losowy tekst został zapisany do zmiennej środowiskowej 'randomGeneratedText200'.");
+  
+  
 }
