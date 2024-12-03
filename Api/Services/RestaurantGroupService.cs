@@ -7,6 +7,7 @@ using Reservant.Api.Validation;
 using FluentValidation.Results;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.RestaurantGroups;
+using Reservant.Api.Services.RestaurantServices;
 
 namespace Reservant.Api.Services;
 
@@ -15,9 +16,9 @@ namespace Reservant.Api.Services;
 /// </summary>
 public class RestaurantGroupService(
     ApiDbContext context,
-    RestaurantService restaurantService,
     ValidationService validationService,
-    IMapper mapper)
+    IMapper mapper,
+    ArchiveRestaurantService archiveRestaurantService)
 {
     /// <summary>
     /// Create restaurant group for the current user
@@ -246,7 +247,7 @@ public class RestaurantGroupService(
 
         foreach (Restaurant restaurant in group.Restaurants)
         {
-            var res = await restaurantService.ArchiveRestaurantAsync(restaurant.RestaurantId, user);
+            var res = await archiveRestaurantService.ArchiveRestaurant(restaurant.RestaurantId, user);
             if (res.IsError)
             {
                 return res.Errors;

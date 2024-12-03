@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
-using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos.Menus;
@@ -14,6 +13,7 @@ using Reservant.Api.Dtos.Users;
 using Reservant.Api.Services.ReportServices;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Models.Enums;
+using Reservant.Api.Services.RestaurantServices;
 
 namespace Reservant.Api.Controllers
 {
@@ -238,8 +238,9 @@ namespace Reservant.Api.Controllers
         /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
         [HttpDelete("{restaurantId:int}")]
         [ProducesResponseType(204), ProducesResponseType(404)]
-        [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ArchiveRestaurantAsync))]
-        public async Task<ActionResult> ArchiveRestaurant(int restaurantId)
+        [MethodErrorCodes<ArchiveRestaurantService>(nameof(ArchiveRestaurantService.ArchiveRestaurant))]
+        public async Task<ActionResult> ArchiveRestaurant(
+            int restaurantId, [FromServices] ArchiveRestaurantService service)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
@@ -247,7 +248,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await restaurantService.ArchiveRestaurantAsync(restaurantId, user);
+            var result = await service.ArchiveRestaurant(restaurantId, user);
             return OkOrErrors(result);
         }
 
