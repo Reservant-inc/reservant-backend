@@ -508,14 +508,13 @@ namespace Reservant.Api.Services
             eventToUpdate.Time = request.Time;
             eventToUpdate.MaxPeople = request.MaxPeople;
             eventToUpdate.MustJoinUntil = request.MustJoinUntil;
-            eventToUpdate.RestaurantId = request.RestaurantId;
             eventToUpdate.PhotoFileName = request.Photo;
 
             if (request.RestaurantId is not null && request.RestaurantId != eventToUpdate.RestaurantId)
             {
                 eventToUpdate.Restaurant = await context.Restaurants
                     .OnlyActiveRestaurants()
-                    .SingleAsync(restaurant => restaurant.RestaurantId == request.RestaurantId);
+                    .SingleOrDefaultAsync(restaurant => restaurant.RestaurantId == request.RestaurantId);
                 if (eventToUpdate.Restaurant is null)
                 {
                     return new ValidationFailure
