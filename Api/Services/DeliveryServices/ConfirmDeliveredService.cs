@@ -27,6 +27,7 @@ public class ConfirmDeliveredService(
     /// <param name="deliveryId">ID of the delivery</param>
     /// <param name="userId">ID of the current user</param>
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantBackdoorAccess))]
+    [ErrorCode(nameof(deliveryId), ErrorCodes.NotFound)]
     [ErrorCode(nameof(deliveryId), ErrorCodes.DeliveryNotPending,
         "Delivery has already been confirmed or canceled")]
     public async Task<Result<DeliveryVM>> ConfirmDelivered(int deliveryId, Guid userId)
@@ -36,7 +37,17 @@ public class ConfirmDeliveredService(
         var delivery = await context.Deliveries
             .Include(d => d.Ingredients)
             .ThenInclude(i => i.Ingredient)
-            .SingleAsync(d => d.DeliveryId == deliveryId);
+            .FirstOrDefaultAsync(d => d.DeliveryId == deliveryId);
+
+        if (delivery == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(deliveryId),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Delivery not found",
+            };
+        }
 
         var auth = await authorizationService.VerifyRestaurantBackdoorAccess(delivery.RestaurantId, userId);
         if (auth.IsError) return auth.Errors;
