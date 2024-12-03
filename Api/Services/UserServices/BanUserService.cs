@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Models;
+using Reservant.Api.Services.RestaurantServices;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
@@ -12,7 +13,7 @@ namespace Reservant.Api.Services.UserServices;
 /// <summary>
 /// Service responsible for banning users
 /// </summary>
-public class BanUserService(ApiDbContext dbContext)
+public class BanUserService(ApiDbContext dbContext, ArchiveRestaurantService archiveRestaurantService)
 {
     /// <summary>
     /// Ban a user
@@ -45,13 +46,27 @@ public class BanUserService(ApiDbContext dbContext)
         }
 
         user.BannedUntil = now.Add(dto.TimeSpan);
-        await dbContext.SaveChangesAsync();
 
+        var ownedRestaurants = await GetIdsOfRestaurantsOwnedByUser(user);
+        foreach (var restaurant in ownedRestaurants)
+        {
+            await archiveRestaurantService.ArchiveRestaurant(restaurant, user);
+        }
+
+        await dbContext.SaveChangesAsync();
         return Result.Success;
     }
 
     private async Task<User?> FindUserWithId(Guid userId)
     {
         return await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
+    private async Task<List<int>> GetIdsOfRestaurantsOwnedByUser(User user)
+    {
+        return await dbContext.Restaurants
+            .Where(r => r.Group.Owner == user)
+            .Select(r => r.RestaurantId)
+            .ToListAsync();
     }
 }
