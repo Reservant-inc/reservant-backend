@@ -55,6 +55,16 @@ public static class Utils
     }
 
     /// <summary>
+    /// Check whether the value is a valid latitude
+    /// </summary>
+    public static bool IsValidLatitude(double lat) => lat is >= -180 and <= 180;
+
+    /// <summary>
+    /// Check whether the value is a valid longitude
+    /// </summary>
+    public static bool IsValidLongitude(double lon) => lon is >= -90 and <= 90;
+
+    /// <summary>
     /// Return a single page of the query
     /// </summary>
     /// <param name="query">LINQ query</param>

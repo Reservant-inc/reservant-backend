@@ -166,6 +166,26 @@ namespace Reservant.Api.Services
                     };
                 }
 
+                if (!Utils.IsValidLatitude(origLat.Value))
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(origLat),
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                        ErrorMessage = "Latitude must in the range of [-180; 180]",
+                    };
+                }
+
+                if (!Utils.IsValidLongitude(origLon.Value))
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(origLon),
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                        ErrorMessage = "Longitude must in the range of [-90; 90]",
+                    };
+                }
+
                 origin = geometryFactory.CreatePoint(new Coordinate(origLon!.Value, origLat!.Value));
                 query = query.OrderBy(r => origin.Distance(r.Location));
             }

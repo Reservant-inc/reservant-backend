@@ -664,6 +664,26 @@ namespace Reservant.Api.Services
                     };
                 }
 
+                if (!Utils.IsValidLatitude(request.OrigLat.Value))
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.OrigLat),
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                        ErrorMessage = "Latitude must in the range of [-180; 180]",
+                    };
+                }
+
+                if (!Utils.IsValidLongitude(request.OrigLon.Value))
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.OrigLon),
+                        ErrorCode = ErrorCodes.InvalidSearchParameters,
+                        ErrorMessage = "Longitude must in the range of [-90; 90]",
+                    };
+                }
+
                 origin = geometryFactory.CreatePoint(new Coordinate(request.OrigLat.Value, request.OrigLon.Value));
                 events = events.OrderBy(e => origin.Distance(e.Restaurant!.Location));
             }
