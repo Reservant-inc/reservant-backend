@@ -16,10 +16,13 @@ auth:bearer {
 
 body:json {
   {
+    "name": "{{randomCompanyName}}",
     "description": "{{randomText}}",
     "time": "{{time}}",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "{{mustJoinUntil}}",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": 1,
+    "photo": "test-jd.png"
   }
 }
 

@@ -1,0 +1,26 @@
+meta {
+  name: wallet--get-status
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/wallet/status
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Response status is 200", function() {
+    expect(res.getStatus()).to.equal(200)
+  })
+  
+  const jsonData = res.getBody();
+  test("Response contains balance field", function(){
+    expect(jsonData).to.have.property("balance").that.is.a("number");
+  })
+}

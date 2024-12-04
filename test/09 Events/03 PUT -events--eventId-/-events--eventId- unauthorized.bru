@@ -11,15 +11,18 @@ put {
 }
 
 params:path {
-  eventId: {{randomEventId}}
+  eventId: 1
 }
 
 body:json {
   {
+    "name": "{{randomCompanyName}}",
     "description": "{{groupName}}",
     "time": "{{time}}",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "{{mustJoinUntil}}",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": {{randomRestaurantId}},
+    "photo": "test-jd.png"
   }
 }
 

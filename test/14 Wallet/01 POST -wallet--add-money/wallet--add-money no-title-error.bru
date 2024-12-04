@@ -1,0 +1,35 @@
+meta {
+  name: wallet--add-money no-title-error
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/wallet/add-money
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "title": null,
+    "amount": {{randomNumber100500}}
+  }
+}
+
+tests {
+  test("Response status is 400", function() {
+    expect(res.getStatus()).to.equal(400)
+  })
+  
+  const jsonData = res.getBody()
+  
+  test("Title required error expected", function () {
+      expect(jsonData.errors['title']).to.include("The Title field is required.");
+  });
+  
+}

@@ -1,0 +1,26 @@
+meta {
+  name: -events--eventId--reject-user--userId alrdRejected
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/events/:eventId/reject-user/:userId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: acfc3461-90b4-4912-92f2-1d21e0aec295
+  eventId: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  
+  
+  
+}

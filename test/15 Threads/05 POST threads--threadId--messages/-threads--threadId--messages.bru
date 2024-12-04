@@ -1,12 +1,12 @@
 meta {
   name: -threads--threadId--messages
   type: http
-  seq: 4
+  seq: 1
 }
 
-get {
+post {
   url: {{host}}/threads/:id/messages
-  body: none
+  body: json
   auth: bearer
 }
 
@@ -18,10 +18,17 @@ auth:bearer {
   token: {{JD}}
 }
 
+body:json {
+  {
+    "contents": "{{$randomAdjective}}"
+  }
+}
+
 tests {
   test("Status code is 200", function () {
       expect(res.getStatus()).to.equal(200);
   });
+  
   
   test("Response is not empty", function () {
       expect(res.getBody()?.toString()).not.to.be.empty;
@@ -33,10 +40,12 @@ tests {
   
   const response = res.getBody();
   test("Response has correct output types", function () {
-      expect(response).to.have.property("page").that.is.a("number");
-      expect(response).to.have.property("totalPages").that.is.a("number");
-      expect(response).to.have.property("perPage").that.is.a("number");
-      expect(response).to.have.property("orderByOptions").that.is.an("array");
-      expect(response).to.have.property("items").that.is.an("array");
+      expect(response).to.have.property("messageId").that.is.a("number");
+      expect(response).to.have.property("contents").that.is.a("string");
+      expect(response).to.have.property("dateSent").that.is.a("string");
+      expect(response).to.have.property("dateRead").that.is.null;
+      expect(response).to.have.property("authorsFirstName").that.is.a("string");
+      expect(response).to.have.property("authorsLastName").that.is.a("string");
+      expect(response).to.have.property("messageThreadId").that.is.a("number");
   });
 }

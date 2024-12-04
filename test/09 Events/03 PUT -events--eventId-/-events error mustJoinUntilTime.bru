@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  eventId: {{randomEventId}}
+  eventId: 1
 }
 
 auth:bearer {
@@ -20,13 +20,14 @@ auth:bearer {
 
 body:json {
   {
+    "name": "{{randomCompanyName}}",
     "description": "{{groupName}}",
     "time": "{{time}}",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "2024-05-01T16:41:56.276Z",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": {{randomRestaurantId}},
+    "photo": "test-jd.png"
   }
-  
-  
   
   
 }
