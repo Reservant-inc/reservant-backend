@@ -58,4 +58,9 @@ public class ReportVM
     /// The date when the report was resolved (nullable).
     /// </summary>
     public DateTime? ResolutionDate { get; set; }
+    
+    /// <summary>
+    /// ID of the associated thread, if any
+    /// </summary>
+    public int? ThreadId { get; set; }
 }

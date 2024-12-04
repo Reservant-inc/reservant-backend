@@ -17,5 +17,11 @@ public class ReportConfig : IEntityTypeConfiguration<Report>
         builder.HasOne(report => report.Visit).WithMany();
 
         builder.OwnsOne(x => x.Resolution);
+        
+        builder
+            .HasOne(report => report.Thread)
+            .WithOne()
+            .HasForeignKey<Report>(report => report.ThreadId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
