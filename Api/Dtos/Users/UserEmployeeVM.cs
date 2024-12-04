@@ -43,6 +43,11 @@ public class UserEmployeeVM
     /// Employee's employments
     /// </summary>
     public required List<EmploymentVM>? Employments { get; set; }
+    
+    /// <summary>
+    /// Is the user friends with the current user?
+    /// </summary>
+    public required FriendStatus? FriendStatus { get; init; }
 
     /// <summary>
     /// User's photo path
