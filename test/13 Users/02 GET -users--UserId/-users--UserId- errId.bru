@@ -1,12 +1,12 @@
 meta {
-  name: -users--employeeId- errId_1
+  name: -users--UserId- errId
   type: http
-  seq: 7
+  seq: 2
 }
 
-put {
+get {
   url: {{host}}/users/:employeeId
-  body: json
+  body: none
   auth: bearer
 }
 
@@ -16,16 +16,6 @@ params:path {
 
 auth:bearer {
   token: {{JD}}
-}
-
-body:json {
-  {
-    "phoneNumber": "+48123456789",
-    "firstName": "Grace",
-    "lastName": "Schneider",
-    "birthDate": "2024-08-18",
-    "photo": null
-  }
 }
 
 script:pre-request {

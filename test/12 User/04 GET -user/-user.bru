@@ -1,0 +1,98 @@
+meta {
+  name: -user
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/user
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      // Test podstawowych właściwości użytkownika
+      expect(jsonData).to.have.property('userId').that.is.a('string');
+      expect(jsonData).to.have.property('login').that.is.a('string');
+      expect(jsonData).to.have.property('email').that.is.a('string');
+      expect(jsonData).to.have.property('phoneNumber').that.is.an('object');
+      expect(jsonData).to.have.property('firstName').that.is.a('string');
+      expect(jsonData).to.have.property('lastName').that.is.a('string');
+      expect(jsonData).to.have.property('registeredAt').that.is.a('string');
+      expect(jsonData).to.have.property('birthDate').that.is.a('string');
+      expect(jsonData).to.have.property('roles').that.is.an('array').that.is.not.empty;
+      expect(jsonData).to.have.property('employerId').that.satisfy(
+          (value) => value === null || typeof value === 'string'
+      );
+      expect(jsonData).to.have.property('photo').that.satisfy(
+          (value) => value === null || typeof value === 'string'
+      );
+  
+      // Test struktury phoneNumber
+      const phoneNumber = jsonData.phoneNumber;
+      expect(phoneNumber).to.have.property('code').that.is.a('string');
+      expect(phoneNumber).to.have.property('number').that.is.a('string');
+  
+      // Test tablicy roles
+      jsonData.roles.forEach(role => {
+          expect(role).to.be.a('string');
+      });
+  });
+  
+  test("User roles include allowed values", function () {
+      const jsonData = res.getBody();
+      const allowedRoles = ["Customer", "RestaurantOwner", "Admin"];
+      jsonData.roles.forEach(role => {
+          expect(allowedRoles).to.include(role);
+      });
+  });
+  
+  test("Email has a valid format", function () {
+      const jsonData = res.getBody();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      expect(jsonData.email).to.match(emailRegex);
+  });
+  
+  test("RegisteredAt is a valid ISO 8601 date", function () {
+      const jsonData = res.getBody();
+      const date = new Date(jsonData.registeredAt);
+      expect(isNaN(date.getTime())).to.be.false;
+  
+      const expectedDate = new Date(date.toISOString());
+      expect(date.getTime()).to.equal(expectedDate.getTime());
+  });
+  
+  test("BirthDate is a valid ISO 8601 date", function () {
+      const jsonData = res.getBody();
+      const date = new Date(jsonData.birthDate);
+      expect(date.toISOString().startsWith(jsonData.birthDate)).to.be.true;
+  });
+  
+  test("EmployerId is either null or a valid UUID", function () {
+      const jsonData = res.getBody();
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      if (jsonData.employerId !== null) {
+          expect(jsonData.employerId).to.match(uuidRegex);
+      }
+  });
+  
+  
+  
+  
+}

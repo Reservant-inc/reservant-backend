@@ -1,7 +1,7 @@
 meta {
-  name: -user errPhoneNo
+  name: -user errPhoto
   type: http
-  seq: 4
+  seq: 6
 }
 
 put {
@@ -16,11 +16,11 @@ auth:bearer {
 
 body:json {
   {
-    "phoneNumber": "+481234567891010",
+    "phoneNumber": "+48123456789",
     "firstName": "John",
     "lastName": "Doe",
     "birthDate": "1998-12-31",
-    "photo": null
+    "photo": "photo.png"
   }
 }
 

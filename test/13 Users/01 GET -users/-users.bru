@@ -27,14 +27,35 @@ tests {
        res.getHeader('Content-Type', 'application/json');
   });
   
-  test("Response body has correct structure and data types", function () {
+  test("Response body has correct structure", function () {
       const jsonData = res.getBody();
   
       expect(jsonData).to.have.property('page').that.is.a('number');
       expect(jsonData).to.have.property('totalPages').that.is.a('number');
       expect(jsonData).to.have.property('perPage').that.is.a('number');
       expect(jsonData).to.have.property('orderByOptions').that.is.an('array');
-      expect(jsonData).to.have.property('items').that.is.an('array').that.is.empty;
+      expect(jsonData).to.have.property('items').that.is.an('array');
   });
+  
+  test("Pagination values reflect empty dataset", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.page).to.equal(0);
+      expect(jsonData.totalPages).to.equal(0);
+      expect(jsonData.perPage).to.be.at.least(1); // perPage should still be valid
+  });
+  
+  test("Items array is empty", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.items).to.be.an('array').that.is.empty;
+  });
+  
+  test("OrderByOptions array is empty but valid", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.orderByOptions).to.be.an('array').that.is.empty;
+  });
+  
   
 }

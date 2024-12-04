@@ -1,7 +1,7 @@
 meta {
   name: -user errBirthday
   type: http
-  seq: 7
+  seq: 5
 }
 
 put {
@@ -19,7 +19,7 @@ body:json {
     "phoneNumber": "+48123456789",
     "firstName": "John",
     "lastName": "Doe",
-    "birthDate": {{$randomDateFuture}},
+    "birthDate": {{randomBirthDate}},
     "photo": null
   }
 }
