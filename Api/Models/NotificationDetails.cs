@@ -267,7 +267,7 @@ public class NotificationNewReservation : NotificationDetails
 /// <summary>
 /// Details of a notification about new escalated report
 /// </summary>
-public class NotificationNewEscalatedReportDetails : NotificationDetails
+public class NotificationReportEscalated : NotificationDetails
 {
     /// <summary>
     /// ID of the report
