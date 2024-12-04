@@ -1,0 +1,29 @@
+meta {
+  name: update visit status
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{host}}/visits/{{randomNumber01}}/table?visitId={{randomNumber01}}
+  body: json
+  auth: bearer
+}
+
+params:query {
+  visitId: {{randomNumber01}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "tableId": {{randomNumber01}}
+  }
+}
+
+assert {
+  res.status: eq 200
+}
