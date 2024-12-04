@@ -1,25 +1,5 @@
 meta {
-  name: -events other-s unauthorized
-  type: http
-  seq: 2
-}
-
-post {
-  url: {{host}}/events
-  body: json
-  auth: none
-}
-
-body:json {
-  {
-    "name": "{{randomCompanyName}}",
-    "description": "{{randomText}}",
-    "time": "{{time}}",
-    "maxPeople": {{randomNumber010}},
-    "mustJoinUntil": "{{mustJoinUntil}}",
-    "restaurantId": {{randomRestaurantId}},
-    "photo": "test-jd.png"
-  }
+  name: 03 PUT -events--eventId-
 }
 
 script:pre-request {
@@ -91,11 +71,25 @@ script:pre-request {
   console.log("Generated time:", time);
   console.log("Generated mustJoinUntil:", mustJoinUntil);
   
+  // Pobierz listę eventIds z środowiska
+  var eventIdsList = bru.getEnvVar("eventIdsList");
   
-}
-
-tests {
-  test("Status code is 401", function () {
-      expect(res.getStatus()).to.equal(401);
-  });
+  // Sprawdź, czy lista eventIdsList nie jest pusta
+  if (eventIdsList && eventIdsList.length > 0) {
+      // Parsuj listę (jeśli została zapisana jako string JSON)
+      eventIdsList = JSON.parse(eventIdsList);
+      
+      // Losuj indeks z listy
+      var randomIndex = Math.floor(Math.random() * eventIdsList.length);
+      
+      // Pobierz losowe eventId
+      var randomEventId = eventIdsList[randomIndex];
+      
+      // Zapisz losowe eventId do środowiska
+      bru.setEnvVar("randomEventId", randomEventId);
+      
+      console.log("Losowy eventId: " + randomEventId);
+  } else {
+      console.log("Lista eventIdsList jest pusta lub nie istnieje");
+  }
 }

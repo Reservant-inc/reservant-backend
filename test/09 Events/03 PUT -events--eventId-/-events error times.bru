@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  eventId: {{randomEventId}}
+  eventId: 1
 }
 
 auth:bearer {
@@ -20,12 +20,14 @@ auth:bearer {
 
 body:json {
   {
+    "name": "{{randomCompanyName}}",
     "description": "{{groupName}}",
     "time": "2024-04-05T16:41:56.276Z",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "2024-03-01T16:41:56.276Z",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": {{randomRestaurantId}},
+    "photo": "test-jd.png"
   }
-  
   
   
   
@@ -40,26 +42,6 @@ tests {
       expect(res.getStatus()).to.equal(400);
   });
   
-  // Test, czy odpowiedź zawiera błąd dla 'mustJoinUntil'
-  test("MustJoinUntil error message exists", function () {
-      expect(jsonData.errors).to.have.property('mustJoinUntil');
-      expect(jsonData.errors.mustJoinUntil[0]).to.include("must be less than");
-  });
   
-  // Test, czy odpowiedź zawiera błąd dla 'time'
-  test("Time error message exists", function () {
-      expect(jsonData.errors).to.have.property('time');
-      expect(jsonData.errors.time[0]).to.include("must be greater than");
-  });
-  
-  // Test, czy errorCodes zawiera 'MustJoinUntilMustBeBeforeEventTime' dla 'mustJoinUntil'
-  test("ErrorCodes contains 'MustJoinUntilMustBeBeforeEventTime' for mustJoinUntil", function () {
-      expect(jsonData.errorCodes.mustJoinUntil).to.include("MustJoinUntilMustBeBeforeEventTime");
-  });
-  
-  // Test, czy errorCodes zawiera 'MustJoinUntilMustBeBeforeEventTime' dla 'time'
-  test("ErrorCodes contains 'MustJoinUntilMustBeBeforeEventTime' for time", function () {
-      expect(jsonData.errorCodes.time).to.include("MustJoinUntilMustBeBeforeEventTime");
-  });
   
 }

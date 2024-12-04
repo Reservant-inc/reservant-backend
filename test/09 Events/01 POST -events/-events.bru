@@ -16,10 +16,13 @@ auth:bearer {
 
 body:json {
   {
+    "name": "{{randomCompanyName}}",
     "description": "{{randomText}}",
     "time": "{{time}}",
+    "maxPeople": {{randomNumber010}},
     "mustJoinUntil": "{{mustJoinUntil}}",
-    "restaurantId": {{randomRestaurantId}}
+    "restaurantId": 1,
+    "photo": "test-jd.png"
   }
 }
 
@@ -100,20 +103,16 @@ tests {
       expect(res.getStatus()).to.equal(200);
   });
   
-  test("Response description matches request description", function () {
-      var jsonData = res.getBody();
-  //     var sentData = pm.request.body ? JSON.parse(pm.request.body) : {};
-      expect(jsonData.description).to.eql(sentData.description);
-  });
-  
+  var jsonData = JSON.parse(JSON.stringify(res.getBody()));
   
   test("Response matches request data", function () {
-      var jsonData = res.getBody();
-  //     var sentData = pm.request.body ? JSON.parse(pm.request.body) : {};
+      var jsonData = res.getBody()
+      var sentData = req.getBody()
+  
       expect(jsonData.description).to.eql(sentData.description);
       expect(jsonData.time).to.eql(sentData.time);
       expect(jsonData.mustJoinUntil).to.eql(sentData.mustJoinUntil);
-      expect(jsonData.restaurantId).to.eql(sentData.restaurantId);
+      expect(jsonData.restaurant.restaurantId).to.eql(sentData.restaurantId);
   });
   
   
@@ -125,14 +124,13 @@ tests {
       expect(jsonData).to.have.property("description").that.is.a("string");
       expect(jsonData).to.have.property("time").that.is.a("string");
       expect(jsonData).to.have.property("mustJoinUntil").that.is.a("string");
-      expect(jsonData).to.have.property("creatorId").that.is.a("string");
-      expect(jsonData).to.have.property("creatorFullName").that.is.a("string");
-      expect(jsonData).to.have.property("restaurantId").that.is.a("number");
-      expect(jsonData).to.have.property("restaurantName").that.is.a("string");
-      expect(jsonData).to.have.property("visitId");
-      expect(jsonData.visitId === null || typeof jsonData.visitId === 'number').to.be.true;
-      expect(jsonData).to.have.property("interested").that.is.an("array");
+      expect(jsonData).to.have.property("photo").that.is.a("string");
+      expect(jsonData).to.have.property("creator").that.is.an("object");
+      expect(jsonData).to.have.property("restaurant").that.is.an("object");
+      expect(jsonData.restaurant).to.have.property("restaurantId").that.is.a("number");
+      expect(jsonData).to.have.property("participants").that.is.an("array");
   });
+  
   
   // Pobierz odpowiedź z serwera
   var jsonData = res.getBody();
