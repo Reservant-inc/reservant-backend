@@ -16,7 +16,7 @@ auth:bearer {
 
 body:json {
   {
-    "title": "{{randomText}}",
+    "title": "{{randomGeneratedTextLong}}",
     "amount": {{randomNumber100500}}
   }
 }
@@ -29,7 +29,7 @@ tests {
   const jsonData = res.getBody()
   
   test("The length of title must be 50 chars or fewer error expected", function () {
-      expect(jsonData.errors['title']).to.include("The length of 'Title' must be 50 characters or fewer. You entered 140 characters.");
+      expect(jsonData.errors['title']).to.include("The length of 'Title' must be 50 characters or fewer. You entered 200 characters.");
   });
   
   test("ErrorCodes contains 'MaximumLengthValidator'", function () {
