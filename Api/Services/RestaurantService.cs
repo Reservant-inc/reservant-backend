@@ -1412,11 +1412,8 @@ namespace Reservant.Api.Services
             var access = await authorizationService.VerifyRestaurantBackdoorAccess(restaurantId, userId);
             if (access.IsError) return access.Errors;
 
-            IQueryable<Ingredient> query = context.MenuItems
-                .AsSplitQuery()
-                .Where(mi => mi.RestaurantId == restaurantId)
-                .SelectMany(mi => mi.Ingredients.Select(imi => imi.Ingredient))
-                .Distinct();
+            var query = context.Ingredients
+                .Where(mi => mi.RestaurantId == restaurantId);
 
             // Sortowanie
             query = orderBy switch
