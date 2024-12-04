@@ -47,7 +47,7 @@ public class UserEmployeeVM
     /// <summary>
     /// Is the user friends with the current user?
     /// </summary>
-    public required FriendStatus? FriendStatus { get; init; }
+    public required FriendStatus? FriendStatus { get; set; }
 
     /// <summary>
     /// User's photo path
