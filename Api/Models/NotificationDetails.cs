@@ -272,7 +272,7 @@ public class NotificationNewEscalatedReportDetails : NotificationDetails
     /// <summary>
     /// ID of the report
     /// </summary>
-    public required int reportId { get; set; }
+    public required int ReportId { get; set; }
     /// <summary>
     /// Date of the report escalation
     /// </summary>
