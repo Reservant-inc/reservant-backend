@@ -267,14 +267,19 @@ public class NotificationNewReservation : NotificationDetails
 /// <summary>
 /// Details of a notification about new escalated report
 /// </summary>
-public class NotificationNewEscalatedReportDetails : NotificationDetails
+public class NotificationReportEscalated : NotificationDetails
 {
     /// <summary>
     /// ID of the report
     /// </summary>
-    public required int reportId { get; set; }
+    public required int ReportId { get; set; }
     /// <summary>
     /// Date of the report escalation
     /// </summary>
     public required DateTime EscalationTime { get; set; }
+
+    /// <summary>
+    /// Content of the message
+    /// </summary>
+    public required string Contents { get; set; }
 }

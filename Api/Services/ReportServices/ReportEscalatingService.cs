@@ -5,6 +5,7 @@ using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services.ReportServices;
 
@@ -24,8 +25,10 @@ public class ReportEscalatingService(
     /// </summary>
     /// <param name="reportId">id of the report to escalate</param>
     /// <param name="user">user that escalates the report</param>
+    /// <param name="content"></param>
     /// <returns></returns>
-    public async Task<Result<ReportVM>> EscalateReportAsync(int reportId, User user) { 
+    [ErrorCode(nameof(ErrorCodes.NotFound), "Report not found")]
+    public async Task<Result<ReportVM>> EscalateReportAsync(int reportId, User user, string content) { 
         var report = await context.Reports.FindAsync(reportId);
         if (report == null) {
             return new ValidationFailure
@@ -39,7 +42,7 @@ public class ReportEscalatingService(
         report.EscalatedById = user.Id;
         await context.SaveChangesAsync();
 
-        await notificationService.NotifyNewEscalatedReport(reportId);
+        await notificationService.NotifyReportEscalated(reportId, content);
 
         return mapper.Map<ReportVM>(report);
     }

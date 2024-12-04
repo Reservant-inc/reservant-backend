@@ -377,23 +377,22 @@ public class NotificationService(
     /// Notifies all customer support managers about a new escalated report
     /// </summary>
     /// <param name="reportId"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
-    public async Task NotifyNewEscalatedReport(int reportId) {
+    public async Task NotifyReportEscalated(int reportId, string content) {
         var managers =
             from user in context.Users
             join userRole in context.UserRoles on user.Id equals userRole.UserId
             join role in context.Roles on userRole.RoleId equals role.Id
             where role.Name == Roles.CustomerSupportManager
-            select user;
-        foreach (var manager in managers)
-        {
-            await NotifyUser(
-                manager.Id,
-                new NotificationNewEscalatedReportDetails { 
-                    reportId = reportId,
-                    EscalationTime = DateTime.UtcNow
+            select user.Id;
+            await NotifyUsers(
+                managers,
+                new NotificationReportEscalated { 
+                    ReportId = reportId,
+                    EscalationTime = DateTime.UtcNow,
+                    Contents = content
                 }
                 );
-        }
     }
 }

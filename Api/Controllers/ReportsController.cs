@@ -109,6 +109,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     /// As a customer support agent escalate report to customer support manager level
     /// </summary>
     /// <param name="reportId">ID of the report to escalate</param>
+    /// <param name="content">reason for report escalation</param>
     /// <param name="service"></param>
     /// <returns></returns>
     [HttpPost("{reportId:int}/escalate")]
@@ -117,12 +118,13 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [MethodErrorCodes<ReportEscalatingService>(nameof(ReportEscalatingService.EscalateReportAsync))]
     public async Task<ActionResult<ReportVM>> EscalateReport(
         int reportId,
+        [FromBody] string content,
         [FromServices] ReportEscalatingService service
         ) {
         var user = await userManager.GetUserAsync(User);
         if (user is null) {
             return Unauthorized();
         }
-        return OkOrErrors(await service.EscalateReportAsync(reportId, user));
+        return OkOrErrors(await service.EscalateReportAsync(reportId, user, content));
     }
 }
