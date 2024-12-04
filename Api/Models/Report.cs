@@ -64,6 +64,16 @@ public class Report : ISoftDeletable
     /// Related visit
     /// </summary>
     public Visit? Visit { get; set; }
+    
+    /// <summary>
+    /// Optional Thread associated with the Report
+    /// </summary>
+    public int? ThreadId { get; set; }
+
+    /// <summary>
+    /// Navigation property to the associated Thread
+    /// </summary>
+    public MessageThread? Thread { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

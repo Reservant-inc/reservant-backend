@@ -434,4 +434,198 @@ public class ThreadService(
 
         return Result.Success;
     }
+    
+    /// <summary>
+    /// Creates a new thread for a report and adds appropriate participants.
+    /// </summary>
+    /// <param name="reportId">ID of the report</param>
+    /// <param name="userId">ID of the current user</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Report not found")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User not authorized to create a thread for this report")]
+    [ErrorCode(null, ErrorCodes.InvalidOperation, "Report already has a thread assigned")]
+    public async Task<Result<ThreadVM>> CreateThreadForReport(int reportId, Guid userId)
+    {
+        var report = await dbContext.Reports
+            .Include(r => r.CreatedBy)
+            .Include(r => r.ReportedUser)
+            .FirstOrDefaultAsync(r => r.ReportId == reportId);
+
+        if (report == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Report not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (report.ThreadId != null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Report already has a thread assigned.",
+                ErrorCode = ErrorCodes.InvalidOperation
+            };
+        }
+
+        var user = await dbContext.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        var userRoles = await userManager.GetRolesAsync(user);
+
+        if (userRoles.Contains(Roles.Customer) || userRoles.Contains(Roles.RestaurantEmployee) || userRoles.Contains(Roles.RestaurantOwner))
+        {
+            // Check if the user is either CreatedBy or ReportedUser in the report
+            if (report.CreatedById != userId && report.ReportedUserId != userId)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "You are not authorized to create a thread for this report.",
+                    ErrorCode = ErrorCodes.AccessDenied
+                };
+            }
+        }
+        else if (userRoles.Contains(Roles.CustomerSupportManager) || userRoles.Contains(Roles.CustomerSupportAgent))
+        {
+            // BOK roles can proceed
+        }
+        else
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "You are not authorized to create a thread for this report.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        // Create the thread
+        var threadTitle = $"Report #{report.ReportId} Discussion";
+        var thread = new MessageThread
+        {
+            Title = threadTitle,
+            CreationDate = DateTime.UtcNow,
+            CreatorId = userId,
+            Participants = new List<User>()
+        };
+
+        // Initialize participants list
+        var participants = new List<User>();
+
+        // Add the reporting user (CreatedBy)
+        if (!participants.Any(u => u.Id == report.CreatedById))
+        {
+            participants.Add(report.CreatedBy);
+        }
+
+        // Add the reported user, if any
+        if (report.ReportedUserId.HasValue)
+        {
+            var reportedUser = report.ReportedUser;
+            if (reportedUser != null && !participants.Any(u => u.Id == reportedUser.Id))
+            {
+                participants.Add(reportedUser);
+            }
+        }
+
+        // Add the current user if not already in participants
+        if (!participants.Any(u => u.Id == userId))
+        {
+            participants.Add(user);
+        }
+
+        thread.Participants = participants;
+
+        // Add the thread to the context
+        dbContext.MessageThreads.Add(thread);
+
+        // Assign the thread to the report
+        report.Thread = thread;
+
+        // Save changes
+        await dbContext.SaveChangesAsync();
+
+        // Map and return the thread view model
+        return mapper.Map<ThreadVM>(thread);
+    }
+
+
+    /// <summary>
+    /// Assigns the current BOK employee to the thread associated with a report.
+    /// </summary>
+    /// <param name="threadId">ID of the thread</param>
+    /// <param name="userId">ID of the current BOK employee</param>
+    [ErrorCode(null, ErrorCodes.NotFound, "Thread not found")]
+    [ErrorCode(null, ErrorCodes.InvalidOperation, "Thread is not associated with any report")]
+    public async Task<Result> AssignCurrentBokEmployeeToThread(int threadId, Guid userId)
+    {
+        var thread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
+            .FirstOrDefaultAsync(t => t.MessageThreadId == threadId);
+
+        if (thread == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Thread not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        // Check if the thread is associated with a report
+        var report = await dbContext.Reports
+            .FirstOrDefaultAsync(r => r.ThreadId == threadId);
+
+        if (report == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Thread is not associated with any report.",
+                ErrorCode = ErrorCodes.InvalidOperation
+            };
+        }
+
+        var user = await dbContext.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "User not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        var userRoles = await userManager.GetRolesAsync(user);
+        if (!userRoles.Contains(Roles.CustomerSupportManager) && !userRoles.Contains(Roles.CustomerSupportAgent))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Only BOK employees can assign themselves to the thread.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        if (!thread.Participants.Any(p => p.Id == userId))
+        {
+            thread.Participants.Add(user);
+            await dbContext.SaveChangesAsync();
+        }
+
+        return Result.Success;
+    }
 }
