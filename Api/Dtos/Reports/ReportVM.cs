@@ -38,4 +38,9 @@ public class ReportVM
     /// User being reported
     /// </summary>
     public required UserSummaryVM? ReportedUser { get; set; }
+    
+    /// <summary>
+    /// ID of the associated thread, if any
+    /// </summary>
+    public int? ThreadId { get; set; }
 }
