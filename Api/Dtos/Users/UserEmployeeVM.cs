@@ -29,7 +29,7 @@ public class UserEmployeeVM
     public required string LastName { get; init; }
 
     /// <summary>
-    /// User's birth date
+    /// User's birthdate
     /// </summary>
     public required DateOnly BirthDate { get; init; }
 
