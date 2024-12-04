@@ -378,7 +378,7 @@ public class NotificationService(
     /// </summary>
     /// <param name="reportId"></param>
     /// <returns></returns>
-    public async Task NotifyNewEscalatedReport(int reportId) {
+    public async Task NotifyReportEscalated(int reportId) {
         var managers =
             from user in context.Users
             join userRole in context.UserRoles on user.Id equals userRole.UserId
