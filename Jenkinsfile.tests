@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: "label_string", defaultValue: "(PERIODIC)", trim: true, description: "Sample string parameter")
+    }
+
+    environment {
+        DISCORD_WEBHOOK_URL = credentials('jenkins-back-tests-discord-webhook')
+        INFO_LABEL = "${params.label_string}"
+    }
+
+    stages {
+        stage('Clone repo') {
+            steps {
+                // Get some code from a GitHub repository
+                sh 'git clone https://github.com/Reservant-inc/reservant-backend.git'
+            }
+        }
+        stage('Build test image') {
+            steps {
+                dir('reservant-backend]') {
+                    sh "docker build -t reservant-backend-tests -f Dockerfile.tests ."
+                }
+            }
+        }
+        stage('Run tests') {
+            steps {
+                sh "docker run -e DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL -e POST_MSG_HEAD='$INFO_LABEL' reservant-backend-tests"
+            }
+        }
+    }
+}
