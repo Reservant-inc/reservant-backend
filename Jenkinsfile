@@ -36,7 +36,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                build job: 'Reservant Backend-Tests', parameters: [string(name: 'label_string', value: 'BACKEND DEPLOY')]
+                build job: 'Reservant Backend-Tests', parameters: [string(name: 'label_string', value: '(BACKEND_DEPLOY)')]
             }
         }
     }
