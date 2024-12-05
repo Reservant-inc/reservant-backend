@@ -31,5 +31,13 @@ pipeline {
                         ${imageTag}"
             }
         }
+        stage ('Run tests') {
+            when {
+                branch 'main'
+            }
+            steps {
+                build job: 'Reservant Backend-Tests/main', parameters: [string(name: 'label_string', value: 'BACKEND DEPLOY')]
+            }
+        }
     }
 }
