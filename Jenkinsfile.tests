@@ -11,12 +11,6 @@ pipeline {
     }
 
     stages {
-        stage('Clone repo') {
-            steps {
-                // Get some code from a GitHub repository
-                sh 'git clone https://github.com/Reservant-inc/reservant-backend.git'
-            }
-        }
         stage('Build test image') {
             steps {
                 dir('reservant-backend]') {
