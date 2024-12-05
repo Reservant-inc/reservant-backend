@@ -2,7 +2,7 @@ FROM node:16
 
 WORKDIR /app
 
-COPY . .
+COPY ./test .
 ENV CI=true
 RUN npm install -g @usebruno/cli@1.35
 RUN npm install
