@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    options {
+        disableConcurrentBuilds()
+    }
+
     parameters {
         string(name: "label_string", defaultValue: "(PERIODIC)", trim: true, description: "Sample string parameter")
     }
