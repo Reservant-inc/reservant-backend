@@ -18,7 +18,7 @@ pipeline {
         stage('Build test image') {
             steps {
                 sh "ls -al"
-                sh "docker build -t reservant-backend-tests -f Dockerfile.tests ."
+                sh "docker build -t reservant-backend-tests -f test/Dockerfile.tests ."
             }
         }
         stage('Run tests') {
