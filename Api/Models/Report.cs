@@ -65,6 +65,16 @@ public class Report : ISoftDeletable
     /// </summary>
     public Visit? Visit { get; set; }
 
+    /// <summary>
+    /// ID of the support agent that escalated this report
+    /// </summary>
+    public Guid? EscalatedById { get; set; }
+
+    /// <summary>
+    /// Navigational property of the support agent that escalated this report
+    /// </summary>
+    public User? EscalatedBy { get; set; }
+
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
 }
