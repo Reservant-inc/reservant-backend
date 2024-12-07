@@ -162,7 +162,7 @@ public class ThreadService(
             .Where(t => t.Participants.Any(p => p.Id == userId))
             .ProjectTo<ThreadVM>(mapper.ConfigurationProvider);
 
-        return await query.PaginateAsync(page, perPage, []);
+        return await query.PaginateAsync(page, perPage, [], 100, true);
     }
 
     /// <summary>

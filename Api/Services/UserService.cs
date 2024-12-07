@@ -328,7 +328,7 @@ public class UserService(
             .Where(x => x.Reservation!.StartTime > DateTime.UtcNow)
             .OrderBy(x => x.Reservation!.StartTime)
             .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
-            .PaginateAsync(page, perPage, [], maxPerPage: 10);
+            .PaginateAsync(page, perPage, [], maxPerPage: 10, true);
     }
 
 
@@ -458,7 +458,7 @@ public class UserService(
             _ => throw new ArgumentOutOfRangeException(nameof(filter)),
         };
 
-        return await query.PaginateAsync(page, perPage, []);
+        return await query.PaginateAsync(page, perPage, [], 100, true);
     }
 
     /// <summary>

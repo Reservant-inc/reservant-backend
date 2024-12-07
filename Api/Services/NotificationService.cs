@@ -53,7 +53,7 @@ public class NotificationService(
                 NotificationType = n.Details.GetType().Name,
                 Details = n.Details,
             })
-            .PaginateAsync(page, perPage, [], 100);
+            .PaginateAsync(page, perPage, [], 100, true);
     }
 
     /// <summary>
