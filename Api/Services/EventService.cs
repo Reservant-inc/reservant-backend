@@ -437,7 +437,7 @@ namespace Reservant.Api.Services
             }
 
             var result = events.ProjectTo<EventSummaryVM>(mapper.ConfigurationProvider);
-            return await result.PaginateAsync(page, perPage, Enum.GetNames<EventSorting>());
+            return await result.PaginateAsync(page, perPage, Enum.GetNames<EventSorting>(), 100, true);
         }
 
 
@@ -691,7 +691,7 @@ namespace Reservant.Api.Services
 
             return await events
                 .ProjectTo<NearEventVM>(mapper.ConfigurationProvider, new { origin })
-                .PaginateAsync(page, perPage, []);
+                .PaginateAsync(page, perPage, [], 100, false);
         }
     }
 }

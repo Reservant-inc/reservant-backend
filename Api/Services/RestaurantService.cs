@@ -217,7 +217,7 @@ namespace Reservant.Api.Services
                     NumberReviews = r.Reviews.Count,
                     OpeningHours = r.OpeningHours.ToList(),
                 })
-                .PaginateAsync(page, perPage, []);
+                .PaginateAsync(page, perPage, [], 100, true);
 
             return nearRestaurants;
         }
