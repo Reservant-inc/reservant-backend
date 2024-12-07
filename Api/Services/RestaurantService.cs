@@ -1086,8 +1086,12 @@ namespace Reservant.Api.Services
         /// Get reviews for a restaurant
         /// </summary>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId,
-            ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10, string? fullName = null)
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(
+            int restaurantId,
+            ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc,
+            int page = 0,
+            int perPage = 10,
+            string? authorName = null)
         {
             var restaurant = await context.Restaurants
                 .AsNoTracking()
@@ -1107,8 +1111,8 @@ namespace Reservant.Api.Services
             var reviewsQuery = context.Reviews
                 .Where(r => r.RestaurantId == restaurantId);
 
-            if (fullName is not null) {
-                reviewsQuery = reviewsQuery.Where(r => r.Author.FullName.Contains(fullName));
+            if (authorName is not null) {
+                reviewsQuery = reviewsQuery.Where(r => (r.Author.FirstName + " " + r.Author.LastName).Contains(authorName));
             }
 
             var reviewVM = reviewsQuery.Select(r => new ReviewVM
