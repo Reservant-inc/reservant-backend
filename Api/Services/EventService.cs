@@ -65,7 +65,8 @@ namespace Reservant.Api.Services
             {
                 newEvent.Restaurant = await context.Restaurants
                     .OnlyActiveRestaurants()
-                    .SingleAsync(restaurant => restaurant.RestaurantId == request.RestaurantId);
+                    .FirstOrDefaultAsync(restaurant => restaurant.RestaurantId == request.RestaurantId);
+
                 if (newEvent.Restaurant is null)
                 {
                     return new ValidationFailure
