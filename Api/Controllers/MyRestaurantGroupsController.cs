@@ -6,6 +6,7 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Controllers;
 
@@ -28,6 +29,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <returns></returns>
     [HttpPost]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
+    [MethodErrorCodes<RestaurantGroupService>(nameof(RestaurantGroupService.CreateRestaurantGroup))]
     public async Task<ActionResult<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req)
     {
 
