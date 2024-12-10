@@ -29,7 +29,7 @@ public class UserEmployeeVM
     public required string LastName { get; init; }
 
     /// <summary>
-    /// User's birth date
+    /// User's birthdate
     /// </summary>
     public required DateOnly BirthDate { get; init; }
 
@@ -43,6 +43,11 @@ public class UserEmployeeVM
     /// Employee's employments
     /// </summary>
     public required List<EmploymentVM>? Employments { get; set; }
+    
+    /// <summary>
+    /// Is the user friends with the current user?
+    /// </summary>
+    public required FriendStatus? FriendStatus { get; set; }
 
     /// <summary>
     /// User's photo path
