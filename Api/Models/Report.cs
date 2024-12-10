@@ -64,6 +64,11 @@ public class Report : ISoftDeletable
     /// Related visit
     /// </summary>
     public Visit? Visit { get; set; }
+    
+    /// <summary>
+    /// Resolution details of the report.
+    /// </summary>
+    public ReportResolution? Resolution { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

@@ -102,4 +102,22 @@ public class ReportsController(UserManager<User> userManager) : StrictController
         }
         return OkOrErrors(await service.GetReportsAsync(dateFrom, dateUntil, category, reportedUserId, restaurantId));
     }
+    
+    /// <summary>
+    /// Resolve a report as customer support staff.
+    /// </summary>
+    /// <param name="reportId">The ID of the report to resolve.</param>
+    /// <param name="dto">The resolution details.</param>
+    /// <param name="service">The service handling the resolution.</param>
+    [HttpPut("{reportId:int}/resolution")]
+    [Authorize(Roles = Roles.CustomerSupportAgent)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<ResolveReportService>(nameof(ResolveReportService.ResolveReport))]
+    public async Task<ActionResult<ReportVM>> ResolveReport(
+        int reportId,
+        ResolveReportRequest dto,
+        [FromServices] ResolveReportService service)
+    {
+        return OkOrErrors(await service.ResolveReport(User.GetUserId()!.Value, reportId, dto));
+    }
 }
