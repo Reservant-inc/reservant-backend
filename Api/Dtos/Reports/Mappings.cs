@@ -13,10 +13,6 @@ public class Mappings : Profile
     /// <inheritdoc />
     public Mappings()
     {
-        // Mapowanie User → UserSummaryVM
-        CreateMap<User, UserSummaryVM>();
-
-        // Mapowanie Report → ReportVM
         CreateMap<Report, ReportVM>()
             .MapMemberFrom(dest => dest.CreatedBy, src => src.CreatedBy)
             .MapMemberFrom(dest => dest.ResolvedBy, src =>
