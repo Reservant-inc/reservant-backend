@@ -30,7 +30,7 @@ public class UnverfiedrestaurantSeeder1(
 
         return new Restaurant
         {
-            Name = "Unverided' Restaurant1",
+            Name = "Unverified Restaurant 1",
             RestaurantType = RestaurantType.Restaurant,
             Nip = "4564569978",
             Address = "ul. 123",

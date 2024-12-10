@@ -30,7 +30,7 @@ public class UnverfiedrestaurantSeeder2(
 
         return new Restaurant
         {
-            Name = "Unverided' Restaurant1",
+            Name = "Unverified Restaurant 2",
             RestaurantType = RestaurantType.Restaurant,
             Nip = "3424567891",
             Address = "ul. 113",
@@ -48,10 +48,10 @@ public class UnverfiedrestaurantSeeder2(
             MaxReservationDurationMinutes = 120,
             IdCard = exampleDocument,
             LogoFileName = null!,
-            Logo = await RequireFileUpload("ResLogo1.png"),
+            Logo = await RequireFileUpload("sushi.png"),
             ProvideDelivery = true,
             Description = "The second unverided example restaurant",
-            Photos = await RequireRestaurantPhotos("ResInside1.jpg"),
+            Photos = await RequireRestaurantPhotos("ResInside2.jpg"),
             Tags = await RequireRestaurantTags("OnSite", "Takeaway"),
             VerifierId = null,
             OpeningHours = CreateOpeningHours(
