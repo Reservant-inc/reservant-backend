@@ -34,10 +34,7 @@ public class GetReportsService(
         Guid? reportedUserId,
         int? restaurantId)
     {
-        IQueryable<Report> reports = context.Reports
-            .Include(r => r.CreatedBy)
-            .Include(r => r.ReportedUser);
-
+        IQueryable<Report> reports = context.Reports;
         reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
         var res = await reports.ToListAsync();
         return mapper.Map<List<ReportVM>>(res);
