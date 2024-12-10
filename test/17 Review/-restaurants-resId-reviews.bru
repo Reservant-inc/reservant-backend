@@ -1,0 +1,26 @@
+meta {
+  name: -restaurants-resId-reviews
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/restaurants/:restaurantId/reviews
+  body: json
+  auth: bearer
+}
+
+params:path {
+  restaurantId: 5
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "stars": 3,
+    "contents": "{{randomLoremSentence}}"
+  }
+}

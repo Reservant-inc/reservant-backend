@@ -1,0 +1,77 @@
+meta {
+  name: -reviews-reviewId
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/reviews/:reviewId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  reviewId: 1
+}
+
+auth:bearer {
+  token: {{JD}
+}
+
+tests {
+  // Test sprawdzający status kodu odpowiedzi
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test sprawdzający, czy odpowiedź jest w formacie JSON
+  test("Response is JSON", function () {
+      res.getHeader('Content-Type', 'application/json');
+  });
+  
+  // Test sprawdzający strukturę głównego obiektu odpowiedzi
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.have.all.keys(
+          'reviewId',
+          'restaurantId',
+          'authorId',
+          'authorFullName',
+          'stars',
+          'createdAt',
+          'dateEdited',
+          'contents',
+          'answeredAt',
+          'restaurantResponse'
+      );
+  
+      // Sprawdzanie typów poszczególnych pól
+      expect(jsonData.reviewId).to.be.a('number');
+      expect(jsonData.restaurantId).to.be.a('number');
+      expect(jsonData.authorId).to.match(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+      expect(jsonData.authorFullName).to.be.a('string');
+      expect(jsonData.stars).to.be.a('number').and.to.be.within(1, 5);
+      expect(jsonData.contents).to.be.a('string');
+  
+      // Sprawdzanie dat (z nanosekundami lub null)
+      expect(jsonData.createdAt).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/);
+  
+      if (jsonData.dateEdited !== null) {
+          expect(jsonData.dateEdited).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/);
+      } else {
+          expect(jsonData.dateEdited).to.be.null;
+      }
+  
+      if (jsonData.answeredAt !== null) {
+          expect(jsonData.answeredAt).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/);
+      } else {
+          expect(jsonData.answeredAt).to.be.null;
+      }
+  
+      expect(jsonData.restaurantResponse).to.satisfy(value => value === null || typeof value === 'string');
+  });
+  
+}
