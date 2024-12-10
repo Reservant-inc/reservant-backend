@@ -487,24 +487,24 @@ public class UserService(
             };
         }
 
-        var userEmployeeDto = mapper.Map<UserEmployeeVM>(requestedUser);
+        var userDto = mapper.Map<UserEmployeeVM>(requestedUser);
 
         User? currentUser = await dbContext.Users.FindAsync(currentUserId);
         // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
         if (requestedUser.EmployerId == currentUserId || currentUser!=null && await roleManager.IsInRoleAsync(currentUser, Roles.CustomerSupportAgent))
         {
             // Zwrót pełnych danych dla pracownika
-            return userEmployeeDto;
+            return userDto;
         }
 
         // Jeżeli użytkownik nie jest pracownikiem, zwróć ograniczone dane
         if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer))
         {
-            userEmployeeDto.Login = null;
-            userEmployeeDto.PhoneNumber = null;
-            userEmployeeDto.Employments = null;
-            userEmployeeDto.FriendStatus = await GetFriendStatusAsync(currentUserId, userId);
-            return userEmployeeDto;
+            userDto.Login = null;
+            userDto.PhoneNumber = null;
+            userDto.Employments = null;
+            userDto.FriendStatus = await GetFriendStatusAsync(currentUserId, userId);
+            return userDto;
         }
 
         return new ValidationFailure
