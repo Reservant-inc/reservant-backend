@@ -37,6 +37,26 @@ public class VisitsController(
         var result = await visitService.GetVisitByIdAsync(visitId, user);
         return OkOrErrors(result);
     }
+    
+    /// <summary>
+    /// Cancel a visit (from the client side)
+    /// </summary>
+    [HttpPost("{visitId:int}/cancel")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    public async Task<ActionResult> CancelVisit(int visitId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await visitService.CancelVisitAsync(visitId, user);
+        return OkOrErrors(result);
+    }
+
 
     /// <summary>
     /// Create a new visit

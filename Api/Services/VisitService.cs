@@ -107,7 +107,7 @@ public class VisitService(
     }
 
     /// <summary>
-    /// Reject a visit request as resturant owner or employee
+    /// Reject a visit request as a resturant owner or employee
     /// </summary>
     /// <param name="visitId">ID of the event</param>
     /// <param name="currentUser">Current user for permission checking</param>
@@ -264,4 +264,55 @@ public class VisitService(
 
         return Result.Success;
     }
+    
+    /// <summary>
+    /// Cancel a visit reservation as the client
+    /// </summary>
+    /// <param name="visitId">ID wizyty</param>
+    /// <param name="currentUser">Aktualnie zalogowany użytkownik</param>
+    /// <returns></returns>
+    public async Task<Result> CancelVisitAsync(int visitId, User currentUser)
+    {
+        var visit = await context.Visits
+            .Include(v => v.Reservation)
+            .FirstOrDefaultAsync(v => v.VisitId == visitId);
+
+        if (visit == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(visitId),
+                ErrorMessage = "Visit not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+        
+        if (visit.ClientId != currentUser.Id)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Only the client who made the reservation can cancel it.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+        
+        if (visit.StartTime != null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Visit already started and cannot be canceled.",
+                ErrorCode = ErrorCodes.IncorrectVisitStatus
+            };
+        }
+        
+        visit.IsCancelled = true;
+        await context.SaveChangesAsync();
+        
+        // await notificationService.NotifyVisitCancelled(visit.ClientId, visitId);
+
+        return Result.Success;
+    }
+
 }
