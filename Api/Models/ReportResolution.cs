@@ -8,9 +8,14 @@ namespace Reservant.Api.Models
     public class ReportResolution
     {
         /// <summary>
+        /// Max length of SupportComment
+        /// </summary>
+        public const int MaxSupportCommentLength = 500;
+
+        /// <summary>
         /// Comment provided by the support staff resolving the report.
         /// </summary>
-        [Required]
+        [Required, StringLength(MaxSupportCommentLength)]
         public string SupportComment { get; set; } = null!;
 
         /// <summary>

@@ -1,5 +1,6 @@
 using FluentValidation;
 using Reservant.Api.Dtos.Reports;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators.Reports;
 
@@ -15,8 +16,6 @@ public class ResolveReportRequestValidator : AbstractValidator<ResolveReportRequ
     {
         RuleFor(x => x.SupportComment)
             .NotEmpty()
-            .WithMessage("SupportComment cannot be empty.")
-            .MaximumLength(500)
-            .WithMessage("SupportComment cannot exceed 500 characters.");
+            .MaximumLength(ReportResolution.MaxSupportCommentLength);
     }
 }
