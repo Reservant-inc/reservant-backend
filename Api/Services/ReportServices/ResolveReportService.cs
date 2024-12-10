@@ -14,7 +14,7 @@ namespace Reservant.Api.Services.ReportServices
     /// <summary>
     /// Service to resolve reports.
     /// </summary>
-    public class PutReportResolutionService(
+    public class ResolveReportService(
         ApiDbContext context,
         ValidationService validationService,
         IMapper mapper,

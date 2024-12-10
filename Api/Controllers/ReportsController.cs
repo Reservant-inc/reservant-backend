@@ -112,11 +112,11 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPut("{reportId:int}/resolution")]
     [Authorize(Roles = Roles.CustomerSupportAgent)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<PutReportResolutionService>(nameof(PutReportResolutionService.ResolveReport))]
+    [MethodErrorCodes<ResolveReportService>(nameof(ResolveReportService.ResolveReport))]
     public async Task<ActionResult<ReportVM>> ResolveReport(
         int reportId,
         ResolveReportRequest dto,
-        [FromServices] PutReportResolutionService service)
+        [FromServices] ResolveReportService service)
     {
         return OkOrErrors(await service.ResolveReport(User.GetUserId()!.Value, reportId, dto));
     }
