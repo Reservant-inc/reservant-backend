@@ -38,7 +38,7 @@ public class ReportVM
     /// User being reported
     /// </summary>
     public required UserSummaryVM? ReportedUser { get; set; }
-    
+
     /// <summary>
     /// The ID of the related visit (if any).
     /// </summary>
@@ -47,12 +47,12 @@ public class ReportVM
     /// <summary>
     /// The comment provided by the support staff (nullable).
     /// </summary>
-    public string? SupportComment { get; set; }
+    public string? ResolutionComment { get; set; }
 
     /// <summary>
     /// The name of the support staff who resolved the report (nullable).
     /// </summary>
-    public string? ResolvedBy { get; set; }
+    public UserSummaryVM? ResolvedBy { get; set; }
 
     /// <summary>
     /// The date when the report was resolved (nullable).
