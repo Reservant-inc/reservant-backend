@@ -25,7 +25,10 @@ public class Mappings : Profile
                 visit => visit.EndTime)
             .MapMemberFrom(dto => dto.Deposit,
                 visit => visit.Reservation == null
-                    ? null : visit.Reservation.Deposit);
+                    ? null
+                    : visit.Reservation.Deposit)
+            .MapMemberFrom(dto => dto.IsCancelled,
+                visit => visit.IsCancelled);
 
         CreateMap<Visit, VisitVM>()
             .MapMemberFrom(dto => dto.Date,
@@ -44,6 +47,8 @@ public class Mappings : Profile
                     ? null : visit.Reservation.Deposit)
             .MapMemberFrom(dto => dto.ReservationDate,
                 visit => visit.Reservation == null
-                    ? null : visit.Reservation.ReservationDate);
+                    ? null : visit.Reservation.ReservationDate)
+            .MapMemberFrom(dto => dto.IsCancelled,
+                visit => visit.IsCancelled);
     }
 }
