@@ -1,0 +1,66 @@
+meta {
+  name: -user-employees
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/user/employees
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  test("Response body is an array", function () {
+      const jsonData = res.getBody();
+      expect(jsonData).to.be.an('array').that.is.not.empty;
+  });
+  
+  test("Each user has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.forEach(user => {
+          expect(user).to.have.all.keys(
+              'userId',
+              'login',
+              'firstName',
+              'lastName',
+              'birthDate',
+              'phoneNumber',
+              'employments',
+              'photo'
+          );
+      });
+  });
+  
+  test("UserId is valid", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.forEach(user => {
+          expect(user.userId).to.match(
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+          );
+      });
+  });
+  
+  test("BirthDate is a valid ISO 8601 date", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.forEach(user => {
+          expect(user.birthDate).to.match(/^\d{4}-\d{2}-\d{2}$/);
+      });
+  });
+  
+}

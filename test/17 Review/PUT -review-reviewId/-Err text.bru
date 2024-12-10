@@ -1,0 +1,32 @@
+meta {
+  name: -Err text
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{host}}/reviews/:reviewId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  reviewId: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "stars": 4,
+    "contents": {{randomBoolean2}}
+  }
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

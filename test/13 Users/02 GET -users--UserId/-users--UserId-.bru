@@ -1,0 +1,60 @@
+meta {
+  name: -users--UserId-
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/users/:userId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: f1e788f1-523c-4aa9-b26f-5eb43ce59573
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.be.an('object').that.has.all.keys(
+          'userId',
+          'login',
+          'firstName',
+          'lastName',
+          'birthDate',
+          'phoneNumber',
+          'employments',
+          'photo'
+      );
+  });
+  
+  test("UserId is valid", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.userId).to.match(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+  });
+  
+  test("First name and last name are valid strings", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.firstName).to.be.a('string').and.not.empty;
+      expect(jsonData.lastName).to.be.a('string').and.not.empty;
+  });
+  
+}

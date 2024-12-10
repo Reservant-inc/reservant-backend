@@ -1,0 +1,32 @@
+meta {
+  name: -users--userId--make-restaurant-owner
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/users/:userId/make-restaurant-owner
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: e5779baf-5c9b-4638-b9e7-ec285e57b367
+}
+
+auth:bearer {
+  token: {{BOKManager}}
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response has no content", function () {
+      expect(res.getStatus()).to.equal(200);
+      expect(res.getBody()?.toString()).to.equal('');
+  });
+  
+  
+}
