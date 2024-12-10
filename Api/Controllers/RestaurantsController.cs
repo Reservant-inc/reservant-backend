@@ -106,7 +106,6 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
             name, tags, minRating,
             lat1, lon1, lat2, lon2,
             page, perPage,
-            user,
             true);
         return OkOrErrors(result);
     }

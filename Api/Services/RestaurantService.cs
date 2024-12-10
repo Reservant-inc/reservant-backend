@@ -62,41 +62,27 @@ namespace Reservant.Api.Services
         /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
         /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
         /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
-        /// <param name="user">user using the function</param>
         /// <param name="switchToUnverified">Determents if it should only displayed unveryfied</param>
         /// <returns></returns>
         public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
             double? origLat, double? origLon,
             string? name, HashSet<string> tags, int? minRating,
             double? lat1, double? lon1, double? lat2, double? lon2,
-            int page, int perPage, 
-            User? user = null,
+            int page, int perPage,
             bool switchToUnverified=false
-            )        
+            )
         {
             IQueryable<Restaurant> query = context.Restaurants
             .AsNoTracking();
 
-            if (switchToUnverified) 
+            if (switchToUnverified)
             {
-                if(user!=null && await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
-                {
-                    query = query.OnlyUnverifedRestaurants();
-                }
-                else
-                {
-                    return new ValidationFailure
-                    {
-                        PropertyName = nameof(user),
-                        ErrorMessage = "Acces for customer support agents only",
-                        ErrorCode = ErrorCodes.AccessDenied,
-                    };
-                }
+                query = query.OnlyUnverifedRestaurants();
             }
             else
             {
                 query = query.OnlyActiveRestaurants();
-            } 
+            }
 
             if (name is not null)
             {
