@@ -40,6 +40,7 @@ public class ReportEscalatingService(
 
         report.EscalatedBy = user;
         report.EscalatedById = user.Id;
+        report.EscalationComment = dto.EscalationComment;
         await context.SaveChangesAsync();
 
         await notificationService.NotifyReportEscalated(reportId, dto.EscalationComment);

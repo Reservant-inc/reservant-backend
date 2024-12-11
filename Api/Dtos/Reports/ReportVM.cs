@@ -38,4 +38,14 @@ public class ReportVM
     /// User being reported
     /// </summary>
     public required UserSummaryVM? ReportedUser { get; set; }
+
+    /// <summary>
+    /// Support agent that escalated the report
+    /// </summary>
+    public required UserSummaryVM? EscalatedBy { get; set; }
+
+    /// <summary>
+    /// Comment from the support agent who escalated the report
+    /// </summary>
+    public required string? EscalationComment { get; set; }
 }

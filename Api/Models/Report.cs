@@ -15,6 +15,11 @@ public class Report : ISoftDeletable
     public const int MaxDescriptionLength = 1000;
 
     /// <summary>
+    /// Maximum length of the escalation comment
+    /// </summary>
+    public const int MaxEscalationCommentLength = 500;
+
+    /// <summary>
     /// Unique ID
     /// </summary>
     public int ReportId { get; set; }
@@ -69,6 +74,12 @@ public class Report : ISoftDeletable
     /// ID of the support agent that escalated this report
     /// </summary>
     public Guid? EscalatedById { get; set; }
+
+    /// <summary>
+    /// Comment from the support agent who escalated this report
+    /// </summary>
+    [StringLength(MaxEscalationCommentLength)]
+    public string? EscalationComment { get; set; }
 
     /// <summary>
     /// Navigational property of the support agent that escalated this report
