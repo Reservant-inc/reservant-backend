@@ -25,10 +25,10 @@ public class ReportEscalatingService(
     /// </summary>
     /// <param name="reportId">id of the report to escalate</param>
     /// <param name="user">user that escalates the report</param>
-    /// <param name="content"></param>
+    /// <param name="dto"></param>
     /// <returns></returns>
     [ErrorCode(nameof(ErrorCodes.NotFound), "Report not found")]
-    public async Task<Result<ReportVM>> EscalateReportAsync(int reportId, User user, string content) { 
+    public async Task<Result<ReportVM>> EscalateReportAsync(int reportId, User user, EscalateReportRequest dto) {
         var report = await context.Reports.FindAsync(reportId);
         if (report == null) {
             return new ValidationFailure
@@ -42,7 +42,7 @@ public class ReportEscalatingService(
         report.EscalatedById = user.Id;
         await context.SaveChangesAsync();
 
-        await notificationService.NotifyReportEscalated(reportId, content);
+        await notificationService.NotifyReportEscalated(reportId, dto.EscalationComment);
 
         return mapper.Map<ReportVM>(report);
     }
