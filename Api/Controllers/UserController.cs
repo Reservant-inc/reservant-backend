@@ -306,6 +306,7 @@ public class UserController(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="status">status of the reports considered in the search</param>
     /// <param name="service"></param>
     /// <returns>list of reports created by the user</returns>
     [HttpGet("reports")]
@@ -318,13 +319,14 @@ public class UserController(
         [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
-        [FromServices] GetReportsService service)
+        [FromServices] GetReportsService service,
+        [FromQuery] ReportStatus status = ReportStatus.All)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await service.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+        return OkOrErrors(await service.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
     }
 }

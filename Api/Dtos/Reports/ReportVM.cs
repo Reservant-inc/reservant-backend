@@ -40,22 +40,12 @@ public class ReportVM
     public required UserSummaryVM? ReportedUser { get; set; }
 
     /// <summary>
-    /// The ID of the related visit (if any).
+    /// Support agent that escalated the report
     /// </summary>
-    public int? VisitId { get; set; }
+    public required UserSummaryVM? EscalatedBy { get; set; }
 
     /// <summary>
-    /// The comment provided by the support staff (nullable).
+    /// Comment from the support agent who escalated the report
     /// </summary>
-    public string? ResolutionComment { get; set; }
-
-    /// <summary>
-    /// The name of the support staff who resolved the report (nullable).
-    /// </summary>
-    public UserSummaryVM? ResolvedBy { get; set; }
-
-    /// <summary>
-    /// The date when the report was resolved (nullable).
-    /// </summary>
-    public DateTime? ResolutionDate { get; set; }
+    public required string? EscalationComment { get; set; }
 }
