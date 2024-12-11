@@ -171,6 +171,7 @@ public class UserController(
     [HttpDelete("{userId:guid}")]
     [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes<UserService>(nameof(UserService.ArchiveUserAsync))]
     public async Task<ActionResult> ArchiveEmployee(Guid userId)
     {
         var user = await userManager.GetUserAsync(User);
@@ -191,6 +192,7 @@ public class UserController(
     [HttpDelete]
     [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes<UserService>(nameof(UserService.ArchiveUserAsync))]
     public async Task<ActionResult> ArchiveCurrentUser()
     {
         var user = await userManager.GetUserAsync(User);

@@ -220,6 +220,7 @@ namespace Reservant.Api.Controllers
         [HttpDelete("{userId:guid}")]
         [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(204), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.ArchiveUserAsync))]
         public async Task<ActionResult> ArchiveEmployee(Guid userId)
         {
             var user = await userManager.GetUserAsync(User);
