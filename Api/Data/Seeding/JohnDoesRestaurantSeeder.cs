@@ -312,4 +312,32 @@ public class JohnDoesRestaurantSeeder(
             "backdoors", "Pracownik Zaplecza", "Przykładowski",
             "06c12721-e59e-402f-aafb-2b43a4dd23f2", false, true),
     ];
+
+    /// <inheritdoc />
+    protected override Review[] CreateReviews(UserSeeder users) =>
+    [
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 1, 1),
+            Contents = "Było bardzo smacznie, super obsługa, polecam",
+        },
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 3,
+            CreatedAt = new DateTime(2024, 5, 10),
+            Contents = "Przeciętna ryba, średnia obsługa",
+            RestaurantResponse = "Proponujemy następnym razem zamówić schabowego ;)"
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 7, 22),
+            Contents = "Genialnie!!!!! Wrócę na 100%!",
+            RestaurantResponse = "Dziękujemy :)"
+        },
+    ];
 }

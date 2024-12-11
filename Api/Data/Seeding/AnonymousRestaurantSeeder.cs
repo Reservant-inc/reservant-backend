@@ -187,4 +187,30 @@ public class AnonymousRestaurantSeeder(
             },
         },
     ];
+
+    /// <inheritdoc />
+    protected override Review[] CreateReviews(UserSeeder users) =>
+    [
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 7, 1),
+            Contents = "Bardzo smaczne potrawy, chociaż deser niczego nie urwał. Atmosfera super.",
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 7, 17),
+            Contents = "Wyśmienite jedzenie i obsługa na najwyższym poziomie. Absolutnie polecam!",
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 7, 20),
+            Contents = "Perfekcyjna kolacja! Wszystko było smaczne, a obsługa wyjątkowo pomocna.",
+        },
+    ];
 }

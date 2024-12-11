@@ -42,6 +42,8 @@ public abstract class RestaurantSeeder(ApiDbContext context, UserService userSer
         context.Add(_restaurant);
         await context.SaveChangesAsync();
 
+        _restaurant.Reviews = CreateReviews(users);
+
         _employees = await CreateEmployees();
 
         var ingredients = CreateIngredients();
@@ -106,6 +108,11 @@ public abstract class RestaurantSeeder(ApiDbContext context, UserService userSer
     /// </summary>
     /// <returns></returns>
     protected virtual Task<List<User>> CreateEmployees() => Task.FromResult(new List<User>());
+
+    /// <summary>
+    /// Create the restaurant reviews
+    /// </summary>
+    protected abstract Review[] CreateReviews(UserSeeder users);
 
     /// <summary>
     /// Find employee by login

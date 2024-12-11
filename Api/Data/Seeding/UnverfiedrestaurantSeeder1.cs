@@ -186,4 +186,7 @@ public class UnverfiedrestaurantSeeder1(
             },
         },
     ];
+
+    /// <inheritdoc />
+    protected override Review[] CreateReviews(UserSeeder users) => [];
 }
