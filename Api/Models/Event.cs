@@ -93,4 +93,15 @@ public class Event : ISoftDeletable
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// ID of the associated thread for this event.
+    /// </summary>
+    public int? ThreadId { get; set; }
+
+    /// <summary>
+    /// Navigation property to the associated message thread.
+    /// </summary>
+    public MessageThread? Thread { get; set; }
+
 }
