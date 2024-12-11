@@ -164,14 +164,14 @@ public class UserController(
     }
 
     /// <summary>
-    /// Mark an employee as deleted
+    /// Mark an user or employee as deleted
     /// </summary>
-    /// <param name="employeeId">ID of the employee</param>
+    /// <param name="userId">ID of the user or employee</param>
     /// <returns></returns>
-    [HttpDelete("{employeeId}")]
-    [Authorize(Roles = $"{Roles.RestaurantOwner}")]
+    [HttpDelete("{userId:guid}")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    public async Task<ActionResult> ArchiveUser(Guid employeeId)
+    public async Task<ActionResult> ArchiveEmployee(Guid userId)
     {
         var user = await userManager.GetUserAsync(User);
 
@@ -180,7 +180,27 @@ public class UserController(
             return Unauthorized();
         }
 
-        var result = await userService.ArchiveUserAsync(employeeId, user.Id);
+        var result = await userService.ArchiveUserAsync(userId, user.Id);
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Delete the current user's account
+    /// </summary>
+    /// <returns></returns>
+    [HttpDelete]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    public async Task<ActionResult> ArchiveCurrentUser()
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.ArchiveUserAsync(user.Id, user.Id);
         return OkOrErrors(result);
     }
 

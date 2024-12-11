@@ -358,10 +358,12 @@ public class UserService(
     /// <summary>
     /// Mark a user as deleted
     /// </summary>
-    /// <param name="id">ID of the user</param>
-    /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
+    /// <param name="id">ID of the user to ban</param>
+    /// <param name="requesterId">Id of user requesting account deletion</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result> ArchiveUserAsync(Guid id, Guid employerId)
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    public async Task<Result> ArchiveUserAsync(Guid id, Guid requesterId)
     {
         var user = await dbContext.Users
             .Include(user => user.Employments)
@@ -376,13 +378,14 @@ public class UserService(
             };
         }
 
-        if (user.EmployerId != employerId)
+        var isCurrentUser = id == requesterId;
+        if (!isCurrentUser && user.EmployerId != requesterId)
         {
             return new ValidationFailure
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = "Current user is must be the selected user's employer"
+                ErrorMessage = "Can only delete the current user or a current user's employee"
             };
         }
 
@@ -397,6 +400,7 @@ public class UserService(
         user.Photo = null;
         user.PhotoFileName = null;
         user.IsArchived = true;
+        user.PasswordHash = "";
 
         foreach (var employment in user.Employments)
         {

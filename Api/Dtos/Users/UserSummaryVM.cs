@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Reservant.Api.Dtos.Users;
 
 /// <summary>
@@ -24,4 +26,10 @@ public class UserSummaryVM
     /// Profile picture path
     /// </summary>
     public required string? Photo { get; init; }
+
+    /// <summary>
+    /// Whether the restaurant is archived
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public required bool IsArchived { get; init; }
 }
