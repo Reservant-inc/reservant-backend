@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
+using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
 using Reservant.Api.Mapping;
@@ -54,9 +55,14 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [ProducesResponseType(200), ProducesResponseType(404)]
         [HttpPost("{userId}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
-        public async Task<ActionResult> MakeRestaurantOwner(Guid userId) {
+        public async Task<ActionResult> MakeRestaurantOwner(Guid userId)
+        {
             var user = await userService.MakeRestaurantOwnerAsync(userId);
-            if (user == null){ return NotFound(); }
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             return Ok();
         }
 
@@ -130,7 +136,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await service.BanUser(user,userId,dto);
+            var result = await service.BanUser(user, userId, dto);
             return OkOrErrors(result);
         }
 
@@ -151,7 +157,7 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
 
-            var result = await userService.UnbanUserAsync(user,userId);
+            var result = await userService.UnbanUserAsync(user, userId);
             return OkOrErrors(result);
         }
 
@@ -171,8 +177,9 @@ namespace Reservant.Api.Controllers
             [FromServices] WalletService walletService,
             Guid userId, int page = 0, int perPage = 10)
         {
-            var bokEmployee = await userManager.GetUserAsync (User);
-            if (bokEmployee is null) {
+            var bokEmployee = await userManager.GetUserAsync(User);
+            if (bokEmployee is null)
+            {
                 return Unauthorized();
             }
 
@@ -186,5 +193,23 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(result);
         }
 
+        /// <summary>
+        /// Get reviews authored by the user
+        /// </summary>
+        /// <param name="reviewService"></param>
+        /// <param name="userId">ID of the user to get the reviews of</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns></returns>
+        [HttpGet("{userId:guid}/reviews")]
+        [Authorize]
+        [MethodErrorCodes<ReviewService>(nameof(ReviewService.GetReviewsOfUser))]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<Pagination<ReviewVM>>> GetUsersReviews(
+            [FromServices] ReviewService reviewService,
+            Guid userId, int page = 0, int perPage = 10)
+        {
+            return OkOrErrors(await reviewService.GetReviewsOfUser(userId, page, perPage));
+        }
     }
 }
