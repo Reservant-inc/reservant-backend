@@ -376,10 +376,7 @@ public class NotificationService(
     /// <summary>
     /// Notifies all customer support managers about a new escalated report
     /// </summary>
-    /// <param name="reportId"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    public async Task NotifyReportEscalated(int reportId, string content)
+    public async Task NotifyReportEscalated(Report report)
     {
         var managers =
             from user in context.Users
@@ -392,9 +389,10 @@ public class NotificationService(
             managers,
             new NotificationReportEscalated
             {
-                ReportId = reportId,
-                EscalationTime = DateTime.UtcNow,
-                Contents = content,
+                ReportId = report.ReportId,
+                ReportDescription = report.Description,
+                ReportCategory = report.Category,
+                Comment = report.EscalationComment!,
             });
     }
 }

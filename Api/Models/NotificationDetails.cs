@@ -1,3 +1,5 @@
+using Reservant.Api.Models.Enums;
+
 namespace Reservant.Api.Models;
 
 using Dtos.Users;
@@ -273,13 +275,19 @@ public class NotificationReportEscalated : NotificationDetails
     /// ID of the report
     /// </summary>
     public required int ReportId { get; set; }
+
     /// <summary>
-    /// Date of the report escalation
+    /// Category of the report
     /// </summary>
-    public required DateTime EscalationTime { get; set; }
+    public required ReportCategory ReportCategory { get; set; }
+
+    /// <summary>
+    /// Description of the report
+    /// </summary>
+    public required string ReportDescription { get; set; }
 
     /// <summary>
     /// Content of the message
     /// </summary>
-    public required string Contents { get; set; }
+    public required string Comment { get; set; }
 }

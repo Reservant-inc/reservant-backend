@@ -45,7 +45,7 @@ public class ReportEscalatingService(
         report.EscalationComment = dto.EscalationComment;
         await context.SaveChangesAsync();
 
-        await notificationService.NotifyReportEscalated(reportId, dto.EscalationComment);
+        await notificationService.NotifyReportEscalated(report);
 
         return mapper.Map<ReportVM>(report);
     }
