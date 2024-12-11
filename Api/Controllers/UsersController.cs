@@ -153,6 +153,25 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(result);
         }
 
+        /// <summary>
+        /// Mark an user or employee as deleted
+        /// </summary>
+        /// <param name="userId">ID of the user or employee</param>
+        /// <returns></returns>
+        [HttpDelete("{userId:guid}")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        [ProducesResponseType(204), ProducesResponseType(400)]
+        public async Task<ActionResult> ArchiveEmployee(Guid userId)
+        {
+            var user = await userManager.GetUserAsync(User);
 
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+
+            var result = await userService.ArchiveUserAsync(userId, user.Id);
+            return OkOrErrors(result);
+        }
     }
 }
