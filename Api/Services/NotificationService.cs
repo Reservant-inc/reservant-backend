@@ -379,20 +379,22 @@ public class NotificationService(
     /// <param name="reportId"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    public async Task NotifyReportEscalated(int reportId, string content) {
+    public async Task NotifyReportEscalated(int reportId, string content)
+    {
         var managers =
             from user in context.Users
             join userRole in context.UserRoles on user.Id equals userRole.UserId
             join role in context.Roles on userRole.RoleId equals role.Id
             where role.Name == Roles.CustomerSupportManager
             select user.Id;
-            await NotifyUsers(
-                managers,
-                new NotificationReportEscalated { 
-                    ReportId = reportId,
-                    EscalationTime = DateTime.UtcNow,
-                    Contents = content
-                }
-                );
+
+        await NotifyUsers(
+            managers,
+            new NotificationReportEscalated
+            {
+                ReportId = reportId,
+                EscalationTime = DateTime.UtcNow,
+                Contents = content,
+            });
     }
 }

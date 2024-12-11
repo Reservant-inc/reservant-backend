@@ -119,10 +119,11 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     public async Task<ActionResult<ReportVM>> EscalateReport(
         int reportId,
         [FromBody] EscalateReportRequest dto,
-        [FromServices] ReportEscalatingService service
-        ) {
+        [FromServices] ReportEscalatingService service)
+    {
         var user = await userManager.GetUserAsync(User);
-        if (user is null) {
+        if (user is null)
+        {
             return Unauthorized();
         }
         return OkOrErrors(await service.EscalateReportAsync(reportId, user, dto));

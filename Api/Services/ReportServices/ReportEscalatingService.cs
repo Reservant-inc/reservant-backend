@@ -28,13 +28,15 @@ public class ReportEscalatingService(
     /// <param name="dto"></param>
     /// <returns></returns>
     [ErrorCode(nameof(ErrorCodes.NotFound), "Report not found")]
-    public async Task<Result<ReportVM>> EscalateReportAsync(int reportId, User user, EscalateReportRequest dto) {
+    public async Task<Result<ReportVM>> EscalateReportAsync(int reportId, User user, EscalateReportRequest dto)
+    {
         var report = await context.Reports.FindAsync(reportId);
-        if (report == null) {
+        if (report == null)
+        {
             return new ValidationFailure
             {
                 ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = "Report not found"
+                ErrorMessage = "Report not found",
             };
         }
 
