@@ -1,6 +1,7 @@
 using AutoMapper;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Identity;
@@ -40,7 +41,9 @@ public class ReportLostItemService(
             throw new InvalidOperationException($"User with ID {customerId} authorized but cannot be found");
         }
 
-        var visit = await context.Visits.FindAsync(dto.VisitId);
+        var visit = await context.Visits
+            .Include(v => v.Restaurant)
+            .SingleOrDefaultAsync(v => v.VisitId == dto.VisitId);
         if (visit is null)
         {
             return new ValidationFailure

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Models;
@@ -30,7 +31,10 @@ public class ReportEscalatingService(
     [ErrorCode(nameof(ErrorCodes.NotFound), "Report not found")]
     public async Task<Result<ReportVM>> EscalateReportAsync(int reportId, User user, EscalateReportRequest dto)
     {
-        var report = await context.Reports.FindAsync(reportId);
+        var report = await context.Reports
+            .Include(r => r.Visit)
+            .ThenInclude(v => v!.Restaurant)
+            .SingleOrDefaultAsync(r => r.ReportId == reportId);
         if (report == null)
         {
             return new ValidationFailure

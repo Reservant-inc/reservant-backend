@@ -44,6 +44,8 @@ namespace Reservant.Api.Services.ReportServices
                 .Include(r => r.Resolution)
                 .Include(r => r.CreatedBy)
                 .Include(r => r.ReportedUser)
+                .Include(r => r.Visit)
+                .ThenInclude(v => v!.Restaurant)
                 .FirstOrDefaultAsync(r => r.ReportId == reportId);
 
 

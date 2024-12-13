@@ -1,5 +1,5 @@
 using Reservant.Api.Dtos.Users;
-using Reservant.Api.Models;
+using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.Reports;
@@ -50,9 +50,9 @@ public class ReportVM
     public required string? EscalationComment { get; set; }
 
     /// <summary>
-    /// The ID of the related visit (if any).
+    /// Related visit (if any).
     /// </summary>
-    public int? VisitId { get; set; }
+    public VisitSummaryVM? Visit { get; set; }
 
     /// <summary>
     /// The comment provided by the support staff (nullable).
