@@ -72,7 +72,7 @@ public static class Utils
     /// <param name="perPage">Items per page</param>
     /// <param name="orderByOptions">Available sorting options (only used to return the info to the client)</param>
     /// <param name="maxPerPage">Maximum value for <paramref name="perPage"/></param>
-    /// <param name="disablePagination">If set to true, return all items from the query</param>
+    /// <param name="disallowSkippingPaging">If set to true, return all items from the query</param>
     [ErrorCode(null, ErrorCodes.InvalidPerPageValue,
         "Must be >= 1 and <= maximum value, or skipping pagination is disallowed for this endpoint")]
     public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
@@ -81,11 +81,11 @@ public static class Utils
         int perPage,
         string[] orderByOptions,
         int maxPerPage = 100,
-        bool disablePagination = false)
+        bool disallowSkippingPaging = false)
     {
         if (perPage == -1)
         {
-            if (disablePagination)
+            if (disallowSkippingPaging)
             {
                 return new ValidationFailure
                 {
