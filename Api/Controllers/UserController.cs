@@ -164,14 +164,15 @@ public class UserController(
     }
 
     /// <summary>
-    /// Mark an employee as deleted
+    /// Mark an user or employee as deleted
     /// </summary>
-    /// <param name="employeeId">ID of the employee</param>
+    /// <param name="userId">ID of the user or employee</param>
     /// <returns></returns>
-    [HttpDelete("{employeeId}")]
-    [Authorize(Roles = $"{Roles.RestaurantOwner}")]
+    [HttpDelete("{userId:guid}")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(400)]
-    public async Task<ActionResult> ArchiveUser(Guid employeeId)
+    [MethodErrorCodes<UserService>(nameof(UserService.ArchiveUserAsync))]
+    public async Task<ActionResult> ArchiveEmployee(Guid userId)
     {
         var user = await userManager.GetUserAsync(User);
 
@@ -180,7 +181,28 @@ public class UserController(
             return Unauthorized();
         }
 
-        var result = await userService.ArchiveUserAsync(employeeId, user.Id);
+        var result = await userService.ArchiveUserAsync(userId, user.Id);
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Delete the current user's account
+    /// </summary>
+    /// <returns></returns>
+    [HttpDelete]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(204), ProducesResponseType(400)]
+    [MethodErrorCodes<UserService>(nameof(UserService.ArchiveUserAsync))]
+    public async Task<ActionResult> ArchiveCurrentUser()
+    {
+        var user = await userManager.GetUserAsync(User);
+
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await userService.ArchiveUserAsync(user.Id, user.Id);
         return OkOrErrors(result);
     }
 
@@ -223,7 +245,7 @@ public class UserController(
     /// <param name="perPage">Records per page</param>
     /// <returns>List of threads the user participates in</returns>
     [HttpGet("threads")]
-    [Authorize(Roles = Roles.Customer)]
+    [AuthorizeRoles(Roles.Customer, Roles.CustomerSupportAgent)]
     [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult<Pagination<ThreadVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
@@ -284,6 +306,7 @@ public class UserController(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="status">status of the reports considered in the search</param>
     /// <param name="service"></param>
     /// <returns>list of reports created by the user</returns>
     [HttpGet("reports")]
@@ -296,13 +319,14 @@ public class UserController(
         [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
-        [FromServices] GetReportsService service)
+        [FromServices] GetReportsService service,
+        [FromQuery] ReportStatus status = ReportStatus.All)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await service.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId));
+        return OkOrErrors(await service.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
     }
 }

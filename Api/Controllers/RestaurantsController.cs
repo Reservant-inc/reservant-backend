@@ -37,32 +37,37 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// Returns them sorted from the nearest to the farthest if origLat and origLon are provided;
     /// Else sorts them alphabetically by name
     /// </remarks>
-    /// <param name="origLat">Latitude of the point to search from; if provided the restaurants will be sorted by distance</param>
-    /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
-    /// <param name="name">Search by name</param>
-    /// <param name="tags">Search restaurants that have certain tags (specify up to 4 times to search by multiple tags)</param>
-    /// <param name="minRating">Search restaurants with at least this many stars</param>
-    /// <param name="page">Page number</param>
-    /// <param name="perPage">Items per page</param>
-    /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
-    /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
-    /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
-    /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
-    /// <returns></returns>
     [HttpGet]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.FindRestaurantsAsync))]
     [ProducesResponseType(200), ProducesResponseType(400)]
     public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindRestaurants(
-        double? origLat, double? origLon,
-        string? name, [FromQuery] HashSet<string> tags,
-        int? minRating,
-        double? lat1, double? lon1, double? lat2, double? lon2,
-        int page = 0, int perPage = 10)
+        [FromQuery] RestaurantSearchParams searchParams)
     {
-        var result = await service.FindRestaurantsAsync(
-            origLat, origLon,
-            name, tags, minRating,
-            lat1, lon1, lat2, lon2,
-            page, perPage);
+        var result = await service.FindRestaurantsAsync(searchParams);
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Find unveryfied restaurants by different criteria
+    /// </summary>
+    /// <remarks>
+    /// Returns them sorted from the nearest to the farthest if origLat and origLon are provided;
+    /// Else sorts them alphabetically by name
+    /// </remarks>
+    [HttpGet("unverified")]
+    [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
+    [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.FindRestaurantsAsync))]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindUnverifedRestaurants(
+        [FromQuery] RestaurantSearchParams searchParams)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.FindRestaurantsAsync(searchParams, true);
         return OkOrErrors(result);
     }
 
@@ -164,12 +169,18 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="orderBy">Order of the reviews</param>
     /// <param name="page">Page number of the reviews</param>
     /// <param name="perPage">Number of reviews per page</param>
+    /// <param name="authorName">Search by author's name</param>
     [HttpGet("{restaurantId:int}/reviews")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetReviewsAsync))]
-    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(int restaurantId, ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+    public async Task<ActionResult<Pagination<ReviewVM>>> CreateReviews(
+        int restaurantId,
+        ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc,
+        int page = 0,
+        int perPage = 10,
+        [FromQuery] string? authorName = null)
     {
-        var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage);
+        var result = await service.GetReviewsAsync(restaurantId, orderBy, page, perPage, authorName);
         return OkOrErrors(result);
     }
 

@@ -51,83 +51,83 @@ namespace Reservant.Api.Services
         /// Returns them sorted from the nearest to the farthest if origLat and origLon are provided;
         /// Else sorts them alphabetically by name
         /// </remarks>
-        /// <param name="origLat">Latitude of the point to search from; if provided the restaurants will be sorted by distance</param>
-        /// <param name="origLon">Longitude of the point to search from; if provided the restaurants will be sorted by distance</param>
-        /// <param name="name">Search by name</param>
-        /// <param name="tags">Search restaurants that have certain tags (up to 4)</param>
-        /// <param name="minRating">Search restaurants with at least this many stars</param>
-        /// <param name="page">Page number</param>
-        /// <param name="perPage">Items per page</param>
-        /// <param name="lat1">Search within a rectengular area: first point's latitude</param>
-        /// <param name="lon1">Search within a rectengular area: first point's longitude</param>
-        /// <param name="lat2">Search within a rectengular area: second point's latitude</param>
-        /// <param name="lon2">Search within a rectengular area: second point's longitude</param>
+        /// <param name="searchParams">DTO containing search parameters</param>
+        /// <param name="switchToUnverified">Determines if it should only displayed unverified</param>
         /// <returns></returns>
         public async Task<Result<Pagination<NearRestaurantVM>>> FindRestaurantsAsync(
-            double? origLat, double? origLon,
-            string? name, HashSet<string> tags, int? minRating,
-            double? lat1, double? lon1, double? lat2, double? lon2,
-            int page, int perPage)
+            RestaurantSearchParams searchParams,
+            bool switchToUnverified=false)
         {
             IQueryable<Restaurant> query = context.Restaurants
-                .AsNoTracking()
-                .OnlyActiveRestaurants();
+            .AsNoTracking();
 
-            if (name is not null)
+            if (switchToUnverified)
             {
-                query = query.Where(r => r.Name.Contains(name.Trim()));
+                query = query.OnlyUnverifedRestaurants();
+            }
+            else
+            {
+                query = query.OnlyActiveRestaurants();
             }
 
-            if (tags.Count > 0)
+            if (searchParams.Name is not null)
             {
-                if (tags.Count > 4)
+                query = query.Where(r => r.Name.Contains(searchParams.Name.Trim()));
+            }
+
+            if (searchParams.Tags.Count > 0)
+            {
+                if (searchParams.Tags.Count > RestaurantSearchParams.MaxNumberOfTags)
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(tags),
-                        ErrorMessage = "Only up to 4 tags can be specified",
+                        PropertyName = nameof(searchParams.Tags),
+                        ErrorMessage = $"Only up to {RestaurantSearchParams.MaxNumberOfTags} tags can be specified",
                         ErrorCode = ErrorCodes.InvalidSearchParameters,
                     };
                 }
 
-                foreach (var tag in tags)
+                foreach (var tag in searchParams.Tags)
                 {
                     query = query.Where(r => r.Tags.Any(t => t.Name == tag));
                 }
             }
 
-            if (minRating is not null)
+            if (searchParams.MinRating is not null)
             {
-                if (minRating < 0 || minRating > 5)
+                if (searchParams.MinRating is < RestaurantSearchParams.MinRatingMin or > RestaurantSearchParams.MinRatingMax)
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(minRating),
-                        ErrorMessage = "Minimum rating must be from 0 to 5",
+                        PropertyName = nameof(searchParams.MinRating),
+                        ErrorMessage = $"Minimum rating must be from {RestaurantSearchParams.MinRatingMin} to {RestaurantSearchParams.MinRatingMax}",
                         ErrorCode = ErrorCodes.InvalidSearchParameters,
                     };
                 }
 
-                query = query.Where(r => (r.Reviews.Average(review => (double?)review.Stars) ?? 0) >= minRating);
+                query = query.Where(r => (
+                    r.Reviews.Average(review => (double?)review.Stars) ?? 0) >= searchParams.MinRating
+                );
             }
 
-            if (lat1 is not null || lon1 is not null || lat2 is not null || lon2 is not null)
+            if (searchParams.Lat1 is not null || searchParams.Lon1 is not null ||
+                searchParams.Lat2 is not null || searchParams.Lon2 is not null)
             {
-                if (lat1 is null || lon1 is null || lat2 is null || lon2 is null)
+                if (searchParams.Lat1 is null || searchParams.Lon1 is null ||
+                    searchParams.Lat2 is null || searchParams.Lon2 is null)
                 {
                     return new ValidationFailure
                     {
                         PropertyName = null,
-                        ErrorMessage = "To search within a rectangular area, all 4 coordinates " +
-                                       $"must be provided: {nameof(lat1)}, {nameof(lon1)}, {nameof(lat2)}, {nameof(lon2)}",
+                        ErrorMessage = "To search within a rectangular area, all 4 coordinates",
                         ErrorCode = ErrorCodes.InvalidSearchParameters
                     };
                 }
 
-                var minLat = Math.Min(lat1.Value, lat2.Value);
-                var maxLat = Math.Max(lat1.Value, lat2.Value);
-                var minLon = Math.Min(lon1.Value, lon2.Value);
-                var maxLon = Math.Max(lon1.Value, lon2.Value);
+                var minLat = Math.Min(searchParams.Lat1.Value, searchParams.Lat2.Value);
+                var maxLat = Math.Max(searchParams.Lat1.Value, searchParams.Lat2.Value);
+                var minLon = Math.Min(searchParams.Lon1.Value, searchParams.Lon2.Value);
+                var maxLon = Math.Max(searchParams.Lon1.Value, searchParams.Lon2.Value);
 
                 var coordinates = new[]
                 {
@@ -154,39 +154,40 @@ namespace Reservant.Api.Services
 
             var origin = geometryFactory.CreatePoint();
 
-            if (origLat is not null || origLon is not null)
+            if (searchParams.OrigLat is not null || searchParams.OrigLon is not null)
             {
-                if (origLat is null || origLon is null)
+                if (searchParams.OrigLat is null || searchParams.OrigLon is null)
                 {
                     return new ValidationFailure
                     {
                         PropertyName = null,
-                        ErrorMessage = $"To search starting from a point both {nameof(origLat)} {nameof(origLon)}",
+                        ErrorMessage = $"To search starting from a point both {nameof(searchParams.OrigLat)} {nameof(searchParams.OrigLon)}",
                         ErrorCode = ErrorCodes.InvalidSearchParameters,
                     };
                 }
 
-                if (!Utils.IsValidLatitude(origLat.Value))
+                if (!Utils.IsValidLatitude(searchParams.OrigLat.Value))
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(origLat),
+                        PropertyName = nameof(searchParams.OrigLat),
                         ErrorCode = ErrorCodes.InvalidSearchParameters,
                         ErrorMessage = "Latitude must in the range of [-180; 180]",
                     };
                 }
 
-                if (!Utils.IsValidLongitude(origLon.Value))
+                if (!Utils.IsValidLongitude(searchParams.OrigLon.Value))
                 {
                     return new ValidationFailure
                     {
-                        PropertyName = nameof(origLon),
+                        PropertyName = nameof(searchParams.OrigLon),
                         ErrorCode = ErrorCodes.InvalidSearchParameters,
                         ErrorMessage = "Longitude must in the range of [-90; 90]",
                     };
                 }
 
-                origin = geometryFactory.CreatePoint(new Coordinate(origLon!.Value, origLat!.Value));
+                origin = geometryFactory.CreatePoint(new Coordinate(
+                    searchParams.OrigLat!.Value, searchParams.OrigLon!.Value));
                 query = query.OrderBy(r => origin.Distance(r.Location));
             }
             else
@@ -217,7 +218,7 @@ namespace Reservant.Api.Services
                     NumberReviews = r.Reviews.Count,
                     OpeningHours = r.OpeningHours.ToList(),
                 })
-                .PaginateAsync(page, perPage, [], 100, true);
+                .PaginateAsync(searchParams.Page, searchParams.PerPage, [], 100, true);
 
             return nearRestaurants;
         }
@@ -1012,8 +1013,12 @@ namespace Reservant.Api.Services
         /// Get reviews for a restaurant
         /// </summary>
         [ErrorCode(null, ErrorCodes.NotFound)]
-        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(int restaurantId,
-            ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc, int page = 0, int perPage = 10)
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewsAsync(
+            int restaurantId,
+            ReviewOrderSorting orderBy = ReviewOrderSorting.DateDesc,
+            int page = 0,
+            int perPage = 10,
+            string? authorName = null)
         {
             var restaurant = await context.Restaurants
                 .AsNoTracking()
@@ -1032,6 +1037,10 @@ namespace Reservant.Api.Services
 
             var reviewsQuery = context.Reviews
                 .Where(r => r.RestaurantId == restaurantId);
+
+            if (authorName is not null) {
+                reviewsQuery = reviewsQuery.Where(r => (r.Author.FirstName + " " + r.Author.LastName).Contains(authorName));
+            }
 
             var reviewVM = reviewsQuery.Select(r => new ReviewVM
             {

@@ -32,7 +32,7 @@ public class ThreadsController(
     /// <returns>Created thread information</returns>
     [HttpPost]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
+    [AuthorizeRoles(Roles.Customer, Roles.CustomerSupportAgent)]
     public async Task<ActionResult<ThreadVM>> CreateThread([FromBody] CreateThreadRequest request)
     {
         var userId = User.GetUserId();
@@ -93,7 +93,7 @@ public class ThreadsController(
     /// <returns>Thread information</returns>
     [HttpGet("{threadId:int}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
+    [AuthorizeRoles(Roles.Customer, Roles.CustomerSupportAgent)]
     public async Task<ActionResult<ThreadVM>> GetThread(int threadId)
     {
         var userId = User.GetUserId();
@@ -114,7 +114,7 @@ public class ThreadsController(
     /// <returns>Adds message to the thread</returns>
     [HttpPost("{threadId:int}/messages")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = Roles.Customer)]
+    [AuthorizeRoles(Roles.Customer, Roles.CustomerSupportAgent)]
     public async Task<ActionResult<MessageVM>> CreateThreadsMessages(int threadId,CreateMessageRequest createMessageRequest)
     {
         var userId = User.GetUserId();
@@ -140,7 +140,7 @@ public class ThreadsController(
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
     [HttpGet("{threadId:int}/messages")]
-    [Authorize(Roles = Roles.Customer)]
+    [AuthorizeRoles(Roles.Customer, Roles.CustomerSupportAgent)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<ThreadService>(nameof(ThreadService.GetThreadMessagesByIdAsync))]
     public async Task<ActionResult<Pagination<MessageVM>>> GetThreadMessagesById(

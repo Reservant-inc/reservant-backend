@@ -8,6 +8,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Reservant.Api.Dtos;
 
 namespace Reservant.Api.Services
 {
@@ -219,6 +221,33 @@ namespace Reservant.Api.Services
             review.AnsweredAt = null;
             await context.SaveChangesAsync();
             return Result.Success;
+        }
+
+        /// <summary>
+        /// Get reviews authored by the given user
+        /// </summary>
+        /// <param name="userId">ID of the user</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Per page</param>
+        [ErrorCode(nameof(userId), ErrorCodes.NotFound)]
+        [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
+        public async Task<Result<Pagination<ReviewVM>>> GetReviewsOfUser(Guid userId, int page, int perPage)
+        {
+            var author = await context.Users.FindAsync(userId);
+            if (author is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(userId),
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = $"User with ID {userId} not found",
+                };
+            }
+
+            return await context.Reviews
+                .Where(review => review.Author == author)
+                .ProjectTo<ReviewVM>(mapper.ConfigurationProvider)
+                .PaginateAsync(page, perPage, []);
         }
     }
 }

@@ -310,6 +310,6 @@ public class JohnDoesRestaurantSeeder(
             "22781e02-d83a-44ef-8cf4-735e95d9a0b2", true, false),
         await CreateRestaurantEmployee(
             "backdoors", "Pracownik Zaplecza", "Przykładowski",
-            "06c12721-e59e-402f-aafb-2b43a4dd23f2", true, false),
+            "06c12721-e59e-402f-aafb-2b43a4dd23f2", false, true),
     ];
 }

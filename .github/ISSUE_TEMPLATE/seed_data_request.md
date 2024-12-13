@@ -3,7 +3,7 @@ name: Seed data request
 about: Zaproponuj wejściowe dane w bazie danych
 title: "[SEED] "
 labels: seed
-assignees: linewelder
+assignees: 
 ---
 
 <!--

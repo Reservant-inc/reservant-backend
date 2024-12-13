@@ -249,6 +249,7 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                         FirstName = fr.Sender.FirstName,
                         LastName = fr.Sender.LastName,
                         Photo = urlService.GetPathForFileName(fr.Sender.PhotoFileName),
+                        IsArchived = fr.Sender.IsArchived
                     }
                     : new Dtos.Users.UserSummaryVM
                     {
@@ -256,6 +257,7 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                         FirstName = fr.Receiver.FirstName,
                         LastName = fr.Receiver.LastName,
                         Photo = urlService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                        IsArchived = fr.Receiver.IsArchived
                     },
             });
 
@@ -287,6 +289,7 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                     FirstName = fr.Sender.FirstName,
                     LastName = fr.Sender.LastName,
                     Photo = urlService.GetPathForFileName(fr.Sender.PhotoFileName),
+                    IsArchived = fr.Sender.IsArchived
                 },
             });
 
@@ -317,6 +320,7 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                     FirstName = fr.Receiver.FirstName,
                     LastName = fr.Receiver.LastName,
                     Photo = urlService.GetPathForFileName(fr.Receiver.PhotoFileName),
+                    IsArchived = fr.Receiver.IsArchived
                 },
             });
 

@@ -358,10 +358,12 @@ public class UserService(
     /// <summary>
     /// Mark a user as deleted
     /// </summary>
-    /// <param name="id">ID of the user</param>
-    /// <param name="employerId">ID of the current user, must be the selected user's employer</param>
+    /// <param name="id">ID of the user to ban</param>
+    /// <param name="requesterId">Id of user requesting account deletion</param>
     /// <returns>Returned bool is meaningless</returns>
-    public async Task<Result> ArchiveUserAsync(Guid id, Guid employerId)
+    [ErrorCode(null, ErrorCodes.NotFound)]
+    [ErrorCode(null, ErrorCodes.AccessDenied)]
+    public async Task<Result> ArchiveUserAsync(Guid id, Guid requesterId)
     {
         var user = await dbContext.Users
             .Include(user => user.Employments)
@@ -376,13 +378,14 @@ public class UserService(
             };
         }
 
-        if (user.EmployerId != employerId)
+        var isCurrentUser = id == requesterId;
+        if (!isCurrentUser && user.EmployerId != requesterId)
         {
             return new ValidationFailure
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = "Current user is must be the selected user's employer"
+                ErrorMessage = "Can only delete the current user or a current user's employee"
             };
         }
 
@@ -397,6 +400,7 @@ public class UserService(
         user.Photo = null;
         user.PhotoFileName = null;
         user.IsArchived = true;
+        user.PasswordHash = "";
 
         foreach (var employment in user.Employments)
         {
@@ -487,23 +491,24 @@ public class UserService(
             };
         }
 
-        var viewModel = mapper.Map<UserEmployeeVM>(requestedUser);
+        var userDto = mapper.Map<UserEmployeeVM>(requestedUser);
 
         User? currentUser = await dbContext.Users.FindAsync(currentUserId);
         // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
         if (requestedUser.EmployerId == currentUserId || currentUser!=null && await roleManager.IsInRoleAsync(currentUser, Roles.CustomerSupportAgent))
         {
             // Zwrót pełnych danych dla pracownika
-            return viewModel;
+            return userDto;
         }
 
         // Jeżeli użytkownik nie jest pracownikiem, zwróć ograniczone dane
         if (await userManager.IsInRoleAsync(requestedUser, Roles.Customer))
         {
-            viewModel.Login = null;
-            viewModel.PhoneNumber = null;
-            viewModel.Employments = null;
-            return viewModel;
+            userDto.Login = null;
+            userDto.PhoneNumber = null;
+            userDto.Employments = null;
+            userDto.FriendStatus = await GetFriendStatusAsync(currentUserId, userId);
+            return userDto;
         }
 
         return new ValidationFailure

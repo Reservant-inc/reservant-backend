@@ -26,17 +26,19 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="status">status of the report considered in the search</param>
     /// <returns>list of reports that match given parameters</returns>
     public async Task<Result<List<ReportVM>>> GetReportsAsync(
         DateTime? dateFrom,
         DateTime? dateUntil,
         ReportCategory? category,
         Guid? reportedUserId,
-        int? restaurantId)
+        int? restaurantId,
+        ReportStatus status)
     {
         IQueryable<Report> reports = context.Reports;
 
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
         var res = await reports.ToListAsync();
         return mapper.Map<List<ReportVM>>(res);
     }
@@ -50,6 +52,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="status">status of the report considered in the search</param>
     /// <returns>list of reports that match given parameters</returns>
     public async Task<Result<List<ReportVM>>> GetMyReportsAsync(
         User user,
@@ -57,10 +60,11 @@ public class GetReportsService(
         DateTime? dateUntil,
         ReportCategory? category,
         Guid? reportedUserId,
-        int? restaurantId)
+        int? restaurantId,
+        ReportStatus status)
     {
         var reports = context.Reports.Where(r => r.CreatedById == user.Id);
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .ToListAsync();
@@ -74,6 +78,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="status">status of the report considered in the search</param>
     /// <returns>list of reports that match given parameters</returns>
     public async Task<Result<List<ReportVM>>> GetMyRestaurantsReportsAsync(
         User user,
@@ -81,10 +86,11 @@ public class GetReportsService(
         DateTime? dateUntil,
         ReportCategory? category,
         Guid? reportedUserId,
-        int? restaurantId)
+        int? restaurantId,
+        ReportStatus status)
     {
         var reports = context.Reports.Where(r => r.Visit!.Restaurant.Group.OwnerId == user.Id);
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId);
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .ToListAsync();
@@ -99,13 +105,15 @@ public class GetReportsService(
     /// <param name="category"></param>
     /// <param name="reportedUserId"></param>
     /// <param name="restaurantId"></param>
+    /// <param name="status">status of the report considered in the search</param>
     /// <returns></returns>
     private static IQueryable<Report> FilterReportsQuery(IQueryable<Report> reports,
         DateTime? dateFrom,
         DateTime? dateUntil,
         ReportCategory? category,
         Guid? reportedUserId,
-        int? restaurantId)
+        int? restaurantId,
+        ReportStatus status)
     {
         if (dateFrom is not null)
         {
@@ -126,6 +134,17 @@ public class GetReportsService(
         if (restaurantId is not null)
         {
             reports = reports.Where(r => r.Visit!.RestaurantId == restaurantId);
+        }
+        switch (status)
+        {
+            case ReportStatus.Escalated:
+                reports = reports.Where(r => r.EscalatedById != null);
+                break;
+            case ReportStatus.NotEscalated:
+                reports = reports.Where(r => r.EscalatedById == null);
+                break;
+            case ReportStatus.All:
+                break;
         }
         return reports;
     }

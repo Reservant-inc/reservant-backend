@@ -3,7 +3,7 @@ name: Feature request
 about: Zaproponuj nową końcówkę lub funkcjonalność
 title: "[FEATURE] "
 labels: enhancement
-assignees: linewelder
+assignees: 
 
 ---
 
