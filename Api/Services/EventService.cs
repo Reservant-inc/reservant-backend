@@ -589,10 +589,11 @@ namespace Reservant.Api.Services
         /// <param name="perPage">Items per page.</param>
         /// <param name="user">The current user.</param>
         /// <returns>list of events that fulfill the requirements</returns>
+        [ErrorCode(nameof(request.FriendsOnly), ErrorCodes.AccessDenied, "User must be logged in to see friends' events")]
         [ErrorCode(nameof(GetEventsRequest.OrigLon), ErrorCodes.InvalidSearchParameters)]
         [ErrorCode(nameof(GetEventsRequest.OrigLat), ErrorCodes.InvalidSearchParameters)]
         [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-        public async Task<Result<Pagination<NearEventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage, User user)
+        public async Task<Result<Pagination<NearEventVM>>> GetEventsAsync(GetEventsRequest request, int page, int perPage, User? user)
         {
             IQueryable<Event> events = context.Events;
             if (request.Name is not null)
@@ -609,6 +610,16 @@ namespace Reservant.Api.Services
             }
             if (request.FriendsOnly)
             {
+                if (user is null)
+                {
+                    return new ValidationFailure
+                    {
+                        PropertyName = nameof(request.FriendsOnly),
+                        ErrorCode = ErrorCodes.AccessDenied,
+                        ErrorMessage = "User must be logged in to see friends' events",
+                    };
+                }
+
                 events = events.Where(e => context.FriendRequests.Any(fr =>
                     ((fr.ReceiverId == user.Id && fr.SenderId == e.CreatorId) ||
                     (fr.SenderId == user.Id && fr.ReceiverId == e.CreatorId)) &&

@@ -198,11 +198,6 @@ namespace Reservant.Api.Controllers
         public async Task<ActionResult<Pagination<NearEventVM>>> GetEvents([FromQuery] GetEventsRequest request, [FromQuery] int page = 0, [FromQuery] int perPage = 10)
         {
             var user = await userManager.GetUserAsync(User);
-            if (user is null)
-            {
-                return Unauthorized();
-            }
-
             return OkOrErrors(await service.GetEventsAsync(request, page, perPage, user));
         }
     }
