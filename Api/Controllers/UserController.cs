@@ -245,7 +245,7 @@ public class UserController(
     /// <param name="perPage">Records per page</param>
     /// <returns>List of threads the user participates in</returns>
     [HttpGet("threads")]
-    [Authorize(Roles = Roles.Customer)]
+    [AuthorizeRoles(Roles.Customer, Roles.CustomerSupportAgent)]
     [ProducesResponseType(200), ProducesResponseType(401)]
     public async Task<ActionResult<Pagination<ThreadVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
     {
