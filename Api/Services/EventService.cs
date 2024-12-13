@@ -221,7 +221,6 @@ namespace Reservant.Api.Services
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
         [ErrorCode(nameof(eventId), ErrorCodes.UserAlreadyAccepted, "User already accepted")]
         [ErrorCode(nameof(eventId), ErrorCodes.EventIsFull, "Event is full")]
-        [ErrorCode(nameof(eventId), ErrorCodes.JoinDeadlinePassed, "Join deadline passed")]
         public async Task<Result> AcceptParticipationRequestAsync(int eventId, Guid userId, User currentUser)
         {
             var eventFound = await context.Events
@@ -260,16 +259,6 @@ namespace Reservant.Api.Services
                     PropertyName = nameof(eventId),
                     ErrorMessage = "Event is full",
                     ErrorCode = ErrorCodes.EventIsFull
-                };
-            }
-
-            if (DateTime.Compare(eventFound.MustJoinUntil, DateTime.Now) < 0)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(eventId),
-                    ErrorMessage = "Join deadline passed",
-                    ErrorCode = ErrorCodes.JoinDeadlinePassed
                 };
             }
 
