@@ -8,6 +8,7 @@ using Reservant.Api.Data;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Dtos.Threads;
+using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
@@ -187,7 +188,19 @@ public class ThreadService(
             };
         }
 
-        return mapper.Map<ThreadVM>(messageThread);
+        List<UserSummaryVM> participantsMinusUs = mapper.Map<List<UserSummaryVM>>(messageThread.Participants);
+        UserSummaryVM? userToRemove = participantsMinusUs.FirstOrDefault(p => p.UserId == userId);
+        if (userToRemove != null)
+        {
+            participantsMinusUs.Remove(userToRemove);
+        }
+
+        return new ThreadVM
+        {
+            ThreadId = messageThread.MessageThreadId,
+            Title=messageThread.Title,
+            Participants = participantsMinusUs,
+        };
     }
 
     /// <summary>
