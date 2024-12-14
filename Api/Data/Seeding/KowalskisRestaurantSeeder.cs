@@ -187,6 +187,20 @@ public class KowalskisRestaurantSeeder(
     ];
 
     /// <inheritdoc />
+    protected override async Task<List<User>> CreateEmployees() =>
+    [
+        await CreateRestaurantEmployee(
+            "hall", "Pracownik Sali", "Kowalski",
+            "dd551c32-e07e-48fa-bd11-2c1f35d38469", true, false),
+        await CreateRestaurantEmployee(
+            "backdoors", "Pracownik Zaplecza", "Kowalski",
+            "24b13219-a403-4022-9ffb-a120269df3bb", false, true),
+        await CreateRestaurantEmployee(
+            "super", "Pracownik od Wszystkiego", "Kowalski",
+            "88a0a37e-68b9-4d3d-92c4-b0ffa7716488", true, true),
+    ];
+
+    /// <inheritdoc />
     protected override Review[] CreateReviews(UserSeeder users) =>
     [
         new Review

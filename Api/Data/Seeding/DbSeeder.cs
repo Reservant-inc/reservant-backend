@@ -269,6 +269,10 @@ public class DbSeeder(
 
         context.Visits.AddRange(visits);
 
+        var jdHall = await FindUserByLogin("JD+hall");
+        var kowalskiHall = await FindUserByLogin("KK+hall");
+        var kowalskiSuperEmployee = await FindUserByLogin("KK+super");
+
         var orders = new List<Order>
         {
             new Order
@@ -284,7 +288,8 @@ public class DbSeeder(
                         Status = OrderStatus.Taken,
                     }
                 },
-                Visit = visits.First()
+                Visit = visits.First(),
+                AssignedEmployee = kowalskiHall,
             },
             new Order
             {
@@ -299,7 +304,8 @@ public class DbSeeder(
                         Status = OrderStatus.Cancelled,
                     }
                 },
-                Visit = visits[1]
+                Visit = visits[1],
+                AssignedEmployee = kowalskiSuperEmployee,
             },
             new Order
             {
@@ -321,7 +327,8 @@ public class DbSeeder(
                         Status = OrderStatus.Taken,
                     }
                 },
-                Visit = visits[2]
+                Visit = visits[2],
+                AssignedEmployee = jdHall,
             }
         };
 
@@ -436,6 +443,13 @@ public class DbSeeder(
 
         await context.SaveChangesAsync();
         await context.Database.CommitTransactionAsync();
+    }
+
+    private async Task<User> FindUserByLogin(string login)
+    {
+        var user = await context.Users.Where(u => u.UserName == login).SingleOrDefaultAsync();
+        if (user is null) throw new InvalidOperationException($"User with login {login} not found");
+        return user;
     }
 
     /// <summary>
