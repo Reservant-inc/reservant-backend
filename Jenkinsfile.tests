@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        string(name: "label_string", defaultValue: "(PERIODIC)", trim: true, description: "Sample string parameter")
+    }
+
+    environment {
+        DISCORD_WEBHOOK_URL = credentials('jenkins-back-tests-discord-webhook')
+        INFO_LABEL = "${params.label_string}"
+    }
+
+    stages {
+        stage('Build test image') {
+            steps {
+                sh "ls -al"
+                sh "docker build -t reservant-backend-tests -f test/Dockerfile.tests ."
+            }
+        }
+        stage('Run tests') {
+            steps {
+                sh "docker run -e DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL -e POST_MSG_HEAD='$INFO_LABEL' reservant-backend-tests"
+            }
+        }
+    }
+}
