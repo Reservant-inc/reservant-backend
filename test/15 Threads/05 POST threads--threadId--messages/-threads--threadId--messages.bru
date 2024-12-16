@@ -11,7 +11,7 @@ post {
 }
 
 params:path {
-  id: 4
+  id: 1
 }
 
 auth:bearer {
@@ -20,7 +20,7 @@ auth:bearer {
 
 body:json {
   {
-    "contents": "{{$randomAdjective}}"
+    "contents": "{{randomGeneratedText}}"
   }
 }
 
@@ -44,8 +44,7 @@ tests {
       expect(response).to.have.property("contents").that.is.a("string");
       expect(response).to.have.property("dateSent").that.is.a("string");
       expect(response).to.have.property("dateRead").that.is.null;
-      expect(response).to.have.property("authorsFirstName").that.is.a("string");
-      expect(response).to.have.property("authorsLastName").that.is.a("string");
+      expect(response).to.have.property("authorId").that.is.a("string");
       expect(response).to.have.property("messageThreadId").that.is.a("number");
   });
 }

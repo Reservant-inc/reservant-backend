@@ -1,0 +1,28 @@
+meta {
+  name: -threads--threadId--messages noAuth
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/threads/:id/messages
+  body: json
+  auth: none
+}
+
+params:path {
+  id: 1
+}
+
+body:json {
+  {
+    "contents": "{{randomGeneratedText}}"
+  }
+}
+
+tests {
+  test("Status code is 401", function () {
+      expect(res.getStatus()).to.equal(401);
+  });
+  
+}
