@@ -11,9 +11,15 @@ delete {
 }
 
 params:path {
-  reviewId: 5
+  reviewId: {{reviewId}}
 }
 
 auth:bearer {
   token: {{JD}}
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
 }

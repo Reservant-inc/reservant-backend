@@ -1,0 +1,25 @@
+meta {
+  name: err -wrongSenderId
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/friends/:senderId/accept-request
+  body: none
+  auth: bearer
+}
+
+params:path {
+  senderId: {{randomCity}}
+}
+
+auth:bearer {
+  token: {{customer}}
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

@@ -23,4 +23,11 @@ body:json {
     "stars": 3,
     "contents": "{{randomLoremSentence}}"
   }
+  
+  
+}
+
+tests {
+  var jsonData = res.getBody();
+  bru.setEnvVar("reviewId", jsonData.reviewId);
 }
