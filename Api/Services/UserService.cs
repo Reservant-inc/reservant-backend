@@ -404,7 +404,10 @@ public class UserService(
 
         foreach (var employment in user.Employments)
         {
-            employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
+            if (employment.DateUntil != null)
+            {
+                employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
+            }
         }
 
         await dbContext.SaveChangesAsync();
