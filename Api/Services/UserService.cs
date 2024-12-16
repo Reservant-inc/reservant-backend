@@ -385,7 +385,7 @@ public class UserService(
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = "Can only delete the current user or a current user's employee"
+                ErrorMessage = "Can only delete the current user or a current user's employee",
             };
         }
 
@@ -405,9 +405,7 @@ public class UserService(
         foreach (var employment in user.Employments)
         {
             if (employment.DateUntil != null)
-            {
                 employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
-            }
         }
 
         await dbContext.SaveChangesAsync();
