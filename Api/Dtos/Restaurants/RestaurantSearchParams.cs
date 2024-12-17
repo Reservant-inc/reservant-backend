@@ -73,5 +73,5 @@ public class RestaurantSearchParams
     /// <summary>
     /// Items per page
     /// </summary>
-    public int PerPage { get; set; }
+    public int PerPage { get; set; } = 10;
 }
