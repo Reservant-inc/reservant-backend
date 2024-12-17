@@ -1,0 +1,23 @@
+meta {
+  name: GET 4
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/restaurants/:restaurantId/ingredients
+  body: none
+  auth: bearer
+}
+
+params:path {
+  restaurantId: 4
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 200
+}

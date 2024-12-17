@@ -1,0 +1,19 @@
+meta {
+  name: unauthorized
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/restaurants/:restaurantId/employees
+  body: none
+  auth: none
+}
+
+params:path {
+  restaurantId: 1
+}
+
+assert {
+  res.status: eq 401
+}

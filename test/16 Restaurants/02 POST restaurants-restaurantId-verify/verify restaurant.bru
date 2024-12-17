@@ -1,0 +1,23 @@
+meta {
+  name: verify restaurant
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/restaurants/:restaurantId/verify
+  body: none
+  auth: bearer
+}
+
+params:path {
+  restaurantId: 1
+}
+
+auth:bearer {
+  token: {{BOKManager}}
+}
+
+assert {
+  res.status: eq 400
+}

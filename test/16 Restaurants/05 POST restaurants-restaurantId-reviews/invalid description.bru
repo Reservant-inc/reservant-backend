@@ -1,0 +1,30 @@
+meta {
+  name: invalid description
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/restaurants/:restaurantId/reviews
+  body: json
+  auth: bearer
+}
+
+params:path {
+  restaurantId: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "stars": 1,
+    "contents": []
+  }
+}
+
+assert {
+  res.status: eq 400
+}

@@ -1,0 +1,23 @@
+meta {
+  name: access denied
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/restaurants/:restaurantId/tables
+  body: none
+  auth: bearer
+}
+
+params:path {
+  restaurantId: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 400
+}

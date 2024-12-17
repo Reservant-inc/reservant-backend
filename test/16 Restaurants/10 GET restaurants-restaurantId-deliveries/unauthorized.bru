@@ -1,0 +1,23 @@
+meta {
+  name: unauthorized
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/restaurants/:restaurantId/deliveries
+  body: none
+  auth: bearer
+}
+
+params:path {
+  restaurantId: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 400
+}
