@@ -1,0 +1,28 @@
+meta {
+  name: wallet--add-money
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/wallet/add-money
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "title": "{{randomText.substring(0, 40)}}",
+    "amount": {{randomNumber100500}}
+  }
+}
+
+tests {
+  test("Response status is 204", function() {
+    expect(res.getStatus()).to.equal(204)
+  })
+}

@@ -1,0 +1,13 @@
+meta {
+  name: 14 Wallet
+}
+
+script:pre-request {
+  function generateRandomNb100500() {
+      return Math.floor(Math.random() * (500 - 100 + 1)) + 100;
+  }
+  
+  const randomNumber100500 = generateRandomNb100500() ;
+  bru.setEnvVar("randomNumber100500", randomNumber100500);
+  console.log("random Number100500: ", randomNumber100500);
+}

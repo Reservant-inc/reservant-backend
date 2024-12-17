@@ -1,0 +1,24 @@
+meta {
+  name: wallet--add-money unauthorized
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/wallet/add-money
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "title": "{{randomText.substring(0, 40)}}",
+    "amount": {{randomNumber100500}}
+  }
+}
+
+tests {
+  test("Response status is 401", function() {
+    expect(res.getStatus()).to.equal(401)
+  })
+}
