@@ -1,0 +1,25 @@
+meta {
+  name: err -wrongUserId
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/friends/:userId/send-request
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: {{randomCity}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 400", function () {
+      expect(res.getStatus()).to.equal(400);
+  });
+}

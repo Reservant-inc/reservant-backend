@@ -1,21 +1,21 @@
 meta {
-  name: -review-reviewId
+  name: -friends-senderId-acceptRequest
   type: http
   seq: 1
 }
 
-delete {
-  url: {{host}}/reviews/:reviewId
+post {
+  url: {{host}}/friends/:senderId/accept-request
   body: none
   auth: bearer
 }
 
 params:path {
-  reviewId: {{reviewId}}
+  senderId: {{JDid}}
 }
 
 auth:bearer {
-  token: {{JD}}
+  token: {{customer}}
 }
 
 tests {

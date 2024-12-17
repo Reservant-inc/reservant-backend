@@ -1,17 +1,17 @@
 meta {
-  name: -review-reviewId
+  name: -friends-userId-sendRequest
   type: http
   seq: 1
 }
 
-delete {
-  url: {{host}}/reviews/:reviewId
+post {
+  url: {{host}}/friends/:userId/send-request
   body: none
   auth: bearer
 }
 
 params:path {
-  reviewId: {{reviewId}}
+  userId: {{customerId}}
 }
 
 auth:bearer {
