@@ -1,0 +1,100 @@
+meta {
+  name: -friends-incoming
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/friends/incoming
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  // Test sprawdzający status kodu odpowiedzi
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Test sprawdzający, czy odpowiedź jest w formacie JSON
+  test("Response is JSON", function () {
+      res.getHeader('Content-Type', 'application/json');
+  });
+  
+  // Test sprawdzający strukturę głównego obiektu odpowiedzi
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.have.all.keys(
+          'page',
+          'totalPages',
+          'perPage',
+          'orderByOptions',
+          'items'
+      );
+  
+      expect(jsonData.page).to.be.a('number');
+      expect(jsonData.totalPages).to.be.a('number');
+      expect(jsonData.perPage).to.be.a('number');
+      expect(jsonData.orderByOptions).to.be.an('array');
+      expect(jsonData.items).to.be.an('array').that.is.not.empty;
+  });
+  
+  // Test sprawdzający strukturę każdego elementu w tablicy 'items'
+  test("Each item has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          expect(item).to.have.all.keys(
+              'dateSent',
+              'dateRead',
+              'dateAccepted',
+              'otherUser'
+          );
+  
+          expect(item.dateSent).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
+  
+          if (item.dateRead !== null) {
+              expect(item.dateRead).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
+          } else {
+              expect(item.dateRead).to.be.null;
+          }
+  
+          if (item.dateAccepted !== null) {
+              expect(item.dateAccepted).to.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/);
+          } else {
+              expect(item.dateAccepted).to.be.null;
+          }
+  
+          expect(item.otherUser).to.be.an('object');
+      });
+  });
+  
+  // Test sprawdzający strukturę obiektu 'otherUser' wewnątrz każdego elementu
+  test("Each otherUser has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      jsonData.items.forEach(item => {
+          const otherUser = item.otherUser;
+  
+          expect(otherUser).to.have.all.keys(
+              'userId',
+              'firstName',
+              'lastName',
+              'photo'
+          );
+  
+          expect(otherUser.userId).to.match(
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+          );
+          expect(otherUser.firstName).to.be.a('string');
+          expect(otherUser.lastName).to.be.a('string');
+          expect(otherUser.photo).to.satisfy(value => value === null || typeof value === 'string');
+      });
+  });
+  
+}

@@ -1,0 +1,82 @@
+meta {
+  name: -users--employeeId-_1
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{host}}/users/:employeeId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  employeeId: 22781e02-d83a-44ef-8cf4-735e95d9a0b2
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "phoneNumber": {
+      "code": "+48",
+      "number": "{{randomPhoneNumber}}"
+    },
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
+    "birthDate": "{{randomBirthDate}}",
+    "photo": null
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.be.an('object').that.has.all.keys(
+          'userId',
+          'login',
+          'email',
+          'phoneNumber',
+          'firstName',
+          'lastName',
+          'registeredAt',
+          'birthDate',
+          'roles',
+          'employerId',
+          'photo'
+      );
+  });
+  
+  test("UserId is valid", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.userId).to.match(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      );
+  });
+  
+  test("Login is a valid string", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.login).to.be.a('string').and.not.empty;
+  });
+  
+  test("First name and last name are valid strings", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.firstName).to.be.a('string').and.not.empty;
+      expect(jsonData.lastName).to.be.a('string').and.not.empty;
+  });
+  
+}

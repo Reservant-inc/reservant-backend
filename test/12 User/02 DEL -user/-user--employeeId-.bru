@@ -1,0 +1,32 @@
+meta {
+  name: -user--employeeId-
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{host}}/user/:employeeId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  employeeId: 22781e02-d83a-44ef-8cf4-735e95d9a0b2
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+  
+  test("Response has no content", function () {
+      expect(res.getStatus()).to.equal(204);
+      expect(res.getBody()?.toString()).to.equal('');
+  });
+  
+  
+}

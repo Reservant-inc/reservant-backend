@@ -1,0 +1,76 @@
+meta {
+  name: -user_1
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{host}}/user
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "phoneNumber": {
+      "code": "+48",
+      "number": "{{randomPhoneNumber}}"
+    },
+    "firstName": "{{randomFirstName}}",
+    "lastName": "{{randomLastName}}",
+    "birthDate": "{{randomBirthDate}}",
+    "photo": null
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is JSON", function () {
+       res.getHeader('Content-Type', 'application/json');
+  });
+  
+  test("Response body has correct structure", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData).to.have.all.keys(
+          'userId',
+          'login',
+          'email',
+          'phoneNumber',
+          'firstName',
+          'lastName',
+          'registeredAt',
+          'birthDate',
+          'roles',
+          'employerId',
+          'photo'
+      );
+  });
+  
+  test("First name and last name are strings", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.firstName).to.be.a('string');
+      expect(jsonData.lastName).to.be.a('string')
+  });
+  
+  test("BirthDate is a valid date", function () {
+      const jsonData = res.getBody();
+  
+      expect(jsonData.birthDate).to.match(/^\d{4}-\d{2}-\d{2}$/);
+  });
+  
+  
+  
+  
+  
+  
+  
+}
