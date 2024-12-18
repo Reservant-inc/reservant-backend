@@ -14,7 +14,8 @@ namespace Reservant.Api.Services.RestaurantServices;
 /// Service responsible for managing restaurants statistics
 /// </summary>
 public class StatisticService(
-    ApiDbContext context
+    ApiDbContext context,
+    AuthorizationService authorizationService
 )
 {
     /// <summary>
@@ -27,12 +28,12 @@ public class StatisticService(
     [ValidatorErrorCodes<RestaurantStatsRequest>]
     public async Task<Result<RestaurantStatsVM>> GetStatsByRestaurantIdAsync(int restaurantId, Guid userId, RestaurantStatsRequest request)
     {
-        // var result = await authorizationService.VerifyOwnerRole(restaurantId, userId);
+        var result = await authorizationService.VerifyOwnerRole(restaurantId, userId);
 
-        // if (result.IsError)
-        // {
-        //     return result.Errors;
-        // }
+        if (result.IsError)
+        {
+            return result.Errors;
+        }
 
         var visits = await context.Visits
             .Include(v => v.Orders)
