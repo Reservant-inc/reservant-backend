@@ -28,6 +28,8 @@ public class RestaurantGroupService(
     /// <param name="user">Restaurant owner</param>
     /// <returns></returns>
     [ErrorCode(nameof(CreateRestaurantGroupRequest.RestaurantIds), ErrorCodes.EmptyList)]
+    [ErrorCode(nameof(CreateRestaurantGroupRequest.RestaurantIds), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(CreateRestaurantGroupRequest.RestaurantIds), ErrorCodes.AccessDenied)]
     public async Task<Result<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user)
     {
         //Empty restaurant group cannot exist according to class diagram
