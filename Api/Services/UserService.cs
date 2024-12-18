@@ -366,8 +366,11 @@ public class UserService(
     public async Task<Result> ArchiveUserAsync(Guid id, Guid requesterId)
     {
         var user = await dbContext.Users
-            .Include(user => user.Employments)
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .Where(x => x.Id == id)
+            .Include(u => 
+                u.Employments.Where(e => e.EmployeeId == id)
+                )
+            .FirstOrDefaultAsync();
         if (user is null)
         {
             return new ValidationFailure
@@ -385,7 +388,7 @@ public class UserService(
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = "Can only delete the current user or a current user's employee"
+                ErrorMessage = "Can only delete the current user or a current user's employee",
             };
         }
 
@@ -404,7 +407,8 @@ public class UserService(
 
         foreach (var employment in user.Employments)
         {
-            employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
+            if(employment.EmployeeId == user.Id && employment.DateUntil == null)
+                employment.DateUntil = DateOnly.FromDateTime(DateTime.UtcNow);
         }
 
         await dbContext.SaveChangesAsync();
