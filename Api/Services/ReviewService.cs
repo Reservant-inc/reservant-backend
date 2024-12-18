@@ -229,8 +229,7 @@ namespace Reservant.Api.Services
         /// <param name="userId">ID of the user</param>
         /// <param name="page">Page number</param>
         /// <param name="perPage">Per page</param>
-        [ErrorCode(nameof(userId), ErrorCodes.NotFound)]
-        [MethodErrorCodes(typeof(Utils), ErrorCodes.NotFound)]
+        [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<Result<Pagination<ReviewVM>>> GetReviewsOfUser(Guid userId, int page, int perPage)
         {
             var author = await context.Users.FindAsync(userId);

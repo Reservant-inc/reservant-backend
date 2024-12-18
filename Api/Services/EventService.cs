@@ -85,7 +85,8 @@ namespace Reservant.Api.Services
                 Title = $"Discussion for Event: {newEvent.Name}",
                 CreationDate = DateTime.UtcNow,
                 CreatorId = user.Id,
-                Participants = new List<User> { user }
+                Participants = new List<User> { user },
+                IsEditable = false // Wątek dla eventu nie może być edytowany
             };
 
             // Przypisanie wątku do eventu

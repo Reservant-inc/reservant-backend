@@ -44,6 +44,11 @@ public class MessageThread : ISoftDeletable
     /// Navigational collection for the messages
     /// </summary>
     public ICollection<Message> Messages { get; set; } = null!;
+    
+    /// <summary>
+    /// Determines if the thread can be edited by participants.
+    /// </summary>
+    public bool IsEditable { get; set; } = true; // Default to true for user-created threads
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

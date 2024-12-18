@@ -108,6 +108,16 @@ public class ThreadService(
             };
         }
 
+        if (!messageThread.IsEditable)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "This thread cannot be edited.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
         messageThread.Title = request.Title;
 
         var validationResult = await validationService.ValidateAsync(messageThread, userId);
@@ -233,7 +243,7 @@ public class ThreadService(
             DateSent = DateTime.UtcNow,
             AuthorId = author.Id,
             Author = author,
-            MessageThreadId = threadId,
+            MessageThreadId = threadId
         };
 
         var result = await validationService.ValidateAsync(message, userId);
@@ -517,7 +527,8 @@ public class ThreadService(
             Title = threadTitle,
             CreationDate = DateTime.UtcNow,
             CreatorId = userId,
-            Participants = new List<User>()
+            Participants = new List<User>(),
+            IsEditable = false // Wątek dla eventu nie może być edytowany
         };
 
         // Initialize participants list
