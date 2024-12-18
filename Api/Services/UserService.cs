@@ -367,7 +367,7 @@ public class UserService(
     {
         var user = await dbContext.Users
             .Where(x => x.Id == id)
-            .Include(u => 
+            .Include(u =>
                 u.Employments.Where(e => e.EmployeeId == id)
                 )
             .FirstOrDefaultAsync();
