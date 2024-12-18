@@ -11,7 +11,7 @@ namespace Reservant.Api.Dtos.Restaurants;
 /// <summary>
 /// Statistic of restaurants in a given day
 /// </summary>
-public class dayStatsVM
+public class DayStatsVM
 {
     /// <summary>
     /// The date to which the statistics refer

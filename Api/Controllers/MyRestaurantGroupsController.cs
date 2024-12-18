@@ -6,6 +6,10 @@ using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
 using Reservant.Api.Validation;
+using Reservant.ErrorCodeDocs.Attributes;
+using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Services.RestaurantServices;
+
 
 namespace Reservant.Api.Controllers;
 
@@ -133,5 +137,27 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
         var result = await service.SoftDeleteRestaurantGroupAsync(groupId, user);
         return OkOrErrors(result);
     }
+
+    /// <summary>
+    /// Retrives restaurant statistics by restaurant group id and given time period
+    /// </summary>
+    [HttpGet("{restaurantGroupId:int}/statistics")]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<StatisticService>(nameof(StatisticService.GetStatsByRestaurantGroupIdAsync))]
+    public async Task<ActionResult<RestaurantGroupStatsVM>> GetStatsByRestaurantGroupId(
+        int restaurantGroupId, [FromQuery] DateOnly? dateSince, [FromQuery] DateOnly? dateTill, 
+        [FromQuery] int? popularItemMaxCount, [FromServices] StatisticService service)
+    {
+        var userId = User.GetUserId();
+        var request = new RestaurantStatsRequest
+        {
+            dateSince = dateSince,
+            dateTill = dateTill,
+            popularItemMaxCount = popularItemMaxCount
+        };
+
+        var result = await service.GetStatsByRestaurantGroupIdAsync(restaurantGroupId, userId!.Value, request);
+        return OkOrErrors(result);
+    } 
 
 }

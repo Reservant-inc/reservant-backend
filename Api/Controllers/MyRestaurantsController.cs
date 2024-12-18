@@ -283,5 +283,28 @@ namespace Reservant.Api.Controllers
             }
             return OkOrErrors(await service.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
         }
+
+        /// <summary>
+        /// Retrives restaurant statistics by restaurant id and given time period
+        /// </summary>
+        [HttpGet("{restaurantId:int}/statistics")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<StatisticService>(nameof(StatisticService.GetStatsByRestaurantIdAsync))]
+        public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantId(
+            int restaurantId, [FromQuery] DateOnly? dateSince, [FromQuery] DateOnly? dateTill, 
+            [FromQuery] int? popularItemMaxCount, [FromServices] StatisticService service)
+        {
+            var userId = User.GetUserId();
+            var request = new RestaurantStatsRequest
+            {
+                dateSince = dateSince,
+                dateTill = dateTill,
+                popularItemMaxCount = popularItemMaxCount
+            };
+
+            var result = await service.GetStatsByRestaurantIdAsync(restaurantId, userId!.Value, request);
+            return OkOrErrors(result);
+        }   
+
     }
 }
