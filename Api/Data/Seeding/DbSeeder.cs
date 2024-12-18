@@ -161,6 +161,86 @@ public class DbSeeder(
 
         context.MessageThreads.Add(exampleJDGroupThread);
 
+        context.PaymentTransactions.AddRange([
+            new PaymentTransaction
+            {
+                Title = "transakcja 1",
+                Amount = 10,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 2",
+                Amount = 10,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 3",
+                Amount = 57,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 4",
+                Amount = 10,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 5",
+                Amount = 10,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 6",
+                Amount = 10,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 7",
+                Amount = -20,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 8",
+                Amount = 16,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 9",
+                Amount = 1500,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 10",
+                Amount = 90,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+            new PaymentTransaction
+            {
+                Title = "transakcja 11",
+                Amount = 44,
+                User = users.JohnDoe,
+                Time = DateTime.UtcNow.AddDays(-10),
+            },
+        ]);
+
         await context.SaveChangesAsync();
         await context.Database.CommitTransactionAsync();
     }
