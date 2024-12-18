@@ -168,7 +168,7 @@ public class AuthorizationService(
     /// <returns></returns>
     public async ValueTask<bool> CanViewVisit(Visit visit, User user)
     {
-        var isVisitParticipant = visit.ClientId == user.Id || visit.Participants.Contains(user);
+        var isVisitParticipant = visit.ClientId == user.Id || visit.Participants.Any(p => p.Id == user.Id);
         if (isVisitParticipant) return true;
 
         var isOwnerOfTheRestaurant = visit.Restaurant.Group.OwnerId == user.Id;
