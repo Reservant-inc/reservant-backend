@@ -14,13 +14,23 @@ namespace Reservant.Api.Dtos.Restaurants;
 public class RestaurantStatsVM
 {
     /// <summary>
-    /// Id of a restaurnat
+    /// List of chosen max amount of menu items ordered that day ordered by count of orders per item
     /// </summary>
-    public required int RestaurantId { get; init; }
+    public required Dictionary<string, int> PopularItems { get; init; }//map of names of dishes as well as their quantity sorted by popularity of menu item(number)(only as long as provided number)
 
-     /// <summary>
-    /// The date to which the statistics refer
+    /// <summary>
+    /// The dates used for reference for other list
     /// </summary>
-    public required List<DayStatsVM> RestaurantStat { get; init; }
+    public required List<DateOnly> DateList { get; init; }
+
+    /// <summary>
+    /// Amount of customers served diuring days conresponding to the same indexes in Date list
+    /// </summary>
+    public required List<int> CustomerCountList { get; init; }
+
+    /// <summary>
+    ///  Amount of revenue days conresponding to the same indexes in Date list 
+    /// </summary>
+    public required List<decimal> RevenueList { get; init; }
 
 }

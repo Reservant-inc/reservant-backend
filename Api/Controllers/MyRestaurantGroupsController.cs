@@ -144,7 +144,8 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     [HttpGet("{restaurantGroupId:int}/statistics")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<StatisticService>(nameof(StatisticService.GetStatsByRestaurantGroupIdAsync))]
-    public async Task<ActionResult<RestaurantGroupStatsVM>> GetStatsByRestaurantGroupId(
+    [Authorize(Roles = Roles.RestaurantOwner)]
+    public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantGroupId(
         int restaurantGroupId, [FromQuery] DateOnly? dateSince, [FromQuery] DateOnly? dateTill, 
         [FromQuery] int? popularItemMaxCount, [FromServices] StatisticService service)
     {

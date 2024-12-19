@@ -290,6 +290,7 @@ namespace Reservant.Api.Controllers
         [HttpGet("{restaurantId:int}/statistics")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<StatisticService>(nameof(StatisticService.GetStatsByRestaurantIdAsync))]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantId(
             int restaurantId, [FromQuery] DateOnly? dateSince, [FromQuery] DateOnly? dateTill, 
             [FromQuery] int? popularItemMaxCount, [FromServices] StatisticService service)
