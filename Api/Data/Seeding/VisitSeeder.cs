@@ -150,18 +150,41 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-2).AddHours(-5), true),
             await CreateRandomVisit(users.KrzysztofKowalski, johnDoes, now.AddDays(-2).AddHours(-3), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-2).AddHours(-1), true),
-            await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-1), false),
-            await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-1).AddHours(5), false),
-            await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-1), false),
+            await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-23), false),
+            await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-8), false),
+            await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-5), false),
+            await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-1), false),
+            await CreateRandomVisit(users.JohnDoe, kowalskis, now, false),
         };
-        context.Visits.AddRange(visits);
 
+        context.Visits.AddRange(visits);
+        context.Events.AddRange(await CreateEvents(visits));
+
+        await context.SaveChangesAsync();
+    }
+
+    private async Task<FileUpload> RequireFileUpload(string fileName, User owner)
+    {
+        var upload = await context.FileUploads.FirstOrDefaultAsync(x => x.FileName == fileName) ??
+                     throw new InvalidDataException($"Upload {fileName} not found");
+        if (upload.UserId != owner.Id)
+        {
+            throw new InvalidDataException($"Upload {fileName} is not owned by {owner.UserName}");
+        }
+
+        return upload;
+    }
+
+    private async Task<List<Event>> CreateEvents(Visit[] visits)
+    {
         var visit0Date = visits[0].Reservation!.ReservationDate!.Value;
         var visit1Date = visits[1].Reservation!.ReservationDate!.Value;
-        context.Events.AddRange(
+
+        return
+        [
             new Event
             {
-                Name="Posiadówa w John Doe's",
+                Name = "Posiadówa w John Doe's",
                 CreatedAt = visit0Date.AddDays(-1),
                 Description = "Event 1 Description",
                 Time = visit0Date,
@@ -170,7 +193,8 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                 Creator = users.JohnDoe,
                 RestaurantId = 1,
                 Visit = visits[0],
-                ParticipationRequests = [
+                ParticipationRequests =
+                [
                     new ParticipationRequest
                     {
                         User = users.Customer1,
@@ -190,11 +214,11 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                     },
                 ],
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("ResInside5.jpg", users.JohnDoe)
+                Photo = await RequireFileUpload("ResInside5.jpg", users.JohnDoe),
             },
             new Event
             {
-                Name="Posiadówa w John Doe's vol. 2",
+                Name = "Posiadówa w John Doe's vol. 2",
                 CreatedAt = visit1Date.AddDays(-5),
                 Description = "Event 2 Description",
                 Time = visit1Date,
@@ -203,7 +227,8 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                 Creator = users.JohnDoe,
                 RestaurantId = 1,
                 VisitId = null,
-                ParticipationRequests = [
+                ParticipationRequests =
+                [
                     new ParticipationRequest
                     {
                         User = users.Customer1,
@@ -211,20 +236,21 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                     },
                 ],
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("ResInside5.jpg", users.JohnDoe)
+                Photo = await RequireFileUpload("ResInside5.jpg", users.JohnDoe),
             },
             new Event
             {
-                Name="Przyszłe Wydarzenie",
+                Name = "Przyszłe Wydarzenie",
                 CreatedAt = DateTime.UtcNow.AddHours(-1),
                 Description = "Event 3 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(10).AddHours(-1),
                 MaxPeople = 5,
-                Creator = users.Customer3,
+                Creator = users.AnonYmus,
                 RestaurantId = 1,
                 VisitId = null,
-                ParticipationRequests = [
+                ParticipationRequests =
+                [
                     new ParticipationRequest
                     {
                         User = users.Customer2,
@@ -238,36 +264,36 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                     },
                 ],
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("ResInside5.jpg", users.JohnDoe)
+                Photo = await RequireFileUpload("ResInside1.jpg", users.AnonYmus),
             },
             new Event
             {
-                Name="Event 4",
+                Name = "Event 4",
                 CreatedAt = DateTime.UtcNow,
                 Description = "Event 4 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(15),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(15).AddHours(-1),
                 MaxPeople = 20,
-                Creator = users.Customer1,
+                Creator = users.AnonYmus,
                 RestaurantId = 1,
                 VisitId = null,
                 ParticipationRequests = [],
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("ResInside5.jpg", users.JohnDoe)
+                Photo = await RequireFileUpload("ResInside2.jpg", users.AnonYmus),
             },
-
             new Event
             {
-                Name="Wydarzenie 5",
+                Name = "Wydarzenie 5",
                 CreatedAt = DateTime.UtcNow.AddHours(-2),
                 Description = "Event 5 Description",
                 Time = DateTime.UtcNow.AddMonths(1).AddDays(20),
                 MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(20).AddHours(-1),
                 MaxPeople = 20,
-                Creator = users.Customer3,
+                Creator = users.GeraltRiv,
                 RestaurantId = 1,
                 VisitId = null,
-                ParticipationRequests = [
+                ParticipationRequests =
+                [
                     new ParticipationRequest
                     {
                         User = users.Customer1,
@@ -285,27 +311,136 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                     },
                 ],
                 PhotoFileName = null!,
-                Photo = await RequireFileUpload("ResInside5.jpg", users.JohnDoe)
-            }
-        );
-    }
-
-    private async Task<FileUpload> RequireFileUpload(string fileName, User owner)
-    {
-        var upload = await context.FileUploads.FirstOrDefaultAsync(x => x.FileName == fileName) ??
-                     throw new InvalidDataException($"Upload {fileName} not found");
-        if (upload.UserId != owner.Id)
-        {
-            throw new InvalidDataException($"Upload {fileName} is not owned by {owner.UserName}");
-        }
-
-        return upload;
-    }
-
-    private async Task<User> FindUserByLogin(string login)
-    {
-        var user = await context.Users.Where(u => u.UserName == login).SingleOrDefaultAsync();
-        if (user is null) throw new InvalidOperationException($"User with login {login} not found");
-        return user;
+                Photo = await RequireFileUpload("ResInside4.jpg", users.GeraltRiv),
+            },
+            new Event
+            {
+                Name = "Impreza w przyszłości 1",
+                CreatedAt = DateTime.UtcNow.AddDays(-10),
+                Description = "Opis wydarzenia 1",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(10),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(10).AddHours(-3),
+                MaxPeople = 15,
+                Creator = users.GeraltRiv,
+                RestaurantId = 2,
+                VisitId = null,
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside3.jpg", users.GeraltRiv),
+            },
+            new Event
+            {
+                Name = "Impreza w przyszłości 2",
+                CreatedAt = DateTime.UtcNow.AddDays(-2),
+                Description = "Opis wydarzenia 2",
+                Time = DateTime.UtcNow.AddMonths(2).AddDays(5),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(2).AddDays(5).AddHours(-6),
+                MaxPeople = 8,
+                Creator = users.KrzysztofKowalski,
+                RestaurantId = 3,
+                VisitId = null,
+                ParticipationRequests = new List<ParticipationRequest>
+                {
+                    new ParticipationRequest
+                    {
+                        User = users.Customer3,
+                        DateSent = DateTime.UtcNow.AddDays(-1),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = users.JohnDoe,
+                        DateSent = DateTime.UtcNow.AddDays(-1),
+                        DateAccepted = DateTime.UtcNow.AddHours(-3),
+                    }
+                },
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside6.jpg", users.KrzysztofKowalski),
+            },
+            new Event
+            {
+                Name = "Spotkanie przy kawie",
+                CreatedAt = DateTime.UtcNow.AddDays(-25),
+                Description = "Opis wydarzenia 3",
+                Time = DateTime.UtcNow.AddMonths(3),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(3).AddDays(-2),
+                MaxPeople = 5,
+                Creator = users.KrzysztofKowalski,
+                RestaurantId = 4,
+                VisitId = null,
+                ParticipationRequests = new List<ParticipationRequest>
+                {
+                    new ParticipationRequest
+                    {
+                        User = users.Customer1,
+                        DateSent = DateTime.UtcNow.AddDays(-22),
+                    }
+                },
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("menu.png", users.KrzysztofKowalski),
+            },
+            new Event
+            {
+                Name = "Wieczór Włoskich Przysmaków",
+                CreatedAt = DateTime.UtcNow.AddDays(-30),
+                Description = "Przyjdź i poczuj atmosferę małej włoskiej trattorii! W menu: świeże makarony, chrupiąca pizza i domowe tiramisu. Wieczór urozmaici muzyka na żywo.",
+                Time = DateTime.UtcNow.AddMonths(1).AddDays(15),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(1).AddDays(14),
+                MaxPeople = 30,
+                Creator = users.PaulAtreides,
+                RestaurantId = 5,
+                VisitId = null,
+                ParticipationRequests = new List<ParticipationRequest>(),
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside7.jpg", users.PaulAtreides),
+            },
+            new Event
+            {
+                Name = "Piknik rodzinny",
+                CreatedAt = DateTime.UtcNow.AddDays(-35),
+                Description = "Opis wydarzenia 5",
+                Time = DateTime.UtcNow.AddMonths(3).AddDays(10),
+                MustJoinUntil = DateTime.UtcNow.AddMonths(3).AddDays(9),
+                MaxPeople = 25,
+                Creator = users.PaulAtreides,
+                RestaurantId = 1,
+                VisitId = null,
+                ParticipationRequests = new List<ParticipationRequest>
+                {
+                    new ParticipationRequest
+                    {
+                        User = users.Customer2,
+                        DateSent = DateTime.UtcNow.AddDays(-33),
+                    },
+                    new ParticipationRequest
+                    {
+                        User = users.Customer3,
+                        DateSent = DateTime.UtcNow.AddDays(-34),
+                    }
+                },
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResLogo5.png", users.PaulAtreides),
+            },
+            new Event
+            {
+                Name = "Impreza sylwestrowa",
+                CreatedAt = DateTime.UtcNow.AddDays(-60),
+                Description = "Spotkajmy się na leniwy brunch z rodziną i przyjaciółmi. Bufet pełen świeżych potraw, kącik dla dzieci oraz muzyka w tle sprawią, że to będzie wyjątkowy dzień.",
+                Time = new DateTime(DateTime.UtcNow.Year, 12, 31, 20, 0, 0),
+                MustJoinUntil = new DateTime(DateTime.UtcNow.Year, 12, 31, 18, 0, 0),
+                MaxPeople = 50,
+                Creator = users.GeraltRiv,
+                RestaurantId = 2,
+                VisitId = null,
+                ParticipationRequests = new List<ParticipationRequest>
+                {
+                    new ParticipationRequest
+                    {
+                        User = users.Customer3,
+                        DateSent = DateTime.UtcNow.AddDays(-55),
+                    }
+                },
+                PhotoFileName = null!,
+                Photo = await RequireFileUpload("ResInside3.jpg", users.GeraltRiv),
+            },
+        ];
     }
 }
