@@ -54,6 +54,7 @@ public class DbSeeder(
         await context.SaveChangesAsync();
 
         await new VisitSeeder(context, users).CreateVisits();
+        await new ReportSeeder(context, users).CreateReports();
 
         var exampleJDThread = new MessageThread
         {
