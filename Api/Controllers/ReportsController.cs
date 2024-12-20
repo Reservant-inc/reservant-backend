@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
@@ -83,26 +84,31 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <param name="status"></param>
     /// <param name="service"></param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
     /// <returns>list of reports accessible by customer support employees</returns>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetReportsAsync))]
     [Authorize(Roles = $"{Roles.CustomerSupportManager}, {Roles.CustomerSupportAgent}")]
-    public async Task<ActionResult<List<ReportVM>>> GetReports(
+    public async Task<ActionResult<Pagination<ReportVM>>> GetReports(
         [FromQuery] DateTime? dateFrom,
         [FromQuery] DateTime? dateUntil,
         [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
         [FromServices] GetReportsService service,
-        [FromQuery] ReportStatus status = ReportStatus.All)
+        [FromQuery] ReportStatus status = ReportStatus.All,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await service.GetReportsAsync(dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
+        return OkOrErrors(await service.GetReportsAsync(
+            dateFrom, dateUntil, category, reportedUserId, restaurantId, status, page, perPage));
     }
 
     /// <summary>
@@ -128,7 +134,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
         }
         return OkOrErrors(await service.EscalateReportAsync(reportId, user, dto));
     }
-    
+
     /// <summary>
     /// Resolve a report as customer support staff.
     /// </summary>

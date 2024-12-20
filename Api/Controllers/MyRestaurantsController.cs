@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Services;
@@ -262,26 +263,31 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
         /// <param name="service"></param>
         /// <param name="status">status of the reports considered in the search</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
         /// <returns></returns>
         [HttpGet("{restaurantId:int}/reports")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetMyRestaurantsReportsAsync))]
         [Authorize(Roles = Roles.RestaurantOwner)]
-        public async Task<ActionResult<List<ReportVM>>> GetReports(
+        public async Task<ActionResult<Pagination<ReportVM>>> GetReports(
             [FromQuery] DateTime? dateFrom,
             [FromQuery] DateTime? dateUntil,
             [FromQuery] ReportCategory? category,
             [FromQuery] Guid? reportedUserId,
             int restaurantId,
             [FromServices] GetReportsService service,
-            [FromQuery] ReportStatus status = ReportStatus.All)
+            [FromQuery] ReportStatus status = ReportStatus.All,
+            [FromQuery] int page = 0,
+            [FromQuery] int perPage = 10)
         {
             var user = await userManager.GetUserAsync(User);
             if (user is null)
             {
                 return Unauthorized();
             }
-            return OkOrErrors(await service.GetMyRestaurantsReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
+            return OkOrErrors(await service.GetMyRestaurantsReportsAsync(
+                user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status, page, perPage));
         }
     }
 }

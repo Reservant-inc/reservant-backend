@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Reports;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
@@ -12,11 +12,10 @@ namespace Reservant.Api.Services.ReportServices;
 /// <summary>
 /// service for managing user reports
 /// </summary>
-/// <param name="mapper"></param>
-/// <param name="context"></param>
 public class GetReportsService(
     IMapper mapper,
-    ApiDbContext context)
+    ApiDbContext context,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Function for getting the reports as Customer Support
@@ -27,20 +26,25 @@ public class GetReportsService(
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <param name="status">status of the report considered in the search</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
     /// <returns>list of reports that match given parameters</returns>
-    public async Task<Result<List<ReportVM>>> GetReportsAsync(
+    public async Task<Result<Pagination<ReportVM>>> GetReportsAsync(
         DateTime? dateFrom,
         DateTime? dateUntil,
         ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId,
-        ReportStatus status)
+        ReportStatus status,
+        int page = 0,
+        int perPage = 10)
     {
         IQueryable<Report> reports = context.Reports;
 
         reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
-        var res = await reports.ToListAsync();
-        return mapper.Map<List<ReportVM>>(res);
+        return await reports
+            .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, []);
     }
 
     /// <summary>
@@ -53,21 +57,25 @@ public class GetReportsService(
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <param name="status">status of the report considered in the search</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
     /// <returns>list of reports that match given parameters</returns>
-    public async Task<Result<List<ReportVM>>> GetMyReportsAsync(
+    public async Task<Result<Pagination<ReportVM>>> GetMyReportsAsync(
         User user,
         DateTime? dateFrom,
         DateTime? dateUntil,
         ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId,
-        ReportStatus status)
+        ReportStatus status,
+        int page = 0,
+        int perPage = 10)
     {
         var reports = context.Reports.Where(r => r.CreatedById == user.Id);
         reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
-            .ToListAsync();
+            .PaginateAsync(page, perPage, []);
     }
     /// <summary>
     /// Function for getting the reports as a restaurant owner
@@ -79,21 +87,27 @@ public class GetReportsService(
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <param name="status">status of the report considered in the search</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
     /// <returns>list of reports that match given parameters</returns>
-    public async Task<Result<List<ReportVM>>> GetMyRestaurantsReportsAsync(
+    public async Task<Result<Pagination<ReportVM>>> GetMyRestaurantsReportsAsync(
         User user,
         DateTime? dateFrom,
         DateTime? dateUntil,
         ReportCategory? category,
         Guid? reportedUserId,
-        int? restaurantId,
-        ReportStatus status)
+        int restaurantId,
+        ReportStatus status,
+        int page = 0,
+        int perPage = 10)
     {
-        var reports = context.Reports.Where(r => r.Visit!.Restaurant.Group.OwnerId == user.Id);
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
+        var isOwner = await authorizationService.VerifyOwnerRole(restaurantId, user.Id);
+        if (isOwner.IsError) return isOwner.Errors;
+
+        var reports = FilterReportsQuery(context.Reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
-            .ToListAsync();
+            .PaginateAsync(page, perPage, []);
     }
 
     /// <summary>
@@ -146,6 +160,7 @@ public class GetReportsService(
             case ReportStatus.All:
                 break;
         }
-        return reports;
+
+        return reports.OrderByDescending(report => report.ReportDate);
     }
 }
