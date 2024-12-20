@@ -1,12 +1,14 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Identity;
 using Reservant.Api.Models.Enums;
 using Reservant.ErrorCodeDocs.Attributes;
 
@@ -19,7 +21,8 @@ public class VisitService(
     ApiDbContext context,
     IMapper mapper,
     NotificationService notificationService,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    UserManager<User> userManager)
 {
     /// <summary>
     /// Gets the visit with the provided ID
@@ -37,10 +40,19 @@ public class VisitService(
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
         }
 
-        var canView =
-            visit.ClientId == user.Id
-            || visit.Participants.Contains(user)
-            || !(await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, user.Id)).IsError;
+        var isParticipant = visit.ClientId == user.Id || visit.Participants.Contains(user);
+
+        var canView = isParticipant;
+        if (!canView)
+        {
+            canView = !(await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, user.Id)).IsError;
+        }
+
+        if (!canView)
+        {
+            canView = await userManager.IsInRoleAsync(user, Roles.CustomerSupportAgent);
+        }
+
         if (!canView)
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
