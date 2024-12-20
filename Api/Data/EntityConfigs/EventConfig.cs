@@ -13,9 +13,9 @@ namespace Reservant.Api.Data.EntityConfigs
         public void Configure(EntityTypeBuilder<Event> builder)
         {
             builder.HasOne(e => e.Thread)
-            .WithMany()
-            .HasForeignKey(e => e.ThreadId)
-            .OnDelete(DeleteBehavior.SetNull);
+                .WithOne()
+                .HasForeignKey<Event>(e => e.ThreadId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
