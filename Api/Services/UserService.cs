@@ -18,6 +18,7 @@ using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
+
 namespace Reservant.Api.Services;
 
 /// <summary>
@@ -495,9 +496,16 @@ public class UserService(
             };
         }
 
-        var userDto = mapper.Map<UserEmployeeVM>(requestedUser);
+        if (requestedUser.BannedUntil.HasValue && requestedUser.BannedUntil.Value < DateTime.UtcNow)
+        {
+            requestedUser.BannedUntil = null;
+        }            
+        await dbContext.SaveChangesAsync();
+        
 
         User? currentUser = await dbContext.Users.FindAsync(currentUserId);
+        var userDto = mapper.Map<UserEmployeeVM>(requestedUser);
+
         // Sprawdź, czy żądany użytkownik jest pracownikiem aktualnie zalogowanego użytkownika
         if (requestedUser.EmployerId == currentUserId || currentUser!=null && await roleManager.IsInRoleAsync(currentUser, Roles.CustomerSupportAgent))
         {
