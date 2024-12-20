@@ -261,7 +261,7 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                     },
             });
 
-        return await query.PaginateAsync(page, perPage, []);
+        return await query.PaginateAsync(page, perPage, [], 100, false);
     }
 
     /// <summary>
@@ -293,7 +293,7 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                 },
             });
 
-        return await query.PaginateAsync(page, perPage, []);
+        return await query.PaginateAsync(page, perPage, [], 100, false);
     }
 
     /// <summary>
@@ -324,6 +324,6 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                 },
             });
 
-        return await query.PaginateAsync(page, perPage, []);
+        return await query.PaginateAsync(page, perPage, [], 100, false);
     }
 }

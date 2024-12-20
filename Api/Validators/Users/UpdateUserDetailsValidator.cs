@@ -30,9 +30,8 @@ public class UpdateUserDetailsValidator : AbstractValidator<UpdateUserDetailsReq
             .DateInPast();
 
         RuleFor(u => u.Photo)
-            .MaximumLength(50)
             .FileUploadName(FileClass.Image, uploadService)
-            .When(u => !string.IsNullOrEmpty(u.Photo));
+            .When(s => !string.IsNullOrEmpty(s.Photo));
     }
 
 }

@@ -36,11 +36,6 @@ public class UpdateMenuRequest
     public DateOnly? DateUntil { get; set; }
 
     /// <summary>
-    /// File name of the photo
-    /// </summary>
-    public required string Photo { get; set; }
-
-    /// <summary>
     /// List of items to update
     /// </summary>
     public required List<int> MenuItemsIds { get; set; }

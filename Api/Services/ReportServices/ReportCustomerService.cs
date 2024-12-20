@@ -56,7 +56,9 @@ public class ReportCustomerService(
             };
         }
 
-        var visit = await context.Visits.FindAsync(dto.VisitId);
+        var visit = await context.Visits
+            .Include(v => v.Restaurant)
+            .SingleOrDefaultAsync(v => v.VisitId == dto.VisitId);
         if (visit is null)
         {
             return new ValidationFailure
@@ -87,5 +89,5 @@ public class ReportCustomerService(
         return mapper.Map<ReportVM>(report);
     }
 
-   
+
 }

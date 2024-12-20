@@ -1,0 +1,19 @@
+meta {
+  name: GET 1
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/restaurants/:restaurantId/reviews
+  body: none
+  auth: none
+}
+
+params:path {
+  restaurantId: 1
+}
+
+assert {
+  res.status: eq 200
+}

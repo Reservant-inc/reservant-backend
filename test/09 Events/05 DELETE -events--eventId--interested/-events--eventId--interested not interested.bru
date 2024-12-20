@@ -11,33 +11,11 @@ delete {
 }
 
 params:path {
-  eventId: {{randomInterestedEventId}}
+  eventId: 2
 }
 
 auth:bearer {
   token: {{PA}}
-}
-
-script:pre-request {
-  // Pobierz listę interestedInEventsIdsList ze zmiennej środowiskowej
-  var interestedInEventsIdsList = bru.getEnvVar("interestedInEventsIdsList");
-  
-  // Konwertuj listę na tablicę, jeśli jest w formacie string
-  interestedInEventsIdsList = interestedInEventsIdsList ? interestedInEventsIdsList.split(',') : [];
-  
-  // Sprawdź, czy lista nie jest pusta
-  if (interestedInEventsIdsList.length > 0) {
-      // Wylosuj jedną wartość
-      var randomInterestedEventId = interestedInEventsIdsList[Math.floor(Math.random() * interestedInEventsIdsList.length)];
-  
-      // Zapisz wylosowaną wartość do zmiennej środowiskowej
-      bru.setEnvVar("randomInterestedEventId", randomInterestedEventId);
-  
-      console.log("Random interested eventId selected:", randomInterestedEventId);
-  } else {
-      console.log("interestedInEventsIdsList is empty");
-  }
-  
 }
 
 tests {

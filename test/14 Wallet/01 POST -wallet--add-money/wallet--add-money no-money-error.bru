@@ -1,0 +1,35 @@
+meta {
+  name: wallet--add-money no-money-error
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/wallet/add-money
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "title": "{{randomText.substring(0, 40)}}",
+    "amount": null
+  }
+}
+
+tests {
+  test("Response status is 400", function() {
+    expect(res.getStatus()).to.equal(400)
+  })
+  
+  const jsonData = res.getBody()
+  
+  test("Money required error expected", function () {
+      expect(jsonData.errors['moneyRequest']).to.include("The moneyRequest field is required.");
+  });
+  
+}

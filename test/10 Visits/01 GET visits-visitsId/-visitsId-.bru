@@ -1,0 +1,77 @@
+meta {
+  name: -visitsId-
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/visits/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: {{randomNumber01}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+script:pre-request {
+  function generateRandomNumber01() {
+      return Math.floor(Math.random() * 2);
+  }
+  var randomNumber01 = generateRandomNumber01();
+  bru.setEnvVar("randomNumber01", randomNumber01);
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response is not empty", function () {
+      expect(res.getBody()?.toString()).not.to.be.empty;
+  });
+  
+  test("Response has a JSON body", function () {
+  //     expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+  });
+  
+  const response = res.getBody();
+  test("Response has correct output types", function () {
+      expect(response).to.have.property("visitId").that.is.a("number");
+      expect(response).to.have.property("date").that.is.a("string");
+      expect(response).to.have.property("numberOfGuests").that.is.a("number");
+      expect(response).to.have.property("paymentTime").that.is.a("string");
+      expect(response).to.have.property("deposit");
+      expect(response.deposit === null || typeof response.deposit === 'number').to.be.true;
+      expect(response).to.have.property("reservationDate");
+      expect(response.reservationDate === null || typeof response.reservationDate === 'string').to.be.true;
+      expect(response).to.have.property("tip");
+      expect(response.tip === null || typeof response.tip === 'number').to.be.true;
+      expect(response).to.have.property("takeaway").that.is.a("boolean");
+      expect(response).to.have.property("clientId").that.is.a("string");
+      expect(response).to.have.property("restaurantId").that.is.a("number");
+      expect(response).to.have.property("tableId").that.is.a("number");
+      expect(response).to.have.property("participants").that.is.an("array");
+      response.participants.forEach(participant => {
+          expect(participant).to.have.property("userId").that.is.a("string");
+          expect(participant).to.have.property("firstName").that.is.a("string");
+          expect(participant).to.have.property("lastName").that.is.a("string");
+      });
+      expect(response).to.have.property("orders").that.is.an("array");
+      response.orders.forEach(order => {
+          expect(order).to.have.property("orderId").that.is.a("number");
+          expect(order).to.have.property("visitId").that.is.a("number");
+          expect(order).to.have.property("date").that.is.a("string");
+          expect(order).to.have.property("note");
+          expect(order.note === null || typeof order.note === 'string').to.be.true;
+          expect(order).to.have.property("cost").that.is.a("number");
+          expect(order).to.have.property("status").that.is.a("string");
+      });
+  });
+  
+  
+}

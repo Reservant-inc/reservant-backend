@@ -8,6 +8,7 @@ using Reservant.Api.Validation;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Mapping;
 using Reservant.Api.Push;
+using Reservant.Api.Identity;
 
 namespace Reservant.Api.Services;
 
@@ -53,7 +54,7 @@ public class NotificationService(
                 NotificationType = n.Details.GetType().Name,
                 Details = n.Details,
             })
-            .PaginateAsync(page, perPage, [], 100);
+            .PaginateAsync(page, perPage, [], 100, true);
     }
 
     /// <summary>
@@ -370,5 +371,28 @@ public class NotificationService(
                 },
                 visitData.photoFileName);
         }
+    }
+
+    /// <summary>
+    /// Notifies all customer support managers about a new escalated report
+    /// </summary>
+    public async Task NotifyReportEscalated(Report report)
+    {
+        var managers =
+            from user in context.Users
+            join userRole in context.UserRoles on user.Id equals userRole.UserId
+            join role in context.Roles on userRole.RoleId equals role.Id
+            where role.Name == Roles.CustomerSupportManager
+            select user.Id;
+
+        await NotifyUsers(
+            managers,
+            new NotificationReportEscalated
+            {
+                ReportId = report.ReportId,
+                ReportDescription = report.Description,
+                ReportCategory = report.Category,
+                Comment = report.EscalationComment!,
+            });
     }
 }

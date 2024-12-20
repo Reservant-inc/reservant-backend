@@ -6,7 +6,7 @@ namespace Reservant.Api.Dtos.Reports;
 public class EscalateReportRequest
 {
     /// <summary>
-    /// Comment to be passed to the manager
+    /// Comment for the manager
     /// </summary>
     public required string EscalationComment { get; set; }
 }

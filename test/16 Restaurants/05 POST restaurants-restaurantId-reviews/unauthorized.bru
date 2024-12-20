@@ -1,0 +1,26 @@
+meta {
+  name: unauthorized
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/restaurants/:restaurantId/reviews
+  body: json
+  auth: none
+}
+
+params:path {
+  restaurantId: 1
+}
+
+body:json {
+  {
+    "stars": 3,
+    "contents": "example review"
+  }
+}
+
+assert {
+  res.status: eq 401
+}

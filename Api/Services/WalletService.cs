@@ -78,7 +78,7 @@ public class WalletService(
     {
         var transactions = context.PaymentTransactions
             .Where(p => p.UserId == user.Id)
-            .OrderBy(p => p.Time)
+            .OrderByDescending(p => p.Time)
             .Select(p => new TransactionVM
             {
                 TransactionId = p.PaymentTransactionId,
@@ -87,7 +87,7 @@ public class WalletService(
                 Time = p.Time,
             });
 
-        return await transactions.PaginateAsync(page, perPage, []);
+        return await transactions.PaginateAsync(page, perPage, [], 100, true);
 
     }
 

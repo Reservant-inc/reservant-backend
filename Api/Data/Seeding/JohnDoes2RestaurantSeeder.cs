@@ -196,4 +196,24 @@ public class JohnDoes2RestaurantSeeder(
             ],
         },
     ];
+
+    /// <inheritdoc />
+    protected override Review[] CreateReviews(UserSeeder users) =>
+    [
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 2,
+            CreatedAt = new DateTime(2024, 5, 10),
+            Contents =
+                "Baaardzo średnio, myślałem, że będzie na poziomie restauracji numer 1 pana John Doe, a okazało się słabiutko",
+        },
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 1,
+            CreatedAt = new DateTime(2024, 3, 11),
+            Contents = "Kompletna porażka! Jedzenie zimne, kelner nieuprzejmy - fatalnie!",
+        },
+    ];
 }

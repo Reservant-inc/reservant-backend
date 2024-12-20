@@ -31,22 +31,12 @@ pipeline {
                         ${imageTag}"
             }
         }
-
-        stage('Install Postman CLI') {
-            steps {
-                sh 'curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh'
+        stage ('Run tests') {
+            when {
+                branch 'main'
             }
-        }
-
-        stage('Postman CLI Login') {
             steps {
-                sh 'postman login --with-api-key $POSTMAN_API_KEY'
-                }
-        }
-
-        stage('Run tests') {
-            steps {
-                sh "/var/jenkins_home/scripts/run_tests.sh"
+                build job: 'Reservant Backend-Tests', parameters: [string(name: 'label_string', value: '(BACKEND_DEPLOY)')]
             }
         }
     }

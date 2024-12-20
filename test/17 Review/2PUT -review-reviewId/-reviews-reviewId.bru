@@ -1,0 +1,32 @@
+meta {
+  name: -reviews-reviewId
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{host}}/reviews/:reviewId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  reviewId: {{reviewId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "stars": 4,
+    "contents": "{{randomLoremSentence}}"
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -8,6 +8,7 @@ using FluentValidation.Results;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.RestaurantGroups;
 using Reservant.Api.Services.RestaurantServices;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services;
 
@@ -26,8 +27,22 @@ public class RestaurantGroupService(
     /// <param name="req">Request</param>
     /// <param name="user">Restaurant owner</param>
     /// <returns></returns>
+    [ErrorCode(nameof(CreateRestaurantGroupRequest.RestaurantIds), ErrorCodes.EmptyList)]
+    [ErrorCode(nameof(CreateRestaurantGroupRequest.RestaurantIds), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(CreateRestaurantGroupRequest.RestaurantIds), ErrorCodes.AccessDenied)]
     public async Task<Result<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req, User user)
     {
+        //Empty restaurant group cannot exist according to class diagram
+        if (req.RestaurantIds.Count == 0)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.EmptyList,
+                ErrorMessage = "Empty restaurant group cannot exist",
+                PropertyName = nameof(req.RestaurantIds)
+            };
+        }
+
         //check if all restaurantIds from request exist
         foreach (var id in req.RestaurantIds)
         {

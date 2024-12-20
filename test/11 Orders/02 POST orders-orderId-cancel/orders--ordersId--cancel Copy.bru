@@ -1,0 +1,26 @@
+meta {
+  name: orders--ordersId--cancel Copy
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/orders/:id/cancel
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: trzy
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 404", function () {
+      expect(res.getStatus()).to.equal(404);
+  });
+  
+}

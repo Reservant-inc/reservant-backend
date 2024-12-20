@@ -14,10 +14,16 @@ public class ReportConfig : IEntityTypeConfiguration<Report>
     {
         builder.HasOne(report => report.ReportedUser).WithMany();
         builder.HasOne(report => report.CreatedBy).WithMany();
+        builder.HasOne(report => report.EscalatedBy).WithMany();
         builder.HasOne(report => report.Visit).WithMany();
 
         builder.OwnsOne(x => x.Resolution);
-        
+
+        builder.Navigation(report => report.ReportedUser).AutoInclude();
+        builder.Navigation(report => report.CreatedBy).AutoInclude();
+        builder.Navigation(report => report.EscalatedBy).AutoInclude();
+        builder.Navigation(report => report.Visit).AutoInclude();
+
         builder
             .HasOne(report => report.Thread)
             .WithOne()

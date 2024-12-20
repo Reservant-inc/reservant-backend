@@ -72,10 +72,40 @@ public static class Utils
     /// <param name="perPage">Items per page</param>
     /// <param name="orderByOptions">Available sorting options (only used to return the info to the client)</param>
     /// <param name="maxPerPage">Maximum value for <paramref name="perPage"/></param>
-    [ErrorCode(null, ErrorCodes.InvalidPerPageValue, "Must be >= 1 and <= maximum value")]
+    /// <param name="disallowSkippingPaging">If set to true, return all items from the query</param>
+    [ErrorCode(null, ErrorCodes.InvalidPerPageValue,
+        "Must be >= 1 and <= maximum value, or skipping pagination is disallowed for this endpoint")]
     public static async Task<Result<Pagination<T>>> PaginateAsync<T>(
-        this IQueryable<T> query, int page, int perPage, string[] orderByOptions, int maxPerPage = 10)
+        this IQueryable<T> query,
+        int page,
+        int perPage,
+        string[] orderByOptions,
+        int maxPerPage = 100,
+        bool disallowSkippingPaging = false)
     {
+        if (perPage == -1)
+        {
+            if (disallowSkippingPaging)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "Disabling pagination is not allowed for this endpoint",
+                    ErrorCode = ErrorCodes.InvalidPerPageValue,
+                };
+            }
+
+            var allItems = await query.ToListAsync();
+            return new Pagination<T>
+            {
+                Items = allItems,
+                TotalPages = 1,
+                Page = 0,
+                PerPage = allItems.Count,
+                OrderByOptions = orderByOptions,
+            };
+        }
+
         if (perPage > maxPerPage)
         {
             return new ValidationFailure
@@ -103,7 +133,7 @@ public static class Utils
         {
             return new Pagination<T>
             {
-                Items = [],
+                Items = new List<T>(),
                 TotalPages = totalPages,
                 Page = page,
                 PerPage = perPage,
@@ -125,4 +155,5 @@ public static class Utils
             OrderByOptions = orderByOptions
         };
     }
+
 }

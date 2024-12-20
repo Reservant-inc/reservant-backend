@@ -1,0 +1,18 @@
+meta {
+  name: wallet--get-history unauthorized
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/wallet/history
+  body: none
+  auth: none
+}
+
+tests {
+  test("Response status is 401", function(){
+    expect(res.getStatus()).to.equal(401)
+  })
+  
+}

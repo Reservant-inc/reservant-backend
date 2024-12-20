@@ -158,4 +158,23 @@ public class WitcherRestaurantSeeder(
             },
         },
     ];
+
+    /// <inheritdoc />
+    protected override Review[] CreateReviews(UserSeeder users) =>
+    [
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 3,
+            CreatedAt = new DateTime(2024, 7, 19),
+            Contents = "Średnie jedzenie, ale przyjemna atmosfera. Może wrócę spróbować innych dań.",
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 7, 22),
+            Contents = "Dobre jedzenie, ale niektóre potrawy były trochę zbyt słone. Ogólnie pozytywnie.",
+        },
+    ];
 }

@@ -1,0 +1,25 @@
+meta {
+  name: -review-reviewId
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{host}}/reviews/:reviewId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  reviewId: {{reviewId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+}

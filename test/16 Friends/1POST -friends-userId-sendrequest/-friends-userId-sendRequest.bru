@@ -1,0 +1,25 @@
+meta {
+  name: -friends-userId-sendRequest
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/friends/:userId/send-request
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: {{customerId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+tests {
+  test("Status code is 204", function () {
+      expect(res.getStatus()).to.equal(204);
+  });
+}

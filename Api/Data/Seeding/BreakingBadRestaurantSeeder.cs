@@ -62,7 +62,8 @@ public class BreakingBadRestaurantSeeder(
             OpeningHours = CreateOpeningHours(
                 new TimeOnly(10, 00), new TimeOnly(22, 00),
                 new TimeOnly(10, 00), new TimeOnly(23, 00)),
-            Tables = [
+            Tables =
+            [
                 new Table { TableId = 1, Capacity = 4 },
                 new Table { TableId = 2, Capacity = 4 },
                 new Table { TableId = 3, Capacity = 6 },
@@ -100,7 +101,8 @@ public class BreakingBadRestaurantSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            MenuItems = [
+            MenuItems =
+            [
                 CreateRandomMenuItem("Classic Chicken"),
                 CreateRandomMenuItem("Spicy Fried Chicken"),
                 CreateRandomMenuItem("Buttermilk Fried Chicken"),
@@ -127,7 +129,8 @@ public class BreakingBadRestaurantSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            MenuItems = [
+            MenuItems =
+            [
                 CreateRandomMenuItem("Classic Beef Burger"),
                 CreateRandomMenuItem("Chicken Burger"),
                 CreateRandomMenuItem("Cheeseburger"),
@@ -146,7 +149,8 @@ public class BreakingBadRestaurantSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            MenuItems = [
+            MenuItems =
+            [
                 CreateRandomMenuItem("French Fries"),
                 CreateRandomMenuItem("Coleslaw"),
                 CreateRandomMenuItem("Onion Rings"),
@@ -161,7 +165,8 @@ public class BreakingBadRestaurantSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Food,
-            MenuItems = [
+            MenuItems =
+            [
                 CreateRandomMenuItem("Soft Drink"),
                 CreateRandomMenuItem("Iced Tea"),
                 CreateRandomMenuItem("Iced Coffee"),
@@ -174,10 +179,37 @@ public class BreakingBadRestaurantSeeder(
             DateFrom = new DateOnly(2024, 1, 1),
             DateUntil = null,
             MenuType = MenuType.Alcohol,
-            MenuItems = [
+            MenuItems =
+            [
                 CreateRandomMenuItem("Beer", 5m),
                 CreateRandomMenuItem("House Wine", 12m),
             ],
+        },
+    ];
+
+    /// <inheritdoc />
+    protected override Review[] CreateReviews(UserSeeder users) =>
+    [
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 7, 10),
+            Contents = "Fajne jedzenie, ale z zaplecza wydobywał się dziwny niebieski dym... podejrzane",
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 7, 10),
+            Contents = "ŚWIETNIE!! Kucharz zaoferował też \"specjalny\", niebieski deser;))",
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 7, 10),
+            Contents = "Super restauracja, okazało się że właściciel uczył mnie chemii. Może zapytam czy ma jakiś pomysł na rozwinięcie biznesu..",
         },
     ];
 }

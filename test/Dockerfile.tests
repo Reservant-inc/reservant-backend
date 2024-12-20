@@ -1,0 +1,14 @@
+FROM node:16
+
+WORKDIR /app
+
+COPY ./test .
+ENV CI=true
+RUN npm install -g @usebruno/cli@1.35
+RUN npm install
+
+ENV POST_MSG_HEAD=""
+ENV DISCORD_WEBHOOK_URL=""
+
+RUN chmod +x ./run_tests.sh
+CMD ["/bin/bash", "-c", "./run_tests.sh ${DISCORD_WEBHOOK_URL} ${POST_MSG_HEAD}"]
