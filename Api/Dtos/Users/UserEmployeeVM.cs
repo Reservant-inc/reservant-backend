@@ -1,5 +1,9 @@
 using Reservant.Api.Dtos.Employments;
 using Reservant.Api.Models;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using Microsoft.AspNetCore.Identity;
+using Reservant.Api.Data;
 
 namespace Reservant.Api.Dtos.Users;
 
@@ -53,4 +57,9 @@ public class UserEmployeeVM
     /// User's photo path
     /// </summary>
     public required string? Photo { get; init; }
+
+    /// <summary>
+    /// Precise time of user beeing unbanned, null if not banned
+    /// </summary>
+    public required DateTime? BannedUntil { get; set; }
 }
