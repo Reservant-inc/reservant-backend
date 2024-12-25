@@ -499,9 +499,8 @@ public class UserService(
         if (requestedUser.BannedUntil.HasValue && requestedUser.BannedUntil.Value < DateTime.UtcNow)
         {
             requestedUser.BannedUntil = null;
-        }            
-        await dbContext.SaveChangesAsync();
-        
+            await dbContext.SaveChangesAsync();
+        }
 
         User? currentUser = await dbContext.Users.FindAsync(currentUserId);
         var userDto = mapper.Map<UserEmployeeVM>(requestedUser);
