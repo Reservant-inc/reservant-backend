@@ -56,9 +56,4 @@ public class VisitSummaryVM
     /// Restaurant where the visit took place
     /// </summary>
     public required RestaurantSummaryVM Restaurant { get; init; }
-    
-    /// <summary>
-    /// Indicates if visit is cancelled
-    /// </summary>
-    public required bool IsCancelled { get; set; }
 }

@@ -89,8 +89,4 @@ public class VisitVM
     /// </summary>
     public required List<OrderSummaryVM> Orders { get; set; }
     
-    /// <summary>
-    /// Indicates if visit is cancelled
-    /// </summary>
-    public required bool IsCancelled { get; set; }
 }

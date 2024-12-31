@@ -306,8 +306,8 @@ public class VisitService(
                 ErrorCode = ErrorCodes.IncorrectVisitStatus
             };
         }
-        
-        visit.IsCancelled = true;
+
+        visit.IsDeleted = true;
         await context.SaveChangesAsync();
         
         // await notificationService.NotifyVisitCancelled(visit.ClientId, visitId);

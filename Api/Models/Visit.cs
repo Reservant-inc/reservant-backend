@@ -168,10 +168,6 @@ public class Visit : ISoftDeletable
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
     
-    /// <summary>
-    /// Navigational property for restaurant
-    /// </summary>
-    public bool IsCancelled { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
