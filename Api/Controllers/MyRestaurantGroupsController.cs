@@ -143,12 +143,12 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// </summary>
     [HttpGet("{restaurantGroupId:int}/statistics")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<StatisticService>(nameof(StatisticService.GetStatsByRestaurantGroupIdAsync))]
+    [MethodErrorCodes<StatisticsService>(nameof(StatisticsService.GetStatsByRestaurantGroupIdAsync))]
     [Authorize(Roles = Roles.RestaurantOwner)]
     public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantGroupId(
         int restaurantGroupId,
         [FromQuery] RestaurantStatsRequest request,
-        [FromServices] StatisticService statisticsService)
+        [FromServices] StatisticsService statisticsService)
     {
         var userId = User.GetUserId();
         var result = await statisticsService.GetStatsByRestaurantGroupIdAsync(restaurantGroupId, userId!.Value, request);

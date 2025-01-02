@@ -289,12 +289,12 @@ namespace Reservant.Api.Controllers
         /// </summary>
         [HttpGet("{restaurantId:int}/statistics")]
         [ProducesResponseType(200), ProducesResponseType(400)]
-        [MethodErrorCodes<StatisticService>(nameof(StatisticService.GetStatsByRestaurantIdAsync))]
+        [MethodErrorCodes<StatisticsService>(nameof(StatisticsService.GetStatsByRestaurantIdAsync))]
         [Authorize(Roles = Roles.RestaurantOwner)]
         public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantId(
             int restaurantId,
             [FromQuery] RestaurantStatsRequest request,
-            [FromServices] StatisticService service)
+            [FromServices] StatisticsService service)
         {
             var userId = User.GetUserId();
             var result = await service.GetStatsByRestaurantIdAsync(restaurantId, userId!.Value, request);

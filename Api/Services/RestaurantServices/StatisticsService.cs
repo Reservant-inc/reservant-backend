@@ -12,7 +12,7 @@ namespace Reservant.Api.Services.RestaurantServices;
 /// <summary>
 /// Service responsible for managing restaurants statistics
 /// </summary>
-public class StatisticService(
+public class StatisticsService(
     ApiDbContext context
     ,AuthorizationService authorizationService
 )
