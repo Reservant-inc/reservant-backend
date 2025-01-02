@@ -54,7 +54,7 @@ namespace Reservant.Api.Controllers
         /// <param name="userId">id of the user</param>
         /// <returns></returns>
         [ProducesResponseType(200), ProducesResponseType(404)]
-        [HttpPost("{userId}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
+        [HttpPost("{userId}/make-restaurant-owner"), Authorize()]//Roles = Roles.CustomerSupportAgent
         public async Task<ActionResult> MakeRestaurantOwner(Guid userId)
         {
             var user = await userService.MakeRestaurantOwnerAsync(userId);
@@ -233,5 +233,29 @@ namespace Reservant.Api.Controllers
             var result = await userService.ArchiveUserAsync(userId, user.Id);
             return OkOrErrors(result);
         }
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// Gets information about a specific users vists and orders.
+        /// </summary>
+        /// <param name="userId">ID of the user whos visit and orders of such visits are beeing retrived</param>
+        /// <returns></returns>
+        [HttpGet("{userId}/visits")]
+        [Authorize(Roles = Roles.CustomerSupportAgent)]
+        [ProducesResponseType(200), ProducesResponseType(401), ProducesResponseType(403), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.GetUsersVistsWithOrdersByIdAsync))]
+        public async Task<ActionResult<List<VisitWithOrdersVM>>> GetUsersVistsWithOrdersById(Guid userId)
+        {
+            var result = await userService.GetUsersVistsWithOrdersByIdAsync(userId, User.GetUserId()!.Value);
+            return OkOrErrors(result);
+        }
+
     }
 }

@@ -17,6 +17,7 @@ using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.Api.Dtos.Orders;
 
 
 namespace Reservant.Api.Services;
@@ -679,4 +680,77 @@ public class UserService(
         await RemoveExpiredBan(user);
         return false;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /// <summary>
+    /// Retrieves detailed information about a user's visits and their orders.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose visits are to be retrieved.</param>
+    /// <param name="currentUserId">The ID of the current user.</param>
+    /// <returns>A list of <see cref="VisitWithOrdersVM"/> objects or a <see cref="ValidationFailure"/> if validation fails.</returns>
+    [ErrorCode(null, ErrorCodes.AccessDenied, ErrorCodes.NotFound)]
+    public async Task<Result<List<VisitWithOrdersVM>>> GetUsersVistsWithOrdersByIdAsync(Guid userId, Guid currentUserId)
+    {
+        // Check if the user exists
+        if (!dbContext.Users.Any(u => u.Id == userId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = $"User: {userId} not found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        // Fetch visits and include orders
+        var visits = await dbContext.Visits
+            .Include(v => v.Orders)
+            .Where(v => v.ClientId == userId)
+            .ToListAsync();
+
+        if (visits==null || visits.Count==0)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "No visits found.",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        // Map visits and orders to VisitWithOrdersVM
+        var visitWithOrdersVMs = visits.Select(visit =>
+        {
+            // Map the visit
+            var visitVM = mapper.Map<VisitVM>(visit);
+
+            // Map the orders for this visit
+            var ordersVM = visit.Orders.Select(order => mapper.Map<OrderVM>(order)).ToList();
+
+            // Combine visitVM and ordersVM into VisitWithOrdersVM
+            return new VisitWithOrdersVM
+            {
+                visitVM = visitVM,
+                Orders = ordersVM
+            };
+        }).ToList();
+
+        // Return the list of VisitWithOrdersVM
+        return visitWithOrdersVMs;
+    }
+
 }
