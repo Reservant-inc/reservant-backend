@@ -89,92 +89,83 @@ public class StatisticsService(
         return await GetStatisticsForGroup(restaurantGroup, request);
     }
 
-    private async Task<RestaurantStatsVM> GetStatisticsForGroup(
+    private static Task<RestaurantStatsVM> GetStatisticsForGroup(
         RestaurantGroup restaurantGroup, RestaurantStatsRequest request)
     {
         var combinedDateRevenue = new Dictionary<DateOnly, decimal>();
         var combinedDateCustomerCount = new Dictionary<DateOnly, int>();
         var combinedPopularItems = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var restaurant in restaurantGroup.Restaurants)
-        {
-            var restaurantStats = await GetStatisticsForRestaurant(restaurant.RestaurantId, request);
+        // foreach (var restaurant in restaurantGroup.Restaurants)
+        // {
+        //     var restaurantStats = await GetStatisticsForRestaurant(restaurant.RestaurantId, request);
+        //
+        //     for (int i = 0; i < restaurantStats.DateList.Count; i++)
+        //     {
+        //         var date = restaurantStats.DateList[i];
+        //
+        //         if (!combinedDateRevenue.ContainsKey(date))
+        //             combinedDateRevenue[date] = 0;
+        //         combinedDateRevenue[date] += restaurantStats.RevenueList[i];
+        //
+        //         if (!combinedDateCustomerCount.ContainsKey(date))
+        //             combinedDateCustomerCount[date] = 0;
+        //         combinedDateCustomerCount[date] += restaurantStats.CustomerCountList[i];
+        //     }
+        //
+        //     foreach (var (itemName, count) in restaurantStats.PopularItems)
+        //     {
+        //         if (!combinedPopularItems.ContainsKey(itemName))
+        //             combinedPopularItems[itemName] = 0;
+        //         combinedPopularItems[itemName] += count;
+        //     }
+        // }
 
-            for (int i = 0; i < restaurantStats.DateList.Count; i++)
-            {
-                var date = restaurantStats.DateList[i];
-
-                if (!combinedDateRevenue.ContainsKey(date))
-                    combinedDateRevenue[date] = 0;
-                combinedDateRevenue[date] += restaurantStats.RevenueList[i];
-
-                if (!combinedDateCustomerCount.ContainsKey(date))
-                    combinedDateCustomerCount[date] = 0;
-                combinedDateCustomerCount[date] += restaurantStats.CustomerCountList[i];
-            }
-
-            foreach (var (itemName, count) in restaurantStats.PopularItems)
-            {
-                if (!combinedPopularItems.ContainsKey(itemName))
-                    combinedPopularItems[itemName] = 0;
-                combinedPopularItems[itemName] += count;
-            }
-        }
-
-        return new RestaurantStatsVM
-        {
-            DateList = combinedDateRevenue.Keys.OrderBy(d => d).ToList(),
-            RevenueList = combinedDateRevenue.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList(),
-            CustomerCountList = combinedDateCustomerCount.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList(),
-            PopularItems = combinedPopularItems
-                .OrderByDescending(kvp => kvp.Value)
-                .Take(request.PopularItemMaxCount ?? RestaurantStatsRequest.DefaultPopularItemMaxCount)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-        };
+        return null!;
     }
 
     private async Task<RestaurantStatsVM> GetStatisticsForRestaurant(
         int restaurantId, RestaurantStatsRequest request)
     {
-        var visits = await context.Visits
-            .Include(v => v.Orders)
-            .ThenInclude(o => o.OrderItems)
-            .ThenInclude(oi => oi.MenuItem)
-            .Where(v =>
-                v.RestaurantId == restaurantId &&
-                (request.DateUntil == null || (v.EndTime.HasValue && DateOnly.FromDateTime(v.EndTime.Value) <= request.DateUntil)) &&
-                (request.DateFrom == null || (v.StartTime.HasValue && DateOnly.FromDateTime(v.StartTime.Value) >= request.DateFrom)))
-            .ToListAsync();
+        var visits = context.Visits
+            .Where(v => v.RestaurantId == restaurantId && v.StartTime != null);
 
-        var groupedData = visits
-            .GroupBy(v => DateOnly.FromDateTime(v.StartTime ?? v.EndTime ?? throw new InvalidOperationException("Visit must have either StartTime or EndTime.")))
-            .Select(g => new
+        if (request.DateFrom is not null)
+        {
+            var startDateTime = new DateTime(request.DateFrom.Value, default);
+            visits = visits.Where(v => v.StartTime >= startDateTime);
+        }
+
+        if (request.DateUntil is not null)
+        {
+            var endDateTime = new DateTime(request.DateUntil.Value, default).AddDays(1);
+            visits = visits.Where(v => v.StartTime < endDateTime);
+        }
+
+        var visitStatistics = await visits
+            .GroupBy(v => v.StartTime!.Value.Date)
+            .Select(group => new
             {
-                Date = g.Key,
-                Revenue = g.SelectMany(v => v.Orders ?? Enumerable.Empty<Order>())
-                    .SelectMany(o => o.OrderItems ?? Enumerable.Empty<OrderItem>())
-                    .Where(oi => oi.MenuItem != null)
-                    .Sum(oi => oi.Amount * oi.OneItemPrice),
-                CustomerCount = g.Sum(v => v.Participants?.Count ?? 0) + 1,
-                PopularItems = g.SelectMany(v => v.Orders ?? Enumerable.Empty<Order>())
-                    .SelectMany(o => o.OrderItems ?? Enumerable.Empty<OrderItem>())
-                    .Where(oi => oi.MenuItem != null)
-                    .GroupBy(oi => oi.MenuItem!.Name)
-                    .OrderByDescending(oi => oi.Sum(item => item.Amount))
-                    .Take(request.PopularItemMaxCount ?? RestaurantStatsRequest.DefaultPopularItemMaxCount)
-                    .ToDictionary(oi => oi.Key, oi => oi.Sum(item => item.Amount))
+                Date = DateOnly.FromDateTime(group.Key),
+                Revenue = group
+                    .SelectMany(v => v.Orders)
+                    .SelectMany(o => o.OrderItems)
+                    .Sum(oi => oi.OneItemPrice * oi.Amount),
+                CustomerCount =
+                    group.SelectMany(v => v.Participants).Count()
+                    + group.Sum(v => v.NumberOfGuests + 1),
             })
-            .ToList();
+            .ToListAsync();
 
         return new RestaurantStatsVM
         {
-            DateList = groupedData.Select(d => d.Date).ToList(),
-            RevenueList = groupedData.Select(d => d.Revenue).ToList(),
-            CustomerCountList = groupedData.Select(d => d.CustomerCount).ToList(),
-            PopularItems = groupedData
-                .SelectMany(d => d.PopularItems)
-                .GroupBy(kvp => kvp.Key)
-                .ToDictionary(g => g.Key, g => g.Sum(kvp => kvp.Value))
+            Revenue = visitStatistics
+                .Select(p => new DayRevenue(p.Date, p.Revenue))
+                .ToList(),
+            CustomerCount = visitStatistics
+                .Select(p => new DayCustomers(p.Date, p.CustomerCount))
+                .ToList(),
+            PopularItems = null!,
         };
     }
 
