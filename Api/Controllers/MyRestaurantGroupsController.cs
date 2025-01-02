@@ -146,19 +146,13 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     [MethodErrorCodes<StatisticService>(nameof(StatisticService.GetStatsByRestaurantGroupIdAsync))]
     [Authorize(Roles = Roles.RestaurantOwner)]
     public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantGroupId(
-        int restaurantGroupId, [FromQuery] DateOnly? dateSince, [FromQuery] DateOnly? dateTill, 
-        [FromQuery] int? popularItemMaxCount, [FromServices] StatisticService service)
+        int restaurantGroupId,
+        [FromQuery] RestaurantStatsRequest request,
+        [FromServices] StatisticService statisticsService)
     {
         var userId = User.GetUserId();
-        var request = new RestaurantStatsRequest
-        {
-            dateSince = dateSince,
-            dateTill = dateTill,
-            popularItemMaxCount = popularItemMaxCount
-        };
-
-        var result = await service.GetStatsByRestaurantGroupIdAsync(restaurantGroupId, userId!.Value, request);
+        var result = await statisticsService.GetStatsByRestaurantGroupIdAsync(restaurantGroupId, userId!.Value, request);
         return OkOrErrors(result);
-    } 
+    }
 
 }
