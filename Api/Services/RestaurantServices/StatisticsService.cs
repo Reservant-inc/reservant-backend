@@ -13,53 +13,9 @@ namespace Reservant.Api.Services.RestaurantServices;
 /// Service responsible for managing restaurants statistics
 /// </summary>
 public class StatisticsService(
-    ApiDbContext context
-    ,AuthorizationService authorizationService
-)
+    ApiDbContext context,
+    AuthorizationService authorizationService)
 {
-    /// <summary>
-    /// Function that validates request
-    /// </summary>
-    /// <param name="request">request</param>
-    /// <returns></returns>
-    [ValidatorErrorCodes<RestaurantStatsRequest>]
-    public Result ValidateRestaurantStatsRequest(RestaurantStatsRequest request)
-    {
-        if (request.DateUntil < request.DateFrom)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = request.DateUntil + " beofre " + request.DateFrom,
-                ErrorCode = ErrorCodes.StartMustBeBeforeEnd,
-                ErrorMessage = ErrorCodes.InvalidTimeSlot,
-            };
-        }
-
-        if (request.PopularItemMaxCount < 0)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = request.PopularItemMaxCount + "must be more than 0",
-                ErrorCode = ErrorCodes.InvalidState,
-                ErrorMessage = ErrorCodes.InvalidState,
-            };
-        }
-
-        if (request.PopularItemMaxCount % 1 != 0)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = request.PopularItemMaxCount + "must be a whole number",
-                ErrorCode = ErrorCodes.InvalidState,
-                ErrorMessage = ErrorCodes.InvalidState,
-            };
-        }
-
-        return Result.Success;
-    }
-
-
-
     /// <summary>
     /// Function for retrieving restaurant statistics by restaurant id from given time period
     /// </summary>
@@ -67,26 +23,123 @@ public class StatisticsService(
     /// <param name="userId">id of the user</param>
     /// <param name="request">Restaurant statistic</param>
     /// <returns></returns>
-    [ValidatorErrorCodes<RestaurantStatsRequest>]
-    public async Task<Result<RestaurantStatsVM>> GetStatsByRestaurantIdAsync(int restaurantId, Guid userId, RestaurantStatsRequest request)
+    [MethodErrorCodes<StatisticsService>(nameof(ValidateRestaurantStatsRequest))]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
+    public async Task<Result<RestaurantStatsVM>> GetStatsByRestaurantIdAsync(
+        int restaurantId, Guid userId, RestaurantStatsRequest request)
     {
         var result = ValidateRestaurantStatsRequest(request);
-        if(result.IsError)
+        if (result.IsError)
         {
             return result.Errors;
         }
 
         var authorizationResult = await authorizationService.VerifyOwnerRole(restaurantId, userId);
-
         if (authorizationResult.IsError)
         {
             return authorizationResult.Errors;
         }
 
+        return await GetStatisticsForRestaurant(restaurantId, request);
+    }
+
+    /// <summary>
+    /// Function for retrieving restaurants statistics by restaurant group id from given time period
+    /// </summary>
+    /// <param name="restaurantGroupId">id of the restaurant group</param>
+    /// <param name="userId">id of the user</param>
+    /// <param name="request">Restaurant statistic</param>
+    /// <returns></returns>
+    [MethodErrorCodes<StatisticsService>(nameof(ValidateRestaurantStatsRequest))]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
+    [ErrorCode(null, ErrorCodes.NotFound, "Restaurant group does not exist")]
+    [ErrorCode(null, ErrorCodes.AccessDenied, "User is not the owner of the group")]
+    public async Task<Result<RestaurantStatsVM>> GetStatsByRestaurantGroupIdAsync(int restaurantGroupId, Guid userId, RestaurantStatsRequest request)
+    {
+        var result = ValidateRestaurantStatsRequest(request);
+        if (result.IsError)
+        {
+            return result.Errors;
+        }
+
+        var restaurantGroup = await context.RestaurantGroups
+            .Include(g => g.Restaurants)
+            .FirstOrDefaultAsync(g => g.RestaurantGroupId == restaurantGroupId);
+
+        if (restaurantGroup is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = $"Restaurant group with ID {restaurantGroupId} does not exist",
+            };
+        }
+
+        if (restaurantGroup.OwnerId != userId)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorCode = ErrorCodes.AccessDenied,
+                ErrorMessage = $"User is not the owner of the restaurant group with ID {restaurantGroupId}",
+            };
+        }
+
+        return await GetStatisticsForGroup(restaurantGroup, request);
+    }
+
+    private async Task<RestaurantStatsVM> GetStatisticsForGroup(
+        RestaurantGroup restaurantGroup, RestaurantStatsRequest request)
+    {
+        var combinedDateRevenue = new Dictionary<DateOnly, decimal>();
+        var combinedDateCustomerCount = new Dictionary<DateOnly, int>();
+        var combinedPopularItems = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var restaurant in restaurantGroup.Restaurants)
+        {
+            var restaurantStats = await GetStatisticsForRestaurant(restaurant.RestaurantId, request);
+
+            for (int i = 0; i < restaurantStats.DateList.Count; i++)
+            {
+                var date = restaurantStats.DateList[i];
+
+                if (!combinedDateRevenue.ContainsKey(date))
+                    combinedDateRevenue[date] = 0;
+                combinedDateRevenue[date] += restaurantStats.RevenueList[i];
+
+                if (!combinedDateCustomerCount.ContainsKey(date))
+                    combinedDateCustomerCount[date] = 0;
+                combinedDateCustomerCount[date] += restaurantStats.CustomerCountList[i];
+            }
+
+            foreach (var (itemName, count) in restaurantStats.PopularItems)
+            {
+                if (!combinedPopularItems.ContainsKey(itemName))
+                    combinedPopularItems[itemName] = 0;
+                combinedPopularItems[itemName] += count;
+            }
+        }
+
+        return new RestaurantStatsVM
+        {
+            DateList = combinedDateRevenue.Keys.OrderBy(d => d).ToList(),
+            RevenueList = combinedDateRevenue.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList(),
+            CustomerCountList = combinedDateCustomerCount.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList(),
+            PopularItems = combinedPopularItems
+                .OrderByDescending(kvp => kvp.Value)
+                .Take(request.PopularItemMaxCount ?? RestaurantStatsRequest.DefaultPopularItemMaxCount)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
+        };
+    }
+
+    private async Task<RestaurantStatsVM> GetStatisticsForRestaurant(
+        int restaurantId, RestaurantStatsRequest request)
+    {
         var visits = await context.Visits
             .Include(v => v.Orders)
-                .ThenInclude(o => o.OrderItems)
-                    .ThenInclude(oi => oi.MenuItem)
+            .ThenInclude(o => o.OrderItems)
+            .ThenInclude(oi => oi.MenuItem)
             .Where(v =>
                 v.RestaurantId == restaurantId &&
                 (request.DateUntil == null || (v.EndTime.HasValue && DateOnly.FromDateTime(v.EndTime.Value) <= request.DateUntil)) &&
@@ -113,7 +166,7 @@ public class StatisticsService(
             })
             .ToList();
 
-        var restaurantStats = new RestaurantStatsVM
+        return new RestaurantStatsVM
         {
             DateList = groupedData.Select(d => d.Date).ToList(),
             RevenueList = groupedData.Select(d => d.Revenue).ToList(),
@@ -123,105 +176,39 @@ public class StatisticsService(
                 .GroupBy(kvp => kvp.Key)
                 .ToDictionary(g => g.Key, g => g.Sum(kvp => kvp.Value))
         };
-
-        return restaurantStats;
     }
 
     /// <summary>
-    /// Function for retrieving restaurants statistics by restaurant group id from given time period
+    /// Function that validates request
     /// </summary>
-    /// <param name="restaurantGroupId">id of the restaurant group</param>
-    /// <param name="userId">id of the user</param>
-    /// <param name="request">Restaurant statistic</param>
+    /// <param name="request">request</param>
     /// <returns></returns>
-    [ValidatorErrorCodes<RestaurantStatsRequest>]
-    [ErrorCode(null, ErrorCodes.NotFound, "Restaurant group doesn't exist")]
-    public async Task<Result<RestaurantStatsVM>> GetStatsByRestaurantGroupIdAsync(int restaurantGroupId, Guid userId, RestaurantStatsRequest request)
+    [ErrorCode(nameof(request.DateUntil), ErrorCodes.StartMustBeBeforeEnd,
+        "dateFrom must be before dateUntil")]
+    [ErrorCode(nameof(request.PopularItemMaxCount), ErrorCodes.InvalidSearchParameters,
+        "popularItemMaxCount must be greater than 0")]
+    private static Result ValidateRestaurantStatsRequest(RestaurantStatsRequest request)
     {
-        var result = ValidateRestaurantStatsRequest(request);
-        if(result.IsError)
-        {
-            return result.Errors;
-        }
-
-        var restaurantGroup = await context.RestaurantGroups
-            .Include(g => g.Restaurants)
-            .FirstOrDefaultAsync(g => g.RestaurantGroupId == restaurantGroupId);
-
-        if (restaurantGroup is null)
+        if (request.DateUntil < request.DateFrom)
         {
             return new ValidationFailure
             {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = ErrorCodes.NotFound,
+                PropertyName = nameof(request.DateUntil),
+                ErrorCode = ErrorCodes.StartMustBeBeforeEnd,
+                ErrorMessage = $"{request.DateFrom} must be before {request.DateUntil}",
             };
         }
 
-        var firstRestaurant = restaurantGroup.Restaurants.FirstOrDefault();
-        if (firstRestaurant is null)
+        if (request.PopularItemMaxCount < 0)
         {
             return new ValidationFailure
             {
-                PropertyName = null,
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = "No restaurants found in the group.",
+                PropertyName = nameof(request.PopularItemMaxCount),
+                ErrorCode = ErrorCodes.InvalidSearchParameters,
+                ErrorMessage = $"{request.PopularItemMaxCount} must be greater than 0",
             };
         }
 
-        var authorizationResult = await authorizationService.VerifyOwnerRole(firstRestaurant.RestaurantId, userId);
-        if (authorizationResult.IsError)
-        {
-            return authorizationResult.Errors;
-        }
-
-        var combinedDateRevenue = new Dictionary<DateOnly, decimal>();
-        var combinedDateCustomerCount = new Dictionary<DateOnly, int>();
-        var combinedPopularItems = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var restaurant in restaurantGroup.Restaurants)
-        {
-            var statsResult = await GetStatsByRestaurantIdAsync(restaurant.RestaurantId, userId, request);
-
-            if (statsResult.IsError)
-            {
-                return statsResult.Errors;
-            }
-
-            var restaurantStats = statsResult.Value;
-
-            for (int i = 0; i < restaurantStats.DateList.Count; i++)
-            {
-                var date = restaurantStats.DateList[i];
-
-                if (!combinedDateRevenue.ContainsKey(date))
-                    combinedDateRevenue[date] = 0;
-                combinedDateRevenue[date] += restaurantStats.RevenueList[i];
-
-                if (!combinedDateCustomerCount.ContainsKey(date))
-                    combinedDateCustomerCount[date] = 0;
-                combinedDateCustomerCount[date] += restaurantStats.CustomerCountList[i];
-            }
-
-            foreach (var (itemName, count) in restaurantStats.PopularItems)
-            {
-                if (!combinedPopularItems.ContainsKey(itemName))
-                    combinedPopularItems[itemName] = 0;
-                combinedPopularItems[itemName] += count;
-            }
-        }
-
-        var combinedStats = new RestaurantStatsVM
-        {
-            DateList = combinedDateRevenue.Keys.OrderBy(d => d).ToList(),
-            RevenueList = combinedDateRevenue.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList(),
-            CustomerCountList = combinedDateCustomerCount.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList(),
-            PopularItems = combinedPopularItems
-                .OrderByDescending(kvp => kvp.Value)
-                .Take(request.PopularItemMaxCount ?? RestaurantStatsRequest.DefaultPopularItemMaxCount)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-        };
-
-        return combinedStats;
+        return Result.Success;
     }
 }
