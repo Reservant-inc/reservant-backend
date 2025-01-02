@@ -25,31 +25,31 @@ public class StatisticService(
     [ValidatorErrorCodes<RestaurantStatsRequest>]
     public Result ValidateRestaurantStatsRequest(RestaurantStatsRequest request)
     {
-        if (request.dateTill < request.dateSince)
+        if (request.DateUntil < request.DateFrom)
         {
             return new ValidationFailure
             {
-                PropertyName = request.dateTill + " beofre " + request.dateSince,
+                PropertyName = request.DateUntil + " beofre " + request.DateFrom,
                 ErrorCode = ErrorCodes.StartMustBeBeforeEnd,
                 ErrorMessage = ErrorCodes.InvalidTimeSlot,
             };
         }
 
-        if (request.popularItemMaxCount < 0)
+        if (request.PopularItemMaxCount < 0)
         {
             return new ValidationFailure
             {
-                PropertyName = request.popularItemMaxCount + "must be more than 0",
+                PropertyName = request.PopularItemMaxCount + "must be more than 0",
                 ErrorCode = ErrorCodes.InvalidState,
                 ErrorMessage = ErrorCodes.InvalidState,
             };
         }
 
-        if (request.popularItemMaxCount % 1 != 0)
+        if (request.PopularItemMaxCount % 1 != 0)
         {
             return new ValidationFailure
             {
-                PropertyName = request.popularItemMaxCount + "must be a whole number",
+                PropertyName = request.PopularItemMaxCount + "must be a whole number",
                 ErrorCode = ErrorCodes.InvalidState,
                 ErrorMessage = ErrorCodes.InvalidState,
             };
@@ -89,8 +89,8 @@ public class StatisticService(
                     .ThenInclude(oi => oi.MenuItem)
             .Where(v =>
                 v.RestaurantId == restaurantId &&
-                (request.dateTill == null || (v.EndTime.HasValue && DateOnly.FromDateTime(v.EndTime.Value) <= request.dateTill)) &&
-                (request.dateSince == null || (v.StartTime.HasValue && DateOnly.FromDateTime(v.StartTime.Value) >= request.dateSince)))
+                (request.DateUntil == null || (v.EndTime.HasValue && DateOnly.FromDateTime(v.EndTime.Value) <= request.DateUntil)) &&
+                (request.DateFrom == null || (v.StartTime.HasValue && DateOnly.FromDateTime(v.StartTime.Value) >= request.DateFrom)))
             .ToListAsync();
 
         var groupedData = visits
@@ -108,7 +108,7 @@ public class StatisticService(
                     .Where(oi => oi.MenuItem != null)
                     .GroupBy(oi => oi.MenuItem!.Name)
                     .OrderByDescending(oi => oi.Sum(item => item.Amount))
-                    .Take(request.popularItemMaxCount ?? RestaurantStatsRequest.defaultPopularItemMaxCount)
+                    .Take(request.PopularItemMaxCount ?? RestaurantStatsRequest.DefaultPopularItemMaxCount)
                     .ToDictionary(oi => oi.Key, oi => oi.Sum(item => item.Amount))
             })
             .ToList();
@@ -218,7 +218,7 @@ public class StatisticService(
             CustomerCountList = combinedDateCustomerCount.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList(),
             PopularItems = combinedPopularItems
                 .OrderByDescending(kvp => kvp.Value)
-                .Take(request.popularItemMaxCount ?? RestaurantStatsRequest.defaultPopularItemMaxCount)
+                .Take(request.PopularItemMaxCount ?? RestaurantStatsRequest.DefaultPopularItemMaxCount)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
         };
 
