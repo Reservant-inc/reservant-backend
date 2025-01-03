@@ -1,27 +1,27 @@
 namespace Reservant.Api.Dtos.Restaurants;
 
 /// <summary>
-/// Different criteria to search restaurants for
+/// Restaurant statistics collection parameters
 /// </summary>
 public class RestaurantStatsRequest
 {
     /// <summary>
-    /// Function for retrivewing restaurant statistics from given time period
+    /// Default number of popular items to retrieve
     /// </summary>
     public const int DefaultPopularItemMaxCount = 10;
 
     /// <summary>
-    /// starting date for downloading statistic(included)
+    /// Beginning date (inclusive) of the period over which to collect statistics
     /// </summary>
     public DateOnly? DateFrom { get; set; }
 
     /// <summary>
-    /// ending date for downloading statsitcs(excuded)
+    /// Ending date (inclusive) of the period over which to collect statistics
     /// </summary>
     public DateOnly? DateUntil { get; set; }
 
     /// <summary>
-    /// maximal amount of items that can be put on popular list
+    /// Number of popular items to retrieve
     /// </summary>
     public int? PopularItemMaxCount { get; set; } = DefaultPopularItemMaxCount;
 }
