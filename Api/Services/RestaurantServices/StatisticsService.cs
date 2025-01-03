@@ -1,6 +1,9 @@
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
+using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
@@ -14,7 +17,8 @@ namespace Reservant.Api.Services.RestaurantServices;
 /// </summary>
 public class StatisticsService(
     ApiDbContext context,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    IMapper mapper)
 {
     /// <summary>
     /// Function for retrieving restaurant statistics by restaurant id from given time period
@@ -157,6 +161,37 @@ public class StatisticsService(
             })
             .ToListAsync();
 
+        var popularItemIds = visits
+            .SelectMany(v => v.Orders)
+            .SelectMany(o => o.OrderItems)
+            .GroupBy(oi => oi.MenuItemId)
+            .Select(group => new
+            {
+                MenuItemId = group.Key,
+                AmountOrdered = group.Sum(oi => oi.Amount),
+            })
+            .OrderByDescending(popularItem => popularItem.AmountOrdered)
+            .AsQueryable();
+
+        if (request.PopularItemMaxCount is not null)
+        {
+            popularItemIds = popularItemIds.Take(request.PopularItemMaxCount.Value);
+        }
+
+        var popularItems = await context.MenuItems
+            .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
+            .Join(
+                popularItemIds,
+                menuItem => menuItem.MenuItemId,
+                orderItem => orderItem.MenuItemId,
+                (menuItem, popularItem) => new
+                {
+                    MenuItem = menuItem,
+                    AmountOrdered = popularItem.AmountOrdered,
+                })
+            .OrderByDescending(popularItem => popularItem.AmountOrdered)
+            .ToListAsync();
+
         return new RestaurantStatsVM
         {
             Revenue = visitStatistics
@@ -165,7 +200,9 @@ public class StatisticsService(
             CustomerCount = visitStatistics
                 .Select(p => new DayCustomers(p.Date, p.CustomerCount))
                 .ToList(),
-            PopularItems = null!,
+            PopularItems = popularItems
+                .Select(p => new PopularItem(p.MenuItem, p.AmountOrdered))
+                .ToList(),
         };
     }
 

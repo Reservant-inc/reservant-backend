@@ -1,4 +1,11 @@
+using Reservant.Api.Dtos.MenuItems;
+
 namespace Reservant.Api.Dtos.Restaurants;
+
+/// <summary>
+/// One revenue data point
+/// </summary>
+public record PopularItem(MenuItemVM MenuItem, double AmountOrdered);
 
 /// <summary>
 /// One revenue data point
