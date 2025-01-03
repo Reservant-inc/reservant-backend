@@ -8,7 +8,7 @@ public class RestaurantStatsRequest
     /// <summary>
     /// Function for retrivewing restaurant statistics from given time period
     /// </summary>
-    public const int DefaultPopularItemMaxCount = 3;
+    public const int DefaultPopularItemMaxCount = 10;
 
     /// <summary>
     /// starting date for downloading statistic(included)
