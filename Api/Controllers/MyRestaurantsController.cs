@@ -289,5 +289,22 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(await service.GetMyRestaurantsReportsAsync(
                 user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status, page, perPage));
         }
+
+        /// <summary>
+        /// Retrives restaurant statistics by restaurant id and given time period
+        /// </summary>
+        [HttpGet("{restaurantId:int}/statistics")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<StatisticsService>(nameof(StatisticsService.GetStatsByRestaurantIdAsync))]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantId(
+            int restaurantId,
+            [FromQuery] RestaurantStatsRequest request,
+            [FromServices] StatisticsService service)
+        {
+            var userId = User.GetUserId();
+            var result = await service.GetStatsByRestaurantIdAsync(restaurantId, userId!.Value, request);
+            return OkOrErrors(result);
+        }
     }
 }
