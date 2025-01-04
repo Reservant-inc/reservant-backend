@@ -167,7 +167,7 @@ public class StatisticsService(
                     (menuItem, popularItem) => new
                     {
                         MenuItem = menuItem,
-                        AmountOrdered = popularItem.AmountOrdered,
+                        popularItem.AmountOrdered,
                     })
                 .OrderByDescending(popularItem => popularItem.AmountOrdered)
                 .ToListAsync();
