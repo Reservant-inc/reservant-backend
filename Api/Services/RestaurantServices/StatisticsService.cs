@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Restaurants;
+using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
@@ -96,21 +97,27 @@ public class StatisticsService(
     private async Task<RestaurantStatsVM> GetStatisticsForRestaurants(
         IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
     {
-        var visits = context.Visits
-            .Where(v => restaurantIds.Contains(v.RestaurantId) && v.StartTime != null);
-
-        if (request.DateFrom is not null)
+        var visitStatistics = await GatherVisitStatistics(restaurantIds, request);
+        var statistics = new RestaurantStatsVM
         {
-            var startDateTime = new DateTime(request.DateFrom.Value, default);
-            visits = visits.Where(v => v.StartTime >= startDateTime);
+            Revenue = visitStatistics.Revenue,
+            CustomerCount = visitStatistics.CustomerCount,
+            PopularItems = null,
+        };
+
+        if (restaurantIds.Count == 1)
+        {
+            var onlyRestaurantId = restaurantIds[0];
+            statistics.PopularItems = await GatherPopularItemsStatistic(onlyRestaurantId, request);
         }
 
-        if (request.DateUntil is not null)
-        {
-            var endDateTime = new DateTime(request.DateUntil.Value, default).AddDays(1);
-            visits = visits.Where(v => v.StartTime < endDateTime);
-        }
+        return statistics;
+    }
 
+    private async Task<(List<DayRevenue> Revenue, List<DayCustomers> CustomerCount)> GatherVisitStatistics(
+        IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
+    {
+        var visits = GetVisitsMatchingParams(restaurantIds, request);
         var visitStatistics = await visits
             .GroupBy(v => v.StartTime!.Value.Date)
             .Select(group => new
@@ -126,58 +133,74 @@ public class StatisticsService(
             })
             .ToListAsync();
 
-        var statistics = new RestaurantStatsVM
-        {
-            Revenue = visitStatistics
+        return (
+            Revenue: visitStatistics
                 .Select(p => new DayRevenue(p.Date, p.Revenue))
                 .ToList(),
-            CustomerCount = visitStatistics
+            CustomerCount: visitStatistics
                 .Select(p => new DayCustomers(p.Date, p.CustomerCount))
-                .ToList(),
-            PopularItems = null,
-        };
+                .ToList()
+        );
+    }
 
-        if (restaurantIds.Count == 1)
-        {
-            var popularItemIds = visits
-                .SelectMany(v => v.Orders)
-                .SelectMany(o => o.OrderItems)
-                .GroupBy(oi => oi.MenuItemId)
-                .Select(group => new
-                {
-                    MenuItemId = group.Key,
-                    AmountOrdered = group.Sum(oi => oi.Amount),
-                })
-                .OrderByDescending(popularItem => popularItem.AmountOrdered)
-                .AsQueryable();
-
-            if (request.PopularItemMaxCount is not null)
+    private async Task<List<PopularItem>> GatherPopularItemsStatistic(int restaurantId, RestaurantStatsRequest request)
+    {
+        var visits = GetVisitsMatchingParams([restaurantId], request);
+        var popularItemIds = visits
+            .SelectMany(v => v.Orders)
+            .SelectMany(o => o.OrderItems)
+            .GroupBy(oi => oi.MenuItemId)
+            .Select(group => new
             {
-                popularItemIds = popularItemIds.Take(request.PopularItemMaxCount.Value);
-            }
+                MenuItemId = group.Key,
+                AmountOrdered = group.Sum(oi => oi.Amount),
+            })
+            .OrderByDescending(popularItem => popularItem.AmountOrdered)
+            .AsQueryable();
 
-            var onlyRestaurantId = restaurantIds[0];
-            var popularItems = await popularItemIds
-                .Join(
-                    context.MenuItems
-                        .Where(mi => mi.RestaurantId == onlyRestaurantId)
-                        .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider),
-                    orderItem => orderItem.MenuItemId,
-                    menuItem => menuItem.MenuItemId,
-                    (popularItem, menuItem) => new
-                    {
-                        MenuItem = menuItem,
-                        popularItem.AmountOrdered,
-                    })
-                .OrderByDescending(popularItem => popularItem.AmountOrdered)
-                .ToListAsync();
-
-            statistics.PopularItems = popularItems
-                .Select(p => new PopularItem(p.MenuItem, p.AmountOrdered))
-                .ToList();
+        if (request.PopularItemMaxCount is not null)
+        {
+            popularItemIds = popularItemIds.Take(request.PopularItemMaxCount.Value);
         }
 
-        return statistics;
+        var popularItems = await popularItemIds
+            .Join(
+                context.MenuItems
+                    .Where(mi => mi.RestaurantId == restaurantId)
+                    .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider),
+                orderItem => orderItem.MenuItemId,
+                menuItem => menuItem.MenuItemId,
+                (popularItem, menuItem) => new
+                {
+                    MenuItem = menuItem,
+                    popularItem.AmountOrdered,
+                })
+            .OrderByDescending(popularItem => popularItem.AmountOrdered)
+            .ToListAsync();
+
+        return popularItems
+            .Select(p => new PopularItem(p.MenuItem, p.AmountOrdered))
+            .ToList();
+    }
+
+    private IQueryable<Visit> GetVisitsMatchingParams(IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
+    {
+        var visits = context.Visits
+            .Where(v => restaurantIds.Contains(v.RestaurantId) && v.StartTime != null);
+
+        if (request.DateFrom is not null)
+        {
+            var startDateTime = new DateTime(request.DateFrom.Value, default);
+            visits = visits.Where(v => v.StartTime >= startDateTime);
+        }
+
+        if (request.DateUntil is not null)
+        {
+            var endDateTime = new DateTime(request.DateUntil.Value, default).AddDays(1);
+            visits = visits.Where(v => v.StartTime < endDateTime);
+        }
+
+        return visits;
     }
 
     /// <summary>
