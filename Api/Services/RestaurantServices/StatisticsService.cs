@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.MenuItems;
 using Reservant.Api.Dtos.Restaurants;
-using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.ErrorCodeDocs.Attributes;
@@ -44,7 +43,7 @@ public class StatisticsService(
             return authorizationResult.Errors;
         }
 
-        return await GetStatisticsForRestaurant(restaurantId, request);
+        return await GetStatisticsForRestaurants([restaurantId], request);
     }
 
     /// <summary>
@@ -90,49 +89,15 @@ public class StatisticsService(
             };
         }
 
-        return await GetStatisticsForGroup(restaurantGroup, request);
+        var restaurantIds = restaurantGroup.Restaurants.Select(r => r.RestaurantId).ToList();
+        return await GetStatisticsForRestaurants(restaurantIds, request);
     }
 
-    private static Task<RestaurantStatsVM> GetStatisticsForGroup(
-        RestaurantGroup restaurantGroup, RestaurantStatsRequest request)
-    {
-        var combinedDateRevenue = new Dictionary<DateOnly, decimal>();
-        var combinedDateCustomerCount = new Dictionary<DateOnly, int>();
-        var combinedPopularItems = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
-        // foreach (var restaurant in restaurantGroup.Restaurants)
-        // {
-        //     var restaurantStats = await GetStatisticsForRestaurant(restaurant.RestaurantId, request);
-        //
-        //     for (int i = 0; i < restaurantStats.DateList.Count; i++)
-        //     {
-        //         var date = restaurantStats.DateList[i];
-        //
-        //         if (!combinedDateRevenue.ContainsKey(date))
-        //             combinedDateRevenue[date] = 0;
-        //         combinedDateRevenue[date] += restaurantStats.RevenueList[i];
-        //
-        //         if (!combinedDateCustomerCount.ContainsKey(date))
-        //             combinedDateCustomerCount[date] = 0;
-        //         combinedDateCustomerCount[date] += restaurantStats.CustomerCountList[i];
-        //     }
-        //
-        //     foreach (var (itemName, count) in restaurantStats.PopularItems)
-        //     {
-        //         if (!combinedPopularItems.ContainsKey(itemName))
-        //             combinedPopularItems[itemName] = 0;
-        //         combinedPopularItems[itemName] += count;
-        //     }
-        // }
-
-        return null!;
-    }
-
-    private async Task<RestaurantStatsVM> GetStatisticsForRestaurant(
-        int restaurantId, RestaurantStatsRequest request)
+    private async Task<RestaurantStatsVM> GetStatisticsForRestaurants(
+        IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
     {
         var visits = context.Visits
-            .Where(v => v.RestaurantId == restaurantId && v.StartTime != null);
+            .Where(v => restaurantIds.Contains(v.RestaurantId) && v.StartTime != null);
 
         if (request.DateFrom is not null)
         {
@@ -161,39 +126,7 @@ public class StatisticsService(
             })
             .ToListAsync();
 
-        var popularItemIds = visits
-            .SelectMany(v => v.Orders)
-            .SelectMany(o => o.OrderItems)
-            .GroupBy(oi => oi.MenuItemId)
-            .Select(group => new
-            {
-                MenuItemId = group.Key,
-                AmountOrdered = group.Sum(oi => oi.Amount),
-            })
-            .OrderByDescending(popularItem => popularItem.AmountOrdered)
-            .AsQueryable();
-
-        if (request.PopularItemMaxCount is not null)
-        {
-            popularItemIds = popularItemIds.Take(request.PopularItemMaxCount.Value);
-        }
-
-        var popularItems = await context.MenuItems
-            .Where(mi => mi.RestaurantId == restaurantId)
-            .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
-            .Join(
-                popularItemIds,
-                menuItem => menuItem.MenuItemId,
-                orderItem => orderItem.MenuItemId,
-                (menuItem, popularItem) => new
-                {
-                    MenuItem = menuItem,
-                    AmountOrdered = popularItem.AmountOrdered,
-                })
-            .OrderByDescending(popularItem => popularItem.AmountOrdered)
-            .ToListAsync();
-
-        return new RestaurantStatsVM
+        var statistics = new RestaurantStatsVM
         {
             Revenue = visitStatistics
                 .Select(p => new DayRevenue(p.Date, p.Revenue))
@@ -201,10 +134,50 @@ public class StatisticsService(
             CustomerCount = visitStatistics
                 .Select(p => new DayCustomers(p.Date, p.CustomerCount))
                 .ToList(),
-            PopularItems = popularItems
-                .Select(p => new PopularItem(p.MenuItem, p.AmountOrdered))
-                .ToList(),
+            PopularItems = null,
         };
+
+        if (restaurantIds.Count == 1)
+        {
+            var popularItemIds = visits
+                .SelectMany(v => v.Orders)
+                .SelectMany(o => o.OrderItems)
+                .GroupBy(oi => oi.MenuItemId)
+                .Select(group => new
+                {
+                    MenuItemId = group.Key,
+                    AmountOrdered = group.Sum(oi => oi.Amount),
+                })
+                .OrderByDescending(popularItem => popularItem.AmountOrdered)
+                .AsQueryable();
+
+            if (request.PopularItemMaxCount is not null)
+            {
+                popularItemIds = popularItemIds.Take(request.PopularItemMaxCount.Value);
+            }
+
+            var onlyRestaurantId = restaurantIds[0];
+            var popularItems = await context.MenuItems
+                .Where(mi => mi.RestaurantId == onlyRestaurantId)
+                .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
+                .Join(
+                    popularItemIds,
+                    menuItem => menuItem.MenuItemId,
+                    orderItem => orderItem.MenuItemId,
+                    (menuItem, popularItem) => new
+                    {
+                        MenuItem = menuItem,
+                        AmountOrdered = popularItem.AmountOrdered,
+                    })
+                .OrderByDescending(popularItem => popularItem.AmountOrdered)
+                .ToListAsync();
+
+            statistics.PopularItems = popularItems
+                .Select(p => new PopularItem(p.MenuItem, p.AmountOrdered))
+                .ToList();
+        }
+
+        return statistics;
     }
 
     /// <summary>

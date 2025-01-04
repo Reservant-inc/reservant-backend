@@ -25,16 +25,16 @@ public class RestaurantStatsVM
     /// <summary>
     /// The most ordered menu items
     /// </summary>
-    public required List<PopularItem> PopularItems { get; init; }
+    public required List<PopularItem>? PopularItems { get; set; }
 
     /// <summary>
     /// Total number of customers on each day
     /// </summary>
-    public required List<DayCustomers> CustomerCount { get; init; }
+    public required List<DayCustomers> CustomerCount { get; set; }
 
     /// <summary>
     /// Amount of money made on each day
     /// </summary>
-    public required List<DayRevenue> Revenue { get; init; }
+    public required List<DayRevenue> Revenue { get; set; }
 
 }
