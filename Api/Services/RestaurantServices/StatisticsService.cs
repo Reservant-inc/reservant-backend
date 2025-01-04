@@ -157,14 +157,14 @@ public class StatisticsService(
             }
 
             var onlyRestaurantId = restaurantIds[0];
-            var popularItems = await context.MenuItems
-                .Where(mi => mi.RestaurantId == onlyRestaurantId)
-                .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
+            var popularItems = await popularItemIds
                 .Join(
-                    popularItemIds,
-                    menuItem => menuItem.MenuItemId,
+                    context.MenuItems
+                        .Where(mi => mi.RestaurantId == onlyRestaurantId)
+                        .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider),
                     orderItem => orderItem.MenuItemId,
-                    (menuItem, popularItem) => new
+                    menuItem => menuItem.MenuItemId,
+                    (popularItem, menuItem) => new
                     {
                         MenuItem = menuItem,
                         popularItem.AmountOrdered,
