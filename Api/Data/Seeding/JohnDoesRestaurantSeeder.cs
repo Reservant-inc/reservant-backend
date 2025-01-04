@@ -339,5 +339,165 @@ public class JohnDoesRestaurantSeeder(
             Contents = "Genialnie!!!!! Wrócę na 100%!",
             RestaurantResponse = "Dziękujemy :)"
         },
+        new Review
+        {
+            Author = users.JohnDoe,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 9, 5),
+            Contents = "Bardzo dobre jedzenie, ale czas oczekiwania mógłby być krótszy.",
+            RestaurantResponse = "Dziękujemy za opinię! Postaramy się poprawić czas realizacji zamówień."
+        },
+        new Review
+        {
+            Author = users.AnonYmus,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 9, 10),
+            Contents = "Najlepsza pizza w mieście! Gorąco polecam.",
+            RestaurantResponse = "Cieszymy się, że smakowało! :)"
+        },
+        new Review
+        {
+            Author = users.GeraltRiv,
+            Stars = 2,
+            CreatedAt = new DateTime(2024, 9, 10),
+            Contents = "Zimne jedzenie, długo czekałem na zamówienie.",
+            RestaurantResponse = "Przykro nam, że nie spełniliśmy oczekiwań. Skontaktuj się z nami, abyśmy mogli to naprawić."
+        },
+        new Review
+        {
+            Author = users.KrzysztofKowalski,
+            Stars = 3,
+            CreatedAt = new DateTime(2024, 9, 18),
+            Contents = "Jedzenie było dobre, ale porcje mogłyby być większe."
+        },
+        new Review
+        {
+            Author = users.PaulAtreides,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 9, 20),
+            Contents = "Perfekcyjnie! Wszystko świeże i pyszne.",
+            RestaurantResponse = "Dziękujemy! Zapraszamy ponownie!"
+        },
+        new Review
+        {
+            Author = users.WalterWhite,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 10, 2),
+            Contents = "Dobra kawa i miła obsługa, ale miejsce trochę zatłoczone."
+        },
+        new Review
+        {
+            Author = users.JohnDoe,
+            Stars = 1,
+            CreatedAt = new DateTime(2024, 10, 5),
+            Contents = "Obsługa bardzo nieuprzejma, nie polecam.",
+            RestaurantResponse = "Przykro nam to słyszeć. Możemy się skontaktować, by wyjaśnić sytuację?"
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 10, 10),
+            Contents = "Najlepszy deser, jaki jadłem!",
+            RestaurantResponse = "Super, że smakowało! :)"
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 3,
+            CreatedAt = new DateTime(2024, 10, 15),
+            Contents = "Jedzenie dobre, ale kelner zapomniał o moim zamówieniu."
+        },
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 10, 15),
+            Contents = "Bardzo smacznie, ale ceny mogłyby być nieco niższe."
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 2,
+            CreatedAt = new DateTime(2024, 10, 28),
+            Contents = "Pizza przypalona, nie byłem zadowolony.",
+            RestaurantResponse = "Przepraszamy za niedogodność! Chętnie poprawimy następnym razem."
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 11, 3),
+            Contents = "Idealne jedzenie i świetna atmosfera!",
+            RestaurantResponse = "Bardzo dziękujemy! Do zobaczenia!"
+        },
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 3,
+            CreatedAt = new DateTime(2024, 11, 8),
+            Contents = "Porcje były nierówne, moje danie było mniejsze niż znajomego."
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 11, 8),
+            Contents = "Rewelacyjne dania! Wrócę na pewno.",
+            RestaurantResponse = "Dziękujemy za miłe słowa!"
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 11, 15),
+            Contents = "Bardzo dobra obsługa, jedzenie smaczne, ale ceny wysokie."
+        },
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 1,
+            CreatedAt = new DateTime(2024, 11, 20),
+            Contents = "Nie dostałem zamówienia na czas. Totalna porażka.",
+            RestaurantResponse = "Bardzo przepraszamy! Skontaktuj się z nami, postaramy się to wynagrodzić."
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 12, 1),
+            Contents = "Najlepsze jedzenie, jakie jadłem w tym roku!",
+            RestaurantResponse = "Ogromnie się cieszymy! Zapraszamy częściej! :)"
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 3,
+            CreatedAt = new DateTime(2024, 12, 5),
+            Contents = "Dobre jedzenie, ale czas oczekiwania za długi."
+        },
+        new Review
+        {
+            Author = users.Customer1,
+            Stars = 4,
+            CreatedAt = new DateTime(2024, 12, 10),
+            Contents = "Bardzo miła obsługa i świetny klimat miejsca."
+        },
+        new Review
+        {
+            Author = users.Customer2,
+            Stars = 5,
+            CreatedAt = new DateTime(2024, 12, 10),
+            Contents = "Idealnie! Wszystko było doskonałe.",
+            RestaurantResponse = "Dziękujemy! Do zobaczenia wkrótce!"
+        },
+        new Review
+        {
+            Author = users.Customer3,
+            Stars = 2,
+            CreatedAt = new DateTime(2024, 12, 15),
+            Contents = "Jakość jedzenia spadła w porównaniu do mojej poprzedniej wizyty.",
+            RestaurantResponse = "Przykro nam to słyszeć. Możemy zapytać, co dokładnie nie spełniło Pana/Pani oczekiwań?"
+        },
     ];
 }
