@@ -179,6 +179,7 @@ public class StatisticsService(
         }
 
         var popularItems = await context.MenuItems
+            .Where(mi => mi.RestaurantId == restaurantId)
             .ProjectTo<MenuItemVM>(mapper.ConfigurationProvider)
             .Join(
                 popularItemIds,
