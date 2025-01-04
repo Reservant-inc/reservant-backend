@@ -18,6 +18,11 @@ public record DayRevenue(DateOnly Date, decimal Revenue);
 public record DayCustomers(DateOnly Date, int Customers);
 
 /// <summary>
+/// One reviews over time data point
+/// </summary>
+public record ReviewsOverPeriod(DateOnly Date, int Count, double Average);
+
+/// <summary>
 /// Statistic of restaurants in a given day
 /// </summary>
 public class RestaurantStatsVM
@@ -37,4 +42,8 @@ public class RestaurantStatsVM
     /// </summary>
     public required List<DayRevenue> Revenue { get; set; }
 
+    /// <summary>
+    /// History of reviews over time
+    /// </summary>
+    public required List<ReviewsOverPeriod> Reviews { get; set; }
 }

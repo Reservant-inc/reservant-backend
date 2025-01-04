@@ -103,6 +103,7 @@ public class StatisticsService(
             Revenue = visitStatistics.Revenue,
             CustomerCount = visitStatistics.CustomerCount,
             PopularItems = null,
+            Reviews = await GatherReviewStatistic(restaurantIds, request),
         };
 
         if (restaurantIds.Count == 1)
@@ -183,6 +184,24 @@ public class StatisticsService(
             .ToList();
     }
 
+    private async Task<List<ReviewsOverPeriod>> GatherReviewStatistic(
+        IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
+    {
+        var reviews = await GetReviewsMatchingParams(restaurantIds, request)
+            .GroupBy(r => r.CreatedAt.Date)
+            .Select(group => new
+            {
+                Date = group.Key,
+                Count = group.Count(),
+                Average = group.Average(r => (double)r.Stars),
+            })
+            .ToListAsync();
+
+        return reviews
+            .Select(p => new ReviewsOverPeriod(DateOnly.FromDateTime(p.Date), p.Count, p.Average))
+            .ToList();
+    }
+
     private IQueryable<Visit> GetVisitsMatchingParams(IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
     {
         var visits = context.Visits
@@ -201,6 +220,26 @@ public class StatisticsService(
         }
 
         return visits;
+    }
+
+    private IQueryable<Review> GetReviewsMatchingParams(IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
+    {
+        var reviews = context.Reviews
+            .Where(v => restaurantIds.Contains(v.RestaurantId));
+
+        if (request.DateFrom is not null)
+        {
+            var startDateTime = new DateTime(request.DateFrom.Value, default);
+            reviews = reviews.Where(v => v.CreatedAt >= startDateTime);
+        }
+
+        if (request.DateUntil is not null)
+        {
+            var endDateTime = new DateTime(request.DateUntil.Value, default).AddDays(1);
+            reviews = reviews.Where(v => v.CreatedAt < endDateTime);
+        }
+
+        return reviews;
     }
 
     /// <summary>
