@@ -88,4 +88,5 @@ public class VisitVM
     /// Orders made during the visit
     /// </summary>
     public required List<OrderSummaryVM> Orders { get; set; }
+    
 }
