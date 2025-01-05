@@ -37,7 +37,7 @@ public class VisitsController(
         var result = await visitService.GetVisitByIdAsync(visitId, user);
         return OkOrErrors(result);
     }
-    
+
     /// <summary>
     /// Cancel a visit (from the client side)
     /// </summary>
@@ -45,6 +45,7 @@ public class VisitsController(
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.CancelVisitAsync))]
     public async Task<ActionResult> CancelVisit(int visitId)
     {
         var user = await userManager.GetUserAsync(User);

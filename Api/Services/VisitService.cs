@@ -264,13 +264,16 @@ public class VisitService(
 
         return Result.Success;
     }
-    
+
     /// <summary>
     /// Cancel a visit reservation as the client
     /// </summary>
     /// <param name="visitId">ID wizyty</param>
     /// <param name="currentUser">Aktualnie zalogowany użytkownik</param>
     /// <returns></returns>
+    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
+    [ErrorCode(nameof(visitId), ErrorCodes.AccessDenied, "Only the client who made the reservation can cancel it")]
+    [ErrorCode(nameof(visitId), ErrorCodes.IncorrectVisitStatus, "Visit already started and cannot be canceled")]
     public async Task<Result> CancelVisitAsync(int visitId, User currentUser)
     {
         var visit = await context.Visits
@@ -286,7 +289,7 @@ public class VisitService(
                 ErrorCode = ErrorCodes.NotFound
             };
         }
-        
+
         if (visit.ClientId != currentUser.Id)
         {
             return new ValidationFailure
@@ -296,7 +299,7 @@ public class VisitService(
                 ErrorCode = ErrorCodes.AccessDenied
             };
         }
-        
+
         if (visit.StartTime != null)
         {
             return new ValidationFailure
@@ -309,7 +312,7 @@ public class VisitService(
 
         visit.IsDeleted = true;
         await context.SaveChangesAsync();
-        
+
         // await notificationService.NotifyVisitCancelled(visit.ClientId, visitId);
 
         return Result.Success;
