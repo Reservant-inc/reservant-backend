@@ -25,6 +25,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="createdById">id of the user who created the report</param>
     /// <param name="status">status of the report considered in the search</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -35,13 +36,14 @@ public class GetReportsService(
         ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId,
+        Guid? createdById,
         ReportStatus status,
         int page = 0,
         int perPage = 10)
     {
         IQueryable<Report> reports = context.Reports;
 
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, createdById, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
@@ -71,12 +73,14 @@ public class GetReportsService(
         int page = 0,
         int perPage = 10)
     {
-        var reports = context.Reports.Where(r => r.CreatedById == user.Id);
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
+        IQueryable<Report> reports = context.Reports;
+
+        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, user.Id, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
     }
+
     /// <summary>
     /// Function for getting the reports as a restaurant owner
     /// </summary>
@@ -104,11 +108,12 @@ public class GetReportsService(
         var isOwner = await authorizationService.VerifyOwnerRole(restaurantId, user.Id);
         if (isOwner.IsError) return isOwner.Errors;
 
-        var reports = FilterReportsQuery(context.Reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, status);
+        var reports = FilterReportsQuery(context.Reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, user.Id, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
     }
+
 
     /// <summary>
     /// Filters query through optional parameters
@@ -119,6 +124,7 @@ public class GetReportsService(
     /// <param name="category"></param>
     /// <param name="reportedUserId"></param>
     /// <param name="restaurantId"></param>
+    /// <param name="createdById"></param>
     /// <param name="status">status of the report considered in the search</param>
     /// <returns></returns>
     private static IQueryable<Report> FilterReportsQuery(IQueryable<Report> reports,
@@ -127,6 +133,7 @@ public class GetReportsService(
         ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId,
+        Guid? createdById,
         ReportStatus status)
     {
         if (dateFrom is not null)
@@ -149,6 +156,10 @@ public class GetReportsService(
         {
             reports = reports.Where(r => r.Visit!.RestaurantId == restaurantId);
         }
+        if (createdById is not null)
+        {
+            reports = reports.Where(r => r.CreatedById == createdById);
+        }
         switch (status)
         {
             case ReportStatus.Escalated:
@@ -163,4 +174,5 @@ public class GetReportsService(
 
         return reports.OrderByDescending(report => report.ReportDate);
     }
+
 }

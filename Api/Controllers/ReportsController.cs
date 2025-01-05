@@ -82,6 +82,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="createdById">id of the user who created the report</param>
     /// <param name="status"></param>
     /// <param name="service"></param>
     /// <param name="page">Page number</param>
@@ -97,6 +98,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
         [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
+        [FromQuery] Guid? createdById,
         [FromServices] GetReportsService service,
         [FromQuery] ReportStatus status = ReportStatus.All,
         [FromQuery] int page = 0,
@@ -108,7 +110,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
             return Unauthorized();
         }
         return OkOrErrors(await service.GetReportsAsync(
-            dateFrom, dateUntil, category, reportedUserId, restaurantId, status, page, perPage));
+            dateFrom, dateUntil, category, reportedUserId, restaurantId, createdById, status, page, perPage));
     }
 
     /// <summary>
