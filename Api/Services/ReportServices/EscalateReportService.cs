@@ -16,7 +16,7 @@ namespace Reservant.Api.Services.ReportServices;
 /// <param name="context"></param>
 /// <param name="notificationService"></param>
 /// <param name="mapper"></param>
-public class ReportEscalatingService(
+public class EscalateReportService(
     ApiDbContext context,
     NotificationService notificationService,
     IMapper mapper)

@@ -123,11 +123,11 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("{reportId:int}/escalate")]
     [Authorize(Roles = Roles.CustomerSupportAgent)]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportEscalatingService>(nameof(ReportEscalatingService.EscalateReportAsync))]
+    [MethodErrorCodes<EscalateReportService>(nameof(EscalateReportService.EscalateReportAsync))]
     public async Task<ActionResult<ReportVM>> EscalateReport(
         int reportId,
         [FromBody] EscalateReportRequest dto,
-        [FromServices] ReportEscalatingService service)
+        [FromServices] EscalateReportService service)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
