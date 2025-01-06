@@ -23,10 +23,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-customer")]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportCustomerService>(nameof(ReportCustomerService.ReportCustomer))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportCustomer))]
     public async Task<ActionResult<ReportVM>> ReportCustomer(
         ReportCustomerRequest dto,
-        [FromServices] ReportCustomerService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportCustomer(User.GetUserId()!.Value, dto));
     }
@@ -37,10 +37,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-employee")]
     [Authorize(Roles = $"{Roles.Customer}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportEmployeeService>(nameof(ReportEmployeeService.ReportEmployee))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportEmployee))]
     public async Task<ActionResult<ReportVM>> ReportEmployee(
         ReportEmployeeRequest dto,
-        [FromServices] ReportEmployeeService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportEmployee(User.GetUserId()!.Value, dto));
     }
@@ -52,10 +52,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-lost-item")]
     [Authorize(Roles = $"{Roles.Customer}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportLostItemService>(nameof(ReportLostItemService.ReportLostItem))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportLostItem))]
     public async Task<ActionResult<ReportVM>> ReportLostItem(
         ReportLostItemRequest dto,
-        [FromServices] ReportLostItemService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportLostItem(User.GetUserId()!.Value, dto));
     }
@@ -66,10 +66,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-bug")]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportBugService>(nameof(ReportBugService.ReportBug))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportBug))]
     public async Task<ActionResult<ReportVM>> ReportBug(
         ReportBugRequest dto,
-        [FromServices] ReportBugService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportBug(User.GetUserId()!.Value, dto));
     }
