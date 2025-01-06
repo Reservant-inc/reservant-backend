@@ -325,7 +325,7 @@ public class UserService(
     public async Task<Result<Pagination<VisitVM>>> GetVisitsAsync(User user, int page, int perPage)
     {
         return await dbContext.Visits
-            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.CreatorId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Reservation!.StartTime > DateTime.UtcNow)
             .OrderBy(x => x.Reservation!.StartTime)
             .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
@@ -345,7 +345,7 @@ public class UserService(
         var query = dbContext.Visits
             .Include(r => r.Participants)
             .Include(r => r.Orders)
-            .Where(x => x.ClientId == user.Id || x.Participants.Any(p => p.Id == user.Id))
+            .Where(x => x.CreatorId == user.Id || x.Participants.Any(p => p.Id == user.Id))
             .Where(x => x.Reservation!.StartTime < DateTime.UtcNow)
             .OrderByDescending(x => x.Reservation!.StartTime);
 

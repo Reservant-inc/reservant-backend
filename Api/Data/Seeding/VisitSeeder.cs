@@ -74,7 +74,7 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
         {
             Restaurant = restaurant,
             NumberOfGuests = _random.Next(2),
-            Client = client,
+            Creator = client,
             Participants = GetRandomParticipants(),
             Reservation = new Reservation
             {

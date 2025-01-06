@@ -351,7 +351,7 @@ public class NotificationService(
             .Where(v => v.VisitId == visitId)
             .Select(v => new
             {
-                photoFileName =  v.Client.PhotoFileName,
+                photoFileName =  v.Creator.PhotoFileName,
                 IsAccepted = v.Reservation!.Decision!.IsAccepted,
                 RestaurantName = v.Restaurant.Name,
                 Date = v.Reservation!.StartTime,

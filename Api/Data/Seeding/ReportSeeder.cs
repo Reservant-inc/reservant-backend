@@ -64,7 +64,7 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
         {
             Category = ReportCategory.LostItem,
             Description = description,
-            CreatedById = visit.ClientId,
+            CreatedById = visit.CreatorId,
             ReportDate = reportDate,
             Visit = visit,
         };
@@ -80,7 +80,7 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             CreatedBy = await FindEmployeeOfVisitWithId(visitId),
             ReportDate = reportDate,
             Visit = visit,
-            ReportedUserId = visit.ClientId,
+            ReportedUserId = visit.CreatorId,
         };
     }
 
@@ -91,7 +91,7 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
         {
             Category = ReportCategory.RestaurantEmployeeReport,
             Description = description,
-            CreatedById = visit.ClientId,
+            CreatedById = visit.CreatorId,
             ReportDate = reportDate,
             Visit = visit,
             ReportedUser = await FindEmployeeOfVisitWithId(visitId),

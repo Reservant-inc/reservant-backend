@@ -40,7 +40,7 @@ public class VisitService(
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
         }
 
-        var isParticipant = visit.ClientId == user.Id || visit.Participants.Contains(user);
+        var isParticipant = visit.CreatorId == user.Id || visit.Participants.Contains(user);
 
         var canView = isParticipant;
         if (!canView)
@@ -113,7 +113,7 @@ public class VisitService(
         };
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId, visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.CreatorId, visitId);
 
         return Result.Success;
     }
@@ -170,7 +170,7 @@ public class VisitService(
         };
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId, visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.CreatorId, visitId);
 
         return Result.Success;
     }
@@ -302,7 +302,7 @@ public class VisitService(
             };
         }
 
-        if (visit.ClientId != currentUser.Id)
+        if (visit.CreatorId != currentUser.Id)
         {
             return new ValidationFailure
             {
