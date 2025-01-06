@@ -21,7 +21,8 @@ public class CreateReportService(
     ValidationService validationService,
     AuthorizationService authorizationService,
     IMapper mapper,
-    UserManager<User> userManager)
+    UserManager<User> userManager,
+    RoleManager<IdentityRole<Guid>> roleManager)
 {
     /// <summary>
     /// Reports bug report
@@ -49,6 +50,7 @@ public class CreateReportService(
             CreatedBy = user,
             Visit = null,
         };
+        await AssignReportToAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
 
@@ -114,6 +116,7 @@ public class CreateReportService(
             CreatedBy = employee,
             Visit = visit,
         };
+        await AssignReportToAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
 
@@ -185,6 +188,7 @@ public class CreateReportService(
             CreatedBy = customer,
             Visit = visit,
         };
+        await AssignReportToAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
 
@@ -234,9 +238,46 @@ public class CreateReportService(
             CreatedBy = customer,
             Visit = visit,
         };
+        await AssignReportToAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
 
         return mapper.Map<ReportVM>(report);
     }
+
+    private async Task AssignReportToAgent(Report report)
+    {
+        var customerSupportAgentRole = await roleManager.FindByNameAsync(Roles.CustomerSupportAgent)
+            ?? throw new InvalidOperationException($"Role {Roles.CustomerSupportAgent} not found");
+
+        var freestAgent = await AllUsersInRole(customerSupportAgentRole)
+            .GroupJoin(
+                context.Set<ReportAssignment>()
+                    .Where(assignment => assignment.Until == null),
+                user => user.Id,
+                assignment => assignment.AgentId,
+                (user, assignments) => new
+                {
+                    User = user,
+                    ReportCount = assignments.Count(),
+                })
+            .OrderBy(group => group.ReportCount)
+            .FirstOrDefaultAsync()
+            ?? throw new InvalidOperationException("Cannot assign the new report as there are no ");
+
+        report.AssignedAgents = [
+            new ReportAssignment
+            {
+                From = DateTime.UtcNow,
+                Agent = freestAgent.User,
+            },
+        ];
+    }
+
+    private IQueryable<User> AllUsersInRole(IdentityRole<Guid> role) =>
+        context.Users
+            .Join(
+                context.UserRoles.Where(ur => ur.RoleId == role.Id),
+                user => user.Id, userRole => userRole.UserId,
+                (user, userRole) => user);
 }
