@@ -162,11 +162,11 @@ public class GetReportsService(
         }
         switch (status)
         {
-            case ReportStatus.Escalated:
-                reports = reports.Where(r => r.EscalatedById != null);
+            case ReportStatus.Resolved:
+                reports = reports.Where(r => r.Resolution != null);
                 break;
-            case ReportStatus.NotEscalated:
-                reports = reports.Where(r => r.EscalatedById == null);
+            case ReportStatus.NotResolved:
+                reports = reports.Where(r => r.Resolution == null);
                 break;
             case ReportStatus.All:
                 break;
