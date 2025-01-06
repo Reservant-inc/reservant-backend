@@ -69,16 +69,11 @@ public class Report : ISoftDeletable
     /// Related visit
     /// </summary>
     public Visit? Visit { get; set; }
-    
+
     /// <summary>
     /// Resolution details of the report.
     /// </summary>
     public ReportResolution? Resolution { get; set; }
-
-    /// <summary>
-    /// ID of the support agent that escalated this report
-    /// </summary>
-    public Guid? EscalatedById { get; set; }
 
     /// <summary>
     /// Comment from the support agent who escalated this report
@@ -86,11 +81,11 @@ public class Report : ISoftDeletable
     [StringLength(MaxEscalationCommentLength)]
     public string? EscalationComment { get; set; }
 
-    /// <summary>
-    /// Navigational property of the support agent that escalated this report
-    /// </summary>
-    public User? EscalatedBy { get; set; }
-
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Agents that the report was/is assigned to
+    /// </summary>
+    public ICollection<ReportAssignment> AssignedAgents { get; set; } = null!;
 }

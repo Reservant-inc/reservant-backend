@@ -40,16 +40,6 @@ public class ReportVM
     public required UserSummaryVM? ReportedUser { get; set; }
 
     /// <summary>
-    /// Support agent that escalated the report
-    /// </summary>
-    public required UserSummaryVM? EscalatedBy { get; set; }
-
-    /// <summary>
-    /// Comment from the support agent who escalated the report
-    /// </summary>
-    public required string? EscalationComment { get; set; }
-
-    /// <summary>
     /// Related visit (if any).
     /// </summary>
     public VisitSummaryVM? Visit { get; set; }
@@ -68,4 +58,9 @@ public class ReportVM
     /// The date when the report was resolved (nullable).
     /// </summary>
     public DateTime? ResolutionDate { get; set; }
+
+    /// <summary>
+    /// Customer support agents assigned to the report
+    /// </summary>
+    public required  List<AssignedAgentVM> AssignedAgents { get; set; }
 }

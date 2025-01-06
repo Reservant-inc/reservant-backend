@@ -21,5 +21,7 @@ public class Mappings : Profile
                 src.Resolution != null ? src.Resolution.SupportComment : null)
             .MapMemberFrom(dest => dest.ResolutionDate, src =>
                 src.Resolution != null ? src.Resolution.Date : (DateTime?)null);
+
+        CreateMap<ReportAssignment, AssignedAgentVM>();
     }
 }
