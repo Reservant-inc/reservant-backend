@@ -114,30 +114,6 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     }
 
     /// <summary>
-    /// As a customer support agent escalate report to customer support manager level
-    /// </summary>
-    /// <param name="reportId">ID of the report to escalate</param>
-    /// <param name="dto">Body of the request</param>
-    /// <param name="service"></param>
-    /// <returns></returns>
-    [HttpPost("{reportId:int}/escalate")]
-    [Authorize(Roles = Roles.CustomerSupportAgent)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<EscalateReportService>(nameof(EscalateReportService.EscalateReportAsync))]
-    public async Task<ActionResult<ReportVM>> EscalateReport(
-        int reportId,
-        [FromBody] EscalateReportRequest dto,
-        [FromServices] EscalateReportService service)
-    {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-        return OkOrErrors(await service.EscalateReportAsync(reportId, user, dto));
-    }
-
-    /// <summary>
     /// Resolve a report as customer support staff.
     /// </summary>
     /// <param name="reportId">The ID of the report to resolve.</param>
