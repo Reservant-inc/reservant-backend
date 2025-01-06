@@ -264,6 +264,7 @@ public class MakeReservationService(
             },
             Tip = request.Tip,
             Takeaway = request.Takeaway,
+            CreatedByEmployee = true
         };
 
         if (!request.Takeaway)

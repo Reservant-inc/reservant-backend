@@ -173,6 +173,11 @@ public class Visit : ISoftDeletable
     public bool IsDeleted { get; set; }
 
     /// <summary>
+    /// Check whether the visit was created by an employee, false by default
+    /// </summary>
+    public bool CreatedByEmployee { get; set; }
+
+    /// <summary>
     /// Check whether the visit has already started
     /// </summary>
     public bool HasStarted() => StartTime is not null;
@@ -182,4 +187,5 @@ public class Visit : ISoftDeletable
     /// </summary>
     /// <returns></returns>
     public bool HasEnded() => EndTime is not null;
+    
 }
