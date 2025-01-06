@@ -1,4 +1,4 @@
-﻿namespace Reservant.Api.Models.Enums;
+﻿namespace Reservant.Api.Dtos.Reports;
 
 /// <summary>
 /// Enum that can take value representing current state of the report
