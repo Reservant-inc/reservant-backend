@@ -54,7 +54,7 @@ public class OrdersController(OrderService orderService, UserManager<User> userM
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost()]
-    [Authorize(Roles = Roles.Customer)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee},{Roles.Customer}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<MakeOrderService>(nameof(MakeOrderService.CreateOrderAsync))]
     public async Task<ActionResult<OrderSummaryVM>> CreateOrder(CreateOrderRequest request)
