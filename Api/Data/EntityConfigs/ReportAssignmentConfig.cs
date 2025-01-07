@@ -12,7 +12,7 @@ public class ReportAssignmentConfig : IEntityTypeConfiguration<ReportAssignment>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<ReportAssignment> builder)
     {
-        builder.HasKey(ra => new { ra.ReportId, ra.AgentId });
+        builder.HasKey(ra => new { ra.ReportId, ra.AgentId, ra.From });
         builder.HasOne(ra => ra.Agent).WithMany();
         builder.HasOne(ra => ra.Report)
             .WithMany(r => r.AssignedAgents);
