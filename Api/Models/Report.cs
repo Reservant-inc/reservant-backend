@@ -15,11 +15,6 @@ public class Report : ISoftDeletable
     public const int MaxDescriptionLength = 1000;
 
     /// <summary>
-    /// Maximum length of the escalation comment
-    /// </summary>
-    public const int MaxEscalationCommentLength = 500;
-
-    /// <summary>
     /// Unique ID
     /// </summary>
     public int ReportId { get; set; }
@@ -74,12 +69,6 @@ public class Report : ISoftDeletable
     /// Resolution details of the report.
     /// </summary>
     public ReportResolution? Resolution { get; set; }
-
-    /// <summary>
-    /// Comment from the support agent who escalated this report
-    /// </summary>
-    [StringLength(MaxEscalationCommentLength)]
-    public string? EscalationComment { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
