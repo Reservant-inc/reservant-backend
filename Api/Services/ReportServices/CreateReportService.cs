@@ -50,9 +50,9 @@ public class CreateReportService(
             CreatedBy = user,
             Visit = null,
         };
-        await assignReportService.AssignToFreestAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
+        await assignReportService.AssignToFreestAgent(report);
 
         return mapper.Map<ReportVM>(report);
     }
@@ -116,9 +116,9 @@ public class CreateReportService(
             CreatedBy = employee,
             Visit = visit,
         };
-        await assignReportService.AssignToFreestAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
+        await assignReportService.AssignToFreestAgent(report);
 
         return mapper.Map<ReportVM>(report);
     }
@@ -188,9 +188,9 @@ public class CreateReportService(
             CreatedBy = customer,
             Visit = visit,
         };
-        await assignReportService.AssignToFreestAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
+        await assignReportService.AssignToFreestAgent(report);
 
         return mapper.Map<ReportVM>(report);
     }
@@ -238,9 +238,9 @@ public class CreateReportService(
             CreatedBy = customer,
             Visit = visit,
         };
-        await assignReportService.AssignToFreestAgent(report);
         context.Add(report);
         await context.SaveChangesAsync();
+        await assignReportService.AssignToFreestAgent(report);
 
         return mapper.Map<ReportVM>(report);
     }

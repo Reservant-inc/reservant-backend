@@ -9,7 +9,10 @@ namespace Reservant.Api.Services.ReportServices;
 /// <summary>
 /// Service responsible for assigning reports to customer support agents
 /// </summary>
-public class AssignReportService(ApiDbContext context, RoleManager<IdentityRole<Guid>> roleManager)
+public class AssignReportService(
+    ApiDbContext context,
+    RoleManager<IdentityRole<Guid>> roleManager,
+    NotificationService notificationService)
 {
     /// <summary>
     /// Assign the report to the agent that currently has the least reports assigned
@@ -36,13 +39,13 @@ public class AssignReportService(ApiDbContext context, RoleManager<IdentityRole<
                 .FirstOrDefaultAsync()
                 ?? throw new InvalidOperationException("Cannot assign the report as there are no customer support agents");
 
-        ReassignToAgent(report, freestAgent.User);
+        await ReassignToAgent(report, freestAgent.User);
     }
 
     /// <summary>
     /// Assign the report to the given user
     /// </summary>
-    private static void ReassignToAgent(Report report, User agent)
+    private async Task ReassignToAgent(Report report, User agent)
     {
         // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         report.AssignedAgents ??= [];
@@ -59,6 +62,9 @@ public class AssignReportService(ApiDbContext context, RoleManager<IdentityRole<
                 Agent = agent,
             }
         );
+
+        await context.SaveChangesAsync();
+        await notificationService.NotifyReportAssigned(agent.Id, report);
     }
 
     private IQueryable<User> AllUsersInRole(IdentityRole<Guid> role) =>
