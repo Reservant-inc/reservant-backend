@@ -63,6 +63,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the report considered in the search</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -74,6 +75,7 @@ public class GetReportsService(
         ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId,
+        Guid? assignedToId,
         ReportStatus status,
         int page = 0,
         int perPage = 10)
@@ -83,7 +85,7 @@ public class GetReportsService(
         reports = FilterReportsQuery(
             reports, dateFrom, dateUntil,
             category, reportedUserId, restaurantId,
-            user.Id, null, status);
+            user.Id, assignedToId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
@@ -98,6 +100,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the report considered in the search</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -109,6 +112,7 @@ public class GetReportsService(
         ReportCategory? category,
         Guid? reportedUserId,
         int restaurantId,
+        Guid? assignedToId,
         ReportStatus status,
         int page = 0,
         int perPage = 10)
@@ -119,7 +123,7 @@ public class GetReportsService(
         var reports = FilterReportsQuery(
             context.Reports, dateFrom, dateUntil,
             category, reportedUserId, restaurantId,
-            user.Id, null, status);
+            user.Id, assignedToId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);

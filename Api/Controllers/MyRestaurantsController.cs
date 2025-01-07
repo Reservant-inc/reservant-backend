@@ -260,6 +260,7 @@ namespace Reservant.Api.Controllers
         /// <param name="dateUntil">Ending date to look for reports</param>
         /// <param name="category">category of the reports to look for</param>
         /// <param name="reportedUserId">id of the user that was reported in the reports</param>
+        /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
         /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
         /// <param name="service"></param>
         /// <param name="status">status of the reports considered in the search</param>
@@ -275,6 +276,7 @@ namespace Reservant.Api.Controllers
             [FromQuery] DateTime? dateUntil,
             [FromQuery] ReportCategory? category,
             [FromQuery] Guid? reportedUserId,
+            [FromQuery] Guid? assignedToId,
             int restaurantId,
             [FromServices] GetReportsService service,
             [FromQuery] ReportStatus status = ReportStatus.All,
@@ -287,7 +289,9 @@ namespace Reservant.Api.Controllers
                 return Unauthorized();
             }
             return OkOrErrors(await service.GetMyRestaurantsReportsAsync(
-                user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status, page, perPage));
+                user, dateFrom, dateUntil,
+                category, reportedUserId, restaurantId,
+                assignedToId, status, page, perPage));
         }
 
         /// <summary>
