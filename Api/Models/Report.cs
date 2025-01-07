@@ -22,6 +22,7 @@ public class Report : ISoftDeletable
     /// <summary>
     /// Unique ID
     /// </summary>
+    [Key]
     public int ReportId { get; set; }
 
     /// <summary>
@@ -90,6 +91,11 @@ public class Report : ISoftDeletable
     /// Navigational property of the support agent that escalated this report
     /// </summary>
     public User? EscalatedBy { get; set; }
+
+    /// <summary>
+    /// Navigational property for report processings
+    /// </summary>
+    public List<ReportProcessing>? reportProcessings { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

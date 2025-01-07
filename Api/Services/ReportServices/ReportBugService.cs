@@ -18,6 +18,8 @@ namespace Reservant.Api.Services.ReportServices;
 public class ReportBugService(
     ApiDbContext context,
     ValidationService validationService,
+     GetSupportAgentsService CSAgentService,
+    AssignReportToAgentService assignService,
     IMapper mapper)
 {
     /// <summary>
@@ -47,7 +49,15 @@ public class ReportBugService(
             Visit = null,
         };
         context.Add(report);
+        var CSAgents = CSAgentService.GetSupportAgentWithLeastReportsAssigned();
+        if (CSAgents.IsError) {
+            return CSAgents.Errors;
+        }
+        assignService.AssignReportToAgent(CSAgents.Value, report);
+
         await context.SaveChangesAsync();
+
+
 
         return mapper.Map<ReportVM>(report);
     }

@@ -163,4 +163,9 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// Check whether the user is banned at a certain point in time
     /// </summary>
     public bool IsBannedAt(DateTime pointInTime) => pointInTime < BannedUntil;
+
+    /// <summary>
+    /// Navigational property of Reports processed by this user
+    /// </summary>
+    public List<ReportProcessing>? ReportProcessings { get; set; }
 }

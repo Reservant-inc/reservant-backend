@@ -342,7 +342,12 @@ public static class ErrorCodes
     public const string MustBeCustomerSupportAgent = "MustBeCustomerSupportAgent";
     
     /// <summary>
-    /// Reporty is already resolved
+    /// Report is already resolved
     /// </summary>
     public const string AlreadyResolved = "AlreadyResolved";
+
+    /// <summary>
+    /// No support agent was found in the database
+    /// </summary>
+    public const string NoSupportAgentFound = "NoSupportAgentFound";
 }

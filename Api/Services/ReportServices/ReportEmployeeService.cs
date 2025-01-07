@@ -21,7 +21,9 @@ public class ReportEmployeeService(
     ValidationService validationService,
     IMapper mapper,
     UserManager<User> roleManager,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    AssignReportToAgentService assignReportToAgentService,
+    GetSupportAgentsService getSupportAgentsService)
 {
     /// <summary>
     /// Report a employee
@@ -89,6 +91,12 @@ public class ReportEmployeeService(
             Visit = visit,
         };
         context.Add(report);
+        var support = getSupportAgentsService.GetSupportAgentWithLeastReportsAssigned();
+        if(support.IsError)
+        {
+            return support.Errors;
+        }
+        assignReportToAgentService.AssignReportToAgent(support.Value, report);
         await context.SaveChangesAsync();
 
         return mapper.Map<ReportVM>(report);

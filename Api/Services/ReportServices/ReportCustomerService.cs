@@ -22,7 +22,9 @@ public class ReportCustomerService(
     ValidationService validationService,
     IMapper mapper,
     UserManager<User> roleManager,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    AssignReportToAgentService assignReportToAgentService,
+    GetSupportAgentsService getSupportAgentsService)
 {
     /// <summary>
     /// Report a customer
@@ -84,6 +86,12 @@ public class ReportCustomerService(
             Visit = visit,
         };
         context.Add(report);
+        var support = getSupportAgentsService.GetSupportAgentWithLeastReportsAssigned();
+        if (support.IsError)
+        {
+            return support.Errors;
+        }
+        assignReportToAgentService.AssignReportToAgent(support.Value, report);
         await context.SaveChangesAsync();
 
         return mapper.Map<ReportVM>(report);

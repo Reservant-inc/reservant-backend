@@ -20,7 +20,9 @@ public class ReportLostItemService(
     ApiDbContext context,
     ValidationService validationService,
     IMapper mapper,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    AssignReportToAgentService assignReportToAgentService,
+    GetSupportAgentsService getSupportAgentsService)
 {
     /// <summary>
     /// Reports lost item report
@@ -66,6 +68,14 @@ public class ReportLostItemService(
             Visit = visit,
         };
         context.Add(report);
+
+        var support = getSupportAgentsService.GetSupportAgentWithLeastReportsAssigned();
+        if (support.IsError)
+        {
+            return support.Errors;
+        }
+
+        assignReportToAgentService.AssignReportToAgent(support.Value, report);
         await context.SaveChangesAsync();
 
         return mapper.Map<ReportVM>(report);
