@@ -194,6 +194,34 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
+        /// As a customer support agent get wallet status of a user
+        /// </summary>
+        /// <param name="userId">ID of the user we are looking for</param>
+        /// <param name="walletService"></param>
+        [HttpGet("{userId:Guid}/wallet-status")]
+        [ProducesResponseType(200), ProducesResponseType(404)]
+        [MethodErrorCodes<WalletService>(nameof(WalletService.GetTransactionHistory))]
+        [Authorize(Roles = Roles.CustomerSupportAgent)]
+        public async Task<ActionResult<WalletStatusVM>> GetUsersWalletStatus(
+            [FromServices] WalletService walletService, Guid userId)
+        {
+            var bokEmployee = await userManager.GetUserAsync(User);
+            if (bokEmployee is null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var result = await walletService.GetWalletStatus(user);
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Get reviews authored by the user
         /// </summary>
         /// <param name="reviewService"></param>
