@@ -134,4 +134,22 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     {
         return OkOrErrors(await service.ResolveReport(User.GetUserId()!.Value, reportId, dto));
     }
+
+    /// <summary>
+    /// Reassign a report to another customer support agent
+    /// </summary>
+    /// <param name="reportId">ID of the report to reassign</param>
+    /// <param name="dto"></param>
+    /// <param name="service"></param>
+    [HttpPost("{reportId:int}/assign-to")]
+    [Authorize(Roles = Roles.CustomerSupportAgent)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<AssignReportService>(nameof(AssignReportService.AssignReportToAgent))]
+    public async Task<ActionResult> AssignReportToAgent(
+        int reportId,
+        [FromBody] AssignReportRequest dto,
+        [FromServices] AssignReportService service)
+    {
+        return OkOrErrors(await service.AssignReportToAgent(dto.AgentId, reportId));
+    }
 }

@@ -1,8 +1,12 @@
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Validation;
+using Reservant.Api.Validators;
+using Reservant.ErrorCodeDocs.Attributes;
 
 namespace Reservant.Api.Services.ReportServices;
 
@@ -12,8 +16,60 @@ namespace Reservant.Api.Services.ReportServices;
 public class AssignReportService(
     ApiDbContext context,
     RoleManager<IdentityRole<Guid>> roleManager,
-    NotificationService notificationService)
+    NotificationService notificationService,
+    UserManager<User> userManager)
 {
+    /// <summary>
+    /// Assign a report to a customer support agent
+    /// </summary>
+    /// <param name="agentId">ID of the customer support agent to assign the report to</param>
+    /// <param name="reportId">ID of the report to assign</param>
+    [ErrorCode(nameof(agentId), ErrorCodes.MustBeCustomerSupportAgent)]
+    [ErrorCode(nameof(reportId), ErrorCodes.NotFound)]
+    [ErrorCode(nameof(agentId), ErrorCodes.Duplicate)]
+    public async Task<Result> AssignReportToAgent(Guid agentId, int reportId)
+    {
+        var agent = await context.Users.FindAsync(agentId);
+        if (agent is null || !await userManager.IsInRoleAsync(agent, Roles.CustomerSupportAgent))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(agentId),
+                ErrorCode = ErrorCodes.MustBeCustomerSupportAgent,
+                ErrorMessage = $"User with ID {agentId} not found or is not a customer support agent",
+            };
+        }
+
+        var report = await context.Reports
+            .Include(r => r.AssignedAgents)
+            .SingleOrDefaultAsync(r => r.ReportId == reportId);
+        if (report is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(reportId),
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = $"Report with ID {reportId} not found",
+            };
+        }
+
+        if (IsAssignedTo(report, agent))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(agentId),
+                ErrorCode = ErrorCodes.Duplicate,
+                ErrorMessage = $"The report is already assigned to the given customer support agent",
+            };
+        }
+
+        await ReassignToAgent(report, agent);
+        return Result.Success;
+    }
+
+    private static bool IsAssignedTo(Report report, User agent) =>
+        report.AssignedAgents.Any(ra => ra.AgentId == agent.Id && ra.Until == null);
+
     /// <summary>
     /// Assign the report to the agent that currently has the least reports assigned
     /// </summary>
