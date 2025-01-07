@@ -306,5 +306,21 @@ namespace Reservant.Api.Controllers
             var result = await service.GetStatsByRestaurantIdAsync(restaurantId, userId!.Value, request);
             return OkOrErrors(result);
         }
+
+        /// <summary>
+        /// Retrieve statistics for all restaurants of the current user
+        /// </summary>
+        [HttpGet("statistics")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<StatisticsService>(nameof(StatisticsService.GetStatsOfRestaurantOwner))]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        public async Task<ActionResult<RestaurantStatsVM>> GetTotalStatistics(
+            [FromQuery] RestaurantStatsRequest request,
+            [FromServices] StatisticsService service)
+        {
+            var userId = User.GetUserId();
+            var result = await service.GetStatsOfRestaurantOwner(userId!.Value, request);
+            return OkOrErrors(result);
+        }
     }
 }

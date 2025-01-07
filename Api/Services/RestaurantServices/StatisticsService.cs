@@ -94,6 +94,29 @@ public class StatisticsService(
         return await GetStatisticsForRestaurants(restaurantIds, request);
     }
 
+    /// <summary>
+    /// Function for retrieving restaurant statistics of all restaurants of the given owner
+    /// </summary>
+    /// <param name="userId">id of the user</param>
+    /// <param name="request">Restaurant statistic</param>
+    /// <returns></returns>
+    [MethodErrorCodes<StatisticsService>(nameof(ValidateRestaurantStatsRequest))]
+    public async Task<Result<RestaurantStatsVM>> GetStatsOfRestaurantOwner(
+        Guid userId, RestaurantStatsRequest request)
+    {
+        var result = ValidateRestaurantStatsRequest(request);
+        if (result.IsError)
+        {
+            return result.Errors;
+        }
+
+        var restaurantIds = await context.Restaurants
+            .Where(r => r.Group.OwnerId == userId)
+            .Select(r => r.RestaurantId)
+            .ToListAsync();
+        return await GetStatisticsForRestaurants(restaurantIds, request);
+    }
+
     private async Task<RestaurantStatsVM> GetStatisticsForRestaurants(
         IReadOnlyList<int> restaurantIds, RestaurantStatsRequest request)
     {
