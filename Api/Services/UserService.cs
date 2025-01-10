@@ -681,31 +681,17 @@ public class UserService(
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /// <summary>
     /// Retrieves detailed information about a user's visits and their orders.
     /// </summary>
     /// <param name="userId">The ID of the user whose visits are to be retrieved.</param>
     /// <param name="currentUserId">The ID of the current user.</param>
-    /// <returns>A list of <see cref="VisitWithOrdersVM"/> objects or a <see cref="ValidationFailure"/> if validation fails.</returns>
-    [ErrorCode(null, ErrorCodes.AccessDenied, ErrorCodes.NotFound)]
-    public async Task<Result<List<VisitWithOrdersVM>>> GetUsersVistsWithOrdersByIdAsync(Guid userId, Guid currentUserId)
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Per page</param>
+    /// <returns>A list of <see cref="VisitVM"/> objects or a <see cref="ValidationFailure"/> if validation fails.</returns>
+    [ErrorCode(null, ErrorCodes.NotFound, "User not found")]
+    public async Task<Result<Pagination<VisitVM>>> GetUsersVistsWithOrdersByIdAsync(Guid userId, Guid currentUserId,int page, int perPage)
     {
-        // Check if the user exists
         if (!dbContext.Users.Any(u => u.Id == userId))
         {
             return new ValidationFailure
@@ -716,41 +702,11 @@ public class UserService(
             };
         }
 
-        // Fetch visits and include orders
-        var visits = await dbContext.Visits
+        return await dbContext.Visits
             .Include(v => v.Orders)
             .Where(v => v.ClientId == userId)
-            .ToListAsync();
-
-        if (visits==null || visits.Count==0)
-        {
-            return new ValidationFailure
-            {
-                PropertyName = null,
-                ErrorMessage = "No visits found.",
-                ErrorCode = ErrorCodes.NotFound
-            };
-        }
-
-        // Map visits and orders to VisitWithOrdersVM
-        var visitWithOrdersVMs = visits.Select(visit =>
-        {
-            // Map the visit
-            var visitVM = mapper.Map<VisitVM>(visit);
-
-            // Map the orders for this visit
-            var ordersVM = visit.Orders.Select(order => mapper.Map<OrderVM>(order)).ToList();
-
-            // Combine visitVM and ordersVM into VisitWithOrdersVM
-            return new VisitWithOrdersVM
-            {
-                visitVM = visitVM,
-                Orders = ordersVM
-            };
-        }).ToList();
-
-        // Return the list of VisitWithOrdersVM
-        return visitWithOrdersVMs;
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, []);
     }
 
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
 using Reservant.Api.Mapping;
 using Reservant.Api.Models;
@@ -54,7 +55,7 @@ namespace Reservant.Api.Controllers
         /// <param name="userId">id of the user</param>
         /// <returns></returns>
         [ProducesResponseType(200), ProducesResponseType(404)]
-        [HttpPost("{userId}/make-restaurant-owner"), Authorize()]//Roles = Roles.CustomerSupportAgent
+        [HttpPost("{userId}/make-restaurant-owner"), Authorize(Roles = Roles.CustomerSupportAgent)]
         public async Task<ActionResult> MakeRestaurantOwner(Guid userId)
         {
             var user = await userService.MakeRestaurantOwnerAsync(userId);
@@ -234,26 +235,20 @@ namespace Reservant.Api.Controllers
             return OkOrErrors(result);
         }
 
-
-
-
-
-
-
-
-
         /// <summary>
         /// Gets information about a specific users vists and orders.
         /// </summary>
         /// <param name="userId">ID of the user whos visit and orders of such visits are beeing retrived</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Per page</param>  
         /// <returns></returns>
         [HttpGet("{userId}/visits")]
         [Authorize(Roles = Roles.CustomerSupportAgent)]
         [ProducesResponseType(200), ProducesResponseType(401), ProducesResponseType(403), ProducesResponseType(400)]
         [MethodErrorCodes<UserService>(nameof(UserService.GetUsersVistsWithOrdersByIdAsync))]
-        public async Task<ActionResult<List<VisitWithOrdersVM>>> GetUsersVistsWithOrdersById(Guid userId)
+        public async Task<ActionResult<Pagination<VisitVM>>> GetUsersVistsWithOrdersById(Guid userId,int page, int perPage)
         {
-            var result = await userService.GetUsersVistsWithOrdersByIdAsync(userId, User.GetUserId()!.Value);
+            var result = await userService.GetUsersVistsWithOrdersByIdAsync(userId, User.GetUserId()!.Value, page, perPage);
             return OkOrErrors(result);
         }
 
