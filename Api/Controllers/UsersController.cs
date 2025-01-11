@@ -49,6 +49,29 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
+        /// Find customer support agents
+        /// </summary>
+        /// <remarks>
+        /// Only searches for customers. Returns friends first,
+        /// then friend requests, then strangers.
+        /// </remarks>
+        /// <param name="name">Search by agent's name</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns></returns>
+        [HttpGet("customer-support")]
+        [Authorize(Roles = Roles.CustomerSupportAgent)]
+        [MethodErrorCodes<UserService>(nameof(UserService.FindCustomerSupportAgents))]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<Pagination<FoundCustomerSupportAgentVM>>> FindCustomerSupportAgents(
+            string? name, int page = 0, int perPage = 10)
+        {
+            var result = await userService.FindCustomerSupportAgents(
+                name, User.GetUserId()!.Value, page, perPage);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
         /// Sets Restaurant Owner role for specified user
         /// </summary>
         /// <param name="userId">id of the user</param>

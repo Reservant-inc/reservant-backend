@@ -428,13 +428,9 @@ public class UserService(
     public async Task<Result<Pagination<FoundUserVM>>> FindUsersAsync(
         string name, UserSearchFilter filter, Guid currentUserId, int page, int perPage)
     {
-        var query =
-            from u in dbContext.Users
-            join ur in dbContext.UserRoles on u.Id equals ur.UserId
-            join r in dbContext.Roles on ur.RoleId equals r.Id
-            where r.Name == Roles.Customer
-            where u.Id != currentUserId && (u.FirstName + " " + u.LastName).Contains(name)
-            select new FoundUserVM
+        var query = QueryUsersInRole(Roles.Customer)
+            .Where(u => u.Id != currentUserId && (u.FirstName + " " + u.LastName).Contains(name))
+            .Select(u => new FoundUserVM
             {
                 UserId = u.Id,
                 FirstName = u.FirstName,
@@ -455,7 +451,7 @@ public class UserService(
                         : FriendStatus.Stranger)
                     .FirstOrDefault(),
                 PhoneNumber = u.FullPhoneNumber
-            };
+            });
 
         query = filter switch
         {
@@ -464,11 +460,50 @@ public class UserService(
             UserSearchFilter.StrangersOnly => query
                 .Where(u => u.FriendStatus != FriendStatus.Friend)
                 .OrderByDescending(u => u.FriendStatus),
+            UserSearchFilter.CustomerSupportAgents => query,
             _ => throw new ArgumentOutOfRangeException(nameof(filter)),
         };
 
         return await query.PaginateAsync(page, perPage, [], 100, true);
     }
+
+    /// <summary>
+    /// Find customer support agents
+    /// </summary>
+    /// <param name="name">Search by agent's name</param>
+    /// <param name="currentUserId">ID of the current user</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
+    public async Task<Result<Pagination<FoundCustomerSupportAgentVM>>> FindCustomerSupportAgents(
+        string? name, Guid currentUserId, int page, int perPage)
+    {
+        var query = QueryUsersInRole(Roles.CustomerSupportAgent)
+            .Where(u => u.Id != currentUserId);
+
+        if (name is not null)
+        {
+            query = query.Where(u => (u.FirstName + " " + u.LastName).Contains(name));
+        }
+
+        return await query
+            .Select(u => new FoundCustomerSupportAgentVM
+            {
+                UserId = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Photo = urlService.GetPathForFileName(u.PhotoFileName),
+                PhoneNumber = u.FullPhoneNumber
+            })
+            .PaginateAsync(page, perPage, [], 100, true);
+    }
+
+    private IQueryable<User> QueryUsersInRole(string roleName) =>
+        from u in dbContext.Users
+        join ur in dbContext.UserRoles on u.Id equals ur.UserId
+        join r in dbContext.Roles on ur.RoleId equals r.Id
+        where r.Name == roleName
+        select u;
 
     /// <summary>
     /// Retrieves detailed information about a user. If the user is an employee of the current user,
