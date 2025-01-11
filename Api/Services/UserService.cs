@@ -685,25 +685,22 @@ public class UserService(
     /// Retrieves detailed information about a user's visits and their orders.
     /// </summary>
     /// <param name="userId">The ID of the user whose visits are to be retrieved.</param>
-    /// <param name="currentUserId">The ID of the current user.</param>
     /// <param name="page">Page number</param>
-    /// <param name="perPage">Per page</param>
-    /// <returns>A list of <see cref="VisitVM"/> objects or a <see cref="ValidationFailure"/> if validation fails.</returns>
-    [ErrorCode(null, ErrorCodes.NotFound, "User not found")]
-    public async Task<Result<Pagination<VisitVM>>> GetUsersVistsWithOrdersByIdAsync(Guid userId, Guid currentUserId,int page, int perPage)
+    /// <param name="perPage">Items per page</param>
+    [ErrorCode(nameof(userId), ErrorCodes.NotFound, "User not found")]
+    public async Task<Result<Pagination<VisitVM>>> GetUsersVisitsWithOrdersById(Guid userId, int page, int perPage)
     {
         if (!dbContext.Users.Any(u => u.Id == userId))
         {
             return new ValidationFailure
             {
-                PropertyName = null,
+                PropertyName = nameof(userId),
                 ErrorMessage = $"User: {userId} not found.",
-                ErrorCode = ErrorCodes.NotFound
+                ErrorCode = ErrorCodes.NotFound,
             };
         }
 
         return await dbContext.Visits
-            .Include(v => v.Orders)
             .Where(v => v.ClientId == userId)
             .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);

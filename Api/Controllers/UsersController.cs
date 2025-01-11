@@ -240,17 +240,17 @@ namespace Reservant.Api.Controllers
         /// </summary>
         /// <param name="userId">ID of the user whos visit and orders of such visits are beeing retrived</param>
         /// <param name="page">Page number</param>
-        /// <param name="perPage">Per page</param>  
+        /// <param name="perPage">Items per page</param>
         /// <returns></returns>
-        [HttpGet("{userId}/visits")]
+        [HttpGet("{userId:guid}/visits")]
         [Authorize(Roles = Roles.CustomerSupportAgent)]
-        [ProducesResponseType(200), ProducesResponseType(401), ProducesResponseType(403), ProducesResponseType(400)]
-        [MethodErrorCodes<UserService>(nameof(UserService.GetUsersVistsWithOrdersByIdAsync))]
-        public async Task<ActionResult<Pagination<VisitVM>>> GetUsersVistsWithOrdersById(Guid userId,int page, int perPage)
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.GetUsersVisitsWithOrdersById))]
+        public async Task<ActionResult<Pagination<VisitVM>>> GetUsersVisitsWithOrdersById(
+            Guid userId, int page = 0, int perPage = 10)
         {
-            var result = await userService.GetUsersVistsWithOrdersByIdAsync(userId, User.GetUserId()!.Value, page, perPage);
+            var result = await userService.GetUsersVisitsWithOrdersById(userId, page, perPage);
             return OkOrErrors(result);
         }
-
     }
 }
