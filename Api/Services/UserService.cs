@@ -17,6 +17,7 @@ using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.Api.Dtos.Orders;
 
 
 namespace Reservant.Api.Services;
@@ -714,4 +715,30 @@ public class UserService(
         await RemoveExpiredBan(user);
         return false;
     }
+
+    /// <summary>
+    /// Retrieves detailed information about a user's visits and their orders.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose visits are to be retrieved.</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    [ErrorCode(nameof(userId), ErrorCodes.NotFound, "User not found")]
+    public async Task<Result<Pagination<VisitVM>>> GetUsersVisitsWithOrdersById(Guid userId, int page, int perPage)
+    {
+        if (!dbContext.Users.Any(u => u.Id == userId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(userId),
+                ErrorMessage = $"User: {userId} not found.",
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+
+        return await dbContext.Visits
+            .Where(v => v.ClientId == userId)
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, []);
+    }
+
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
 using Reservant.Api.Mapping;
 using Reservant.Api.Models;
@@ -282,6 +283,24 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await userService.ArchiveUserAsync(userId, user.Id);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Gets information about a specific users vists and orders.
+        /// </summary>
+        /// <param name="userId">ID of the user whos visit and orders of such visits are beeing retrived</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns></returns>
+        [HttpGet("{userId:guid}/visits")]
+        [Authorize(Roles = Roles.CustomerSupportAgent)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.GetUsersVisitsWithOrdersById))]
+        public async Task<ActionResult<Pagination<VisitVM>>> GetUsersVisitsWithOrdersById(
+            Guid userId, int page = 0, int perPage = 10)
+        {
+            var result = await userService.GetUsersVisitsWithOrdersById(userId, page, perPage);
             return OkOrErrors(result);
         }
     }
