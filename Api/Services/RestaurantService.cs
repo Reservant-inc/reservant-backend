@@ -208,10 +208,10 @@ namespace Reservant.Api.Services
                         Latitude = r.Location.Y,
                         Longitude = r.Location.X
                     },
-                    RentalContract = switchToUnverified ? null : r.RentalContractFileName,
-                    AlcoholLicense = switchToUnverified ? null : r.AlcoholLicenseFileName,
-                    BusinessPermission = switchToUnverified ? null : r.BusinessPermissionFileName,
-                    IdCard = switchToUnverified ? null : r.IdCardFileName,
+                    RentalContract = switchToUnverified ? r.RentalContractFileName : null,
+                    AlcoholLicense = switchToUnverified ? r.AlcoholLicenseFileName : null,
+                    BusinessPermission = switchToUnverified ? r.BusinessPermissionFileName : null,
+                    IdCard = switchToUnverified ? r.IdCardFileName : null,
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = urlService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
@@ -226,7 +226,7 @@ namespace Reservant.Api.Services
 
             return nearRestaurants;
         }
-        
+
         /// <summary>
         /// Returns full restaurant details (with verifierId)
         /// </summary>
