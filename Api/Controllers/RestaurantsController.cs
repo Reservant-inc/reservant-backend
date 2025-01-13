@@ -70,6 +70,21 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         var result = await service.FindRestaurantsAsync(searchParams, true);
         return OkOrErrors(result);
     }
+    
+    /// <summary>
+    /// Returns full details of restaurant (with verifierId)
+    /// </summary>
+    /// <param name="restaurantId"></param>
+    /// <returns></returns>
+    [HttpGet("{restaurantId:int}/full-details")]
+    [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<FullRestaurantVM>> GetFullDetails(int restaurantId)
+    {
+        var result = await service.GetFullRestaurantDetailsAsync(restaurantId);
+        return OkOrErrors(result);
+    }
 
 
     /// <summary>

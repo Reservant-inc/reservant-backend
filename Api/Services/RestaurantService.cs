@@ -226,6 +226,34 @@ namespace Reservant.Api.Services
 
             return nearRestaurants;
         }
+        
+        /// <summary>
+        /// Returns full restaurant details (with verifierId)
+        /// </summary>
+        /// <param name="restaurantId">Restaurant id</param>
+        /// <returns></returns>
+        public async Task<Result<FullRestaurantVM>> GetFullRestaurantDetailsAsync(int restaurantId)
+        {
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .Include(r => r.Group)
+                .Include(r => r.Tables)
+                .Where(r => r.RestaurantId == restaurantId)
+                .ProjectTo<FullRestaurantVM>(mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            return restaurant;
+        }
 
         /// <summary>
         /// Register new Restaurant and optionally a new group for it.
