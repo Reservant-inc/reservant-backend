@@ -68,7 +68,8 @@ public class Report : ISoftDeletable
     /// <summary>
     /// Resolution details of the report.
     /// </summary>
-    public ReportResolution? Resolution { get; set; }
+    public ReportDecision? Resolution { get; set; }
+
     /// <summary>
     /// Optional Thread associated with the Report
     /// </summary>

@@ -183,8 +183,11 @@ public class GetReportsService(
 
         switch (status)
         {
-            case ReportStatus.Resolved:
-                reports = reports.Where(r => r.Resolution != null);
+            case ReportStatus.ResolvedPositively:
+                reports = reports.Where(r => r.Resolution != null && r.Resolution.IsDecisionPositive);
+                break;
+            case ReportStatus.ResolvedNegatively:
+                reports = reports.Where(r => r.Resolution != null && !r.Resolution.IsDecisionPositive);
                 break;
             case ReportStatus.NotResolved:
                 reports = reports.Where(r => r.Resolution == null);

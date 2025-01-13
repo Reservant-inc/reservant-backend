@@ -5,7 +5,7 @@ namespace Reservant.Api.Models
     /// <summary>
     /// Represents the resolution details of a report.
     /// </summary>
-    public class ReportResolution
+    public class ReportDecision
     {
         /// <summary>
         /// Max length of SupportComment
@@ -28,5 +28,10 @@ namespace Reservant.Api.Models
         /// The date and time when the report was resolved.
         /// </summary>
         public DateTime Date { get; set; }
+
+        /// <summary>
+        /// Check whether the report resolution was positive for the reporting person.
+        /// </summary>
+        public bool IsDecisionPositive { get; set; }
     }
 }

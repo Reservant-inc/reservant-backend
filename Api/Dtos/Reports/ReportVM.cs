@@ -68,4 +68,9 @@ public class ReportVM
     /// ID of the associated thread, if any
     /// </summary>
     public int? ThreadId { get; set; }
+
+    /// <summary>
+    /// Current status of the report
+    /// </summary>
+    public ReportStatus ReportStatus { get; set; }
 }
