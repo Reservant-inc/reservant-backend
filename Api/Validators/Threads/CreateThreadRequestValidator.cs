@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Reservant.Api.Dtos.Threads;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators.Threads;
 
@@ -15,7 +16,7 @@ public class CreateThreadRequestValidator : AbstractValidator<CreateThreadReques
         RuleFor(t => t.Title)
             .NotEmpty()
             .WithMessage("Title cannot be empty.")
-            .MaximumLength(40);
+            .MaximumLength(MessageThread.MaxTitleLength);
 
         RuleFor(t => t.ParticipantIds)
             .NotEmpty()

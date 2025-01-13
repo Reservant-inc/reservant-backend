@@ -9,6 +9,11 @@ namespace Reservant.Api.Models;
 public class MessageThread : ISoftDeletable
 {
     /// <summary>
+    /// Maximum length of the title
+    /// </summary>
+    public const int MaxTitleLength = 100;
+
+    /// <summary>
     /// Unique ID
     /// </summary>
     [Key]
@@ -17,7 +22,7 @@ public class MessageThread : ISoftDeletable
     /// <summary>
     /// Title of the message thread
     /// </summary>
-    [StringLength(40)]
+    [StringLength(MaxTitleLength)]
     public required string Title { get; set; }
 
     /// <summary>
@@ -44,7 +49,7 @@ public class MessageThread : ISoftDeletable
     /// Navigational collection for the messages
     /// </summary>
     public ICollection<Message> Messages { get; set; } = null!;
-    
+
     /// <summary>
     /// Determines if the thread can be edited by participants.
     /// </summary>
