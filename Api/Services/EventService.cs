@@ -87,7 +87,7 @@ namespace Reservant.Api.Services
                 CreationDate = DateTime.UtcNow,
                 CreatorId = user.Id,
                 Participants = new List<User> { user },
-                IsEditable = false // Wątek dla eventu nie może być edytowany
+                Type = MessageThreadType.Event,
             };
 
             // Przypisanie wątku do eventu

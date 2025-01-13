@@ -11,6 +11,7 @@ using Reservant.Api.Dtos.Threads;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -109,7 +110,7 @@ public class ThreadService(
             };
         }
 
-        if (!messageThread.IsEditable)
+        if (messageThread.Type is not MessageThreadType.Normal)
         {
             return new ValidationFailure
             {

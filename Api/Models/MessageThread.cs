@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Reservant.Api.Data;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Models;
 
@@ -51,9 +52,9 @@ public class MessageThread : ISoftDeletable
     public ICollection<Message> Messages { get; set; } = null!;
 
     /// <summary>
-    /// Determines if the thread can be edited by participants.
+    /// Kind of the message thread
     /// </summary>
-    public bool IsEditable { get; set; } = true; // Default to true for user-created threads
+    public MessageThreadType Type { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
