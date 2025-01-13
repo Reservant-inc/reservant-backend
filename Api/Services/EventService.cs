@@ -315,6 +315,8 @@ namespace Reservant.Api.Services
         public async Task<Result> RejectParticipationRequestAsync(int eventId, Guid userId, User currentUser)
         {
             var eventFound = await context.Events
+                .Include(e => e.Thread)
+                .ThenInclude(e => e!.Participants)
                 .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventFound == null || eventFound.CreatorId != currentUser.Id)
@@ -343,6 +345,12 @@ namespace Reservant.Api.Services
 
             request.DateAccepted = null;
             request.DateDeleted = DateTime.Now;
+
+            var userToRemove = await context.Users.FindAsync(userId);
+            if (userToRemove is not null)
+            {
+                eventFound.Thread?.Participants.Remove(userToRemove);
+            }
 
             await context.SaveChangesAsync();
             await notificationService.NotifyParticipationRequestResponse(userId, eventId, false);
