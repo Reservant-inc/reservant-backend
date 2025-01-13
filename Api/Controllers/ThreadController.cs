@@ -186,45 +186,4 @@ public class ThreadsController(
         return OkOrErrors(await threadService.RemoveParticipant(
             threadId, dto, User.GetUserId()!.Value));
     }
-    
-    /// <summary>
-    /// Creates a new thread for a report
-    /// </summary>
-    /// <param name="reportId">ID of the report</param>
-    /// <returns>Created thread information</returns>
-    [HttpPost("create-thread-for-report/{reportId:int}")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = $"{Roles.Customer},{Roles.RestaurantEmployee},{Roles.RestaurantOwner},{Roles.CustomerSupportManager},{Roles.CustomerSupportAgent}")]
-    [MethodErrorCodes<ThreadService>(nameof(ThreadService.CreateThreadForReport))]
-    public async Task<ActionResult<ThreadVM>> CreateThreadForReport(int reportId)
-    {
-        var userId = User.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await threadService.CreateThreadForReport(reportId, userId.Value);
-        return OkOrErrors(result);
-    }
-
-    /// <summary>
-    /// Assigns the current BOK employee to the thread associated with a report.
-    /// </summary>
-    /// <param name="threadId">ID of the thread</param>
-    [HttpPost("{threadId:int}/assign-current-bok-employee")]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [Authorize(Roles = "CustomerSupportManager,CustomerSupportAgent")]
-    [MethodErrorCodes<ThreadService>(nameof(ThreadService.AssignCurrentBokEmployeeToThread))]
-    public async Task<ActionResult> AssignCurrentBokEmployee(int threadId)
-    {
-        var userId = User.GetUserId();
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
-
-        var result = await threadService.AssignCurrentBokEmployeeToThread(threadId, userId.Value);
-        return OkOrErrors(result);
-    }
 }
