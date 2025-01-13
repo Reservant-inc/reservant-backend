@@ -370,6 +370,16 @@ public class ThreadService(
             };
         }
 
+        if (thread.Type is not MessageThreadType.Normal)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "This thread cannot be edited.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
         var targetUser = await userManager.FindByIdAsync(dto.UserId.ToString());
         if (targetUser is null)
         {
@@ -435,6 +445,16 @@ public class ThreadService(
                 PropertyName = null,
                 ErrorCode = ErrorCodes.AccessDenied,
                 ErrorMessage = "User is not a particpant of the thread",
+            };
+        }
+
+        if (thread.Type is not MessageThreadType.Normal)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "This thread cannot be edited.",
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 
