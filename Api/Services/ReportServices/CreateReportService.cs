@@ -258,14 +258,17 @@ public class CreateReportService(
     /// </summary>
     private const int ThreadTitleDescriptionCutoff = MessageThread.MaxTitleLength - 8;
 
-    private static MessageThread CreateThreadForReport(Report report)
+    /// <summary>
+    /// Create message thread for the given report
+    /// </summary>
+    public static MessageThread CreateThreadForReport(Report report)
     {
         var shortDescription = report.Description[..Math.Min(report.Description.Length, ThreadTitleDescriptionCutoff)];
         return new MessageThread
         {
             Title = $"Report: {shortDescription}",
-            Participants = [report.CreatedBy],
-            CreationDate = DateTime.UtcNow,
+            Participants = [report.CreatedBy, ..report.AssignedAgents.Select(ra => ra.Agent)],
+            CreationDate = report.ReportDate,
             Creator = report.CreatedBy,
             Type = MessageThreadType.Report,
         };
