@@ -77,7 +77,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     /// <param name="restaurantId"></param>
     /// <returns></returns>
     [HttpGet("{restaurantId:int}/full-details")]
-    [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
+    [Authorize(Roles = $"{Roles.CustomerSupportAgent},{Roles.RestaurantOwner}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(400)]
     public async Task<ActionResult<FullRestaurantVM>> GetFullDetails(int restaurantId)
