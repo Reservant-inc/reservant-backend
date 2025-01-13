@@ -1,4 +1,5 @@
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Dtos.Threads;
 
@@ -21,4 +22,9 @@ public class ThreadVM
     /// Participants
     /// </summary>
     public required List<UserSummaryVM> Participants { get; init; }
+
+    /// <summary>
+    /// Kind of the message thread
+    /// </summary>
+    public required MessageThreadType Type { get; init; }
 }

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Reservant.Api.Dtos.Threads;
+using Reservant.Api.Models;
 
 namespace Reservant.Api.Validators.Threads;
 
@@ -14,6 +15,6 @@ public class UpdateThreadRequestValidator : AbstractValidator<UpdateThreadReques
         RuleFor(t => t.Title)
             .NotEmpty()
             .WithMessage("Title cannot be empty.")
-            .MaximumLength(40);
+            .MaximumLength(MessageThread.MaxTitleLength);
     }
 }

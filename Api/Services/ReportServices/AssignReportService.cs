@@ -41,7 +41,11 @@ public class AssignReportService(
         }
 
         var report = await context.Reports
+            .AsSplitQuery()
             .Include(r => r.AssignedAgents)
+            .ThenInclude(ra => ra.Agent)
+            .Include(r => r.Thread)
+            .ThenInclude(mt => mt!.Participants)
             .SingleOrDefaultAsync(r => r.ReportId == reportId);
         if (report is null)
         {
@@ -108,7 +112,9 @@ public class AssignReportService(
 
         if (report.AssignedAgents.Count > 0)
         {
-            report.AssignedAgents.Last().Until = DateTime.UtcNow;
+            var lastAgentAssignment = report.AssignedAgents.Last();
+            lastAgentAssignment.Until = DateTime.UtcNow;
+            report.Thread?.Participants.Remove(lastAgentAssignment.Agent);
         }
 
         report.AssignedAgents.Add(
@@ -118,6 +124,8 @@ public class AssignReportService(
                 Agent = agent,
             }
         );
+
+        report.Thread?.Participants.Add(agent);
 
         await context.SaveChangesAsync();
         await notificationService.NotifyReportAssigned(agent.Id, report);

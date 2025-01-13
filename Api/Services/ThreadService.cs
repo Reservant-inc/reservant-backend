@@ -11,6 +11,7 @@ using Reservant.Api.Dtos.Threads;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
+using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 
@@ -109,6 +110,16 @@ public class ThreadService(
             };
         }
 
+        if (messageThread.Type is not MessageThreadType.Normal)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "This thread cannot be edited.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
         messageThread.Title = request.Title;
 
         var validationResult = await validationService.ValidateAsync(messageThread, userId);
@@ -200,6 +211,7 @@ public class ThreadService(
             ThreadId = messageThread.MessageThreadId,
             Title=messageThread.Title,
             Participants = participantsMinusUs,
+            Type = messageThread.Type,
         };
     }
 
@@ -246,7 +258,7 @@ public class ThreadService(
             DateSent = DateTime.UtcNow,
             AuthorId = author.Id,
             Author = author,
-            MessageThreadId = threadId,
+            MessageThreadId = threadId
         };
 
         var result = await validationService.ValidateAsync(message, userId);
@@ -358,6 +370,16 @@ public class ThreadService(
             };
         }
 
+        if (thread.Type is not MessageThreadType.Normal)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "This thread cannot be edited.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
         var targetUser = await userManager.FindByIdAsync(dto.UserId.ToString());
         if (targetUser is null)
         {
@@ -423,6 +445,16 @@ public class ThreadService(
                 PropertyName = null,
                 ErrorCode = ErrorCodes.AccessDenied,
                 ErrorMessage = "User is not a particpant of the thread",
+            };
+        }
+
+        if (thread.Type is not MessageThreadType.Normal)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "This thread cannot be edited.",
+                ErrorCode = ErrorCodes.AccessDenied
             };
         }
 

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
+using Reservant.Api.Services.ReportServices;
 
 namespace Reservant.Api.Data.Seeding;
 
@@ -28,7 +29,7 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             select user
             ).ToListAsync();
 
-        context.Reports.AddRange([
+        List<Report> reports = [
             CreateTechnicalReport(now.AddMonths(-2), users.KrzysztofKowalski, "Aplikacja nie działa kompletnie"),
             CreateTechnicalReport(now.AddMonths(-1), users.JohnDoe,
                 """
@@ -54,13 +55,19 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             await CreateLostItemReport(now.AddHours(-12), 11, "Zgubiłem swoją kurtkę na miejscu."),
             await CreateEmployeeReport(now.AddHours(-2), 6, "Zachowywał się okropnie"),
             await CreateCustomerReport(now.AddHours(-1), 6, "Zachowywał się okropnie"),
-        ]);
+        ];
+
+        foreach (var report in reports)
+        {
+            context.Add(report);
+        }
+
         await context.SaveChangesAsync();
     }
 
     private Report CreateTechnicalReport(DateTime reportDate, User createdBy, string description)
     {
-        return new Report
+        var report = new Report
         {
             Category = ReportCategory.Technical,
             Description = description,
@@ -74,16 +81,18 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
                 },
             ],
         };
+        report.Thread = CreateReportService.CreateThreadForReport(report);
+        return report;
     }
 
     private async Task<Report> CreateLostItemReport(DateTime reportDate, int visitId, string description)
     {
-        var visit = await FindVisitWithId(visitId);
-        return new Report
+        var visit = await FindVisitByIdWithCreator(visitId);
+        var report = new Report
         {
             Category = ReportCategory.LostItem,
             Description = description,
-            CreatedById = visit.CreatorId,
+            CreatedBy = visit.Creator,
             ReportDate = reportDate,
             Visit = visit,
             AssignedAgents = [
@@ -94,12 +103,14 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
                 },
             ],
         };
+        report.Thread = CreateReportService.CreateThreadForReport(report);
+        return report;
     }
 
     private async Task<Report> CreateCustomerReport(DateTime reportDate, int visitId, string description)
     {
-        var visit = await FindVisitWithId(visitId);
-        return new Report
+        var visit = await FindVisitByIdWithCreator(visitId);
+        var report = new Report
         {
             Category = ReportCategory.CustomerReport,
             Description = description,
@@ -115,16 +126,18 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
                 },
             ],
         };
+        report.Thread = CreateReportService.CreateThreadForReport(report);
+        return report;
     }
 
     private async Task<Report> CreateEmployeeReport(DateTime reportDate, int visitId, string description)
     {
-        var visit = await FindVisitWithId(visitId);
-        return new Report
+        var visit = await FindVisitByIdWithCreator(visitId);
+        var report = new Report
         {
             Category = ReportCategory.RestaurantEmployeeReport,
             Description = description,
-            CreatedById = visit.CreatorId,
+            CreatedBy = visit.Creator,
             ReportDate = reportDate,
             Visit = visit,
             ReportedUser = await FindEmployeeOfVisitWithId(visitId),
@@ -136,6 +149,8 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
                 },
             ],
         };
+        report.Thread = CreateReportService.CreateThreadForReport(report);
+        return report;
     }
 
     private async Task<User> FindEmployeeOfVisitWithId(int visitId)
@@ -153,8 +168,10 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
         return _customerSupportAgents[_nextAgentIndex];
     }
 
-    private async Task<Visit> FindVisitWithId(int visitId)
+    private async Task<Visit> FindVisitByIdWithCreator(int visitId)
     {
-        return await context.Visits.SingleAsync(v => v.VisitId == visitId);
+        return await context.Visits
+            .Include(v => v.Creator)
+            .SingleAsync(v => v.VisitId == visitId);
     }
 }

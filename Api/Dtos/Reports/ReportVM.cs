@@ -63,4 +63,9 @@ public class ReportVM
     /// Customer support agents assigned to the report
     /// </summary>
     public required  List<AssignedAgentVM> AssignedAgents { get; set; }
+
+    /// <summary>
+    /// ID of the associated thread, if any
+    /// </summary>
+    public int? ThreadId { get; set; }
 }

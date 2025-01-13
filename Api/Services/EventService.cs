@@ -40,12 +40,13 @@ namespace Reservant.Api.Services
         [ValidatorErrorCodes<Event>]
         public async Task<Result<EventVM>> CreateEventAsync(CreateEventRequest request, User user)
         {
-            var result = await validationService.ValidateAsync(request, user.Id);
-            if (!result.IsValid)
+            var validationResult = await validationService.ValidateAsync(request, user.Id);
+            if (!validationResult.IsValid)
             {
-                return result;
+                return validationResult;
             }
 
+            // Tworzenie nowego Event
             var newEvent = new Event
             {
                 Name = request.Name,
@@ -61,33 +62,44 @@ namespace Reservant.Api.Services
                 PhotoFileName = request.Photo
             };
 
-            if (request.RestaurantId is not null)
+            if (request.RestaurantId != null)
             {
-                newEvent.Restaurant = await context.Restaurants
+                var restaurant = await context.Restaurants
                     .OnlyActiveRestaurants()
                     .FirstOrDefaultAsync(restaurant => restaurant.RestaurantId == request.RestaurantId);
 
-                if (newEvent.Restaurant is null)
+                if (restaurant is null)
                 {
                     return new ValidationFailure
                     {
                         PropertyName = nameof(request.RestaurantId),
                         ErrorCode = ErrorCodes.NotFound,
-                        ErrorMessage = ErrorCodes.NotFound
+                        ErrorMessage = $"Restaurant with ID {request.RestaurantId} not found"
                     };
                 }
+                newEvent.Restaurant = restaurant;
             }
 
-            result = await validationService.ValidateAsync(newEvent, user.Id);
-            if (!result.IsValid)
+            // Tworzenie wątku dla eventu
+            var thread = new MessageThread
             {
-                return result;
-            }
+                Title = $"Discussion for Event: {newEvent.Name}",
+                CreationDate = DateTime.UtcNow,
+                CreatorId = user.Id,
+                Participants = new List<User> { user },
+                Type = MessageThreadType.Event,
+            };
+
+            // Przypisanie wątku do eventu
+            newEvent.Thread = thread;
+
+            context.MessageThreads.Add(thread);
             await context.Events.AddAsync(newEvent);
             await context.SaveChangesAsync();
 
             return mapper.Map<EventVM>(newEvent);
         }
+
 
         /// <summary>
         /// Get information about an Event
@@ -220,12 +232,16 @@ namespace Reservant.Api.Services
         /// <param name="userId">ID of the request sender</param>
         /// <param name="currentUser">Current user for permission checking</param>
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(nameof(userId), ErrorCodes.NotFound, "User not found")]
         [ErrorCode(nameof(eventId), ErrorCodes.UserAlreadyAccepted, "User already accepted")]
         [ErrorCode(nameof(eventId), ErrorCodes.EventIsFull, "Event is full")]
         public async Task<Result> AcceptParticipationRequestAsync(int eventId, Guid userId, User currentUser)
         {
+            // Pobranie Eventu z ParticipationRequests
             var eventFound = await context.Events
                 .Include(e => e.ParticipationRequests)
+                .Include(e => e.Thread)
+                .ThenInclude(e => e!.Participants)
                 .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventFound == null || eventFound.CreatorId != currentUser.Id)
@@ -233,11 +249,23 @@ namespace Reservant.Api.Services
                 return new ValidationFailure
                 {
                     PropertyName = nameof(eventId),
-                    ErrorMessage = "Event not found",
+                    ErrorMessage = "Event not found or you are not the creator",
                     ErrorCode = ErrorCodes.NotFound
                 };
             }
 
+            var user = await context.Users.FindAsync(userId);
+            if (user is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(userId),
+                    ErrorMessage = "User not found",
+                    ErrorCode = ErrorCodes.NotFound,
+                };
+            }
+
+            // Sprawdzenie, czy użytkownik istnieje w ParticipationRequests
             var request = eventFound.ParticipationRequests
                 .FirstOrDefault(pr => pr.UserId == userId);
 
@@ -251,9 +279,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var countParticipants = eventFound.ParticipationRequests
-                .Count(r => r.DateAccepted is not null);
-            if (countParticipants >= eventFound.MaxPeople)
+            // Sprawdzenie limitu uczestników
+            var acceptedCount = eventFound.ParticipationRequests.Count(pr => pr.DateAccepted != null);
+            if (acceptedCount >= eventFound.MaxPeople)
             {
                 return new ValidationFailure
                 {
@@ -263,7 +291,13 @@ namespace Reservant.Api.Services
                 };
             }
 
-            request.DateAccepted = DateTime.Now;
+            request.DateAccepted = DateTime.UtcNow;
+
+            if (eventFound.Thread is not null)
+            {
+                eventFound.Thread.Participants.Add(user);
+            }
+
             await context.SaveChangesAsync();
             await notificationService.NotifyParticipationRequestResponse(userId, eventId, true);
 
@@ -281,6 +315,8 @@ namespace Reservant.Api.Services
         public async Task<Result> RejectParticipationRequestAsync(int eventId, Guid userId, User currentUser)
         {
             var eventFound = await context.Events
+                .Include(e => e.Thread)
+                .ThenInclude(e => e!.Participants)
                 .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventFound == null || eventFound.CreatorId != currentUser.Id)
@@ -307,12 +343,15 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if(request is { DateAccepted: DateTime })
+            request.DateAccepted = null;
+            request.DateDeleted = DateTime.Now;
+
+            var userToRemove = await context.Users.FindAsync(userId);
+            if (userToRemove is not null)
             {
-                request.DateAccepted = null;
+                eventFound.Thread?.Participants.Remove(userToRemove);
             }
 
-            request.DateDeleted = DateTime.Now;
             await context.SaveChangesAsync();
             await notificationService.NotifyParticipationRequestResponse(userId, eventId, false);
 

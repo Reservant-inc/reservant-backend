@@ -21,5 +21,11 @@ public class ReportConfig : IEntityTypeConfiguration<Report>
         builder.Navigation(report => report.ReportedUser).AutoInclude();
         builder.Navigation(report => report.CreatedBy).AutoInclude();
         builder.Navigation(report => report.Visit).AutoInclude();
+
+        builder
+            .HasOne(report => report.Thread)
+            .WithOne()
+            .HasForeignKey<Report>(report => report.ThreadId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
