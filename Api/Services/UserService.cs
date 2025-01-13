@@ -388,14 +388,19 @@ public class UserService(
             };
         }
 
+        var requester = await dbContext.Users.FindAsync(requesterId)
+            ?? throw new InvalidOperationException("User authorized but cannot be found");
+        var isCustomerSupportAgent = await roleManager.IsInRoleAsync(requester, Roles.CustomerSupportAgent);
+
         var isCurrentUser = id == requesterId;
-        if (!isCurrentUser && user.EmployerId != requesterId)
+        if (!isCurrentUser && !isCustomerSupportAgent && user.EmployerId != requesterId)
         {
             return new ValidationFailure
             {
                 PropertyName = null,
                 ErrorCode = ErrorCodes.AccessDenied,
-                ErrorMessage = "Can only delete the current user or a current user's employee",
+                ErrorMessage = "Can only delete the current user or a current user's employee;" +
+                               "or you must be a customer support agent",
             };
         }
 
