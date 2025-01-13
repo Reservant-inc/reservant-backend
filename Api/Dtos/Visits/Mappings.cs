@@ -26,7 +26,8 @@ public class Mappings : Profile
             .MapMemberFrom(dto => dto.Deposit,
                 visit => visit.Reservation == null
                     ? null
-                    : visit.Reservation.Deposit);
+                    : visit.Reservation.Deposit)
+            .MapMemberFrom(dto => dto.ClientId, visit => visit.CreatorId);
 
         CreateMap<Visit, VisitVM>()
             .MapMemberFrom(dto => dto.Date,
@@ -48,6 +49,7 @@ public class Mappings : Profile
             .MapMemberFrom(dto => dto.ReservationDate,
                 visit => visit.Reservation == null
                     ? null
-                    : visit.Reservation.ReservationDate);
+                    : visit.Reservation.ReservationDate)
+            .MapMemberFrom(dto => dto.ClientId, visit => visit.CreatorId);
     }
 }
