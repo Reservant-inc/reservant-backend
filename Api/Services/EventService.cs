@@ -341,12 +341,9 @@ namespace Reservant.Api.Services
                 };
             }
 
-            if(request is { DateAccepted: DateTime })
-            {
-                request.DateAccepted = null;
-            }
-
+            request.DateAccepted = null;
             request.DateDeleted = DateTime.Now;
+
             await context.SaveChangesAsync();
             await notificationService.NotifyParticipationRequestResponse(userId, eventId, false);
 
