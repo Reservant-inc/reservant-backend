@@ -44,9 +44,10 @@ public class UserService(
     /// </summary>
     /// <param name="request"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
+    /// <param name="registrationTime">Overwrite registration time</param>
     [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(
-        RegisterCustomerSupportAgentRequest request, Guid? id = null)
+        RegisterCustomerSupportAgentRequest request, Guid? id = null, DateTime? registrationTime = null)
     {
 
         var user = new User
@@ -57,7 +58,7 @@ public class UserService(
             FullPhoneNumber = request.PhoneNumber,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
-            RegisteredAt = DateTime.UtcNow,
+            RegisteredAt = registrationTime ?? DateTime.UtcNow,
             BannedUntil = null
         };
 
@@ -81,16 +82,18 @@ public class UserService(
 
         return user;
     }
+
     /// <summary>
     /// Service used for restaurant employee registration
     /// </summary>
     /// <param name="request"></param>
     /// <param name="employer"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
+    /// <param name="registrationTime">Overwrite registration time</param>
     /// <returns></returns>
     [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
-        RegisterRestaurantEmployeeRequest request, User employer, Guid? id = null)
+        RegisterRestaurantEmployeeRequest request, User employer, Guid? id = null, DateTime? registrationTime = null)
     {
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
@@ -102,7 +105,7 @@ public class UserService(
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
             FullPhoneNumber = request.PhoneNumber,
-            RegisteredAt = DateTime.UtcNow,
+            RegisteredAt = registrationTime ?? DateTime.UtcNow,
             Employer = employer,
             BannedUntil = null
         };
@@ -128,10 +131,12 @@ public class UserService(
     /// </summary>
     /// <param name="request"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
+    /// <param name="registrationTime">Overwrite the registration time</param>
     /// <returns></returns>
     [ValidatorErrorCodes<RegisterCustomerRequest>]
     [ValidatorErrorCodes<User>]
-    public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, Guid? id = null)
+    public async Task<Result<User>> RegisterCustomerAsync(
+        RegisterCustomerRequest request, Guid? id = null, DateTime? registrationTime = null)
     {
         var result = await validationService.ValidateAsync(request, null);
         if (!result.IsValid)
@@ -148,7 +153,7 @@ public class UserService(
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
-            RegisteredAt = DateTime.UtcNow,
+            RegisteredAt = registrationTime ?? DateTime.UtcNow,
             BannedUntil = null
         };
 

@@ -182,7 +182,7 @@ public class UserSeeder
             LastName = lastName,
             PhoneNumber = new PhoneNumber("+48", "123456789"),
             BirthDate =new DateOnly(1990, 2, 3),
-        }, Guid.Parse(id))).OrThrow();
+        }, Guid.Parse(id), new DateTime(2024, 1, 1))).OrThrow();
 
         if (isRestaurantOwner) await _service.MakeRestaurantOwnerAsync(user.Id);
         return user;
@@ -202,7 +202,7 @@ public class UserSeeder
             LastName = lastName,
             PhoneNumber = new PhoneNumber("+48", "123456789"),
             IsManager = isManager,
-        }, Guid.Parse(id))).OrThrow();
+        }, Guid.Parse(id), new DateTime(2024, 1, 1))).OrThrow();
     }
 
     /// <summary>
