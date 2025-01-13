@@ -17,6 +17,7 @@ using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Reservant.Api.Dtos.Orders;
 
 
 namespace Reservant.Api.Services;
@@ -43,9 +44,10 @@ public class UserService(
     /// </summary>
     /// <param name="request"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
+    /// <param name="registrationTime">Overwrite registration time</param>
     [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterCustomerSupportAgentAsync(
-        RegisterCustomerSupportAgentRequest request, Guid? id = null)
+        RegisterCustomerSupportAgentRequest request, Guid? id = null, DateTime? registrationTime = null)
     {
 
         var user = new User
@@ -56,7 +58,7 @@ public class UserService(
             FullPhoneNumber = request.PhoneNumber,
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
-            RegisteredAt = DateTime.UtcNow,
+            RegisteredAt = registrationTime ?? DateTime.UtcNow,
             BannedUntil = null
         };
 
@@ -80,16 +82,18 @@ public class UserService(
 
         return user;
     }
+
     /// <summary>
     /// Service used for restaurant employee registration
     /// </summary>
     /// <param name="request"></param>
     /// <param name="employer"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
+    /// <param name="registrationTime">Overwrite registration time</param>
     /// <returns></returns>
     [ValidatorErrorCodes<User>]
     public async Task<Result<User>> RegisterRestaurantEmployeeAsync(
-        RegisterRestaurantEmployeeRequest request, User employer, Guid? id = null)
+        RegisterRestaurantEmployeeRequest request, User employer, Guid? id = null, DateTime? registrationTime = null)
     {
         var username = employer.UserName + RestaurantEmployeeLoginSeparator + request.Login.Trim();
 
@@ -101,7 +105,7 @@ public class UserService(
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
             FullPhoneNumber = request.PhoneNumber,
-            RegisteredAt = DateTime.UtcNow,
+            RegisteredAt = registrationTime ?? DateTime.UtcNow,
             Employer = employer,
             BannedUntil = null
         };
@@ -127,10 +131,12 @@ public class UserService(
     /// </summary>
     /// <param name="request"></param>
     /// <param name="id">ID of the new user, if null then generated automatically</param>
+    /// <param name="registrationTime">Overwrite the registration time</param>
     /// <returns></returns>
     [ValidatorErrorCodes<RegisterCustomerRequest>]
     [ValidatorErrorCodes<User>]
-    public async Task<Result<User>> RegisterCustomerAsync(RegisterCustomerRequest request, Guid? id = null)
+    public async Task<Result<User>> RegisterCustomerAsync(
+        RegisterCustomerRequest request, Guid? id = null, DateTime? registrationTime = null)
     {
         var result = await validationService.ValidateAsync(request, null);
         if (!result.IsValid)
@@ -147,7 +153,7 @@ public class UserService(
             FirstName = request.FirstName.Trim(),
             LastName = request.LastName.Trim(),
             BirthDate = request.BirthDate,
-            RegisteredAt = DateTime.UtcNow,
+            RegisteredAt = registrationTime ?? DateTime.UtcNow,
             BannedUntil = null
         };
 
@@ -428,13 +434,9 @@ public class UserService(
     public async Task<Result<Pagination<FoundUserVM>>> FindUsersAsync(
         string name, UserSearchFilter filter, Guid currentUserId, int page, int perPage)
     {
-        var query =
-            from u in dbContext.Users
-            join ur in dbContext.UserRoles on u.Id equals ur.UserId
-            join r in dbContext.Roles on ur.RoleId equals r.Id
-            where r.Name == Roles.Customer
-            where u.Id != currentUserId && (u.FirstName + " " + u.LastName).Contains(name)
-            select new FoundUserVM
+        var query = QueryUsersInRole(Roles.Customer)
+            .Where(u => u.Id != currentUserId && (u.FirstName + " " + u.LastName).Contains(name))
+            .Select(u => new FoundUserVM
             {
                 UserId = u.Id,
                 FirstName = u.FirstName,
@@ -455,7 +457,7 @@ public class UserService(
                         : FriendStatus.Stranger)
                     .FirstOrDefault(),
                 PhoneNumber = u.FullPhoneNumber
-            };
+            });
 
         query = filter switch
         {
@@ -464,11 +466,50 @@ public class UserService(
             UserSearchFilter.StrangersOnly => query
                 .Where(u => u.FriendStatus != FriendStatus.Friend)
                 .OrderByDescending(u => u.FriendStatus),
+            UserSearchFilter.CustomerSupportAgents => query,
             _ => throw new ArgumentOutOfRangeException(nameof(filter)),
         };
 
         return await query.PaginateAsync(page, perPage, [], 100, true);
     }
+
+    /// <summary>
+    /// Find customer support agents
+    /// </summary>
+    /// <param name="name">Search by agent's name</param>
+    /// <param name="currentUserId">ID of the current user</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
+    public async Task<Result<Pagination<FoundCustomerSupportAgentVM>>> FindCustomerSupportAgents(
+        string? name, Guid currentUserId, int page, int perPage)
+    {
+        var query = QueryUsersInRole(Roles.CustomerSupportAgent)
+            .Where(u => u.Id != currentUserId);
+
+        if (name is not null)
+        {
+            query = query.Where(u => (u.FirstName + " " + u.LastName).Contains(name));
+        }
+
+        return await query
+            .Select(u => new FoundCustomerSupportAgentVM
+            {
+                UserId = u.Id,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                Photo = urlService.GetPathForFileName(u.PhotoFileName),
+                PhoneNumber = u.FullPhoneNumber
+            })
+            .PaginateAsync(page, perPage, [], 100, true);
+    }
+
+    private IQueryable<User> QueryUsersInRole(string roleName) =>
+        from u in dbContext.Users
+        join ur in dbContext.UserRoles on u.Id equals ur.UserId
+        join r in dbContext.Roles on ur.RoleId equals r.Id
+        where r.Name == roleName
+        select u;
 
     /// <summary>
     /// Retrieves detailed information about a user. If the user is an employee of the current user,
@@ -679,4 +720,30 @@ public class UserService(
         await RemoveExpiredBan(user);
         return false;
     }
+
+    /// <summary>
+    /// Retrieves detailed information about a user's visits and their orders.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose visits are to be retrieved.</param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
+    [ErrorCode(nameof(userId), ErrorCodes.NotFound, "User not found")]
+    public async Task<Result<Pagination<VisitVM>>> GetUsersVisitsWithOrdersById(Guid userId, int page, int perPage)
+    {
+        if (!dbContext.Users.Any(u => u.Id == userId))
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(userId),
+                ErrorMessage = $"User: {userId} not found.",
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+
+        return await dbContext.Visits
+            .Where(v => v.CreatorId == userId)
+            .ProjectTo<VisitVM>(mapper.ConfigurationProvider)
+            .PaginateAsync(page, perPage, []);
+    }
+
 }

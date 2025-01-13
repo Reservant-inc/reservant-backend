@@ -26,6 +26,7 @@ public class GetReportsService(
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <param name="createdById">id of the user who created the report</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the report considered in the search</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -37,13 +38,17 @@ public class GetReportsService(
         Guid? reportedUserId,
         int? restaurantId,
         Guid? createdById,
+        Guid? assignedToId,
         ReportStatus status,
         int page = 0,
         int perPage = 10)
     {
         IQueryable<Report> reports = context.Reports;
 
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, createdById, status);
+        reports = FilterReportsQuery(
+            reports, dateFrom, dateUntil,
+            category, reportedUserId, restaurantId,
+            createdById, assignedToId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
@@ -58,6 +63,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the report considered in the search</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -69,13 +75,17 @@ public class GetReportsService(
         ReportCategory? category,
         Guid? reportedUserId,
         int? restaurantId,
+        Guid? assignedToId,
         ReportStatus status,
         int page = 0,
         int perPage = 10)
     {
         IQueryable<Report> reports = context.Reports;
 
-        reports = FilterReportsQuery(reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, user.Id, status);
+        reports = FilterReportsQuery(
+            reports, dateFrom, dateUntil,
+            category, reportedUserId, restaurantId,
+            user.Id, assignedToId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
@@ -90,6 +100,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the report considered in the search</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Items per page</param>
@@ -101,6 +112,7 @@ public class GetReportsService(
         ReportCategory? category,
         Guid? reportedUserId,
         int restaurantId,
+        Guid? assignedToId,
         ReportStatus status,
         int page = 0,
         int perPage = 10)
@@ -108,7 +120,10 @@ public class GetReportsService(
         var isOwner = await authorizationService.VerifyOwnerRole(restaurantId, user.Id);
         if (isOwner.IsError) return isOwner.Errors;
 
-        var reports = FilterReportsQuery(context.Reports, dateFrom, dateUntil, category, reportedUserId, restaurantId, user.Id, status);
+        var reports = FilterReportsQuery(
+            context.Reports, dateFrom, dateUntil,
+            category, reportedUserId, restaurantId,
+            user.Id, assignedToId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
@@ -118,15 +133,6 @@ public class GetReportsService(
     /// <summary>
     /// Filters query through optional parameters
     /// </summary>
-    /// <param name="reports"></param>
-    /// <param name="dateFrom"></param>
-    /// <param name="dateUntil"></param>
-    /// <param name="category"></param>
-    /// <param name="reportedUserId"></param>
-    /// <param name="restaurantId"></param>
-    /// <param name="createdById"></param>
-    /// <param name="status">status of the report considered in the search</param>
-    /// <returns></returns>
     private static IQueryable<Report> FilterReportsQuery(IQueryable<Report> reports,
         DateTime? dateFrom,
         DateTime? dateUntil,
@@ -134,39 +140,54 @@ public class GetReportsService(
         Guid? reportedUserId,
         int? restaurantId,
         Guid? createdById,
+        Guid? assignedToId,
         ReportStatus status)
     {
         if (dateFrom is not null)
         {
             reports = reports.Where(r => r.ReportDate >= dateFrom);
         }
+
         if (dateUntil is not null)
         {
             reports = reports.Where(r => r.ReportDate <= dateUntil);
         }
+
         if (category is not null)
         {
             reports = reports.Where(r => r.Category == category);
         }
+
         if (reportedUserId is not null)
         {
             reports = reports.Where(r => r.ReportedUserId == reportedUserId);
         }
+
         if (restaurantId is not null)
         {
             reports = reports.Where(r => r.Visit!.RestaurantId == restaurantId);
         }
+
         if (createdById is not null)
         {
             reports = reports.Where(r => r.CreatedById == createdById);
         }
+
+        if (assignedToId is not null)
+        {
+            reports = reports.Where(r =>
+                r.AssignedAgents.Any(
+                    ra => ra.Until == null && ra.AgentId == assignedToId)
+                || r.Resolution != null && r.Resolution.ResolvedBy.Id == assignedToId);
+        }
+
         switch (status)
         {
-            case ReportStatus.Escalated:
-                reports = reports.Where(r => r.EscalatedById != null);
+            case ReportStatus.Resolved:
+                reports = reports.Where(r => r.Resolution != null);
                 break;
-            case ReportStatus.NotEscalated:
-                reports = reports.Where(r => r.EscalatedById == null);
+            case ReportStatus.NotResolved:
+                reports = reports.Where(r => r.Resolution == null);
                 break;
             case ReportStatus.All:
                 break;

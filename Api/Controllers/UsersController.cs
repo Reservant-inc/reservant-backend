@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Reviews;
 using Reservant.Api.Dtos.Users;
+using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
 using Reservant.Api.Mapping;
 using Reservant.Api.Models;
@@ -45,6 +46,29 @@ namespace Reservant.Api.Controllers
         {
             var result = await userService.FindUsersAsync(
                 name, filter, User.GetUserId()!.Value, page, perPage);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Find customer support agents
+        /// </summary>
+        /// <remarks>
+        /// Only searches for customers. Returns friends first,
+        /// then friend requests, then strangers.
+        /// </remarks>
+        /// <param name="name">Search by agent's name</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns></returns>
+        [HttpGet("customer-support")]
+        [Authorize(Roles = Roles.CustomerSupportAgent)]
+        [MethodErrorCodes<UserService>(nameof(UserService.FindCustomerSupportAgents))]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        public async Task<ActionResult<Pagination<FoundCustomerSupportAgentVM>>> FindCustomerSupportAgents(
+            string? name, int page = 0, int perPage = 10)
+        {
+            var result = await userService.FindCustomerSupportAgents(
+                name, User.GetUserId()!.Value, page, perPage);
             return OkOrErrors(result);
         }
 
@@ -194,6 +218,34 @@ namespace Reservant.Api.Controllers
         }
 
         /// <summary>
+        /// As a customer support agent get wallet status of a user
+        /// </summary>
+        /// <param name="userId">ID of the user we are looking for</param>
+        /// <param name="walletService"></param>
+        [HttpGet("{userId:Guid}/wallet-status")]
+        [ProducesResponseType(200), ProducesResponseType(404)]
+        [MethodErrorCodes<WalletService>(nameof(WalletService.GetTransactionHistory))]
+        [Authorize(Roles = Roles.CustomerSupportAgent)]
+        public async Task<ActionResult<WalletStatusVM>> GetUsersWalletStatus(
+            [FromServices] WalletService walletService, Guid userId)
+        {
+            var bokEmployee = await userManager.GetUserAsync(User);
+            if (bokEmployee is null)
+            {
+                return Unauthorized();
+            }
+
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            if (user is null)
+            {
+                return NotFound();
+            }
+
+            var result = await walletService.GetWalletStatus(user);
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Get reviews authored by the user
         /// </summary>
         /// <param name="reviewService"></param>
@@ -231,6 +283,24 @@ namespace Reservant.Api.Controllers
             }
 
             var result = await userService.ArchiveUserAsync(userId, user.Id);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Gets information about a specific users vists and orders.
+        /// </summary>
+        /// <param name="userId">ID of the user whos visit and orders of such visits are beeing retrived</param>
+        /// <param name="page">Page number</param>
+        /// <param name="perPage">Items per page</param>
+        /// <returns></returns>
+        [HttpGet("{userId:guid}/visits")]
+        [Authorize(Roles = Roles.CustomerSupportAgent)]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UserService>(nameof(UserService.GetUsersVisitsWithOrdersById))]
+        public async Task<ActionResult<Pagination<VisitVM>>> GetUsersVisitsWithOrdersById(
+            Guid userId, int page = 0, int perPage = 10)
+        {
+            var result = await userService.GetUsersVisitsWithOrdersById(userId, page, perPage);
             return OkOrErrors(result);
         }
     }

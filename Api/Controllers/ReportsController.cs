@@ -23,10 +23,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-customer")]
     [Authorize(Roles = $"{Roles.RestaurantEmployee},{Roles.RestaurantOwner}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportCustomerService>(nameof(ReportCustomerService.ReportCustomer))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportCustomer))]
     public async Task<ActionResult<ReportVM>> ReportCustomer(
         ReportCustomerRequest dto,
-        [FromServices] ReportCustomerService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportCustomer(User.GetUserId()!.Value, dto));
     }
@@ -37,10 +37,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-employee")]
     [Authorize(Roles = $"{Roles.Customer}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportEmployeeService>(nameof(ReportEmployeeService.ReportEmployee))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportEmployee))]
     public async Task<ActionResult<ReportVM>> ReportEmployee(
         ReportEmployeeRequest dto,
-        [FromServices] ReportEmployeeService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportEmployee(User.GetUserId()!.Value, dto));
     }
@@ -52,10 +52,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-lost-item")]
     [Authorize(Roles = $"{Roles.Customer}")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportLostItemService>(nameof(ReportLostItemService.ReportLostItem))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportLostItem))]
     public async Task<ActionResult<ReportVM>> ReportLostItem(
         ReportLostItemRequest dto,
-        [FromServices] ReportLostItemService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportLostItem(User.GetUserId()!.Value, dto));
     }
@@ -66,10 +66,10 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     [HttpPost("report-bug")]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportBugService>(nameof(ReportBugService.ReportBug))]
+    [MethodErrorCodes<CreateReportService>(nameof(CreateReportService.ReportBug))]
     public async Task<ActionResult<ReportVM>> ReportBug(
         ReportBugRequest dto,
-        [FromServices] ReportBugService service)
+        [FromServices] CreateReportService service)
     {
         return OkOrErrors(await service.ReportBug(User.GetUserId()!.Value, dto));
     }
@@ -83,6 +83,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
     /// <param name="createdById">id of the user who created the report</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status"></param>
     /// <param name="service"></param>
     /// <param name="page">Page number</param>
@@ -100,6 +101,7 @@ public class ReportsController(UserManager<User> userManager) : StrictController
         [FromQuery] int? restaurantId,
         [FromQuery] Guid? createdById,
         [FromServices] GetReportsService service,
+        [FromQuery] Guid? assignedToId,
         [FromQuery] ReportStatus status = ReportStatus.All,
         [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
@@ -110,31 +112,9 @@ public class ReportsController(UserManager<User> userManager) : StrictController
             return Unauthorized();
         }
         return OkOrErrors(await service.GetReportsAsync(
-            dateFrom, dateUntil, category, reportedUserId, restaurantId, createdById, status, page, perPage));
-    }
-
-    /// <summary>
-    /// As a customer support agent escalate report to customer support manager level
-    /// </summary>
-    /// <param name="reportId">ID of the report to escalate</param>
-    /// <param name="dto">Body of the request</param>
-    /// <param name="service"></param>
-    /// <returns></returns>
-    [HttpPost("{reportId:int}/escalate")]
-    [Authorize(Roles = Roles.CustomerSupportAgent)]
-    [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<ReportEscalatingService>(nameof(ReportEscalatingService.EscalateReportAsync))]
-    public async Task<ActionResult<ReportVM>> EscalateReport(
-        int reportId,
-        [FromBody] EscalateReportRequest dto,
-        [FromServices] ReportEscalatingService service)
-    {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null)
-        {
-            return Unauthorized();
-        }
-        return OkOrErrors(await service.EscalateReportAsync(reportId, user, dto));
+            dateFrom, dateUntil, category, reportedUserId,
+            restaurantId, createdById, assignedToId,
+            status, page, perPage));
     }
 
     /// <summary>
@@ -153,5 +133,23 @@ public class ReportsController(UserManager<User> userManager) : StrictController
         [FromServices] ResolveReportService service)
     {
         return OkOrErrors(await service.ResolveReport(User.GetUserId()!.Value, reportId, dto));
+    }
+
+    /// <summary>
+    /// Reassign a report to another customer support agent
+    /// </summary>
+    /// <param name="reportId">ID of the report to reassign</param>
+    /// <param name="dto"></param>
+    /// <param name="service"></param>
+    [HttpPost("{reportId:int}/assign-to")]
+    [Authorize(Roles = Roles.CustomerSupportAgent)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
+    [MethodErrorCodes<AssignReportService>(nameof(AssignReportService.AssignReportToAgent))]
+    public async Task<ActionResult> AssignReportToAgent(
+        int reportId,
+        [FromBody] AssignReportRequest dto,
+        [FromServices] AssignReportService service)
+    {
+        return OkOrErrors(await service.AssignReportToAgent(dto.AgentId, reportId));
     }
 }

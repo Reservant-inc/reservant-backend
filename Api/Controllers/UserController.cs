@@ -306,6 +306,7 @@ public class UserController(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the reports considered in the search</param>
     /// <param name="service"></param>
     /// <param name="page">Page number</param>
@@ -321,6 +322,7 @@ public class UserController(
         [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
+        [FromQuery] Guid? assignedToId,
         [FromServices] GetReportsService service,
         [FromQuery] ReportStatus status = ReportStatus.All,
         int page = 0,
@@ -332,6 +334,8 @@ public class UserController(
             return Unauthorized();
         }
         return OkOrErrors(await service.GetMyReportsAsync(
-            user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status, page, perPage));
+            user, dateFrom, dateUntil,
+            category, reportedUserId, restaurantId,
+            assignedToId, status, page, perPage));
     }
 }

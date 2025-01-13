@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 
@@ -9,12 +10,23 @@ namespace Reservant.Api.Data.Seeding;
 /// </summary>
 public class ReportSeeder(ApiDbContext context, UserSeeder users)
 {
+    private List<User> _customerSupportAgents = [];
+    private int _nextAgentIndex;
+
     /// <summary>
     /// Create example reports in the database
     /// </summary>
     public async Task CreateReports()
     {
         var now = DateTime.UtcNow;
+
+        _customerSupportAgents = await (
+            from user in context.Users
+            join userRole in context.UserRoles on user.Id equals userRole.UserId
+            join role in context.Roles on userRole.RoleId equals role.Id
+            where role.Name == Roles.CustomerSupportAgent
+            select user
+            ).ToListAsync();
 
         context.Reports.AddRange([
             CreateTechnicalReport(now.AddMonths(-2), users.KrzysztofKowalski, "Aplikacja nie działa kompletnie"),
@@ -46,7 +58,7 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
         await context.SaveChangesAsync();
     }
 
-    private static Report CreateTechnicalReport(DateTime reportDate, User createdBy, string description)
+    private Report CreateTechnicalReport(DateTime reportDate, User createdBy, string description)
     {
         return new Report
         {
@@ -54,6 +66,13 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             Description = description,
             CreatedBy = createdBy,
             ReportDate = reportDate,
+            AssignedAgents = [
+                new ReportAssignment
+                {
+                    Agent = GetNextAgent(),
+                    From = DateTime.UtcNow,
+                },
+            ],
         };
     }
 
@@ -67,6 +86,13 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             CreatedById = visit.CreatorId,
             ReportDate = reportDate,
             Visit = visit,
+            AssignedAgents = [
+                new ReportAssignment
+                {
+                    Agent = GetNextAgent(),
+                    From = DateTime.UtcNow,
+                },
+            ],
         };
     }
 
@@ -81,6 +107,13 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             ReportDate = reportDate,
             Visit = visit,
             ReportedUserId = visit.CreatorId,
+            AssignedAgents = [
+                new ReportAssignment
+                {
+                    Agent = GetNextAgent(),
+                    From = DateTime.UtcNow,
+                },
+            ],
         };
     }
 
@@ -95,6 +128,13 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             ReportDate = reportDate,
             Visit = visit,
             ReportedUser = await FindEmployeeOfVisitWithId(visitId),
+            AssignedAgents = [
+                new ReportAssignment
+                {
+                    Agent = GetNextAgent(),
+                    From = DateTime.UtcNow,
+                },
+            ],
         };
     }
 
@@ -105,6 +145,12 @@ public class ReportSeeder(ApiDbContext context, UserSeeder users)
             .Select(v => v.Orders.First().AssignedEmployee)
             .SingleAsync()
                ?? throw new InvalidOperationException($"No employee is assigned to visit with ID {visitId}");
+    }
+
+    private User GetNextAgent()
+    {
+        _nextAgentIndex = (_nextAgentIndex + 1) % _customerSupportAgents.Count;
+        return _customerSupportAgents[_nextAgentIndex];
     }
 
     private async Task<Visit> FindVisitWithId(int visitId)
