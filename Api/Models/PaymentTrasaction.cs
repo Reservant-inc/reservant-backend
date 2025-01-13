@@ -8,6 +8,11 @@ namespace Reservant.Api.Models;
 public class PaymentTransaction
 {
     /// <summary>
+    /// Maximum length of the transaction title
+    /// </summary>
+    public const int MaxTitleLength = 200;
+
+    /// <summary>
     /// Unique ID
     /// </summary>
     [Key]
@@ -16,7 +21,7 @@ public class PaymentTransaction
     /// <summary>
     /// Transaction title
     /// </summary>
-    [StringLength(50)]
+    [StringLength(MaxTitleLength)]
     public required string Title { get; set; }
 
     /// <summary>
