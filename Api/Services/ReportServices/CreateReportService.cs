@@ -50,7 +50,9 @@ public class CreateReportService(
             CreatedBy = user,
             Visit = null,
         };
+        report.Thread = CreateThreadForReport(report);
         context.Add(report);
+
         await context.SaveChangesAsync();
         await assignReportService.AssignToFreestAgent(report);
 
@@ -116,7 +118,9 @@ public class CreateReportService(
             CreatedBy = employee,
             Visit = visit,
         };
+        report.Thread = CreateThreadForReport(report);
         context.Add(report);
+
         await context.SaveChangesAsync();
         await assignReportService.AssignToFreestAgent(report);
 
@@ -188,7 +192,9 @@ public class CreateReportService(
             CreatedBy = customer,
             Visit = visit,
         };
+        report.Thread = CreateThreadForReport(report);
         context.Add(report);
+
         await context.SaveChangesAsync();
         await assignReportService.AssignToFreestAgent(report);
 
@@ -238,10 +244,30 @@ public class CreateReportService(
             CreatedBy = customer,
             Visit = visit,
         };
+        report.Thread = CreateThreadForReport(report);
         context.Add(report);
+
         await context.SaveChangesAsync();
         await assignReportService.AssignToFreestAgent(report);
 
         return mapper.Map<ReportVM>(report);
+    }
+
+    /// <summary>
+    /// How many characters of the report's description go into the thread's title
+    /// </summary>
+    private const int ThreadTitleDescriptionCutoff = MessageThread.MaxTitleLength - 8;
+
+    private static MessageThread CreateThreadForReport(Report report)
+    {
+        var shortDescription = report.Description[..Math.Min(report.Description.Length, ThreadTitleDescriptionCutoff)];
+        return new MessageThread
+        {
+            Title = $"Report: {shortDescription}",
+            Participants = [report.CreatedBy],
+            CreationDate = DateTime.UtcNow,
+            Creator = report.CreatedBy,
+            Type = MessageThreadType.Report,
+        };
     }
 }
