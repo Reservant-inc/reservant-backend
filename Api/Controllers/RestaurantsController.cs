@@ -58,7 +58,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.FindRestaurantsAsync))]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindUnverifedRestaurants(
+    public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindUnverifiedRestaurants(
         [FromQuery] RestaurantSearchParams searchParams)
     {
         var user = await userManager.GetUserAsync(User);
@@ -68,6 +68,21 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
         }
 
         var result = await service.FindRestaurantsAsync(searchParams, true);
+        return OkOrErrors(result);
+    }
+    
+    /// <summary>
+    /// Returns full details of restaurant (with verifierId)
+    /// </summary>
+    /// <param name="restaurantId"></param>
+    /// <returns></returns>
+    [HttpGet("{restaurantId:int}/full-details")]
+    [Authorize(Roles = $"{Roles.CustomerSupportAgent},{Roles.RestaurantOwner}")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    public async Task<ActionResult<FullRestaurantVM>> GetFullDetails(int restaurantId)
+    {
+        var result = await service.GetFullRestaurantDetailsAsync(restaurantId);
         return OkOrErrors(result);
     }
 

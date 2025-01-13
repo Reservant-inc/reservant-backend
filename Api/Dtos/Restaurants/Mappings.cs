@@ -54,6 +54,26 @@ public class Mappings : Profile
             .MapMemberFrom(dto => dto.IsVerified,
                 restaurant => restaurant.VerifierId != null);
 
+        CreateMap<Restaurant, FullRestaurantVM>()
+            .MapUploadPath(dto => dto.RentalContract,
+                restaurant => restaurant.RentalContractFileName, urlService)
+            .MapUploadPath(dto => dto.AlcoholLicense,
+                restaurant => restaurant.AlcoholLicenseFileName, urlService)
+            .MapUploadPath(dto => dto.BusinessPermission,
+                restaurant => restaurant.BusinessPermissionFileName, urlService)
+            .MapUploadPath(dto => dto.IdCard,
+                restaurant => restaurant.IdCardFileName, urlService)
+            .MapUploadPath(dto => dto.Logo,
+                restaurant => restaurant.LogoFileName, urlService)
+            .MapMemberFrom(dto => dto.Photos,
+                restaurant => restaurant.Photos
+                    .Select(photo => urlService.GetPathForFileName(photo.PhotoFileName))
+                    .ToList())
+            .MapMemberFrom(dto => dto.Tags,
+                restaurant => restaurant.Tags.Select(tag => tag.Name))
+            .MapMemberFrom(dto => dto.IsVerified,
+                restaurant => restaurant.VerifierId != null);
+
         CreateMap<Restaurant, RestaurantVM>()
             .MapUploadPath(dto => dto.Logo,
                 restaurant => restaurant.LogoFileName, urlService)

@@ -18,7 +18,7 @@ public static class QueryFilters
     /// <summary>
     /// Filter out verified and archived restaurants
     /// </summary>
-    public static IQueryable<Restaurant> OnlyUnverifedRestaurants(this IQueryable<Restaurant> restaurants)
+    public static IQueryable<Restaurant> OnlyUnverifiedRestaurants(this IQueryable<Restaurant> restaurants)
     {
         return restaurants.Where(restaurant => !restaurant.IsArchived && restaurant.VerifierId == null);
     }

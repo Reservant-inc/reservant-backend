@@ -63,7 +63,7 @@ namespace Reservant.Api.Services
 
             if (switchToUnverified)
             {
-                query = query.OnlyUnverifedRestaurants();
+                query = query.OnlyUnverifiedRestaurants();
             }
             else
             {
@@ -208,6 +208,10 @@ namespace Reservant.Api.Services
                         Latitude = r.Location.Y,
                         Longitude = r.Location.X
                     },
+                    RentalContract = switchToUnverified ? r.RentalContractFileName : null,
+                    AlcoholLicense = switchToUnverified ? r.AlcoholLicenseFileName : null,
+                    BusinessPermission = switchToUnverified ? r.BusinessPermissionFileName : null,
+                    IdCard = switchToUnverified ? r.IdCardFileName : null,
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = urlService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,
@@ -221,6 +225,34 @@ namespace Reservant.Api.Services
                 .PaginateAsync(searchParams.Page, searchParams.PerPage, [], 100, true);
 
             return nearRestaurants;
+        }
+
+        /// <summary>
+        /// Returns full restaurant details (with verifierId)
+        /// </summary>
+        /// <param name="restaurantId">Restaurant id</param>
+        /// <returns></returns>
+        public async Task<Result<FullRestaurantVM>> GetFullRestaurantDetailsAsync(int restaurantId)
+        {
+            var restaurant = await context.Restaurants
+                .AsNoTracking()
+                .Include(r => r.Group)
+                .Include(r => r.Tables)
+                .Where(r => r.RestaurantId == restaurantId)
+                .ProjectTo<FullRestaurantVM>(mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
+
+            if (restaurant == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(restaurantId),
+                    ErrorMessage = $"Restaurant with ID {restaurantId} not found",
+                    ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            return restaurant;
         }
 
         /// <summary>
