@@ -20,7 +20,11 @@ public class Mappings : Profile
             .MapMemberFrom(dest => dest.ResolutionComment, src =>
                 src.Resolution != null ? src.Resolution.SupportComment : null)
             .MapMemberFrom(dest => dest.ResolutionDate, src =>
-                src.Resolution != null ? src.Resolution.Date : (DateTime?)null);
+                src.Resolution != null ? src.Resolution.Date : (DateTime?)null)
+            .MapMemberFrom(dest => dest.ReportStatus, 
+                src => src.Resolution == null? 
+                    ReportStatus.NotResolved : src.Resolution.IsDecisionPositive?
+                        ReportStatus.ResolvedPositively : ReportStatus.ResolvedNegatively);
 
         CreateMap<ReportAssignment, AssignedAgentVM>();
     }

@@ -16,7 +16,12 @@ public enum ReportStatus
     NotResolved,
 
     /// <summary>
-    /// Only reports that have been resolved
+    /// Only reports that have been resolved positively
     /// </summary>
-    Resolved,
+    ResolvedPositively,
+
+    /// <summary>
+    /// Only reports that have been resolved negatively
+    /// </summary>
+    ResolvedNegatively,
 }

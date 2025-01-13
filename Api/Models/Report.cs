@@ -68,7 +68,7 @@ public class Report : ISoftDeletable
     /// <summary>
     /// Resolution details of the report.
     /// </summary>
-    public ReportResolution? Resolution { get; set; }
+    public ReportDecision? Resolution { get; set; }
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }

@@ -16,6 +16,6 @@ public class ResolveReportRequestValidator : AbstractValidator<ResolveReportRequ
     {
         RuleFor(x => x.SupportComment)
             .NotEmpty()
-            .MaximumLength(ReportResolution.MaxSupportCommentLength);
+            .MaximumLength(ReportDecision.MaxSupportCommentLength);
     }
 }

@@ -63,4 +63,9 @@ public class ReportVM
     /// Customer support agents assigned to the report
     /// </summary>
     public required  List<AssignedAgentVM> AssignedAgents { get; set; }
+
+    /// <summary>
+    /// Current status of the report
+    /// </summary>
+    public ReportStatus ReportStatus { get; set; }
 }

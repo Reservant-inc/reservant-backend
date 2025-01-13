@@ -69,11 +69,12 @@ namespace Reservant.Api.Services.ReportServices
                 };
             }
 
-            report.Resolution = new ReportResolution
+            report.Resolution = new ReportDecision
             {
                 SupportComment = dto.SupportComment,
                 ResolvedBy = user,
                 Date = DateTime.UtcNow,
+                IsDecisionPositive = dto.IsResolutionPositive,
             };
 
             context.Update(report);

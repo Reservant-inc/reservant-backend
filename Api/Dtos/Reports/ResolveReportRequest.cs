@@ -12,5 +12,11 @@ namespace Reservant.Api.Dtos.Reports
         /// </summary>
         [Required]
         public string SupportComment { get; set; } = null!;
+
+        /// <summary>
+        /// Was the reported issue resolved positively
+        /// </summary>
+        [Required]
+        public bool IsResolutionPositive { get; set; } = true;
     }
 }
