@@ -232,6 +232,7 @@ namespace Reservant.Api.Services
         /// <param name="userId">ID of the request sender</param>
         /// <param name="currentUser">Current user for permission checking</param>
         [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        [ErrorCode(nameof(userId), ErrorCodes.NotFound, "User not found")]
         [ErrorCode(nameof(eventId), ErrorCodes.UserAlreadyAccepted, "User already accepted")]
         [ErrorCode(nameof(eventId), ErrorCodes.EventIsFull, "Event is full")]
         public async Task<Result> AcceptParticipationRequestAsync(int eventId, Guid userId, User currentUser)
@@ -239,7 +240,8 @@ namespace Reservant.Api.Services
             // Pobranie Eventu z ParticipationRequests
             var eventFound = await context.Events
                 .Include(e => e.ParticipationRequests)
-                .Include(e => e.Thread) // Załaduj Thread, ale nie zakładaj, że ma uczestników
+                .Include(e => e.Thread)
+                .ThenInclude(e => e!.Participants)
                 .FirstOrDefaultAsync(e => e.EventId == eventId);
 
             if (eventFound == null || eventFound.CreatorId != currentUser.Id)
@@ -249,6 +251,17 @@ namespace Reservant.Api.Services
                     PropertyName = nameof(eventId),
                     ErrorMessage = "Event not found or you are not the creator",
                     ErrorCode = ErrorCodes.NotFound
+                };
+            }
+
+            var user = await context.Users.FindAsync(userId);
+            if (user is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(userId),
+                    ErrorMessage = "User not found",
+                    ErrorCode = ErrorCodes.NotFound,
                 };
             }
 
@@ -278,34 +291,11 @@ namespace Reservant.Api.Services
                 };
             }
 
-            // Akceptacja użytkownika
             request.DateAccepted = DateTime.UtcNow;
 
-            // Utworzenie Thread, jeśli go nie ma
-            if (eventFound.Thread == null)
+            if (eventFound.Thread is not null)
             {
-                var newThread = new MessageThread
-                {
-                    Title = $"Discussion for Event: {eventFound.Name}",
-                    CreationDate = DateTime.UtcNow,
-                    CreatorId = currentUser.Id,
-                    Participants = new List<User> { currentUser }
-                };
-
-                eventFound.Thread = newThread;
-                context.MessageThreads.Add(newThread);
-            }
-
-            // Dodanie użytkownika do uczestników wątku
-            if (eventFound.Thread.Participants == null)
-            {
-                eventFound.Thread.Participants = new List<User>();
-            }
-
-            var userToAdd = await context.Users.FindAsync(userId);
-            if (userToAdd != null && !eventFound.Thread.Participants.Any(p => p.Id == userId))
-            {
-                eventFound.Thread.Participants.Add(userToAdd);
+                eventFound.Thread.Participants.Add(user);
             }
 
             await context.SaveChangesAsync();
