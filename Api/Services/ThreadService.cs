@@ -211,6 +211,7 @@ public class ThreadService(
             ThreadId = messageThread.MessageThreadId,
             Title=messageThread.Title,
             Participants = participantsMinusUs,
+            Type = messageThread.Type,
         };
     }
 
