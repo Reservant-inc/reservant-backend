@@ -59,4 +59,9 @@ public class EventSummaryVM
     /// File name of the photo
     /// </summary>
     public required string Photo { get; set; }
+
+    /// <summary>
+    /// ID of the related message thread
+    /// </summary>
+    public required int? ThreadId { get; set; }
 }
