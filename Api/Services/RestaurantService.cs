@@ -208,6 +208,10 @@ namespace Reservant.Api.Services
                         Latitude = r.Location.Y,
                         Longitude = r.Location.X
                     },
+                    RentalContract = r.RentalContractFileName,
+                    AlcoholLicense = r.AlcoholLicenseFileName,
+                    BusinessPermission = r.BusinessPermissionFileName,
+                    IdCard = r.IdCardFileName,
                     ProvideDelivery = r.ProvideDelivery,
                     Logo = urlService.GetPathForFileName(r.LogoFileName),
                     Description = r.Description,

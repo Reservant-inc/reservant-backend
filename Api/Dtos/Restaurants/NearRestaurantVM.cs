@@ -75,6 +75,26 @@ public class NearRestaurantVM
     /// Hours when the restaurant is open
     /// </summary>
     public required List<OpeningHours> OpeningHours { get; set; }
+    
+    /// <summary>
+    /// URI of the rental contract
+    /// </summary>
+    public required string? RentalContract { get; init; }
+
+    /// <summary>
+    /// URI of the alcohol license
+    /// </summary>
+    public required string? AlcoholLicense { get; init; }
+
+    /// <summary>
+    /// URI of the permission to conduct business
+    /// </summary>
+    public required string BusinessPermission { get; init; }
+
+    /// <summary>
+    /// URI of the ID card
+    /// </summary>
+    public required string IdCard { get; init; }
 
     /// <summary>
     /// Distance from User
