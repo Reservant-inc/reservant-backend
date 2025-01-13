@@ -89,12 +89,12 @@ public class NearRestaurantVM
     /// <summary>
     /// URI of the permission to conduct business
     /// </summary>
-    public required string BusinessPermission { get; init; }
+    public required string? BusinessPermission { get; init; }
 
     /// <summary>
     /// URI of the ID card
     /// </summary>
-    public required string IdCard { get; init; }
+    public required string? IdCard { get; init; }
 
     /// <summary>
     /// Distance from User
