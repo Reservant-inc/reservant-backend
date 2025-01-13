@@ -351,7 +351,7 @@ public class NotificationService(
             .Where(v => v.VisitId == visitId)
             .Select(v => new
             {
-                photoFileName =  v.Client.PhotoFileName,
+                photoFileName =  v.Creator.PhotoFileName,
                 IsAccepted = v.Reservation!.Decision!.IsAccepted,
                 RestaurantName = v.Restaurant.Name,
                 Date = v.Reservation!.StartTime,
@@ -374,25 +374,17 @@ public class NotificationService(
     }
 
     /// <summary>
-    /// Notifies all customer support managers about a new escalated report
+    /// Notify a user that a report has been assigned to them
     /// </summary>
-    public async Task NotifyReportEscalated(Report report)
+    public async Task NotifyReportAssigned(Guid receiver, Report report)
     {
-        var managers =
-            from user in context.Users
-            join userRole in context.UserRoles on user.Id equals userRole.UserId
-            join role in context.Roles on userRole.RoleId equals role.Id
-            where role.Name == Roles.CustomerSupportManager
-            select user.Id;
-
-        await NotifyUsers(
-            managers,
-            new NotificationReportEscalated
+        await NotifyUser(
+            receiver,
+            new NotificationReportAssigned
             {
                 ReportId = report.ReportId,
                 ReportDescription = report.Description,
                 ReportCategory = report.Category,
-                Comment = report.EscalationComment!,
             });
     }
 }

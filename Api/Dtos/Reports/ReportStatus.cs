@@ -1,4 +1,4 @@
-﻿namespace Reservant.Api.Models.Enums;
+﻿namespace Reservant.Api.Dtos.Reports;
 
 /// <summary>
 /// Enum that can take value representing current state of the report
@@ -9,12 +9,14 @@ public enum ReportStatus
     /// value for all reports
     /// </summary>
     All,
+
     /// <summary>
-    /// value only for reports that are not escalated
+    /// Only reports that have not been resolved
     /// </summary>
-    NotEscalated,
+    NotResolved,
+
     /// <summary>
-    /// value only for already escalated reports
+    /// Only reports that have been resolved
     /// </summary>
-    Escalated
+    Resolved,
 }

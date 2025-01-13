@@ -19,4 +19,9 @@ public enum UserSearchFilter
     /// Return only users that the current user is not friends with
     /// </summary>
     StrangersOnly,
+
+    /// <summary>
+    /// Return only customer support agents
+    /// </summary>
+    CustomerSupportAgents,
 }

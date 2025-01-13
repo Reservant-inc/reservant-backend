@@ -39,6 +39,27 @@ public class VisitsController(
     }
 
     /// <summary>
+    /// Cancel a visit (from the client side)
+    /// </summary>
+    [HttpPost("{visitId:int}/cancel")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = Roles.Customer)]
+    [MethodErrorCodes<VisitService>(nameof(VisitService.CancelVisitAsync))]
+    public async Task<ActionResult> CancelVisit(int visitId)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await visitService.CancelVisitAsync(visitId, user);
+        return OkOrErrors(result);
+    }
+
+
+    /// <summary>
     /// Create a new visit
     /// </summary>
     [HttpPost()]
@@ -139,6 +160,29 @@ public class VisitsController(
     {
         var currentUserId = User.GetUserId()!.Value;
         var result = await service.UpdateVisitTableAsync(visitId, request.TableId, currentUserId);
+        return OkOrErrors(result);
+    }
+
+    /// <summary>
+    /// Create a visit for a Client that doesn't use our application
+    /// </summary>
+    /// <param name="request">Request for the visit</param>
+    /// <param name="service"></param>
+    /// <returns></returns>
+    [HttpPost("guests")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.RestaurantEmployee}")]
+    public async Task<ActionResult<VisitSummaryVM>> CreateVisitForClient(
+        MakeReservationRequest request, [FromServices] MakeReservationService service)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await service.MakeVisitEmployee(request, user);
         return OkOrErrors(result);
     }
 }

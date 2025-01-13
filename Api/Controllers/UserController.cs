@@ -306,27 +306,36 @@ public class UserController(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the reports considered in the search</param>
     /// <param name="service"></param>
+    /// <param name="page">Page number</param>
+    /// <param name="perPage">Items per page</param>
     /// <returns>list of reports created by the user</returns>
     [HttpGet("reports")]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetReportsAsync))]
+    [MethodErrorCodes<GetReportsService>(nameof(GetReportsService.GetMyReportsAsync))]
     [Authorize]
-    public async Task<ActionResult<List<ReportVM>>> GetReports(
+    public async Task<ActionResult<Pagination<ReportVM>>> GetReports(
         [FromQuery] DateTime? dateFrom,
         [FromQuery] DateTime? dateUntil,
         [FromQuery] ReportCategory? category,
         [FromQuery] Guid? reportedUserId,
         [FromQuery] int? restaurantId,
+        [FromQuery] Guid? assignedToId,
         [FromServices] GetReportsService service,
-        [FromQuery] ReportStatus status = ReportStatus.All)
+        [FromQuery] ReportStatus status = ReportStatus.All,
+        int page = 0,
+        int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);
         if (user is null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await service.GetMyReportsAsync(user, dateFrom, dateUntil, category, reportedUserId, restaurantId, status));
+        return OkOrErrors(await service.GetMyReportsAsync(
+            user, dateFrom, dateUntil,
+            category, reportedUserId, restaurantId,
+            assignedToId, status, page, perPage));
     }
 }

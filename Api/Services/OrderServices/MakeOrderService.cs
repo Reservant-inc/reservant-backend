@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.Orders;
+using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
@@ -30,6 +31,7 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
         "Order must only include items from the visit's restaurant")]
     [ErrorCode(nameof(request.Items), ErrorCodes.NotInAMenu,
         "Order must only include items that are included in an active menu")]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
     [ValidatorErrorCodes<CreateOrderRequest>]
     [ValidatorErrorCodes<Order>]
@@ -58,19 +60,21 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
             };
         }
 
-        var access = await authorizationService
-            .VerifyVisitParticipant(request.VisitId, user.Id);
-        if (access.IsError)
-        {
-            return access.Errors;
-        }
-
         var visit = await context.Visits
             .Where(v => v.VisitId == request.VisitId)
             .Include(visit => visit.Participants)
             .Include(v => v.Restaurant)
             .Include(v => v.Reservation)
             .FirstAsync();
+
+
+        var access = visit.CreatedByEmployee
+            ? await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, user.Id)
+            : await authorizationService.VerifyVisitParticipant(request.VisitId, user.Id);
+        if (access.IsError)
+        {
+            return access.Errors;
+        }
 
         if (menuItems.Values.Any(mi => mi.RestaurantId != visit.RestaurantId))
         {

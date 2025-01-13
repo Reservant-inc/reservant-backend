@@ -18,7 +18,8 @@ public class MakeReservationService(
     ApiDbContext context,
     ValidationService validationService,
     IMapper mapper,
-    NotificationService notificationService)
+    NotificationService notificationService,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Make a reservation at a restaurant
@@ -66,7 +67,7 @@ public class MakeReservationService(
         {
             Restaurant = restaurant,
             NumberOfGuests = request.NumberOfGuests,
-            Client = client,
+            Creator = client,
             Participants = participants,
             Reservation = new Reservation
             {
@@ -203,7 +204,95 @@ public class MakeReservationService(
     private async Task<bool> ClientHasReservation(User client, DateTime from, DateTime until)
     {
         return await context.Visits
-            .AnyAsync(v => v.ClientId == client.Id
+            .AnyAsync(v => v.CreatorId == client.Id
                            && v.Reservation!.StartTime < until && v.Reservation!.EndTime > from);
     }
+
+    /// <summary>
+    /// Make a reservation at a restaurant for a Client that doesn't use our application
+    /// </summary>
+    /// <param name="request">Description of the reservation</param>
+    /// <param name="emp">Employee that is making the reservation for a Client</param>
+    [ValidatorErrorCodes<MakeReservationRequest>]
+    [ErrorCode(nameof(request.RestaurantId), ErrorCodes.NotFound)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
+    [MethodErrorCodes<MakeReservationService>(nameof(CheckReservationDuration))]
+    [ErrorCode(null, ErrorCodes.Duplicate,
+        "You already have a reservation during this time period.")]
+    [ErrorCode(null, ErrorCodes.NoAvailableTable)]
+    [ValidatorErrorCodes<Visit>]
+    public async Task<Result<VisitSummaryVM>> MakeVisitEmployee(MakeReservationRequest request, User emp)
+    {
+        var requestValidation = await validationService.ValidateAsync(request, emp.Id);
+        if (!requestValidation.IsValid) return requestValidation;
+
+        var restaurant = await GetRestaurant(request.RestaurantId);
+        if (restaurant is null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(request.RestaurantId),
+                ErrorMessage = "Restaurant not found",
+                ErrorCode = ErrorCodes.NotFound,
+            };
+        }
+
+        var isHallEmployee = await authorizationService.VerifyRestaurantHallAccess(restaurant.RestaurantId, emp.Id);
+        if (isHallEmployee.IsError) return isHallEmployee.Errors;
+
+        var requestedTimeIsValid = CheckReservationDuration(request, restaurant);
+        if (requestedTimeIsValid.IsError) return requestedTimeIsValid.Errors;
+
+        var participants = await FindParticipantsByIds(request.ParticipantIds);
+        var visit = new Visit
+        {
+            Restaurant = restaurant,
+            NumberOfGuests = request.NumberOfGuests,
+            Creator = emp,
+            Participants = participants,
+            Reservation = new Reservation
+            {
+                StartTime = request.Date,
+                EndTime = request.EndTime,
+                ReservationDate = DateTime.UtcNow,
+                Deposit = restaurant.ReservationDeposit,
+                DepositPaymentTime = request.Date,
+                Decision = new RestaurantDecision
+                {
+                    AnsweredBy = emp,
+                    IsAccepted = true,
+                },
+            },
+            Tip = request.Tip,
+            Takeaway = request.Takeaway,
+            CreatedByEmployee = true,
+        };
+
+        if (!request.Takeaway)
+        {
+            var table = await FindSmallestAvailableTableFor(
+            request.TotalNumberOfPeople, restaurant,
+            from: request.Date, until: request.EndTime);
+            if (table is null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = null,
+                    ErrorMessage = "No available tables for the requested time slot",
+                    ErrorCode = ErrorCodes.NoAvailableTable,
+                };
+            }
+
+            visit.TableId = table.TableId;
+
+        }
+
+        context.Add(visit);
+        var validationResult = await validationService.ValidateAsync(visit, emp.Id);
+        if (!validationResult.IsValid) return validationResult;
+        await context.SaveChangesAsync();
+
+        return mapper.Map<VisitSummaryVM>(visit);
+    }
+
 }

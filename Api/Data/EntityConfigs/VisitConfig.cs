@@ -20,7 +20,7 @@ public class VisitConfig : IEntityTypeConfiguration<Visit>
             .WithMany()
             .HasForeignKey(v => new { v.RestaurantId, v.TableId });
 
-        builder.HasOne<User>(v => v.Client)
+        builder.HasOne<User>(v => v.Creator)
             .WithMany(u => u.VisitsCreated);
 
         builder.HasMany<User>(v => v.Participants)

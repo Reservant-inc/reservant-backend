@@ -1,12 +1,14 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Reservant.Api.Dtos.Visits;
+using Reservant.Api.Identity;
 using Reservant.Api.Models.Enums;
 using Reservant.ErrorCodeDocs.Attributes;
 
@@ -19,7 +21,8 @@ public class VisitService(
     ApiDbContext context,
     IMapper mapper,
     NotificationService notificationService,
-    AuthorizationService authorizationService)
+    AuthorizationService authorizationService,
+    UserManager<User> userManager)
 {
     /// <summary>
     /// Gets the visit with the provided ID
@@ -37,10 +40,19 @@ public class VisitService(
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.NotFound };
         }
 
-        var canView =
-            visit.ClientId == user.Id
-            || visit.Participants.Contains(user)
-            || !(await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, user.Id)).IsError;
+        var isParticipant = visit.CreatorId == user.Id || visit.Participants.Contains(user);
+
+        var canView = isParticipant;
+        if (!canView)
+        {
+            canView = !(await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, user.Id)).IsError;
+        }
+
+        if (!canView)
+        {
+            canView = await userManager.IsInRoleAsync(user, Roles.CustomerSupportAgent);
+        }
+
         if (!canView)
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
@@ -101,13 +113,13 @@ public class VisitService(
         };
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId, visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.CreatorId, visitId);
 
         return Result.Success;
     }
 
     /// <summary>
-    /// Reject a visit request as resturant owner or employee
+    /// Reject a visit request as a resturant owner or employee
     /// </summary>
     /// <param name="visitId">ID of the event</param>
     /// <param name="currentUser">Current user for permission checking</param>
@@ -158,7 +170,7 @@ public class VisitService(
         };
 
         await context.SaveChangesAsync();
-        await notificationService.NotifyVisitApprovedDeclined(visitFound.ClientId, visitId);
+        await notificationService.NotifyVisitApprovedDeclined(visitFound.CreatorId, visitId);
 
         return Result.Success;
     }
@@ -264,4 +276,58 @@ public class VisitService(
 
         return Result.Success;
     }
+
+    /// <summary>
+    /// Cancel a visit reservation as the client
+    /// </summary>
+    /// <param name="visitId">ID wizyty</param>
+    /// <param name="currentUser">Aktualnie zalogowany użytkownik</param>
+    /// <returns></returns>
+    [ErrorCode(nameof(visitId), ErrorCodes.NotFound, "Visit not found")]
+    [ErrorCode(nameof(visitId), ErrorCodes.AccessDenied, "Only the client who made the reservation can cancel it")]
+    [ErrorCode(nameof(visitId), ErrorCodes.IncorrectVisitStatus, "Visit already started and cannot be canceled")]
+    public async Task<Result> CancelVisitAsync(int visitId, User currentUser)
+    {
+        var visit = await context.Visits
+            .Include(v => v.Reservation)
+            .FirstOrDefaultAsync(v => v.VisitId == visitId);
+
+        if (visit == null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = nameof(visitId),
+                ErrorMessage = "Visit not found",
+                ErrorCode = ErrorCodes.NotFound
+            };
+        }
+
+        if (visit.CreatorId != currentUser.Id)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Only the client who made the reservation can cancel it.",
+                ErrorCode = ErrorCodes.AccessDenied
+            };
+        }
+
+        if (visit.StartTime != null)
+        {
+            return new ValidationFailure
+            {
+                PropertyName = null,
+                ErrorMessage = "Visit already started and cannot be canceled.",
+                ErrorCode = ErrorCodes.IncorrectVisitStatus
+            };
+        }
+
+        visit.IsDeleted = true;
+        await context.SaveChangesAsync();
+
+        // await notificationService.NotifyVisitCancelled(visit.ClientId, visitId);
+
+        return Result.Success;
+    }
+
 }

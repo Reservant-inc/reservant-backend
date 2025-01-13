@@ -91,7 +91,7 @@ public class OrderService(
                     ErrorCode = ErrorCodes.NotFound
                 };
 
-        if (result.Visit.ClientId != userId)
+        if (result.Visit.CreatorId != userId)
             return new ValidationFailure
                 {
                     ErrorCode = ErrorCodes.AccessDenied

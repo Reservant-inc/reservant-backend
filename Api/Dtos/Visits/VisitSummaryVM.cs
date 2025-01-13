@@ -53,6 +53,11 @@ public class VisitSummaryVM
     public required Guid ClientId { get; init; }
 
     /// <summary>
+    /// Whether the visit was created by an employee for a guest
+    /// </summary>
+    public required bool CreatedByEmployee { get; set; }
+
+    /// <summary>
     /// Restaurant where the visit took place
     /// </summary>
     public required RestaurantSummaryVM Restaurant { get; init; }

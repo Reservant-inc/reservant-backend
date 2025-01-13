@@ -108,9 +108,9 @@ public class Visit : ISoftDeletable
     public int NumberOfGuests { get; set; }
 
     /// <summary>
-    /// ID of the client who made the reservation
+    /// ID of the person who made the reservation (client or employee)
     /// </summary>
-    public Guid ClientId { get; set; }
+    public Guid CreatorId { get; set; }
 
     /// <summary>
     /// Reservation
@@ -144,9 +144,9 @@ public class Visit : ISoftDeletable
     public decimal? Tip { get; set; }
 
     /// <summary>
-    /// Navigational property for the client who made the reservation
+    /// Navigational property for the person who made the reservation (client or employee)
     /// </summary>
-    public User Client { get; set; } = null!;
+    public User Creator { get; set; } = null!;
 
     /// <summary>
     /// People who visited the restaurant
@@ -167,9 +167,15 @@ public class Visit : ISoftDeletable
     /// Navigational property for restaurant
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
+    
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// Check whether the visit was created by an employee, false by default
+    /// </summary>
+    public bool CreatedByEmployee { get; set; }
 
     /// <summary>
     /// Check whether the visit has already started
@@ -181,4 +187,5 @@ public class Visit : ISoftDeletable
     /// </summary>
     /// <returns></returns>
     public bool HasEnded() => EndTime is not null;
+    
 }

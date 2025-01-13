@@ -144,7 +144,7 @@ public class AuthorizationService(
     {
         var userIsVisitParticipant = await context.Visits
             .Where(v => v.VisitId == visitId)
-            .Select(v => v.ClientId == userId
+            .Select(v => v.CreatorId == userId
                 || v.Participants.Any(p => p.Id == userId))
             .SingleOrDefaultAsync();
         if (!userIsVisitParticipant)
@@ -168,7 +168,7 @@ public class AuthorizationService(
     /// <returns></returns>
     public async ValueTask<bool> CanViewVisit(Visit visit, User user)
     {
-        var isVisitParticipant = visit.ClientId == user.Id || visit.Participants.Any(p => p.Id == user.Id);
+        var isVisitParticipant = visit.CreatorId == user.Id || visit.Participants.Any(p => p.Id == user.Id);
         if (isVisitParticipant) return true;
 
         var isOwnerOfTheRestaurant = visit.Restaurant.Group.OwnerId == user.Id;

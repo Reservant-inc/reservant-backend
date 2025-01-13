@@ -267,9 +267,9 @@ public class NotificationNewReservation : NotificationDetails
 }
 
 /// <summary>
-/// Details of a notification about new escalated report
+/// Notification that a report has been assigned to the user
 /// </summary>
-public class NotificationReportEscalated : NotificationDetails
+public class NotificationReportAssigned : NotificationDetails
 {
     /// <summary>
     /// ID of the report
@@ -285,9 +285,4 @@ public class NotificationReportEscalated : NotificationDetails
     /// Description of the report
     /// </summary>
     public required string ReportDescription { get; set; }
-
-    /// <summary>
-    /// Content of the message
-    /// </summary>
-    public required string Comment { get; set; }
 }

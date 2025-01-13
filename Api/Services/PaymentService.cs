@@ -51,7 +51,7 @@ public class PaymentService(
             };
         }
 
-        if (visit.ClientId != user.Id)
+        if (visit.CreatorId != user.Id)
         {
             return new ValidationFailure
             {
@@ -110,7 +110,7 @@ public class PaymentService(
                 ErrorMessage = "Order to pay for not found"
             };
         }
-        if (order.Visit.ClientId != user.Id)
+        if (order.Visit.CreatorId != user.Id)
         {
             return new ValidationFailure
             {
