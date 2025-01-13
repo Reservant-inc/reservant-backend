@@ -256,10 +256,16 @@ public class MakeReservationService(
                 EndTime = request.EndTime,
                 ReservationDate = DateTime.UtcNow,
                 Deposit = restaurant.ReservationDeposit,
+                DepositPaymentTime = request.Date,
+                Decision = new RestaurantDecision
+                {
+                    AnsweredBy = emp,
+                    IsAccepted = true,
+                },
             },
             Tip = request.Tip,
             Takeaway = request.Takeaway,
-            CreatedByEmployee = true
+            CreatedByEmployee = true,
         };
 
         if (!request.Takeaway)
@@ -286,7 +292,6 @@ public class MakeReservationService(
         if (!validationResult.IsValid) return validationResult;
         await context.SaveChangesAsync();
 
-        await NotifyHallEmployeesAboutReservation(restaurant, visit);
         return mapper.Map<VisitSummaryVM>(visit);
     }
 
