@@ -58,7 +58,7 @@ public class RestaurantController(UserManager<User> userManager, RestaurantServi
     [Authorize(Roles = $"{Roles.CustomerSupportAgent}")]
     [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.FindRestaurantsAsync))]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindUnverifedRestaurants(
+    public async Task<ActionResult<Pagination<NearRestaurantVM>>> FindUnverifiedRestaurants(
         [FromQuery] RestaurantSearchParams searchParams)
     {
         var user = await userManager.GetUserAsync(User);

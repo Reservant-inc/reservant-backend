@@ -63,7 +63,7 @@ namespace Reservant.Api.Services
 
             if (switchToUnverified)
             {
-                query = query.OnlyUnverifedRestaurants();
+                query = query.OnlyUnverifiedRestaurants();
             }
             else
             {
@@ -208,8 +208,8 @@ namespace Reservant.Api.Services
                         Latitude = r.Location.Y,
                         Longitude = r.Location.X
                     },
-                    RentalContract = r.RentalContractFileName,
-                    AlcoholLicense = r.AlcoholLicenseFileName,
+                    RentalContract = switchToUnverified ? null : r.RentalContractFileName,
+                    AlcoholLicense = switchToUnverified ? null : r.AlcoholLicenseFileName,
                     BusinessPermission = r.BusinessPermissionFileName,
                     IdCard = r.IdCardFileName,
                     ProvideDelivery = r.ProvideDelivery,
