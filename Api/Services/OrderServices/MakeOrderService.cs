@@ -31,6 +31,7 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
         "Order must only include items from the visit's restaurant")]
     [ErrorCode(nameof(request.Items), ErrorCodes.NotInAMenu,
         "Order must only include items that are included in an active menu")]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
     [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyVisitParticipant))]
     [ValidatorErrorCodes<CreateOrderRequest>]
     [ValidatorErrorCodes<Order>]
@@ -67,29 +68,12 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
             .FirstAsync();
 
 
-        if (visit.CreatedByEmployee)
+        var access = visit.CreatedByEmployee
+            ? await authorizationService.VerifyRestaurantHallAccess(visit.RestaurantId, user.Id)
+            : await authorizationService.VerifyVisitParticipant(request.VisitId, user.Id);
+        if (access.IsError)
         {
-
-            if (!visit.Restaurant.Employments.Any(e => e.EmployeeId == user.Id))
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(visit.RestaurantId),
-                    ErrorMessage = "Access denied",
-                    ErrorCode = ErrorCodes.AccessDenied,
-                };
-            }
-            
-        }
-        else
-        {
-            var access = await authorizationService
-            .VerifyVisitParticipant(request.VisitId, user.Id);
-            if (access.IsError)
-            {
-                return access.Errors;
-            }
-
+            return access.Errors;
         }
 
         if (menuItems.Values.Any(mi => mi.RestaurantId != visit.RestaurantId))

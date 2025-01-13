@@ -18,7 +18,8 @@ public class MakeReservationService(
     ApiDbContext context,
     ValidationService validationService,
     IMapper mapper,
-    NotificationService notificationService)
+    NotificationService notificationService,
+    AuthorizationService authorizationService)
 {
     /// <summary>
     /// Make a reservation at a restaurant
@@ -214,6 +215,7 @@ public class MakeReservationService(
     /// <param name="emp">Employee that is making the reservation for a Client</param>
     [ValidatorErrorCodes<MakeReservationRequest>]
     [ErrorCode(nameof(request.RestaurantId), ErrorCodes.NotFound)]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
     [MethodErrorCodes<MakeReservationService>(nameof(CheckReservationDuration))]
     [ErrorCode(null, ErrorCodes.Duplicate,
         "You already have a reservation during this time period.")]
@@ -235,15 +237,8 @@ public class MakeReservationService(
             };
         }
 
-        if (!restaurant.Employments.Any(e => e.EmployeeId == emp.Id))
-        {
-            return new ValidationFailure
-            {
-                PropertyName = nameof(request.RestaurantId),
-                ErrorMessage = "Access denied",
-                ErrorCode = ErrorCodes.AccessDenied,
-            };
-        }
+        var isHallEmployee = await authorizationService.VerifyRestaurantHallAccess(restaurant.RestaurantId, emp.Id);
+        if (isHallEmployee.IsError) return isHallEmployee.Errors;
 
         var requestedTimeIsValid = CheckReservationDuration(request, restaurant);
         if (requestedTimeIsValid.IsError) return requestedTimeIsValid.Errors;
