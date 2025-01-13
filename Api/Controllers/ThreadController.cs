@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Reservant.Api.Identity;
-using Reservant.Api.Models;
 using Reservant.Api.Services;
-using Reservant.Api.Validation;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.Messages;
 using Reservant.Api.Dtos.Threads;
@@ -17,7 +14,6 @@ namespace Reservant.Api.Controllers;
 /// Manage threads
 /// </summary>
 [ApiController, Route("/threads")]
-[Authorize(Roles = Roles.Customer)]
 public class ThreadsController(
     ThreadService threadService
     ) : StrictController
@@ -162,6 +158,7 @@ public class ThreadsController(
     /// <param name="threadId">ID of the thread</param>
     /// <param name="dto">DTO containing the user ID</param>
     [HttpPost("{threadId:int}/add-participant")]
+    [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<ThreadService>(nameof(ThreadService.AddParticipant))]
     public async Task<ActionResult> AddParticipant(int threadId, AddRemoveParticipantDto dto)
@@ -179,6 +176,7 @@ public class ThreadsController(
     /// <param name="threadId">ID of the thread</param>
     /// <param name="dto">DTO containing the user ID</param>
     [HttpPost("{threadId:int}/remove-participant")]
+    [Authorize(Roles = Roles.Customer)]
     [ProducesResponseType(204), ProducesResponseType(400)]
     [MethodErrorCodes<ThreadService>(nameof(ThreadService.RemoveParticipant))]
     public async Task<ActionResult> RemoveParticipant(int threadId, AddRemoveParticipantDto dto)
