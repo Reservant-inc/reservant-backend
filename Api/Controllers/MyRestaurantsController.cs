@@ -13,6 +13,7 @@ using Reservant.Api.Dtos.Restaurants;
 using Reservant.Api.Dtos.Users;
 using Reservant.Api.Services.ReportServices;
 using Reservant.Api.Dtos.Reports;
+using Reservant.Api.Dtos.Tables;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Services.RestaurantServices;
 
@@ -324,6 +325,23 @@ namespace Reservant.Api.Controllers
         {
             var userId = User.GetUserId();
             var result = await service.GetStatsOfRestaurantOwner(userId!.Value, request);
+            return OkOrErrors(result);
+        }
+
+        /// <summary>
+        /// Update the list of tables of a restaurant
+        /// </summary>
+        [HttpPut("{restaurantId:int}/tables")]
+        [ProducesResponseType(200), ProducesResponseType(400)]
+        [MethodErrorCodes<UpdateTablesService>(nameof(UpdateTablesService.UpdateTables))]
+        [Authorize(Roles = Roles.RestaurantOwner)]
+        public async Task<ActionResult<MyRestaurantVM>> GetTotalStatistics(
+            int restaurantId,
+            UpdateTablesRequest request,
+            [FromServices] UpdateTablesService service)
+        {
+            var userId = User.GetUserId();
+            var result = await service.UpdateTables(restaurantId, request, userId!.Value);
             return OkOrErrors(result);
         }
     }
