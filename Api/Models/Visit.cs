@@ -159,15 +159,9 @@ public class Visit : ISoftDeletable
     public ICollection<Order> Orders { get; set; } = null!;
 
     /// <summary>
-    /// Navigational collection for the table
-    /// </summary>
-    public Table? Table { get; set; } = null!;
-
-    /// <summary>
     /// Navigational property for restaurant
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
-    
 
     /// <inheritdoc />
     public bool IsDeleted { get; set; }
@@ -187,5 +181,4 @@ public class Visit : ISoftDeletable
     /// </summary>
     /// <returns></returns>
     public bool HasEnded() => EndTime is not null;
-    
 }

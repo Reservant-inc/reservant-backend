@@ -169,7 +169,7 @@ public class UpdateVisitTableService(
             .Include(v => v.Reservation)
             .Include(v => v.Restaurant)
             .Where(v => v != currentVisit)
-            .Where(v => v.Table == table)
+            .Where(v => v.RestaurantId == table.RestaurantId && v.TableId == table.TableId)
             .Where(v => v.EndTime == null) // Wizyta jeszcze się nie zakończyła
             .ToListAsync();
     }

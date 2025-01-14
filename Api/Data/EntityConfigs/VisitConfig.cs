@@ -16,10 +16,6 @@ public class VisitConfig : IEntityTypeConfiguration<Visit>
             .WithMany()
             .HasForeignKey(v => v.RestaurantId);
 
-        builder.HasOne(v => v.Table)
-            .WithMany()
-            .HasForeignKey(v => new { v.RestaurantId, v.TableId });
-
         builder.HasOne<User>(v => v.Creator)
             .WithMany(u => u.VisitsCreated);
 

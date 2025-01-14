@@ -25,8 +25,6 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Reservant.Api.Mapping;
 using Reservant.Api.Dtos.Tables;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Reservant.Api.Services
 {
@@ -1202,7 +1200,6 @@ namespace Reservant.Api.Services
 
             IQueryable<Visit> query = context.Visits
                 .AsSplitQuery()
-                .Include(x => x.Table)
                 .Include(x => x.Participants)
                 .Include(x => x.Orders)
                 .ThenInclude(o => o.OrderItems)
