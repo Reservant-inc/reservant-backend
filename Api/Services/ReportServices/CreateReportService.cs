@@ -264,13 +264,18 @@ public class CreateReportService(
     public static MessageThread CreateThreadForReport(Report report)
     {
         var shortDescription = report.Description[..Math.Min(report.Description.Length, ThreadTitleDescriptionCutoff)];
+
+        var participants = new List<User> { report.CreatedBy };
+        participants.AddRange(report.AssignedAgents?.Select(ra => ra.Agent) ?? Enumerable.Empty<User>());
+
         return new MessageThread
         {
             Title = $"Report: {shortDescription}",
-            Participants = [report.CreatedBy, ..report.AssignedAgents.Select(ra => ra.Agent)],
+            Participants = participants,
             CreationDate = report.ReportDate,
             Creator = report.CreatedBy,
             Type = MessageThreadType.Report,
         };
     }
+
 }
