@@ -62,22 +62,22 @@ public class AnonymousRestaurantSeeder(
             {
                 new()
                 {
-                    TableId = 1,
+                    Number = 1,
                     Capacity = 4,
                 },
                 new()
                 {
-                    TableId = 2,
+                    Number = 2,
                     Capacity = 4,
                 },
                 new()
                 {
-                    TableId = 3,
+                    Number = 3,
                     Capacity = 6,
                 },
                 new()
                 {
-                    TableId = 4,
+                    Number = 4,
                     Capacity = 2,
                 },
             },

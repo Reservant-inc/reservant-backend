@@ -189,8 +189,9 @@ public static class CustomRules
                 var (restaurantId, tableId) = tuple;
                 if (tableId is null) return true;
 
-                return await dbContext.Tables
-                    .AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId, cancellationToken);
+                return await dbContext.Restaurants
+                    .SelectMany(restaurant => restaurant.Tables)
+                    .AnyAsync(t => t.Number == tableId && t.RestaurantId == restaurantId, cancellationToken);
             })
             .WithMessage("The specified Table ID does not exist within the given Restaurant ID.")
             .WithErrorCode(ErrorCodes.TableDoesNotExist);

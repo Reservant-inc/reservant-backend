@@ -156,8 +156,11 @@ public class UpdateVisitTableService(
     /// </summary>
     private async Task<Table?> FindTableInRestaurant(int tableId, int restaurantId)
     {
-        return await context.Tables
-            .FirstOrDefaultAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId);
+        return await context.Restaurants
+            .AsNoTracking()
+            .Where(restaurant => restaurant.RestaurantId == restaurantId)
+            .SelectMany(restaurant => restaurant.Tables)
+            .FirstOrDefaultAsync(t => t.Number == tableId);
     }
 
     /// <summary>
@@ -169,7 +172,7 @@ public class UpdateVisitTableService(
             .Include(v => v.Reservation)
             .Include(v => v.Restaurant)
             .Where(v => v != currentVisit)
-            .Where(v => v.RestaurantId == table.RestaurantId && v.TableId == table.TableId)
+            .Where(v => v.RestaurantId == table.RestaurantId && v.TableId == table.Number)
             .Where(v => v.EndTime == null) // Wizyta jeszcze się nie zakończyła
             .ToListAsync();
     }

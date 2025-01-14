@@ -95,7 +95,7 @@ public class MakeReservationService(
                 };
             }
 
-            visit.TableId = table.TableId;
+            visit.TableId = table.Number;
 
         }
 
@@ -164,10 +164,13 @@ public class MakeReservationService(
         DateTime from,
         DateTime until)
     {
-        return await context.Tables
-            .Where(t => t.RestaurantId == restaurant.RestaurantId && t.Capacity >= numberOfPeople)
+        return await context.Entry(restaurant)
+            .Collection(r => r.Tables)
+            .Query()
+            .AsNoTracking()
+            .Where(t => t.Capacity >= numberOfPeople)
             .Where(t => !context.Visits.Any(v =>
-                v.TableId == t.TableId &&
+                v.TableId == t.Number &&
                 v.Reservation!.StartTime < until &&
                 v.Reservation!.EndTime > from))
             .OrderBy(t => t.Capacity)
@@ -283,7 +286,7 @@ public class MakeReservationService(
                 };
             }
 
-            visit.TableId = table.TableId;
+            visit.TableId = table.Number;
 
         }
 

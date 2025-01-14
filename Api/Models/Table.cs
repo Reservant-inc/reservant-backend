@@ -6,7 +6,7 @@ namespace Reservant.Api.Models;
 /// <summary>
 /// Stolik
 /// </summary>
-public class Table : ISoftDeletable
+public class Table
 {
     /// <summary>
     /// ID of the table's restaurant
@@ -16,7 +16,7 @@ public class Table : ISoftDeletable
     /// <summary>
     /// Unique ID within the restaurant
     /// </summary>
-    public int TableId { get; set; }
+    public int Number { get; set; }
 
     /// <summary>
     /// Ilość miejsc
@@ -27,7 +27,4 @@ public class Table : ISoftDeletable
     /// Restaurant
     /// </summary>
     public Restaurant Restaurant { get; set; } = null!;
-
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
 }

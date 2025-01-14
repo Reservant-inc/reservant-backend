@@ -59,9 +59,9 @@ public class KowalskisRestaurantSeeder(
                 new TimeOnly(8, 00), new TimeOnly(16, 00)),
             Tables = new List<Table>
             {
-                new() { TableId = 1, Capacity = 3, },
-                new() { TableId = 2, Capacity = 2, },
-                new() { TableId = 3, Capacity = 4, },
+                new() { Number = 1, Capacity = 3, },
+                new() { Number = 2, Capacity = 2, },
+                new() { Number = 3, Capacity = 4, },
             },
         };
     }

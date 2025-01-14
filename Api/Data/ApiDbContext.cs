@@ -25,8 +25,6 @@ public class ApiDbContext(
 
     public DbSet<RestaurantTag> RestaurantTags { get; init; } = null!;
 
-    public DbSet<Table> Tables { get; init; } = null!;
-
     public DbSet<RestaurantGroup> RestaurantGroups { get; init; } = null!;
 
     public DbSet<Menu> Menus { get; init; } = null!;

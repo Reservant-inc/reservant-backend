@@ -88,14 +88,17 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
         };
 
         var numberOfPeople = visit.NumberOfGuests + visit.Participants.Count + 1;
-        var table = await context.Tables
-            .Where(t => t.RestaurantId == restaurant.RestaurantId && t.Capacity >= numberOfPeople)
+        var table = await context.Entry(restaurant)
+            .Collection(r => r.Tables)
+            .Query()
+            .AsNoTracking()
+            .Where(t => t.Capacity >= numberOfPeople)
             .Where(t => !context.Visits.Any(v =>
-                v.TableId == t.TableId &&
+                v.TableId == t.Number &&
                 v.Reservation!.StartTime < visit.Reservation.EndTime &&
                 v.Reservation!.EndTime > visit.Reservation.StartTime))
             .FirstOrDefaultAsync() ?? throw new InvalidOperationException("Unable to find a table big enough");
-        visit.TableId = table.TableId;
+        visit.TableId = table.Number;
 
         if (isPast)
         {

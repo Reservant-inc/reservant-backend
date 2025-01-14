@@ -15,6 +15,7 @@ public class RestaurantConfig : IEntityTypeConfiguration<Restaurant>
         builder.Property(r => r.Location)
             .HasColumnType("geography");
 
+        builder.OwnsMany(restaurant => restaurant.Tables);
         builder.OwnsMany(restaurant => restaurant.OpeningHours);
     }
 }

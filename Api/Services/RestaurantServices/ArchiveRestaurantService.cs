@@ -43,11 +43,6 @@ public class ArchiveRestaurantService(ApiDbContext context)
             };
         }
 
-        foreach (var table in restaurant.Tables)
-        {
-            table.IsDeleted = true;
-        }
-
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         foreach (var employment in restaurant.Employments)
         {

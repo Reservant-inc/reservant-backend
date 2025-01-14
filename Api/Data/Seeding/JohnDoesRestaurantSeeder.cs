@@ -62,10 +62,10 @@ public class JohnDoesRestaurantSeeder(
                 new TimeOnly(10, 00), new TimeOnly(23, 00)),
             Tables = new List<Table>
             {
-                new() { TableId = 1, Capacity = 4, },
-                new() { TableId = 2, Capacity = 4, },
-                new() { TableId = 3, Capacity = 6, },
-                new() { TableId = 4, Capacity = 2, },
+                new() { Number = 1, Capacity = 4, },
+                new() { Number = 2, Capacity = 4, },
+                new() { Number = 3, Capacity = 6, },
+                new() { Number = 4, Capacity = 2, },
             },
             Photos = await RequireRestaurantPhotos("ResInside5.jpg"),
         };

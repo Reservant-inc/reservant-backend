@@ -1220,7 +1220,10 @@ namespace Reservant.Api.Services
 
             if (tableId is not null)
             {
-                var tableExists = await context.Tables.AnyAsync(t => t.TableId == tableId && t.RestaurantId == restaurantId);
+                var tableExists = await context.Entry(restaurant)
+                    .Collection(r => r.Tables)
+                    .Query()
+                    .AnyAsync(t => t.Number == tableId);
                 if (!tableExists)
                 {
                     return new ValidationFailure
@@ -1512,9 +1515,9 @@ namespace Reservant.Api.Services
             }
 
             // Pobieramy stoliki odpowiednie do liczby gości
-            var availableTables = await context.Tables
-                .Where(t => t.RestaurantId == restaurantId && t.Capacity >= numberOfGuests)
-                .ToListAsync();
+            var availableTables = restaurant.Tables
+                .Where(t => t.Capacity >= numberOfGuests)
+                .ToList();
 
             // Pobieramy rezerwacje, które kolidują z danym dniem
             var reservations = await context.Visits
@@ -1539,7 +1542,7 @@ namespace Reservant.Api.Services
                 var timeSlotAvailable = availableTables.Any(table =>
                     // Check if there are no reservations for this table that overlap with the current time slot
                     !reservations.Any(r =>
-                        r.TableId == table.TableId && // Same table
+                        r.TableId == table.Number && // Same table
                         TimeOnly.FromDateTime(r.Reservation!.StartTime) <= time && // Reservation starts before or at the current time (compare times only)
                         TimeOnly.FromDateTime(r.Reservation!.EndTime) > time // Reservation ends after the current time slot starts (compare times only)
                     )
@@ -1697,11 +1700,11 @@ namespace Reservant.Api.Services
                 .Query()
                 .Select(t => new RestaurantTableVM
                 {
-                    TableId = t.TableId,
+                    TableId = t.Number,
                     Capacity = t.Capacity,
                     VisitId = context.Visits
                         .Where(v =>
-                            v.TableId == t.TableId &&
+                            v.TableId == t.Number &&
                             v.RestaurantId == restaurant.RestaurantId &&
                             v.StartTime <= now &&
                             v.EndTime > now)
@@ -1710,14 +1713,14 @@ namespace Reservant.Api.Services
                     Status =
                         context.Visits
                             .Any(v =>
-                                v.TableId == t.TableId &&
+                                v.TableId == t.Number &&
                                 v.RestaurantId == restaurant.RestaurantId &&
                                 v.StartTime <= now &&
                                 v.EndTime == null)
                         ? TableStatus.Taken
                         : context.Visits
                             .Any(v =>
-                                v.TableId == t.TableId &&
+                                v.TableId == t.Number &&
                                 v.RestaurantId == restaurant.RestaurantId &&
                                 v.Reservation != null &&
                                 v.Reservation!.Decision!.IsAccepted &&
