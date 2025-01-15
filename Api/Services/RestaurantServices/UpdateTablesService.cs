@@ -26,7 +26,7 @@ public class UpdateTablesService(
     /// <param name="dto">Info about the new list of tables</param>
     /// <param name="userId">ID of the current user for permission checks</param>
     [ErrorCode(nameof(restaurantId), ErrorCodes.NotFound)]
-    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyOwnerRole))]
+    [MethodErrorCodes<AuthorizationService>(nameof(AuthorizationService.VerifyRestaurantHallAccess))]
     public async Task<Result<MyRestaurantVM>> UpdateTables(int restaurantId, UpdateTablesRequest dto, Guid userId)
     {
         var restaurant = await context.Restaurants
@@ -42,7 +42,7 @@ public class UpdateTablesService(
             };
         }
 
-        var authorization = await authorizationService.VerifyOwnerRole(restaurantId, userId);
+        var authorization = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
         if (authorization.IsError) return authorization.Errors;
 
         restaurant.Tables = dto.Tables

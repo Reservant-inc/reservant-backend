@@ -334,7 +334,7 @@ namespace Reservant.Api.Controllers
         [HttpPut("{restaurantId:int}/tables")]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<UpdateTablesService>(nameof(UpdateTablesService.UpdateTables))]
-        [Authorize(Roles = Roles.RestaurantOwner)]
+        [AuthorizeRoles(Roles.RestaurantOwner, Roles.RestaurantEmployee)]
         public async Task<ActionResult<MyRestaurantVM>> UpdateTables(
             int restaurantId,
             UpdateTablesRequest request,
