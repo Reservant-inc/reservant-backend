@@ -132,6 +132,16 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
             .Include(r => r.Employments)
             .ThenInclude(r => r.Employee)
             .SingleAsync(r => r.Name == "John Doe's");
+        var johnDoes2 = await context.Restaurants
+            .Include(r => r.MenuItems)
+            .Include(r => r.Employments)
+            .ThenInclude(r => r.Employee)
+            .SingleAsync(r => r.Name == "John Doe's 2");
+        var johnDoes3 = await context.Restaurants
+            .Include(r => r.MenuItems)
+            .Include(r => r.Employments)
+            .ThenInclude(r => r.Employee)
+            .SingleAsync(r => r.Name == "John Doe's 3");
         var kowalskis = await context.Restaurants
             .Include(r => r.MenuItems)
             .Include(r => r.Employments)
@@ -144,18 +154,27 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
             await CreateRandomVisit(users.KrzysztofKowalski, johnDoes, now.AddDays(-30), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-28), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-25), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes3, now.AddDays(-25), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes2, now.AddDays(-25).AddHours(3), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-25).AddHours(2), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-22), true),
             await CreateRandomVisit(users.KrzysztofKowalski, johnDoes, now.AddDays(-22), true),
-            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes, now.AddDays(-6), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes2, now.AddDays(-21), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes2, now.AddDays(-21).AddHours(3), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes3, now.AddDays(-20), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes3, now.AddDays(-6), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-4), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-2).AddHours(-8), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-2).AddHours(-5), true),
-            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes, now.AddDays(-2).AddHours(-3), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes2, now.AddDays(-2).AddHours(-7), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes2, now.AddDays(-2).AddHours(-5), true),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes3, now.AddDays(-2).AddHours(-3), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddDays(-2).AddHours(-1), true),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-23), false),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-8), false),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-5), false),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes2, now.AddHours(-3), false),
+            await CreateRandomVisit(users.KrzysztofKowalski, johnDoes2, now.AddHours(-2), false),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now.AddHours(-1), false),
             await CreateRandomVisit(users.JohnDoe, kowalskis, now, false),
         };

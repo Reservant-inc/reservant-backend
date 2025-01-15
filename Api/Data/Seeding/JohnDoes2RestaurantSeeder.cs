@@ -216,4 +216,15 @@ public class JohnDoes2RestaurantSeeder(
             Contents = "Kompletna porażka! Jedzenie zimne, kelner nieuprzejmy - fatalnie!",
         },
     ];
+
+    /// <inheritdoc />
+    protected override async Task<List<User>> CreateEmployees() =>
+    [
+        await CreateRestaurantEmployee(
+            "arkadiusz", "Arkadiusz", "Przykładowski",
+            "57b05d56-c9ad-4269-919d-6de7df80ebd2", true, true),
+        await CreateRestaurantEmployee(
+            "janusz", "Janusz", "Przykładowski",
+            "c124588a-536a-481b-9882-85e097b8b0ba", false, true),
+    ];
 }
