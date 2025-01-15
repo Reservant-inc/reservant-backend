@@ -1,0 +1,24 @@
+meta {
+  name: my-restaurants--id-statistics
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/my-restaurants/5/statistics
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isDefined
+  res.body.popularItems: length 10
+  res.body.customerCount: length 4
+  res.body.revenue: length 4
+  res.body.reviews: isDefined
+}

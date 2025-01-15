@@ -1,0 +1,19 @@
+meta {
+  name: visits-visitId-cancel
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/visits/13/cancel
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 204
+}

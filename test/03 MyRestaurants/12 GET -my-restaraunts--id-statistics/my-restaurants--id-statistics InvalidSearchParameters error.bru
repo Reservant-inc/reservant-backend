@@ -1,0 +1,24 @@
+meta {
+  name: my-restaurants--id-statistics InvalidSearchParameters error
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/my-restaurants/5/statistics?popularItemMaxCount=-2
+  body: none
+  auth: bearer
+}
+
+params:query {
+  popularItemMaxCount: -2
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes.popularItemMaxCount: contains "InvalidSearchParameters"
+}

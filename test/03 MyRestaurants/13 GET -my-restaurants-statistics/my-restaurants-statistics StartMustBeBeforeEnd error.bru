@@ -1,0 +1,25 @@
+meta {
+  name: my-restaurants-statistics StartMustBeBeforeEnd error
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/my-restaurants/statistics?dateFrom=2024-12-25&dateUntil=2024-12-24
+  body: none
+  auth: bearer
+}
+
+params:query {
+  dateFrom: 2024-12-25
+  dateUntil: 2024-12-24
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes.dateUntil: contains "StartMustBeBeforeEnd"
+}

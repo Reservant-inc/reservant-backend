@@ -1,0 +1,20 @@
+meta {
+  name: users--userId-wallet-status
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/users/{{JDid}}/wallet-status
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BOKEmployee}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.balance: isNumber 
+}
