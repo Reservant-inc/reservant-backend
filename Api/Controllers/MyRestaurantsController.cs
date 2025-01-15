@@ -335,7 +335,7 @@ namespace Reservant.Api.Controllers
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<UpdateTablesService>(nameof(UpdateTablesService.UpdateTables))]
         [Authorize(Roles = Roles.RestaurantOwner)]
-        public async Task<ActionResult<MyRestaurantVM>> GetTotalStatistics(
+        public async Task<ActionResult<MyRestaurantVM>> UpdateTables(
             int restaurantId,
             UpdateTablesRequest request,
             [FromServices] UpdateTablesService service)
