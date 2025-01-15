@@ -1,0 +1,24 @@
+meta {
+  name: my-restaurants-statistics-popularItemMaxCount
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/my-restaurants/statistics?popularItemMaxCount=1
+  body: none
+  auth: bearer
+}
+
+params:query {
+  popularItemMaxCount: 1
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.popularItems: isNull 
+}

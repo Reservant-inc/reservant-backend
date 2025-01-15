@@ -1,0 +1,19 @@
+meta {
+  name: users--userId-wallet-status Forbidden
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/users/{{JDid}}/wallet-status
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 403
+}

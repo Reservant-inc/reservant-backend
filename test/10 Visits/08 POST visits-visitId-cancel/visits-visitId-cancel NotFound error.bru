@@ -1,0 +1,20 @@
+meta {
+  name: visits-visitId-cancel NotFound error
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/visits/99999/cancel
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes.visitId: contains "NotFound"
+}

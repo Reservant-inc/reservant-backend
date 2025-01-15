@@ -1,0 +1,23 @@
+meta {
+  name: my-restaurants--id-statistics-dateFrom
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/my-restaurants/statistics?dateFrom=2024-12-25
+  body: none
+  auth: bearer
+}
+
+params:query {
+  dateFrom: 2024-12-25
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 200
+}
