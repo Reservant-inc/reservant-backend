@@ -10,6 +10,11 @@ namespace Reservant.Api.Models;
 public class Order : ISoftDeletable
 {
     /// <summary>
+    /// Maximum length of the Note
+    /// </summary>
+    public const int MaxNoteLength = 100;
+
+    /// <summary>
     /// Unique ID
     /// </summary>
     public int OrderId { get; set; }
@@ -22,7 +27,7 @@ public class Order : ISoftDeletable
     /// <summary>
     /// Optional note
     /// </summary>
-    [StringLength(100)]
+    [StringLength(MaxNoteLength)]
     public string? Note { get; set; }
 
     /// <summary>
