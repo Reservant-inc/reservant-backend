@@ -1,0 +1,19 @@
+meta {
+  name: users--userId-wallet-status NotFound
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/users/e5779baf-5c9b-4638-b9e7-ec285e57b366/wallet-status
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BOKManager}}
+}
+
+assert {
+  res.status: eq 404
+}

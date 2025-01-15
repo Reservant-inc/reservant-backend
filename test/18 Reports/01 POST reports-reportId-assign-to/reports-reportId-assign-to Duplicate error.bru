@@ -1,0 +1,26 @@
+meta {
+  name: reports-reportId-assign-to Duplicate error
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/reports/15/assign-to
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BOKManager}}
+}
+
+body:json {
+  {
+    "agentId": "fced96c1-dad9-49ff-a598-05e1c5e433aa"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes.agentId: contains "Duplicate"
+}

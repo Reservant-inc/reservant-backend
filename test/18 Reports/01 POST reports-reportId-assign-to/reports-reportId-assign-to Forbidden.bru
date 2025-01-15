@@ -1,0 +1,25 @@
+meta {
+  name: reports-reportId-assign-to Forbidden
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{host}}/reports/1/assign-to
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "agentId": "fced96c1-dad9-49ff-a598-05e1c5e433aa"
+  }
+}
+
+assert {
+  res.status: eq 403
+}

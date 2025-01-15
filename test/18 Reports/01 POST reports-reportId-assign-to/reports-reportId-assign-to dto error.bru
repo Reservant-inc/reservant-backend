@@ -1,0 +1,20 @@
+meta {
+  name: reports-reportId-assign-to dto error
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/reports/1/assign-to
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{BOKEmployee}}
+}
+
+assert {
+  res.status: eq 400
+  res.body.errors.dto: contains "The dto field is required."
+}

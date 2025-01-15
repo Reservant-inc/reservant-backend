@@ -1,0 +1,24 @@
+meta {
+  name: my-restaurant-groups--groupId-statistics-popularItemMaxCount
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/my-restaurant-groups/5/statistics?popularItemMaxCount=0
+  body: none
+  auth: bearer
+}
+
+params:query {
+  popularItemMaxCount: 0
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.popularItems: length 0
+}

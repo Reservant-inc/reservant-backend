@@ -1,0 +1,20 @@
+meta {
+  name: visits-visitId-cancel AccessDenied error
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/visits/1/cancel
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 400
+  res.body.errorCodes['']: contains "AccessDenied"
+}
