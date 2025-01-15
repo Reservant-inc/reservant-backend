@@ -100,6 +100,7 @@ public class GetReportsService(
     /// <param name="category">category of the reports to look for</param>
     /// <param name="reportedUserId">id of the user that was reported in the reports</param>
     /// <param name="restaurantId">id of the restaurant that the reported visit took place in</param>
+    /// <param name="createdById">id of the user who created the report</param>
     /// <param name="assignedToId">Search only for reports that are assigned to the agent with the given ID</param>
     /// <param name="status">status of the report considered in the search</param>
     /// <param name="page">Page number</param>
@@ -112,6 +113,7 @@ public class GetReportsService(
         ReportCategory? category,
         Guid? reportedUserId,
         int restaurantId,
+        Guid? createdById,
         Guid? assignedToId,
         ReportStatus status,
         int page = 0,
@@ -123,7 +125,7 @@ public class GetReportsService(
         var reports = FilterReportsQuery(
             context.Reports, dateFrom, dateUntil,
             category, reportedUserId, restaurantId,
-            user.Id, assignedToId, status);
+            createdById, assignedToId, status);
         return await reports
             .ProjectTo<ReportVM>(mapper.ConfigurationProvider)
             .PaginateAsync(page, perPage, []);
