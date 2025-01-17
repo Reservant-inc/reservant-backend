@@ -20,5 +20,5 @@ public class RestaurantGroupVM
     /// <summary>
     /// Information about its restaurants
     /// </summary>
-    public required List<RestaurantSummaryVM> Restaurants { get; init; }
+    public required List<MyRestaurantSummaryVM> Restaurants { get; init; }
 }
