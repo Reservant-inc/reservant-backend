@@ -15,6 +15,7 @@ using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos.Auth;
 
 namespace Reservant.Api.Services;
 
@@ -518,12 +519,12 @@ public class ThreadService(
             };
         }
 
-        var PrivateThreadCheck = await dbContext.MessageThreads.Where(p => 
+        var privateThreadCheck = dbContext.MessageThreads.Where(p =>
             p.Type == MessageThreadType.Private &&
-            ((p.CreatorId == senderId && p.Participants.First().Id == receiverId) || (p.CreatorId == receiverId && p.Participants.First().Id == senderId)))
-            .FirstOrDefaultAsync();
+            ((p.CreatorId == senderId && p.Participants.Any(p => p.Id == receiverId)) ||
+            (p.CreatorId == receiverId && p.Participants.Any(p => p.Id == senderId)))).ToListAsync();
 
-        if (PrivateThreadCheck is not null)
+        if (privateThreadCheck.Result != null && privateThreadCheck.Result.Count > 0)
         {
             return new ValidationFailure
             {
@@ -537,10 +538,14 @@ public class ThreadService(
             Title = "",
             CreationDate = DateTime.UtcNow,
             CreatorId = senderId,
-            Creator = sender
+            Creator = sender,
+            Participants = new List<User>(),
+            Type = MessageThreadType.Private,
+            Messages = new List<Message>(),
         };
 
         privateThread.Participants.Add(receiver);
+        privateThread.Participants.Add(sender);
 
         dbContext.MessageThreads.Add(privateThread);
         await dbContext.SaveChangesAsync();
