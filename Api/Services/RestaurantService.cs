@@ -730,7 +730,16 @@ namespace Reservant.Api.Services
                 };
             }
 
+            var user = await context
+                .Users
+                .Where(r => r.Id == userId)
+                .FirstOrDefaultAsync();
+
+            if(user!=null)    
+                await userManager.AddToRoleAsync(user,"RestaurantOwner");
+
             result.VerifierId = userId;
+            
             await context.SaveChangesAsync();
 
             await notificationService.NotifyRestaurantVerified(
