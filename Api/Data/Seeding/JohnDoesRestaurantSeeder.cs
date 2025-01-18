@@ -42,7 +42,7 @@ public class JohnDoesRestaurantSeeder(
             PostalIndex = "00-000",
             City = "Warszawa",
             Location = geometryFactory.CreatePoint(new Coordinate(20.91364863552046, 52.39625635)),
-            Group = CreateRestaurantGroup(owner),
+            Group = await CreateOrReuseRestaurantGroup(owner, "Original group"),
             RentalContractFileName = null,
             AlcoholLicenseFileName = null!,
             AlcoholLicense = exampleDocument,

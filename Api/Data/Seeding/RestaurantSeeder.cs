@@ -169,18 +169,20 @@ public abstract class RestaurantSeeder(ApiDbContext context, UserService userSer
     }
 
     /// <summary>
-    /// Create a new restaurant group for the user
+    /// Create a new restaurant group for the user, or reuse it if there already is a group with this name
     /// </summary>
     /// <param name="user"></param>
+    /// <param name="name">The name of the group to find or to create</param>
     /// <returns></returns>
-    protected async Task<RestaurantGroup> CreateOrReuseRestaurantGroup(User user)
+    protected async Task<RestaurantGroup> CreateOrReuseRestaurantGroup(User user, string name)
     {
-        var existingGroup = await context.RestaurantGroups.FirstOrDefaultAsync(g => g.Owner == user);
+        var existingGroup = await context.RestaurantGroups
+            .FirstOrDefaultAsync(g => g.Owner == user && g.Name == name);
         if (existingGroup is not null) return existingGroup;
 
         return new RestaurantGroup
         {
-            Name = $"{user.FullName}'s Restaurant Group",
+            Name = name,
             Owner = user,
             OwnerId = user.Id,
         };
