@@ -677,6 +677,18 @@ namespace Reservant.Api.Services
                 return result;
             }
 
+            if (request.GroupId is not null && request.GroupId != restaurant.GroupId)
+            {
+                var moveToGroupResult = await MoveRestaurantToGroupAsync(
+                    restaurant.RestaurantId,
+                    new MoveToGroupRequest { GroupId = request.GroupId.Value },
+                    user);
+                if (moveToGroupResult.IsError)
+                {
+                    return moveToGroupResult.Errors;
+                }
+            }
+
             await context.SaveChangesAsync();
 
             return mapper.Map<MyRestaurantVM>(restaurant);

@@ -104,6 +104,11 @@ public class UpdateRestaurantRequest
     public decimal? ReservationDeposit { get; init; }
 
     /// <summary>
+    /// ID of the group the restaurant belongs to. Null means leave as is
+    /// </summary>
+    public int? GroupId { get; init; }
+
+    /// <summary>
     /// Hours when the restaurant is open
     /// </summary>
     public List<OpeningHours> OpeningHours { get; set; } = new();
