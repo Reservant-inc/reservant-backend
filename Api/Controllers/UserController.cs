@@ -241,13 +241,17 @@ public class UserController(
     /// <summary>
     /// Get threads the logged-in user participates in
     /// </summary>
+    /// <param name="type">Filter threads by type</param>
     /// <param name="page">Page number</param>
     /// <param name="perPage">Records per page</param>
     /// <returns>List of threads the user participates in</returns>
     [HttpGet("threads")]
     [AuthorizeRoles(Roles.Customer, Roles.CustomerSupportAgent)]
     [ProducesResponseType(200), ProducesResponseType(401)]
-    public async Task<ActionResult<Pagination<ThreadVM>>> GetUserThreads([FromQuery] int page = 0, [FromQuery] int perPage = 10)
+    public async Task<ActionResult<Pagination<ThreadVM>>> GetUserThreads(
+        [FromQuery] MessageThreadType? type = null,
+        [FromQuery] int page = 0,
+        [FromQuery] int perPage = 10)
     {
         var userId = User.GetUserId();
         if (userId == null)
@@ -255,7 +259,7 @@ public class UserController(
             return Unauthorized();
         }
 
-        var result = await threadService.GetUserThreadsAsync(userId.Value, page, perPage);
+        var result = await threadService.GetUserThreadsAsync(userId.Value, type, page, perPage);
         return OkOrErrors(result);
     }
 

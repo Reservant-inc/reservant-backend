@@ -165,14 +165,21 @@ public class ThreadService(
     /// Gets threads for a user.
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="type">Filter threads by type</param>
     /// <param name="page"></param>
     /// <param name="perPage"></param>
     /// <returns></returns>
-    public async Task<Result<Pagination<ThreadVM>>> GetUserThreadsAsync(Guid userId, int page, int perPage)
+    public async Task<Result<Pagination<ThreadVM>>> GetUserThreadsAsync(
+        Guid userId, MessageThreadType? type, int page, int perPage)
     {
         var query = dbContext.MessageThreads
             .Where(t => t.Participants.Any(p => p.Id == userId))
             .ProjectTo<ThreadVM>(mapper.ConfigurationProvider);
+
+        if (type is not null)
+        {
+            query = query.Where(t => t.Type == type);
+        }
 
         return await query.PaginateAsync(page, perPage, [], 100, true);
     }
