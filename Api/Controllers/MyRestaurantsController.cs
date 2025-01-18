@@ -42,6 +42,7 @@ namespace Reservant.Api.Controllers
         [HttpPost]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.CreateRestaurantAsync))]
+        [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
         public async Task<ActionResult<MyRestaurantVM>> CreateRestaurant(CreateRestaurantRequest request)
         {
             var user = await userManager.GetUserAsync(User);
@@ -60,6 +61,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(200)]
+        [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
         public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants(string? name = null)
         {
             var user = await userManager.GetUserAsync(User);
@@ -79,6 +81,7 @@ namespace Reservant.Api.Controllers
         /// <returns></returns>
         [HttpGet("{restaurantId:int}")]
         [ProducesResponseType(200), ProducesResponseType(404)]
+        [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<ActionResult<MyRestaurantVM>> GetMyRestaurantById(int restaurantId)
         {
@@ -187,6 +190,7 @@ namespace Reservant.Api.Controllers
         [HttpPost("validate-first-step")]
         [ProducesResponseType(204), ProducesResponseType(400), ProducesResponseType(401)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ValidateFirstStepAsync))]
+        [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
         public async Task<ActionResult> ValidateFirstStep(ValidateRestaurantFirstStepRequest dto)
         {
             var user = await userManager.GetUserAsync(User);

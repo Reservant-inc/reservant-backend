@@ -53,6 +53,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <returns>RestaurantGroupSummaryVM</returns>
     [HttpGet]
     [ProducesResponseType(200), ProducesResponseType(401)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
     public async Task<ActionResult<List<RestaurantGroupSummaryVM>>> GetMyRestaurantGroupSummary()
     {
         var user = await userManager.GetUserAsync(User);
@@ -144,7 +145,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     [HttpGet("{restaurantGroupId:int}/statistics")]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<StatisticsService>(nameof(StatisticsService.GetStatsByRestaurantGroupIdAsync))]
-    [Authorize(Roles = Roles.RestaurantOwner)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
     public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantGroupId(
         int restaurantGroupId,
         [FromQuery] RestaurantStatsRequest request,

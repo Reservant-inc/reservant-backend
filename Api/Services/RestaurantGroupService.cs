@@ -139,7 +139,6 @@ public class RestaurantGroupService(
     {
         var userId = user.Id;
 
-
         var result = await context
             .RestaurantGroups
             .Where(r => r.OwnerId == userId)
