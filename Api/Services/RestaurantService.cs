@@ -735,7 +735,7 @@ namespace Reservant.Api.Services
                 .Where(r => r.Id == userId)
                 .FirstOrDefaultAsync();
 
-            if(user!=null)    
+            if(user!=null && !userManager.IsInRoleAsync(user,"RestaurantOwner").Result)    
                 await userManager.AddToRoleAsync(user,"RestaurantOwner");
 
             result.VerifierId = userId;
