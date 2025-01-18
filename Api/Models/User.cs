@@ -121,6 +121,11 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     public ICollection<MessageThread> Threads { get; set; } = null!;
 
     /// <summary>
+    /// Private Message threads the user participates in
+    /// </summary>
+    public ICollection<PrivateMessageThread> PrivateThreads { get; set; } = null!;
+
+    /// <summary>
     /// Notifications that the user has received
     /// </summary>
     public ICollection<Notification> Notifications { get; set; } = null!;
