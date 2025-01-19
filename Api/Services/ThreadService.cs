@@ -494,20 +494,13 @@ public class ThreadService(
     /// <param name="senderId">ID of person trying to make new private thread</param>
     /// <param name="receiverId">ID of person the sender wants to make a private thread with</param>
     /// <returns>visual model of private thread</returns>
-    [ErrorCode(null, ErrorCodes.NotFound, "Sender not found")]
     [ErrorCode(null, ErrorCodes.NotFound, "Receiver not found")]
     [ErrorCode(null, ErrorCodes.Duplicate, "There can be only 1 private message thread between 2 users")]
     public async Task<Result<ThreadVM>> CreatePrivateThreadAsync(Guid senderId, Guid receiverId)
     {
-        var sender = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == senderId);
-        if (sender is null)
-        {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.NotFound,
-                ErrorMessage = "Sender not found"
-            };
-        }
+        var sender = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == senderId)
+            ?? throw new InvalidOperationException("User logged in but cannot be found");
+
 
         var receiver = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == receiverId);
         if (receiver is null)
@@ -519,12 +512,13 @@ public class ThreadService(
             };
         }
 
-        var privateThreadCheck = dbContext.MessageThreads.Where(p =>
-            p.Type == MessageThreadType.Private &&
-            ((p.CreatorId == senderId && p.Participants.Any(p => p.Id == receiverId)) ||
-            (p.CreatorId == receiverId && p.Participants.Any(p => p.Id == senderId)))).ToListAsync();
+        var privateThreadAlreadyExists = await dbContext.MessageThreads
+            .AnyAsync(thread =>
+                thread.Type == MessageThreadType.Private &&
+                thread.Participants.Contains(receiver) &&
+                thread.Participants.Contains(sender));
 
-        if (privateThreadCheck.Result != null && privateThreadCheck.Result.Count > 0)
+        if (privateThreadAlreadyExists)
         {
             return new ValidationFailure
             {
@@ -539,13 +533,9 @@ public class ThreadService(
             CreationDate = DateTime.UtcNow,
             CreatorId = senderId,
             Creator = sender,
-            Participants = new List<User>(),
+            Participants = [sender, receiver],
             Type = MessageThreadType.Private,
-            Messages = new List<Message>(),
         };
-
-        privateThread.Participants.Add(receiver);
-        privateThread.Participants.Add(sender);
 
         dbContext.MessageThreads.Add(privateThread);
         await dbContext.SaveChangesAsync();
