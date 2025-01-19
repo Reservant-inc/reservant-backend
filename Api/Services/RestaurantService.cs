@@ -707,6 +707,7 @@ namespace Reservant.Api.Services
             var result = await context
                 .Restaurants
                 .Include(r => r.Group)
+                .ThenInclude(r => r.Owner)
                 .Where(r => r.RestaurantId == idRestaurant)
                 .FirstOrDefaultAsync();
 
@@ -730,16 +731,13 @@ namespace Reservant.Api.Services
                 };
             }
 
-            var user = await context
-                .Users
-                .Where(r => r.Id == userId)
-                .FirstOrDefaultAsync();
-
-            if(user!=null && !userManager.IsInRoleAsync(user,"RestaurantOwner").Result)    
-                await userManager.AddToRoleAsync(user,"RestaurantOwner");
+            if (!await userManager.IsInRoleAsync(result.Group.Owner, Roles.RestaurantOwner))
+            {
+                await userManager.AddToRoleAsync(result.Group.Owner, Roles.RestaurantOwner);
+            }
 
             result.VerifierId = userId;
-            
+
             await context.SaveChangesAsync();
 
             await notificationService.NotifyRestaurantVerified(
