@@ -102,7 +102,7 @@ public class FriendsController(UserManager<User> userManager, FriendService serv
     [ProducesResponseType(200), ProducesResponseType(400)]
     [Authorize(Roles = Roles.Customer)]
     [MethodErrorCodes<FriendService>(nameof(FriendService.GetFriendsAsync))]
-    public async Task<ActionResult<Pagination<FriendRequestVM>>> GetFriends([FromQuery] int page = 0,
+    public async Task<ActionResult<Pagination<FriendRequestWithPrivateThreadsVM>>> GetFriends([FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
     {
         var user = await userManager.GetUserAsync(User);

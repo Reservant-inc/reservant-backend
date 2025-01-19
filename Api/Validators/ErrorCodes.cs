@@ -340,14 +340,9 @@ public static class ErrorCodes
     /// Must be customer support agent
     /// </summary>
     public const string MustBeCustomerSupportAgent = "MustBeCustomerSupportAgent";
-    
+
     /// <summary>
     /// Reporty is already resolved
     /// </summary>
     public const string AlreadyResolved = "AlreadyResolved";
-    
-    /// <summary>
-    /// Must be customer support agent
-    /// </summary>
-    public const string InvalidOperation = "InvalidOperation";
 }

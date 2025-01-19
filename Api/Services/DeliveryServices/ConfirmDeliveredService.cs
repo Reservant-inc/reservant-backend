@@ -62,6 +62,7 @@ public class ConfirmDeliveredService(
             };
         }
 
+        delivery.UserId = userId;
         delivery.DeliveredTime = DateTime.UtcNow;
         await context.SaveChangesAsync();
 

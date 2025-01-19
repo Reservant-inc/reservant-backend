@@ -8,6 +8,7 @@ using Reservant.ErrorCodeDocs.Attributes;
 using Reservant.Api.Dtos;
 using Reservant.Api.Dtos.FriendRequests;
 using Reservant.Api.Mapping;
+using Reservant.Api.Models.Enums;
 
 namespace Reservant.Api.Services;
 
@@ -232,12 +233,16 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
     /// <param name="perPage">Items per page</param>
     /// <returns>Paginated list of friend requests</returns>
     [MethodErrorCodes(typeof(Utils), nameof(Utils.PaginateAsync))]
-    public async Task<Result<Pagination<FriendRequestVM>>> GetFriendsAsync(Guid userId, int page, int perPage)
+    public async Task<Result<Pagination<FriendRequestWithPrivateThreadsVM>>> GetFriendsAsync(Guid userId, int page, int perPage)
     {
+        var privateThreadIds = context.MessageThreads.Where(p =>
+            p.Type == MessageThreadType.Private &&
+            (p.CreatorId == userId) || (p.Participants.Any(p => p.Id == userId)));
+
         var query = context.FriendRequests
             .Where(fr => (fr.ReceiverId == userId || fr.SenderId == userId) && fr.DateAccepted != null && fr.DateDeleted == null)
             .OrderBy(fr => fr.DateAccepted)
-            .Select(fr => new FriendRequestVM
+            .Select(fr => new FriendRequestWithPrivateThreadsVM
             {
                 DateSent = fr.DateSent,
                 DateRead = fr.DateRead,
@@ -259,6 +264,11 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                         Photo = urlService.GetPathForFileName(fr.Receiver.PhotoFileName),
                         IsArchived = fr.Receiver.IsArchived
                     },
+                PrivateMessageThreadId = privateThreadIds
+                    .Where(thread => thread.Participants.Contains(fr.Receiver)
+                                     && thread.Participants.Contains(fr.Sender))
+                    .Select(thread => thread.MessageThreadId)
+                    .FirstOrDefault(),
             });
 
         return await query.PaginateAsync(page, perPage, [], 100, false);

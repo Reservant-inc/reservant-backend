@@ -19,4 +19,9 @@ public enum MessageThreadType
     /// Message thread created automatically for a report
     /// </summary>
     Report,
+
+    /// <summary>
+    /// Private message thread between two users
+    /// </summary>
+    Private
 }

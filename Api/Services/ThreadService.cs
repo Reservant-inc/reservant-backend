@@ -14,6 +14,8 @@ using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
+using Microsoft.AspNetCore.Mvc;
+using Reservant.Api.Dtos.Auth;
 
 namespace Reservant.Api.Services;
 
@@ -216,7 +218,7 @@ public class ThreadService(
         return new ThreadVM
         {
             ThreadId = messageThread.MessageThreadId,
-            Title=messageThread.Title,
+            Title = messageThread.Title,
             Participants = participantsMinusUs,
             Type = messageThread.Type,
         };
@@ -485,5 +487,59 @@ public class ThreadService(
         await dbContext.SaveChangesAsync();
 
         return Result.Success;
+    }
+    /// <summary>
+    /// If there is no private message thread between specified users it will create one
+    /// </summary>
+    /// <param name="senderId">ID of person trying to make new private thread</param>
+    /// <param name="receiverId">ID of person the sender wants to make a private thread with</param>
+    /// <returns>visual model of private thread</returns>
+    [ErrorCode(null, ErrorCodes.NotFound, "Receiver not found")]
+    [ErrorCode(null, ErrorCodes.Duplicate, "There can be only 1 private message thread between 2 users")]
+    public async Task<Result<ThreadVM>> CreatePrivateThreadAsync(Guid senderId, Guid receiverId)
+    {
+        var sender = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == senderId)
+            ?? throw new InvalidOperationException("User logged in but cannot be found");
+
+
+        var receiver = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == receiverId);
+        if (receiver is null)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.NotFound,
+                ErrorMessage = "Receiver not found"
+            };
+        }
+
+        var privateThreadAlreadyExists = await dbContext.MessageThreads
+            .AnyAsync(thread =>
+                thread.Type == MessageThreadType.Private &&
+                thread.Participants.Contains(receiver) &&
+                thread.Participants.Contains(sender));
+
+        if (privateThreadAlreadyExists)
+        {
+            return new ValidationFailure
+            {
+                ErrorCode = ErrorCodes.Duplicate,
+                ErrorMessage = "There can be only 1 private message thread between 2 users"
+            };
+        }
+
+        var privateThread = new MessageThread
+        {
+            Title = "",
+            CreationDate = DateTime.UtcNow,
+            CreatorId = senderId,
+            Creator = sender,
+            Participants = [sender, receiver],
+            Type = MessageThreadType.Private,
+        };
+
+        dbContext.MessageThreads.Add(privateThread);
+        await dbContext.SaveChangesAsync();
+
+        return mapper.Map<ThreadVM>(privateThread);
     }
 }
