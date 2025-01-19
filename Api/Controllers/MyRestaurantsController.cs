@@ -39,7 +39,6 @@ namespace Reservant.Api.Controllers
         /// <param name="request"> Create Restaurant Request DTO</param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.CreateRestaurantAsync))]
         [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
@@ -60,7 +59,6 @@ namespace Reservant.Api.Controllers
         /// <param name="name">Search by name</param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200)]
         [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
         public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants(string? name = null)
@@ -81,7 +79,6 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId">Id of the restaurant.</param>
         /// <returns></returns>
         [HttpGet("{restaurantId:int}")]
-        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(404)]
         [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
         [ErrorCode(null, ErrorCodes.NotFound)]

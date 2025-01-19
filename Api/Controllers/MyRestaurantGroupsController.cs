@@ -127,7 +127,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <param name="groupId">id of the restaurant group that will be deleted</param>
     /// <returns></returns>
     [HttpDelete("{groupId:int}")]
-    [Authorize(Roles = Roles.RestaurantOwner)]
+        [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(404)]
     public async Task<ActionResult> SoftDeleteRestaurantGroup(int groupId)
     {
