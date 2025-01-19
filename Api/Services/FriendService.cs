@@ -264,16 +264,11 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                         Photo = urlService.GetPathForFileName(fr.Receiver.PhotoFileName),
                         IsArchived = fr.Receiver.IsArchived
                     },
-                PrivateMessageThreadId = (privateThreadIds.Where(p =>
-                    ((p.CreatorId == fr.SenderId && p.Participants.Any(p => p.Id == fr.ReceiverId)) ||
-                    (p.CreatorId == fr.ReceiverId && p.Participants.Any(p => p.Id == fr.SenderId))))
-                    .FirstOrDefault() == null)?
-                    null :
-                    privateThreadIds.Where(p =>
-                    ((p.CreatorId == fr.SenderId && p.Participants.Any(p => p.Id == fr.ReceiverId)) ||
-                    (p.CreatorId == fr.ReceiverId && p.Participants.Any(p => p.Id == fr.SenderId))))
-                    .First().MessageThreadId
-
+                PrivateMessageThreadId = privateThreadIds
+                    .Where(thread => thread.Participants.Contains(fr.Receiver)
+                                     && thread.Participants.Contains(fr.Sender))
+                    .Select(thread => thread.MessageThreadId)
+                    .FirstOrDefault(),
             });
 
         return await query.PaginateAsync(page, perPage, [], 100, false);
