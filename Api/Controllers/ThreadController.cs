@@ -188,19 +188,17 @@ public class ThreadsController(
     /// <summary>
     /// Create a new private thread chat between 2 users
     /// </summary>
-    /// <param name="receiverId"></param>
-    /// <returns></returns>
-    [HttpPost("Create-private-chat")]
-    [Authorize]
-    [ProducesResponseType(204), ProducesResponseType(400)]
+    [HttpPost("create-private-thread")]
+    [Authorize(Roles = Roles.Customer)]
+    [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<ThreadService>(nameof(ThreadService.CreatePrivateThreadAsync))]
-    public async Task<ActionResult<ThreadVM>> CreatePrivateThread(Guid receiverId)
+    public async Task<ActionResult<ThreadVM>> CreatePrivateThread(CreatePrivateThreadRequest dto)
     {
-        var senderId = User.GetUserId();
-        if(senderId == null)
+        var currentUserId = User.GetUserId();
+        if(currentUserId == null)
         {
             return Unauthorized();
         }
-        return OkOrErrors(await threadService.CreatePrivateThreadAsync((Guid)senderId, receiverId));
+        return OkOrErrors(await threadService.CreatePrivateThreadAsync((Guid)currentUserId, dto.OtherUserId));
     }
 }
