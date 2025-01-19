@@ -1206,7 +1206,7 @@ namespace Reservant.Api.Services
             var user = await context.Users.SingleAsync(u => u.Id == userId);
             if (!await roleManager.IsInRoleAsync(user, Roles.CustomerSupportAgent))
             {
-                var authResult = await authorizationService.VerifyRestaurantHallAccess(restaurantId, userId);
+                var authResult = await authorizationService.VerifyRestaurantEmployeeAccess(restaurantId, userId);
                 if (authResult.IsError) return authResult.Errors;
             }
 

@@ -25,7 +25,6 @@ namespace Reservant.Api.Controllers
     /// <request code="400"> Validation errors </request>
     /// <request code="401"> Unauthorized </request>
     [ApiController, Route("/my-restaurants")]
-    [Authorize(Roles = Roles.RestaurantOwner)]
     public class MyRestaurantsController(
         RestaurantService restaurantService,
         UserManager<User> userManager)
@@ -40,6 +39,7 @@ namespace Reservant.Api.Controllers
         /// <param name="request"> Create Restaurant Request DTO</param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.CreateRestaurantAsync))]
         public async Task<ActionResult<MyRestaurantVM>> CreateRestaurant(CreateRestaurantRequest request)
@@ -59,6 +59,7 @@ namespace Reservant.Api.Controllers
         /// <param name="name">Search by name</param>
         /// <returns></returns>
         [HttpGet]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200)]
         public async Task<ActionResult<List<RestaurantSummaryVM>>> GetMyRestaurants(string? name = null)
         {
@@ -78,6 +79,7 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId">Id of the restaurant.</param>
         /// <returns></returns>
         [HttpGet("{restaurantId:int}")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(404)]
         [ErrorCode(null, ErrorCodes.NotFound)]
         public async Task<ActionResult<MyRestaurantVM>> GetMyRestaurantById(int restaurantId)
@@ -103,6 +105,7 @@ namespace Reservant.Api.Controllers
         /// <param name="restaurantId"></param>
         /// <returns></returns>
         [HttpPost("{restaurantId:int}/employees")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(204), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.AddEmployeeAsync))]
         public async Task<ActionResult> AddEmployee(List<AddEmployeeRequest> request, int restaurantId)
@@ -124,6 +127,7 @@ namespace Reservant.Api.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("{restaurantId:int}/move-to-group")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.MoveRestaurantToGroupAsync))]
         public async Task<ActionResult<MyRestaurantSummaryVM>> PostRestaurantToGroup(int restaurantId, MoveToGroupRequest request)
@@ -143,6 +147,7 @@ namespace Reservant.Api.Controllers
         /// </summary>
         /// <param name="restaurantId">ID of the restaurant</param>
         [HttpGet("{restaurantId:int}/employees")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(200), ProducesResponseType(400)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.GetEmployeesAsync))]
         public async Task<ActionResult<List<RestaurantEmployeeVM>>> GetEmployees(int restaurantId)
@@ -185,6 +190,7 @@ namespace Reservant.Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("validate-first-step")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(204), ProducesResponseType(400), ProducesResponseType(401)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ValidateFirstStepAsync))]
         public async Task<ActionResult> ValidateFirstStep(ValidateRestaurantFirstStepRequest dto)
@@ -239,6 +245,7 @@ namespace Reservant.Api.Controllers
         /// </summary>
         /// <remarks>If the group the restaurant was in is left empty it is also deleted</remarks>
         [HttpDelete("{restaurantId:int}")]
+        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(204), ProducesResponseType(404)]
         [MethodErrorCodes<ArchiveRestaurantService>(nameof(ArchiveRestaurantService.ArchiveRestaurant))]
         public async Task<ActionResult> ArchiveRestaurant(
