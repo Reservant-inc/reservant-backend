@@ -19,7 +19,6 @@ namespace Reservant.Api.Controllers;
 /// <param name="userManager"></param>
 /// <param name="service"></param>
 [ApiController, Route("/my-restaurant-groups")]
-[Authorize(Roles = Roles.RestaurantOwner)]
 public class MyRestaurantGroupsController(UserManager<User> userManager, RestaurantGroupService service)
     : StrictController
 {
@@ -30,6 +29,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <param name="req">Request dto</param>
     /// <returns></returns>
     [HttpPost]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     [MethodErrorCodes<RestaurantGroupService>(nameof(RestaurantGroupService.CreateRestaurantGroup))]
     public async Task<ActionResult<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req)
@@ -70,6 +70,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// Retrieves information about a specific restaurant group
     /// </summary>
     [HttpGet("{groupId:int}"), Authorize(Roles = Roles.RestaurantOwner)]
+    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
     [ProducesResponseType(200)]
     [ProducesResponseType(403)]
     [ProducesResponseType(404)]
@@ -126,6 +127,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <param name="groupId">id of the restaurant group that will be deleted</param>
     /// <returns></returns>
     [HttpDelete("{groupId:int}")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(204), ProducesResponseType(404)]
     public async Task<ActionResult> SoftDeleteRestaurantGroup(int groupId)
     {
@@ -143,9 +145,9 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// Retrives restaurant statistics by restaurant group id and given time period
     /// </summary>
     [HttpGet("{restaurantGroupId:int}/statistics")]
+    [Authorize(Roles = Roles.RestaurantOwner)]
     [ProducesResponseType(200), ProducesResponseType(400)]
     [MethodErrorCodes<StatisticsService>(nameof(StatisticsService.GetStatsByRestaurantGroupIdAsync))]
-    [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
     public async Task<ActionResult<RestaurantStatsVM>> GetStatsByRestaurantGroupId(
         int restaurantGroupId,
         [FromQuery] RestaurantStatsRequest request,
