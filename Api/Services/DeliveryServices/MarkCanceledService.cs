@@ -45,7 +45,8 @@ public class MarkCanceledService(
             };
         }
 
-        delivery.DeliveredTime = DateTime.UtcNow;
+        delivery.UserId = userId;
+        delivery.CanceledTime = DateTime.UtcNow;
         await context.SaveChangesAsync();
 
         return mapper.Map<DeliveryVM>(delivery);
