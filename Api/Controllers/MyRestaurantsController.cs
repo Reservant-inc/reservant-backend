@@ -193,7 +193,6 @@ namespace Reservant.Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost("validate-first-step")]
-        [Authorize(Roles = Roles.RestaurantOwner)]
         [ProducesResponseType(204), ProducesResponseType(400), ProducesResponseType(401)]
         [MethodErrorCodes<RestaurantService>(nameof(RestaurantService.ValidateFirstStepAsync))]
         [Authorize(Roles = $"{Roles.RestaurantOwner},{Roles.Customer}")]
