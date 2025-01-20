@@ -735,5 +735,39 @@ namespace Reservant.Api.Services
                 .ProjectTo<NearEventVM>(mapper.ConfigurationProvider, new { origin })
                 .PaginateAsync(page, perPage, [], 100, false);
         }
+
+        /// <summary>
+        /// Gets user participation in event by eventId for specified user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
+        [ErrorCode(null, ErrorCodes.NotFound, "User not found")]
+        [ErrorCode(null, ErrorCodes.NotFound, "User not found")]
+        public async Task<Result<bool>> GetUserEventParticipationById(User user, int eventId)
+        {
+            if (user == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "User not found"
+                };
+            }
+            var eventCheck = await context.Events.Where(e => e.EventId == eventId)
+                .Include(e => e.ParticipationRequests)
+                .FirstOrDefaultAsync();
+            if (eventCheck == null)
+            {
+                return new ValidationFailure
+                {
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "Event not found"
+                };
+            }
+            var res = eventCheck.CreatorId == user.Id || eventCheck.ParticipationRequests.Any(p => p.UserId == user.Id && p.DateAccepted != null);
+
+            return new Result<bool>(res);
+        }
     }
 }
