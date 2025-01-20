@@ -13,7 +13,7 @@ public class Mappings : Profile
     public Mappings()
     {
         CreateMap<Point, Geolocation>()
-            .MapMemberFrom(dto => dto.Latitude, point => point.X)
-            .MapMemberFrom(dto => dto.Longitude, point => point.Y);
+            .MapMemberFrom(dto => dto.Latitude, point => point.Y)
+            .MapMemberFrom(dto => dto.Longitude, point => point.X);
     }
 }
