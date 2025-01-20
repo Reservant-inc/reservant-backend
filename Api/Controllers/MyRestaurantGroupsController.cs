@@ -29,7 +29,7 @@ public class MyRestaurantGroupsController(UserManager<User> userManager, Restaur
     /// <param name="req">Request dto</param>
     /// <returns></returns>
     [HttpPost]
-    [Authorize(Roles = Roles.RestaurantOwner)]
+    [AuthorizeRoles(Roles.RestaurantOwner, Roles.Customer)]
     [ProducesResponseType(200), ProducesResponseType(400), ProducesResponseType(401)]
     [MethodErrorCodes<RestaurantGroupService>(nameof(RestaurantGroupService.CreateRestaurantGroup))]
     public async Task<ActionResult<RestaurantGroupVM>> CreateRestaurantGroup(CreateRestaurantGroupRequest req)
