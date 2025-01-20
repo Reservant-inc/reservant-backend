@@ -6,6 +6,10 @@
 public enum EventParticipationCategory
 {
     /// <summary>
+    /// Value for all events
+    /// </summary>
+    All,
+    /// <summary>
     /// Value for an event that was created by the user
     /// </summary>
     CreatedBy,

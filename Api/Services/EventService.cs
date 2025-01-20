@@ -410,7 +410,7 @@ namespace Reservant.Api.Services
         /// <param name="page">Page number to return.</param>
         /// <param name="perPage">Items per page.</param>
         /// <returns>Paginated list of events in which user might be interested in.</returns>
-        public async Task<Result<Pagination<EventSummaryVM>>> GetUserEventsAsync(EventParticipationCategory category, DateTime? dateFrom, DateTime? dateUntil, EventSorting order, User user, int page, int perPage)
+        public async Task<Result<Pagination<EventSummaryVM>>> GetUserEventsAsync(EventParticipationCategory? category, DateTime? dateFrom, DateTime? dateUntil, EventSorting order, User user, int page, int perPage)
         {
             IQueryable<Event> events = context.Events;
 
@@ -432,6 +432,8 @@ namespace Reservant.Api.Services
                     break;
                 case EventParticipationCategory.CreatedBy:
                     events = events.Where(e => e.CreatorId == user.Id);
+                    break;
+                case EventParticipationCategory.All or null:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(category));

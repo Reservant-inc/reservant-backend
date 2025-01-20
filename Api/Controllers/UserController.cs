@@ -223,7 +223,7 @@ public class UserController(
     public async Task<ActionResult<Pagination<EventSummaryVM>>> GetUserEvents(
         [FromQuery] DateTime? dateFrom,
         [FromQuery] DateTime? dateUntil,
-        [FromQuery] EventParticipationCategory category = EventParticipationCategory.CreatedBy,
+        [FromQuery] EventParticipationCategory? category = EventParticipationCategory.CreatedBy,
         [FromQuery] EventSorting order = EventSorting.DateCreatedDesc,
         [FromQuery] int page = 0,
         [FromQuery] int perPage = 10)
