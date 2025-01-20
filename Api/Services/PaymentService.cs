@@ -70,16 +70,20 @@ public class PaymentService(
                 PropertyName = null,
             };
         }
-
+        var tip = 0;
+        if (visit.Tip != null)
+        {
+            tip = (int)visit.Tip;
+        }
         var transaction = await walletService.DebitAsync(user,
             $"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}",
-            visit.Reservation.Deposit!.Value);
+            visit.Reservation.Deposit!.Value + tip);
         if (transaction.IsError)
         {
             return transaction;
         }
 
-        bankService.SendMoneyToRestaurantAsync(visit.Restaurant, visit.Reservation.Deposit.Value);
+        bankService.SendMoneyToRestaurantAsync(visit.Restaurant, visit.Reservation.Deposit.Value + tip);
 
         visit.Reservation.DepositPaymentTime = transaction.Value.Time;
         await context.SaveChangesAsync();
