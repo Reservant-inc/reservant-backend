@@ -57,6 +57,13 @@ public class ArrakisSpiceDinerSeeder(
             OpeningHours = CreateOpeningHours(
                 new TimeOnly(11, 00), new TimeOnly(22, 00),
                 new TimeOnly(11, 00), new TimeOnly(23, 00)),
+            Tables = new List<Table>
+            {
+                new() { Number = 1, Capacity = 2, },
+                new() { Number = 2, Capacity = 2, },
+                new() { Number = 3, Capacity = 4, },
+                new() { Number = 4, Capacity = 4, },
+            },
         };
     }
 
