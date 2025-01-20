@@ -50,6 +50,10 @@ public class Mappings : Profile
                 visit => visit.Reservation == null
                     ? null
                     : visit.Reservation.ReservationDate)
-            .MapMemberFrom(dto => dto.ClientId, visit => visit.CreatorId);
+            .MapMemberFrom(dto => dto.ClientId, visit => visit.CreatorId)
+            .MapMemberFrom(dto => dto.IsAccepted,
+                visit => visit.Reservation != null && visit.Reservation.Decision != null
+                    ? (bool?)visit.Reservation.Decision.IsAccepted
+                    : null); 
     }
 }

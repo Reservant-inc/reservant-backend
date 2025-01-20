@@ -94,4 +94,8 @@ public class VisitVM
     /// </summary>
     public required List<OrderSummaryVM> Orders { get; set; }
 
+    /// <summary>
+    /// Whether the reservation was accepted by the restaurant
+    /// </summary>
+    public bool? IsAccepted { get; set; }
 }
