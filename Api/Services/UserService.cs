@@ -352,7 +352,7 @@ public class UserService(
             .Include(r => r.Participants)
             .Include(r => r.Orders)
             .Where(x => x.CreatorId == user.Id || x.Participants.Any(p => p.Id == user.Id))
-            .Where(x => x.Reservation!.StartTime < DateTime.UtcNow)
+            .Where(x => x.Reservation!.StartTime < DateTime.UtcNow || x.EndTime != null)
             .OrderByDescending(x => x.Reservation!.StartTime);
 
         var result = await query

@@ -68,7 +68,7 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
         var alignedReservationDate = new DateTime(
             DateOnly.FromDateTime(reservationDate),
             new TimeOnly(reservationDate.Hour, reservationDate.Minute % 30));
-        var visitDate = alignedReservationDate.AddDays(_random.Next(3));
+        var visitDate = alignedReservationDate.AddDays(_random.Next(1, 3));
 
         var visit = new Visit
         {
