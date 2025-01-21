@@ -68,7 +68,7 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
             context.Add(request);
 
             await context.SaveChangesAsync();
-            await notificationService.NotifyNewFriendRequest(senderId, request.FriendRequestId);
+            await notificationService.NotifyNewFriendRequest(receiverId, request.FriendRequestId);
             return Result.Success;
         }
 
