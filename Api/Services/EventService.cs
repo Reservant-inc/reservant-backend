@@ -552,7 +552,11 @@ namespace Reservant.Api.Services
             eventToUpdate.MustJoinUntil = request.MustJoinUntil;
             eventToUpdate.PhotoFileName = request.Photo;
 
-            if (request.RestaurantId is not null && request.RestaurantId != eventToUpdate.RestaurantId)
+            if (request.RestaurantId is null)
+            {
+                eventToUpdate.Restaurant = null;
+            }
+            else if (request.RestaurantId != eventToUpdate.RestaurantId)
             {
                 eventToUpdate.Restaurant = await context.Restaurants
                     .OnlyActiveRestaurants()
@@ -566,10 +570,6 @@ namespace Reservant.Api.Services
                         ErrorMessage = $"Restaurant with ID {request.RestaurantId} not found"
                     };
                 }
-            }
-            else
-            {
-                eventToUpdate.Restaurant = null;
             }
 
             var result = await validationService.ValidateAsync(eventToUpdate, user.Id);
