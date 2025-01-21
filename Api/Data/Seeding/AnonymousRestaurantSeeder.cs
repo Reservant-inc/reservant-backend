@@ -81,6 +81,7 @@ public class AnonymousRestaurantSeeder(
                     Capacity = 2,
                 },
             },
+            ReservationDeposit = 10
         };
     }
 

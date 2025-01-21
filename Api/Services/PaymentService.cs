@@ -71,15 +71,16 @@ public class PaymentService(
             };
         }
 
+        var tip = visit.Tip ?? 0m;
         var transaction = await walletService.DebitAsync(user,
             $"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}",
-            visit.Reservation.Deposit!.Value);
+            visit.Reservation.Deposit!.Value + tip);
         if (transaction.IsError)
         {
             return transaction;
         }
 
-        bankService.SendMoneyToRestaurantAsync(visit.Restaurant, visit.Reservation.Deposit.Value);
+        bankService.SendMoneyToRestaurantAsync(visit.Restaurant, visit.Reservation.Deposit.Value + tip);
 
         visit.Reservation.DepositPaymentTime = transaction.Value.Time;
         await context.SaveChangesAsync();
@@ -156,7 +157,7 @@ public class PaymentService(
         }
 
         bankService.SendMoneyToRestaurantAsync(order.Visit.Restaurant, amount);
-        
+
         order.PaymentTime = DateTime.UtcNow;
         await context.SaveChangesAsync();
 
