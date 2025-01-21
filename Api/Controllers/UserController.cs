@@ -342,24 +342,24 @@ public class UserController(
             category, reportedUserId, restaurantId,
             assignedToId, status, page, perPage));
     }
-    
+
     /// <summary>
     /// Gets event participations by event id for current user
     /// </summary>
     /// <param name="eventId"></param>
     /// <param name="service"></param>
     /// <returns></returns>
-    [HttpGet("events/{eventId:int}")]
+    [HttpGet("is-interested-in-event/{eventId:int}")]
     [Authorize]
     [ProducesResponseType(200), ProducesResponseType(400)]
-    [MethodErrorCodes<EventService>(nameof(EventService.GetUserEventParticipationById))]
-    public async Task<ActionResult<bool>> GetUserEventParticipation(int eventId, [FromServices] EventService service) { 
+    [MethodErrorCodes<EventService>(nameof(EventService.IsUserInterestedInEvent))]
+    public async Task<ActionResult<bool>> IsUserInterestedInEvent(int eventId, [FromServices] EventService service) {
         var user = await userManager.GetUserAsync(User);
         if(user is null)
         {
             return Unauthorized();
         }
 
-        return OkOrErrors(await service.GetUserEventParticipationById(user, eventId));
+        return OkOrErrors(await service.IsUserInterestedInEvent(user, eventId));
     }
 }

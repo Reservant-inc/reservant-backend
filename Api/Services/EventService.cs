@@ -737,38 +737,31 @@ namespace Reservant.Api.Services
         }
 
         /// <summary>
-        /// Gets user participation in event by eventId for specified user
+        /// Check if the user is interested in the event
         /// </summary>
         /// <param name="user"></param>
         /// <param name="eventId"></param>
         /// <returns></returns>
-        [ErrorCode(nameof(User), ErrorCodes.NotFound, "User not found")]
-        [ErrorCode(nameof(ParticipationRequest), ErrorCodes.NotFound, "User not found")]
-        public async Task<Result<bool>> GetUserEventParticipationById(User user, int eventId)
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        public async Task<Result<bool>> IsUserInterestedInEvent(User user, int eventId)
         {
-            if (user == null)
+            var @event = await context.Events
+                .Include(e => e.ParticipationRequests)
+                .Where(e => e.EventId == eventId)
+                .FirstOrDefaultAsync();
+
+            if (@event == null)
             {
                 return new ValidationFailure
                 {
-                    PropertyName = nameof(User),
+                    PropertyName = nameof(eventId),
                     ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = "User not found"
+                    ErrorMessage = "Event not found",
                 };
             }
 
-            var eventCheck = await context.Events.Where(e => e.EventId == eventId).FirstOrDefaultAsync();
-
-            if (eventCheck == null)
-            {
-                return new ValidationFailure
-                {
-                    PropertyName = nameof(Event),
-                    ErrorCode = ErrorCodes.NotFound,
-                    ErrorMessage = "Event not found"
-                };
-            }
-
-            return new Result<bool>(context.EventParticipationRequests.Any(p => p.EventId == eventId && p.UserId == user.Id));
+            return @event.ParticipationRequests
+                .Any(p => p.UserId == user.Id && p.DateAccepted == null && p.DateDeleted == null);
         }
     }
 }
