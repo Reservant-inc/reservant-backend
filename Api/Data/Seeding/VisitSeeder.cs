@@ -38,7 +38,7 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
             .FirstOrDefault();
     }
 
-    private Order CreateRandomOrder(Visit visit)
+    private Order CreateRandomOrder(Visit visit, bool isPast)
     {
         var orderedItems = _random.GetItems(
             visit.Restaurant.MenuItems.ToArray(), _random.Next(1, 5))
@@ -55,10 +55,10 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                     Amount = _random.Next(1, 3),
                     MenuItem = item,
                     OneItemPrice = item.Price,
-                    Status = OrderStatus.Taken,
+                    Status = isPast ? OrderStatus.Taken : OrderStatus.InProgress,
                 })
                 .ToList(),
-            AssignedEmployee = employee,
+            AssignedEmployee = isPast ? employee : null,
             PaymentTime = visit.Reservation?.ReservationDate,
         };
     }
@@ -108,7 +108,7 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
             visit.Orders = new List<Order>();
             for (var i = 0; i < _random.Next(1, 3); i++)
             {
-                visit.Orders.Add(CreateRandomOrder(visit));
+                visit.Orders.Add(CreateRandomOrder(visit, true));
             }
 
             visit.Reservation.Decision = new RestaurantDecision
@@ -117,6 +117,13 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                              throw new InvalidOperationException("No restaurant employee"),
                 IsAccepted = true,
             };
+        }
+        else
+        {
+            if (_random.Next(2) == 0)
+            {
+                visit.Orders = [CreateRandomOrder(visit, false)];
+            }
         }
 
         return visit;
