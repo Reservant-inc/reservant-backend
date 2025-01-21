@@ -33,6 +33,8 @@ public class VisitService(
         var visit = await context.Visits
             .Include(x => x.Participants)
             .Include(x => x.Restaurant)
+            .Include(x => x.Orders)
+            .ThenInclude(o => o.AssignedEmployee)
             .Where(x => x.VisitId == visitId)
             .FirstOrDefaultAsync();
         if (visit == null)
