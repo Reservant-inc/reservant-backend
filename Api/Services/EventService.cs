@@ -746,5 +746,33 @@ namespace Reservant.Api.Services
                 .ProjectTo<NearEventVM>(mapper.ConfigurationProvider, new { origin })
                 .PaginateAsync(page, perPage, [], 100, false);
         }
+
+        /// <summary>
+        /// Check if the user is interested in the event
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
+        [ErrorCode(nameof(eventId), ErrorCodes.NotFound, "Event not found")]
+        public async Task<Result<bool>> IsUserInterestedInEvent(User user, int eventId)
+        {
+            var @event = await context.Events
+                .Include(e => e.ParticipationRequests)
+                .Where(e => e.EventId == eventId)
+                .FirstOrDefaultAsync();
+
+            if (@event == null)
+            {
+                return new ValidationFailure
+                {
+                    PropertyName = nameof(eventId),
+                    ErrorCode = ErrorCodes.NotFound,
+                    ErrorMessage = "Event not found",
+                };
+            }
+
+            return @event.ParticipationRequests
+                .Any(p => p.UserId == user.Id && p.DateAccepted == null && p.DateDeleted == null);
+        }
     }
 }
