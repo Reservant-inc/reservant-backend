@@ -70,11 +70,8 @@ public class PaymentService(
                 PropertyName = null,
             };
         }
-        var tip = 0;
-        if (visit.Tip != null)
-        {
-            tip = (int)visit.Tip;
-        }
+
+        var tip = visit.Tip ?? 0m;
         var transaction = await walletService.DebitAsync(user,
             $"Payment for visit in: {visit.Restaurant.Name} on: {visit.Reservation.StartTime.ToShortDateString()}",
             visit.Reservation.Deposit!.Value + tip);
@@ -160,7 +157,7 @@ public class PaymentService(
         }
 
         bankService.SendMoneyToRestaurantAsync(order.Visit.Restaurant, amount);
-        
+
         order.PaymentTime = DateTime.UtcNow;
         await context.SaveChangesAsync();
 
