@@ -80,26 +80,37 @@ namespace Reservant.Api.Services
                 newEvent.Restaurant = restaurant;
             }
 
-            // Tworzenie wątku dla eventu
-            var thread = new MessageThread
-            {
-                Title = $"Discussion for Event: {newEvent.Name}",
-                CreationDate = DateTime.UtcNow,
-                CreatorId = user.Id,
-                Participants = new List<User> { user },
-                Type = MessageThreadType.Event,
-            };
+            newEvent.Thread = CreateThreadForEvent(newEvent);
 
-            // Przypisanie wątku do eventu
-            newEvent.Thread = thread;
-
-            context.MessageThreads.Add(thread);
             await context.Events.AddAsync(newEvent);
             await context.SaveChangesAsync();
 
             return mapper.Map<EventVM>(newEvent);
         }
 
+        /// <summary>
+        /// Create a MessageThread object for an event
+        /// </summary>
+        public static MessageThread CreateThreadForEvent(Event @event)
+        {
+            var participants = new List<User> { @event.Creator };
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (@event.ParticipationRequests is not null)
+            {
+                participants.AddRange(@event.ParticipationRequests
+                    .Where(req => req.DateAccepted is not null)
+                    .Select(req => req.User));
+            }
+
+            return new MessageThread
+            {
+                Title = @event.Name,
+                CreationDate = @event.CreatedAt,
+                Creator = @event.Creator,
+                Participants = participants,
+                Type = MessageThreadType.Event,
+            };
+        }
 
         /// <summary>
         /// Get information about an Event

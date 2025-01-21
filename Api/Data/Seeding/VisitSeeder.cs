@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
+using Reservant.Api.Services;
 
 namespace Reservant.Api.Data.Seeding;
 
@@ -209,8 +210,8 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
         var visit0Date = visits[0].Reservation!.ReservationDate!.Value;
         var visit1Date = visits[1].Reservation!.ReservationDate!.Value;
 
-        return
-        [
+        var events = new List<Event>
+        {
             new Event
             {
                 Name = "Posiadówa w John Doe's",
@@ -470,6 +471,13 @@ public class VisitSeeder(ApiDbContext context, UserSeeder users)
                 PhotoFileName = null!,
                 Photo = await RequireFileUpload("ResInside3.jpg", users.GeraltRiv),
             },
-        ];
+        };
+
+        foreach (var @event in events)
+        {
+            @event.Thread = EventService.CreateThreadForEvent(@event);
+        }
+
+        return events;
     }
 }
