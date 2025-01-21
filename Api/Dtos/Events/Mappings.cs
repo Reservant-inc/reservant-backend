@@ -24,7 +24,8 @@ public class Mappings : Profile
 
         CreateMap<Event, EventSummaryVM>()
             .MapMemberFrom(dto => dto.NumberInterested,
-                @event => @event.ParticipationRequests.Count)
+                @event => @event.ParticipationRequests.Count(request =>
+                    request.DateAccepted == null && request.DateDeleted == null && !request.User.IsArchived))
             .MapUploadPath(dto => dto.Photo,
                 menuItem => menuItem.PhotoFileName, urlService);
 
@@ -34,9 +35,11 @@ public class Mappings : Profile
         Point? origin = null;
         CreateMap<Event, NearEventVM>()
             .MapMemberFrom(dto => dto.NumberInterested,
-                @event => @event.ParticipationRequests.Count)
+                @event => @event.ParticipationRequests.Count(request =>
+                    request.DateAccepted == null && request.DateDeleted == null && !request.User.IsArchived))
             .MapMemberFrom(dto => dto.NumberParticipants,
-                @event => @event.ParticipationRequests.Count(request => request.DateAccepted != null))
+                @event => @event.ParticipationRequests.Count(request =>
+                    request.DateAccepted != null && !request.User.IsArchived))
             .MapMemberFrom(dto => dto.Distance,
                 @event => @event.Restaurant == null || origin == null
                     ? null : (double?)@event.Restaurant.Location.Distance(origin))
