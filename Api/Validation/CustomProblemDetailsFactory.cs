@@ -26,7 +26,12 @@ public class CustomProblemDetailsFactory : ProblemDetailsFactory
             Type = type,
             Title = title,
             Detail = detail,
-            Instance = instance
+            Instance = instance,
+            Extensions =
+            {
+                ["error"] = new Dictionary<string, List<string>>(),
+                ["errorCodes"] = new Dictionary<string, List<string>>(),
+            },
         };
     }
 
@@ -53,7 +58,11 @@ public class CustomProblemDetailsFactory : ProblemDetailsFactory
             Title = title,
             Detail = detail,
             Instance = instance,
-            Errors = errors
+            Errors = errors,
+            Extensions =
+            {
+                ["errorCodes"] = new Dictionary<string, List<string>>(),
+            },
         };
     }
 
