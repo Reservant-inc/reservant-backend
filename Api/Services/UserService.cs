@@ -390,10 +390,7 @@ public class UserService(
 
         var requester = await dbContext.Users.FindAsync(requesterId)
             ?? throw new InvalidOperationException("User authorized but cannot be found");
-        var isCustomerSupportAgent = await roleManager.IsInRoleAsync(requester, Roles.CustomerSupportAgent);
-
-        var isCurrentUser = id == requesterId;
-        if (!isCurrentUser && !isCustomerSupportAgent && user.EmployerId != requesterId)
+        if (!await CanArchive(requester, user))
         {
             return new ValidationFailure
             {
@@ -425,6 +422,22 @@ public class UserService(
 
         await dbContext.SaveChangesAsync();
         return Result.Success;
+    }
+
+    private async Task<bool> CanArchive(User current, User target)
+    {
+        var isCurrentUser = current.Id == target.Id;
+        if (isCurrentUser) return true;
+
+        if (target.EmployerId != current.Id) return true;
+
+        if (await roleManager.IsInRoleAsync(current, Roles.CustomerSupportAgent))
+        {
+            return await roleManager.IsInRoleAsync(current, Roles.CustomerSupportManager)
+                || !await roleManager.IsInRoleAsync(target, Roles.CustomerSupportManager);
+        }
+
+        return false;
     }
 
     /// <summary>
