@@ -265,7 +265,8 @@ public class FriendService(ApiDbContext context, UrlService urlService, Notifica
                         IsArchived = fr.Receiver.IsArchived
                     },
                 PrivateMessageThreadId = privateThreadIds
-                    .Where(thread => thread.Participants.Contains(fr.Receiver)
+                    .Where(thread => thread.Type == MessageThreadType.Private
+                                     && thread.Participants.Contains(fr.Receiver)
                                      && thread.Participants.Contains(fr.Sender))
                     .Select(thread => thread.MessageThreadId)
                     .FirstOrDefault(),
