@@ -56,7 +56,14 @@ public class BreakingBadRestaurantSeeder(
             Logo = await RequireFileUpload("restaurantboss4.PNG"),
             ProvideDelivery = true,
             Description = "A family-friendly restaurant specializing in fried chicken and classic American cuisine",
-            Photos = await RequireRestaurantPhotos("ResInside8.jpg"),
+            Photos = await RequireRestaurantPhotos(
+                "ResInside8.jpg",
+                "BreakingBadRestaurant1.jpg",
+                "BreakingBadRestaurant2.jpg",
+                "BreakingBadRestaurant3.jpg",
+                "BreakingBadRestaurant4.jpg",
+                "BreakingBadRestaurant5.jpg"
+                ),
             Tags = await RequireRestaurantTags("OnSite", "Takeaway"),
             VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(

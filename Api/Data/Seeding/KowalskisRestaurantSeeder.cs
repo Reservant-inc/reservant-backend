@@ -51,7 +51,14 @@ public class KowalskisRestaurantSeeder(
             Logo = await RequireFileUpload("ResLogo4.png"),
             ProvideDelivery = false,
             Description = "Kowalski's Restaurant",
-            Photos = new List<RestaurantPhoto>(),
+            Photos = await RequireRestaurantPhotos(
+                "KowalskisRestaurant1.jpg",
+                "KowalskisRestaurant2.jpg",
+                "KowalskisRestaurant3.jpg",
+                "KowalskisRestaurant4.jpg",
+                "KowalskisRestaurant5.jpg",
+                "KowalskisRestaurant6.jpg"
+                ),
             Tags = await RequireRestaurantTags("OnSite", "Takeaway"),
             VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(

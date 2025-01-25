@@ -52,7 +52,14 @@ public class JohnDoes2RestaurantSeeder(
             Logo = await RequireFileUpload("ResLogo2.png"),
             ProvideDelivery = false,
             Description = "Another example restaurant",
-            Photos = [],
+            Photos = await RequireRestaurantPhotos(
+                "ResInside5.jpg",
+                "JohnDoesRestaurantPizza1.jpg",
+                "JohnDoesRestaurantPizza2.jpg",
+                "JohnDoesRestaurantPizza3.jpg",
+                "JohnDoesRestaurantPizza4.jpg",
+                "JohnDoesRestaurantPizza5.jpg"
+                ),
             Tags = await RequireRestaurantTags("OnSite"),
             VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(

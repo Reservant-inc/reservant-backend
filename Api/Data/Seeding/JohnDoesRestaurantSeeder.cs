@@ -67,7 +67,14 @@ public class JohnDoesRestaurantSeeder(
                 new() { Number = 3, Capacity = 6, },
                 new() { Number = 4, Capacity = 2, },
             },
-            Photos = await RequireRestaurantPhotos("ResInside5.jpg"),
+            Photos = await RequireRestaurantPhotos(
+                "ResInside5.jpg",
+                "JohnDoesRestaurantPizza1.jpg",
+                "JohnDoesRestaurantPizza2.jpg",
+                "JohnDoesRestaurantPizza3.jpg",
+                "JohnDoesRestaurantPizza4.jpg",
+                "JohnDoesRestaurantPizza5.jpg"
+                ),
         };
     }
 

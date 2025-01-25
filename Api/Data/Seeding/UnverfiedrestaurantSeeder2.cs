@@ -51,7 +51,14 @@ public class UnverfiedrestaurantSeeder2(
             Logo = await RequireFileUpload("sushi.png"),
             ProvideDelivery = true,
             Description = "The second unverided example restaurant",
-            Photos = await RequireRestaurantPhotos("ResInside2.jpg"),
+            Photos = await RequireRestaurantPhotos(
+                "ResInside2.jpg",
+                "AnyonymousRestaurant1.jpg",
+                "AnyonymousRestaurant2.jpg",
+                "AnyonymousRestaurant3.jpg",
+                "AnyonymousRestaurant4.jpg",
+                "AnyonymousRestaurant5.jpg"
+                ),
             Tags = await RequireRestaurantTags("OnSite", "Takeaway"),
             VerifierId = null,
             OpeningHours = CreateOpeningHours(

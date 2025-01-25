@@ -51,7 +51,14 @@ public class ArrakisSpiceDinerSeeder(
             Logo = await RequireFileUpload("ResLogo5.png"),
             ProvideDelivery = true,
             Description = "A themed restaurant offering exotic dishes inspired by the Dune universe",
-            Photos = await RequireRestaurantPhotos("ResInside7.jpg"),
+            Photos = await RequireRestaurantPhotos(
+                "ResInside7.jpg",
+                "ArrakisRestaurant1.jpg",
+                "ArrakisRestaurant2.jpg",
+                "ArrakisRestaurant3.jpg",
+                "ArrakisRestaurant4.jpg",
+                "ArrakisRestaurant5.jpg"
+                ),
             Tags = await RequireRestaurantTags("OnSite", "Takeaway"),
             VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(

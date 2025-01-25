@@ -52,7 +52,14 @@ public class AnonymousRestaurantSeeder(
             Logo = await RequireFileUpload("ResLogo1.png"),
             ProvideDelivery = true,
             Description = "The second example restaurant",
-            Photos = await RequireRestaurantPhotos("ResInside1.jpg"),
+            Photos = await RequireRestaurantPhotos(
+                "ResInside1.jpg",
+                "AnyonymousRestaurant1.jpg",
+                "AnyonymousRestaurant2.jpg",
+                "AnyonymousRestaurant3.jpg",
+                "AnyonymousRestaurant4.jpg",
+                "AnyonymousRestaurant5.jpg"
+                ),
             Tags = await RequireRestaurantTags("OnSite", "Takeaway"),
             VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(

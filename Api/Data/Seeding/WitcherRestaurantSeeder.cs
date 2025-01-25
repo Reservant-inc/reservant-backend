@@ -56,7 +56,14 @@ public class WitcherRestaurantSeeder(
             Logo = await RequireFileUpload("ResLogo3.png"),
             ProvideDelivery = false,
             Description = "A rustic inn serving hearty meals from the Witcher universe",
-            Photos = await RequireRestaurantPhotos("ResInside4.jpg"),
+            Photos = await RequireRestaurantPhotos(
+                "ResInside4.jpg",
+                "WitcherRestaurant1.jpg",
+                "WitcherRestaurant2.jpg",
+                "WitcherRestaurant3.jpg",
+                "WitcherRestaurant4.jpg",
+                "WitcherRestaurant5.jpg"
+                ),
             Tags = await RequireRestaurantTags("OnSite"),
             VerifierId = verifier.Id,
             OpeningHours = CreateOpeningHours(
