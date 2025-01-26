@@ -1,4 +1,5 @@
 using AutoMapper;
+using Reservant.Api.Mapping;
 using Reservant.Api.Models;
 
 namespace Reservant.Api.Dtos.Menus;
@@ -12,6 +13,8 @@ public class Mappings : Profile
     public Mappings()
     {
         CreateMap<Menu, MenuVM>();
-        CreateMap<Menu, MenuSummaryVM>();
+        CreateMap<Menu, MenuSummaryVM>()
+            .MapMemberFrom(dto => dto.MenuItemIds,
+                menu => menu.MenuItems.Select(mi => mi.MenuItemId));
     }
 }

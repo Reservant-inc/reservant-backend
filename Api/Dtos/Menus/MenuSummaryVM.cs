@@ -36,4 +36,9 @@ public class MenuSummaryVM
     /// Last day the menu is valid
     /// </summary>
     public required DateOnly? DateUntil { get; set; }
+
+    /// <summary>
+    /// IDs of the menu items
+    /// </summary>
+    public required List<int> MenuItemIds { get; set; }
 }
