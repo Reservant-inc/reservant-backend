@@ -429,7 +429,7 @@ public class UserService(
         var isCurrentUser = current.Id == target.Id;
         if (isCurrentUser) return true;
 
-        if (target.EmployerId != current.Id) return true;
+        if (target.EmployerId == current.Id) return true;
 
         if (await roleManager.IsInRoleAsync(current, Roles.CustomerSupportAgent))
         {
