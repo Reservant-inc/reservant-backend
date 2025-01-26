@@ -219,9 +219,7 @@ namespace Reservant.Api.Services
             var requestedIngredientIds = request.Ingredients.Select(ir => ir.IngredientId).ToArray();
             var ingredients = await context.Ingredients
                 .Where(ingredient =>
-                    ingredient.MenuItems
-                        .Select(imi => imi.MenuItem.RestaurantId)
-                        .FirstOrDefault() == restaurantId
+                    ingredient.RestaurantId == restaurantId
                     && requestedIngredientIds.Contains(ingredient.IngredientId))
                 .ToListAsync();
 
