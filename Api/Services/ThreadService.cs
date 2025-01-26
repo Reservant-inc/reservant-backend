@@ -176,6 +176,7 @@ public class ThreadService(
     {
         var query = dbContext.MessageThreads
             .Where(t => t.Participants.Any(p => p.Id == userId))
+            .OrderByDescending(t => t.Messages.OrderByDescending(m => m.DateSent).First().DateSent)
             .ProjectTo<ThreadVM>(mapper.ConfigurationProvider);
 
         if (type is not null)
