@@ -19,6 +19,9 @@ public class Mappings : Profile
             .ForMember(dto => dto.Participants, builder =>
                 builder.MapFrom(@event => @event.ParticipationRequests
                     .Where(request => request.DateAccepted != null)))
+            .MapMemberFrom(dto => dto.NumberInterested,
+                @event => @event.ParticipationRequests.Count(request =>
+                    request.DateAccepted == null && request.DateDeleted == null && !request.User.IsArchived))
             .MapUploadPath(dto => dto.Photo,
                 menuItem => menuItem.PhotoFileName, urlService);
 

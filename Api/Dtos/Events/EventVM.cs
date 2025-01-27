@@ -71,6 +71,11 @@ public class EventVM
     public required List<UserSummaryVM> Participants { get; set; }
 
     /// <summary>
+    /// Number of users interested
+    /// </summary>
+    public required int NumberInterested { get; set; }
+
+    /// <summary>
     /// ID of the related message thread
     /// </summary>
     public required int? ThreadId { get; set; }
