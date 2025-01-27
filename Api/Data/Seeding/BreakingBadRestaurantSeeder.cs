@@ -213,7 +213,7 @@ public class BreakingBadRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customer3,
             Stars = 5,
             CreatedAt = new DateTime(2024, 7, 10),
             Contents = "Super restauracja, okazało się że właściciel uczył mnie chemii. Może zapytam czy ma jakiś pomysł na rozwinięcie biznesu..",

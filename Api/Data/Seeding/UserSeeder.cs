@@ -81,6 +81,11 @@ public class UserSeeder
     public User Customer3 { get; private set; } = null!;
 
     /// <summary>
+    /// Customers
+    /// </summary>
+    public List<User> Customers { get; private set; } = null!;
+
+    /// <summary>
     /// Create example users in the database
     /// </summary>
     public static async Task<UserSeeder> CreateUsers(UserService service)
@@ -113,14 +118,58 @@ public class UserSeeder
         users.KrzysztofKowalski = await users.CreateCustomer(
             "KK", "Krzysztof", "Kowalski", "558614c5-ba9f-4c1a-ba1c-07b2b67c37e9", true);
 
-        users.Customer1 = await users.CreateCustomer(
-            "customer", "Customer", "Przykladowski", "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29", false);
+        users.Customers =
+        [
+            await users.CreateCustomer(
+                "customer", "Customer", "Przykladowski", "e08ff043-f8d2-45d2-b89c-aec4eb6a1f29", false),
+            await users.CreateCustomer(
+                "customer2", "Ewa", "Przykładowska", "86a24e58-cb06-4db0-a346-f75125722edd", false),
+            await users.CreateCustomer(
+                "customer3", "Kacper", "Testowy", "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb", false),
+            await users.CreateCustomer(
+                "user4", "Anna", "Nowak", "3a5a6b8c-4543-4cc2-b2cf-d1fc49e6dc6c", false),
+            await users.CreateCustomer(
+                "randomLogin5", "Piotr", "Kowalski", "f2d3cb45-123b-4e9a-bc6c-9f73c8f6320d", false),
+            await users.CreateCustomer(
+                "guestUser6", "Joanna", "Zielińska", "6a73b5a9-9cf8-4f63-a0b4-b46c467b456d", false),
+            await users.CreateCustomer(
+                "tempUser7", "Marek", "Wiśniewski", "9245a3e7-e762-4c5d-bb7c-2f2de5f867f5", false),
+            await users.CreateCustomer(
+                "user8X", "Katarzyna", "Jankowska", "3c8712fa-68ef-42c4-bec6-986527f7d65a", false),
+            await users.CreateCustomer(
+                "newUser9", "Tomasz", "Lewandowski", "07cfa59d-bc5e-47a2-9443-2a8b3d26a962", false),
+            await users.CreateCustomer(
+                "login10", "Barbara", "Kaczmarek", "815a9c2d-b49e-4529-91f2-381eb5f7ca4a", false),
+            await users.CreateCustomer(
+                "customUser11", "Jakub", "Mazur", "a91c732f-1f5f-44c8-a742-25d5b5f0b5ec", false),
+            await users.CreateCustomer(
+                "testLogin12", "Magdalena", "Wójcik", "9bf81a73-07b2-4695-99ff-73c685d1b1c9", false),
+            await users.CreateCustomer(
+                "user13Test", "Jan", "Kamiński", "b57e5b23-9847-4f14-b67e-95e2e6c2fcb3", false),
+            await users.CreateCustomer(
+                "client14", "Zofia", "Kwiatkowska", "5bce34c1-02a1-4baf-bb4d-91347c3f9a98", false),
+            await users.CreateCustomer(
+                "account15", "Łukasz", "Kaczmarek", "95cdaf53-8ac9-4b56-ae6b-6f914faffb58", false),
+            await users.CreateCustomer(
+                "user16", "Alicja", "Dąbrowska", "fbf5785b-7766-47ab-b589-72076a57024d", false),
+            await users.CreateCustomer(
+                "guest17", "Grzegorz", "Szymański", "64a2b5d3-d727-4699-8325-17b78872aefb", false),
+            await users.CreateCustomer(
+                "temporary18", "Irena", "Woźniak", "e872e379-3284-4a2f-922e-b0bca60194b7", false),
+            await users.CreateCustomer(
+                "random19", "Andrzej", "Piotrowski", "d2d4604b-b049-40ed-b618-f55847c43c4c", false),
+            await users.CreateCustomer(
+                "user20a", "Jadwiga", "Pawlak", "39c6cc79-2cd9-47c2-89b7-b76c100c7976", false),
+            await users.CreateCustomer(
+                "account21", "Jerzy", "Chmielewski", "5d23c3f5-bf63-42fa-aada-2e48b03a1d76", false),
+            await users.CreateCustomer(
+                "client22", "Dorota", "Zawisza", "42a5e4e9-70d0-4edb-9a91-ea1737d7e4b0", false),
+            await users.CreateCustomer(
+                "newUser23", "Kamil", "Szewczyk", "0173b6bc-dba7-45a0-9f16-13a8b90d1770", false),
+        ];
 
-        users.Customer2 = await users.CreateCustomer(
-            "customer2", "Ewa", "Przykładowska", "86a24e58-cb06-4db0-a346-f75125722edd", false);
-
-        users.Customer3 = await users.CreateCustomer(
-            "customer3", "Kacper", "Testowy", "a79631a0-a3bf-43fa-8fbe-46e5ee697eeb", false);
+        (users.Customer1, users.Customer2, users.Customer3) =
+            (users.Customers[0], users.Customers[1], users.Customers[2]);
 
         users.JohnDoe.IncomingRequests = [
             new FriendRequest
