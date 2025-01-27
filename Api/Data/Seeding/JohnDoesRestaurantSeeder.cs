@@ -394,7 +394,7 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.JohnDoe,
+            Author = users.Customers[17],
             Stars = 1,
             CreatedAt = new DateTime(2024, 10, 5),
             Contents = "Obsługa bardzo nieuprzejma, nie polecam.",
@@ -402,7 +402,7 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[3],
             Stars = 5,
             CreatedAt = new DateTime(2024, 10, 10),
             Contents = "Najlepszy deser, jaki jadłem!",
@@ -410,21 +410,21 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[4],
             Stars = 3,
             CreatedAt = new DateTime(2024, 10, 15),
             Contents = "Jedzenie dobre, ale kelner zapomniał o moim zamówieniu."
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[5],
             Stars = 4,
             CreatedAt = new DateTime(2024, 10, 15),
             Contents = "Bardzo smacznie, ale ceny mogłyby być nieco niższe."
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[6],
             Stars = 2,
             CreatedAt = new DateTime(2024, 10, 28),
             Contents = "Pizza przypalona, nie byłem zadowolony.",
@@ -432,7 +432,7 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[7],
             Stars = 5,
             CreatedAt = new DateTime(2024, 11, 3),
             Contents = "Idealne jedzenie i świetna atmosfera!",
@@ -440,14 +440,14 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[8],
             Stars = 3,
             CreatedAt = new DateTime(2024, 11, 8),
             Contents = "Porcje były nierówne, moje danie było mniejsze niż znajomego."
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[9],
             Stars = 5,
             CreatedAt = new DateTime(2024, 11, 8),
             Contents = "Rewelacyjne dania! Wrócę na pewno.",
@@ -455,14 +455,14 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[10],
             Stars = 4,
             CreatedAt = new DateTime(2024, 11, 15),
             Contents = "Bardzo dobra obsługa, jedzenie smaczne, ale ceny wysokie."
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[11],
             Stars = 1,
             CreatedAt = new DateTime(2024, 11, 20),
             Contents = "Nie dostałem zamówienia na czas. Totalna porażka.",
@@ -470,7 +470,7 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[12],
             Stars = 5,
             CreatedAt = new DateTime(2024, 12, 1),
             Contents = "Najlepsze jedzenie, jakie jadłem w tym roku!",
@@ -478,21 +478,21 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[13],
             Stars = 3,
             CreatedAt = new DateTime(2024, 12, 5),
             Contents = "Dobre jedzenie, ale czas oczekiwania za długi."
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[14],
             Stars = 4,
             CreatedAt = new DateTime(2024, 12, 10),
             Contents = "Bardzo miła obsługa i świetny klimat miejsca."
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[15],
             Stars = 5,
             CreatedAt = new DateTime(2024, 12, 10),
             Contents = "Idealnie! Wszystko było doskonałe.",
@@ -500,7 +500,7 @@ public class JohnDoesRestaurantSeeder(
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[16],
             Stars = 2,
             CreatedAt = new DateTime(2024, 12, 15),
             Contents = "Jakość jedzenia spadła w porównaniu do mojej poprzedniej wizyty.",

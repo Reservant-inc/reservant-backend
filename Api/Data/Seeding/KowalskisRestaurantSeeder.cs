@@ -212,126 +212,126 @@ public class KowalskisRestaurantSeeder(
     [
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[0],
             Stars = 5,
             CreatedAt = new DateTime(2024, 3, 11),
             Contents = "Fantastyczne jedzenie i wspaniała obsługa! Na pewno wrócę.",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[1],
             Stars = 5,
             CreatedAt = new DateTime(2024, 3, 20),
             Contents = "Najlepsza restauracja w mieście! Wszystko było perfekcyjne",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[2],
             Stars = 5,
             CreatedAt = new DateTime(2024, 3, 25),
             Contents = "Rewelacyjne doświadczenie kulinarne. Na pewno tu wrócę!",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[3],
             Stars = 4,
             CreatedAt = new DateTime(2024, 5, 18),
             Contents = "Bardzo dobre jedzenie, choć niektóre dania były zbyt przyprawione.",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[4],
             Stars = 3,
             CreatedAt = new DateTime(2024, 6, 1),
             Contents = "Atmosfera przyjemna, ale jedzenie mogłoby być lepsze.",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[5],
             Stars = 3,
             CreatedAt = new DateTime(2024, 6, 5),
             Contents = "Nic specjalnego, ale też nie było źle. Średnia restauracja.",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[6],
             Stars = 2,
             CreatedAt = new DateTime(2024, 6, 28),
             Contents = "Jedzenie poniżej oczekiwań i zbyt głośno. Nie polecam.",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[7],
             Stars = 1,
             CreatedAt = new DateTime(2024, 7, 11),
             Contents = "Totalna porażka! Wszystko było nie tak, jak powinno.",
         },
         new Review
         {
-            Author = users.Customer1,
+            Author = users.Customers[8],
             Stars = 1,
             CreatedAt = new DateTime(2024, 7, 20),
             Contents = "Najgorsza restauracja, w jakiej byłem. Nic tu nie działało jak należy.",
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[9],
             Stars = 2,
             CreatedAt = new DateTime(2024, 3, 15),
             Contents = "Słabe jedzenie i nieprzyjemna obsługa. Nie polecam.",
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[10],
             Stars = 2,
             CreatedAt = new DateTime(2024, 4, 20),
             Contents = "Zbyt długi czas oczekiwania na jedzenie i nieuprzejma obsługa.",
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[11],
             Stars = 3,
             CreatedAt = new DateTime(2024, 6, 1),
             Contents = "Nic specjalnego, ale też nie było źle. Średnia restauracja.",
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[12],
             Stars = 5,
             CreatedAt = new DateTime(2024, 7, 1),
             Contents = "Przepyszne dania i fantastyczny wystrój. Warto odwiedzić!",
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[13],
             Stars = 5,
             CreatedAt = new DateTime(2024, 7, 5),
             Contents = "Rewelacyjne doświadczenie kulinarne. Na pewno tu wrócę!",
         },
         new Review
         {
-            Author = users.Customer2,
+            Author = users.Customers[14],
             Stars = 5,
             CreatedAt = new DateTime(2024, 7, 15),
             Contents = "Najlepsza restauracja w mieście! Wszystko było perfekcyjne.",
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[15],
             Stars = 4,
             CreatedAt = new DateTime(2024, 5, 10),
             Contents = "Bardzo smaczne potrawy, choć trochę drogie. Atmosfera na plus.",
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[16],
             Stars = 4,
             CreatedAt = new DateTime(2024, 6, 10),
             Contents = "Bardzo dobre jedzenie, choć niektóre dania były zbyt przyprawione.",
         },
         new Review
         {
-            Author = users.Customer3,
+            Author = users.Customers[17],
             Stars = 4,
             CreatedAt = new DateTime(2024, 7, 10),
             Contents = "Smaczne dania i miła obsługa, choć wystrój mógłby być lepszy.",
