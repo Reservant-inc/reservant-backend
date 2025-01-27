@@ -189,12 +189,17 @@ public class UserService(
     /// <summary>
     /// returns whether login provided is unique among registered users withought veryfying validity of a login
     /// </summary>
-    public async Task<bool> IsUniqueLoginAsync(string login)
+    public async Task<bool> IsUniqueLoginAsync(string login, string? employerLogin)
     {
+        var loginToTest = login;
+        if (employerLogin is not null)
+        {
+            loginToTest = $"{employerLogin}{RestaurantEmployeeLoginSeparator}{login}";
+        }
+
         var result = await dbContext
             .Users
-            .Where(r => r.UserName == login)
-
+            .Where(r => r.UserName == loginToTest)
             .AnyAsync();
 
         return (!result);

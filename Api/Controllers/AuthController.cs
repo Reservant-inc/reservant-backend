@@ -222,11 +222,14 @@ public class AuthController(
     /// <summary>
     /// Check if login is available
     /// </summary>
+    /// <param name="login">User login to check</param>
+    /// <param name="isEmployeeLogin">If true, we are checking an employee login with the employer prefix</param>
     [HttpGet("is-unique-login")]
     [ProducesResponseType(200)]
-    public async Task<ActionResult<bool>> IsUniqueLogin(String login)
+    public async Task<ActionResult<bool>> IsUniqueLogin(String login, bool isEmployeeLogin)
     {
-        var result = await userService.IsUniqueLoginAsync(login);
+        var employerLogin = isEmployeeLogin ? userManager.GetUserName(User) : null;
+        var result = await userService.IsUniqueLoginAsync(login, employerLogin);
 
         return Ok(result);
     }
