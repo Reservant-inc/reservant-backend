@@ -496,7 +496,6 @@ public class ThreadService(
     /// <param name="receiverId">ID of person the sender wants to make a private thread with</param>
     /// <returns>visual model of private thread</returns>
     [ErrorCode(null, ErrorCodes.NotFound, "Receiver not found")]
-    [ErrorCode(null, ErrorCodes.Duplicate, "There can be only 1 private message thread between 2 users")]
     public async Task<Result<ThreadVM>> CreatePrivateThreadAsync(Guid senderId, Guid receiverId)
     {
         var sender = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == senderId)
@@ -513,19 +512,17 @@ public class ThreadService(
             };
         }
 
-        var privateThreadAlreadyExists = await dbContext.MessageThreads
-            .AnyAsync(thread =>
+        var existingThread = await dbContext.MessageThreads
+            .Include(t => t.Participants)
+            .Include(t => t.Creator)
+            .SingleOrDefaultAsync(thread =>
                 thread.Type == MessageThreadType.Private &&
                 thread.Participants.Contains(receiver) &&
                 thread.Participants.Contains(sender));
 
-        if (privateThreadAlreadyExists)
+        if (existingThread is not null)
         {
-            return new ValidationFailure
-            {
-                ErrorCode = ErrorCodes.Duplicate,
-                ErrorMessage = "There can be only 1 private message thread between 2 users"
-            };
+            return mapper.Map<ThreadVM>(existingThread);
         }
 
         var privateThread = new MessageThread

@@ -186,7 +186,7 @@ public class ThreadsController(
     }
 
     /// <summary>
-    /// Create a new private thread chat between 2 users
+    /// Create a new private thread chat between 2 users, or return the existing one
     /// </summary>
     [HttpPost("create-private-thread")]
     [Authorize(Roles = Roles.Customer)]
