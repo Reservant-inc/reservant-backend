@@ -1,7 +1,7 @@
 meta {
   name: menus--id--items
   type: http
-  seq: 3
+  seq: 4
 }
 
 post {
@@ -15,7 +15,7 @@ params:query {
 }
 
 params:path {
-  menuId: {{randomMenuId}}
+  menuId: {{menuToCheck}}
 }
 
 auth:bearer {
@@ -25,7 +25,7 @@ auth:bearer {
 body:json {
   {
     "itemIds": [
-      {{randomMenuItemId}}
+      {{temporaryMenuItemId}}
     ]
   }
 }

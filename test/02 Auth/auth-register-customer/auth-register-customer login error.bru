@@ -16,7 +16,10 @@ body:json {
     "lastName": "{{randomLastName}}",
     "login": "john#doe!",  // Login zawiera niepoprawne znaki specjalne
     "email": "{{randomEmail}}",
-    "phoneNumber": "{{randomPhoneNumber}}",
+    "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "{{randomPhoneNumber}}"
+    },
     "birthDate": "{{randomBirthDate}}",
     "password": "{{randomPassword}}"
   }

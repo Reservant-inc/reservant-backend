@@ -208,8 +208,8 @@ tests {
       expect(responseData.address).to.eql(requestData.address);
       expect(responseData.postalIndex).to.eql(requestData.postalIndex);
       expect(responseData.city).to.eql(requestData.city);
-      expect(responseData.location.latitude).to.eql(requestData.location.longitude); // na odwrót
-      expect(responseData.location.longitude).to.eql(requestData.location.latitude); // na odwrót
+      expect(responseData.location.latitude).to.eql(requestData.location.latitude);
+      expect(responseData.location.longitude).to.eql(requestData.location.longitude);
       expect(responseData.provideDelivery).to.eql(requestData.provideDelivery);
       expect(responseData.description).to.eql(requestData.description);
       expect(responseData.reservationDeposit).to.eql(requestData.reservationDeposit);

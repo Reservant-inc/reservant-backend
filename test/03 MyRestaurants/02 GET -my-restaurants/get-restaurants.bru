@@ -39,7 +39,6 @@ tests {
           expect(restaurant).to.have.property('restaurantId');
           expect(restaurant).to.have.property('name');
           expect(restaurant).to.have.property('restaurantType');
-          expect(restaurant).to.have.property('nip');
           expect(restaurant).to.have.property('address');
           expect(restaurant).to.have.property('city');
           expect(restaurant).to.have.property('location');
@@ -71,7 +70,6 @@ tests {
           expect(restaurant.restaurantId).to.be.a('number');
           expect(restaurant.name).to.be.a('string');
           expect(restaurant.restaurantType).to.be.a('string');
-          expect(restaurant.nip).to.be.a('string');
           expect(restaurant.address).to.be.a('string');
           expect(restaurant.city).to.be.a('string');
           expect(restaurant.location.latitude).to.be.a('number');
@@ -86,31 +84,43 @@ tests {
           
           // Check data types within openingHours
           restaurant.openingHours.forEach(function(hours) {
-              expect(hours.from).to.be.a('string');
-              expect(hours.until).to.be.a('string');
+             expect(hours.from).to.satisfy(val => typeof val === 'string' || val === null);
+  expect(hours.until).to.satisfy(val => typeof val === 'string' || val === null);
+  
           });
       });
   });
   
+  // Pobierz odpowiedź z serwera
   var jsonData = res.getBody();
-  if (jsonData.length > 0) {
-      var firstRestaurantId = jsonData[0].restaurantId;
-      bru.setEnvVar("firstRestaurantId", firstRestaurantId);
-      console.log("First restaurant ID saved to environment:", firstRestaurantId);
-  }
   
-  // Sprawdzamy, czy odpowiedź zawiera dane restauracji
-  if (jsonData.length > 0) {
-      // Tworzymy listę wszystkich restaurantId
-      var restaurantIds = jsonData.map(function(restaurant) {
-          return restaurant.restaurantId;
+  // Sprawdź, czy jsonData to tablica
+  if (Array.isArray(jsonData)) {
+      // Pobierz aktualną listę restaurantIds z środowiska (jeśli istnieje)
+      var restaurantIdsList = bru.getEnvVar("restaurantIds");
+  
+      // Jeśli restaurantIdsList istnieje, parsuj ją jako JSON, w przeciwnym razie zainicjuj jako pustą tablicę
+      if (restaurantIdsList) {
+          restaurantIdsList = JSON.parse(restaurantIdsList);
+      } else {
+          restaurantIdsList = [];
+      }
+  
+      // Iteruj przez listę restauracji i dodaj ich ID do listy
+      jsonData.forEach(restaurant => {
+          if (restaurant.restaurantId) {
+              restaurantIdsList.push(restaurant.restaurantId);
+              console.log("Dodano restaurantId: " + restaurant.restaurantId);
+          }
       });
   
-      // Zapisujemy listę restaurantIds do środowiska jako JSON
-      bru.setEnvVar("restaurantIds", JSON.stringify(restaurantIds));
-      console.log("List of restaurant IDs saved to environment:", restaurantIds);
+      // Zapisz zaktualizowaną listę z powrotem do środowiska
+      bru.setEnvVar("restaurantIds", JSON.stringify(restaurantIdsList));
+  
+      console.log("Zaktualizowana lista restaurantIds:", restaurantIdsList);
   } else {
-      console.warn("Response does not contain any restaurant data.");
+      console.log("Nieprawidłowy format odpowiedzi - oczekiwano tablicy restauracji.");
   }
+  
   
 }

@@ -1,0 +1,45 @@
+meta {
+  name: GET COPY
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/restaurants/:restaurantId/ingredients
+  body: none
+  auth: bearer
+}
+
+params:path {
+  restaurantId: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Sprawdź, czy odpowiedź zawiera listę składników
+  if (jsonData && Array.isArray(jsonData.items) && jsonData.items.length > 0) {
+      // Wybierz losowy składnik
+      var randomIngredient = jsonData.items[Math.floor(Math.random() * jsonData.items.length)];
+  
+      // Pobierz jego ingredientId
+      var ingredientToCheck = randomIngredient.ingredientId;
+  
+      // Zapisz do zmiennych środowiskowych Bruno
+      bru.setEnvVar("ingredientToCheck", ingredientToCheck);
+  
+      console.log("Losowy ingredientToCheck:", ingredientToCheck);
+  } else {
+      console.log("Brak dostępnych składników w odpowiedzi.");
+  }
+  
+}

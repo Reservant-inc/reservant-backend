@@ -1,0 +1,45 @@
+meta {
+  name: GET Copy
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/restaurants/:restaurantId/menu-items
+  body: none
+  auth: bearer
+}
+
+params:path {
+  restaurantId: {{firstRestaurantId}}
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  // Pobierz odpowiedź z serwera
+  var jsonData = res.getBody();
+  
+  // Sprawdź, czy odpowiedź zawiera listę pozycji menu
+  if (jsonData && Array.isArray(jsonData) && jsonData.length > 0) {
+      // Wybierz losowy element z listy
+      var randomMenuItem = jsonData[Math.floor(Math.random() * jsonData.length)];
+  
+      // Pobierz jego menuItemId
+      var itemToCheck = randomMenuItem.menuItemId;
+  
+      // Zapisz do zmiennych środowiskowych Bruno
+      bru.setEnvVar("itemToCheck", itemToCheck);
+  
+      console.log("Losowy itemToCheck:", itemToCheck);
+  } else {
+      console.log("Brak dostępnych pozycji menu w odpowiedzi.");
+  }
+  
+}

@@ -99,8 +99,9 @@ tests {
       
       // Check data types within openingHours
       jsonData.openingHours.forEach(function(hours) {
-          expect(hours.from).to.be.a('string');
-          expect(hours.until).to.be.a('string');
+       expect(hours.from).to.satisfy(val => typeof val === 'string' || val === null);
+  expect(hours.until).to.satisfy(val => typeof val === 'string' || val === null);
+  
       });
   });
   

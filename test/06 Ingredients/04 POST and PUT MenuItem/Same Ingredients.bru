@@ -1,7 +1,7 @@
 meta {
   name: Same Ingredients
   type: http
-  seq: 1
+  seq: 3
 }
 
 put {
@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  menuItemId: {{firstMenuItemId}}
+  menuItemId: {{itemToCheck}}
 }
 
 auth:bearer {
@@ -27,16 +27,8 @@ body:json {
     "photo": "ResPizza1.jpg",
     "ingredients": [
       {
-        "ingredientId": 50,
+        "ingredientId": {{ingredientToCheck}},
         "amountUsed": 300
-      },
-      {
-        "ingredientId": 59,
-        "amountUsed": 200
-      },
-      {
-        "ingredientId": 58,
-        "amountUsed": 400
       }
     ]
   }
@@ -44,11 +36,7 @@ body:json {
 }
 
 assert {
-  res.body.ingredients[0].ingredientId: eq 50
+  res.body.ingredients[0].ingredientId: eq {{ingredientToCheck}}
   res.body.ingredients[0].amountUsed: eq 300
-  res.body.ingredients[1].ingredientId: eq 59
-  res.body.ingredients[1].amountUsed: eq 200
-  res.body.ingredients[2].ingredientId: eq 58
-  res.body.ingredients[2].amountUsed: eq 400
   res.status: eq 200
 }

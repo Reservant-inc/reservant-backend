@@ -88,7 +88,7 @@ tests {
       var responseData = res.getBody();
   
       // Sprawdzenie błędu dla niepoprawnego typu 'openingHours'
-      expect(responseData.errors).to.have.property('$.openingHours');
+      expect(responseData.errorCodes.openingHours[0]).to.include("MustBeValidOpeningHours");
   });
   
 }

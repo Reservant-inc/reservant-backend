@@ -33,8 +33,6 @@ public class VisitService(
         var visit = await context.Visits
             .Include(x => x.Participants)
             .Include(x => x.Restaurant)
-            .Include(x => x.Orders)
-            .ThenInclude(o => o.AssignedEmployee)
             .Where(x => x.VisitId == visitId)
             .FirstOrDefaultAsync();
         if (visit == null)
@@ -59,6 +57,13 @@ public class VisitService(
         {
             return new ValidationFailure { PropertyName = null, ErrorCode = ErrorCodes.AccessDenied };
         }
+
+        visit.Orders = await context.Entry(visit)
+            .Collection(v => v.Orders)
+            .Query()
+            .Include(o => o.AssignedEmployee)
+            .Include(o => o.OrderItems)
+            .ToListAsync();
 
         return mapper.Map<VisitVM>(visit);
     }
