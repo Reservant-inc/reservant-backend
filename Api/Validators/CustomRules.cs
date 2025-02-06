@@ -452,6 +452,9 @@ public static class CustomRules
         return builder
             .Must(woh => woh.Count == 7)
             .WithErrorCode(ErrorCodes.MustBeValidOpeningHours)
-            .WithMessage("Opening hours of a restaurant must sepcify every day of the week");
+            .WithMessage("Opening hours of a restaurant must sepcify every day of the week")
+            .Must(woh => woh.All(day => day.From is null == day.Until is null))
+            .WithErrorCode(ErrorCodes.MustBeValidOpeningHours)
+            .WithMessage("Opening hours must either specify both from and until or none");
     }
 }
