@@ -124,7 +124,7 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
 
         context.Add(order);
 
-        if (visit.StartTime == null && !request.PaymentWithCard) {
+        if (OrderRequiresPayment(visit, request)) {
             var transaction = await paymentService.PayForOrderAsync(user, order);
             if (transaction.IsError) {
                 return transaction.Errors;
@@ -135,4 +135,7 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
 
         return mapper.Map<OrderSummaryVM>(order);
     }
+
+    private static bool OrderRequiresPayment(Visit visit, CreateOrderRequest request) =>
+        visit.StartTime == null && !visit.CreatedByEmployee && !request.PaymentWithCard;
 }
