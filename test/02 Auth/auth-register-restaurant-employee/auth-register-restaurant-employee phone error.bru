@@ -46,8 +46,8 @@ tests {
   test("phoneNumber must be a valid number", function () {
       var responseData = res.getBody();
   
-      expect(responseData.errors).to.have.property('phoneNumber');
-      expect(responseData.errors.phoneNumber[0]).to.include("The PhoneNumber field is not a valid phone number.");
+      expect(responseData.errors).to.have.property('fullPhoneNumber');
+      expect(responseData.errorCodes.fullPhoneNumber[0]).to.include("MustBeValidPhoneNumber");
   });
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)

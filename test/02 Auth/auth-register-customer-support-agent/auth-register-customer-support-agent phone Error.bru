@@ -15,7 +15,10 @@ body:json {
     "firstName": "{{randomFirstName}}",
     "lastName": "{{randomLastName}}",
     "email": "{{randomEmail}}",
-    "phoneNumber": "12345abc",
+    "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "123abc456"
+    },
     "password": "{{randomPassword}}",
     "isManager": {{randomBoolean}}
   }
@@ -38,8 +41,8 @@ tests {
   // Test sprawdzający, czy pole 'phoneNumber' jest niepoprawne i zwraca odpowiedni błąd
   test("PhoneNumber format is invalid", function () {
       var responseData = res.getBody();
-      expect(responseData.errors).to.have.property('phoneNumber');
-      expect(responseData.errors.phoneNumber[0]).to.include("The PhoneNumber field is not a valid phone number.");
+      expect(responseData.errors).to.have.property('fullPhoneNumber');
+      expect(responseData.errorCodes.fullPhoneNumber[0]).to.include("MustBeValidPhoneNumber");
   });
   
   // Sprawdzenie, czy dane odpowiedzi są zgodne z danymi żądania (dla poprawnych danych)

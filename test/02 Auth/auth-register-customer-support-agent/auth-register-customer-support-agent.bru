@@ -15,7 +15,10 @@ body:json {
     "firstName": "{{randomFirstName}}",
     "lastName": "{{randomLastName}}",
     "email": "{{randomEmail}}",
-    "phoneNumber": "{{randomPhoneNumber}}",
+      "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "{{randomPhoneNumber}}"
+    },
     "password": "{{randomPassword}}",
     "isManager": {{randomBoolean}}
   }
@@ -54,8 +57,9 @@ tests {
   
   test("phoneNumber is present and valid", function () {
       expect(requestData).to.have.property('phoneNumber');
-      expect(requestData.phoneNumber).to.be.a('string').and.to.not.be.empty;
-      expect(Number(requestData.phoneNumber)).to.be.a('number');
+      expect(requestData.phoneNumber).to.be.an('object');
+      expect(requestData.phoneNumber).to.have.property('code').that.is.a('string').and.to.not.be.empty;
+      expect(requestData.phoneNumber).to.have.property('number').that.is.a('string').and.to.not.be.empty;
   });
   
   test("Password is present and not empty", function () {

@@ -15,7 +15,10 @@ body:json {
     "firstName": "{{randomFirstName}}",
     "lastName": "{{randomLastName}}",
     "email": "invalidemailxd",
-    "phoneNumber": "{{randomPhoneNumber}}",
+    "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "{{randomPhoneNumber}}"
+    },
     "password": "{{randomPassword}}",
     "isManager": {{randomBoolean}}
   }

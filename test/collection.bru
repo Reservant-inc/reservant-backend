@@ -1,6 +1,6 @@
 script:pre-request {
   const { faker } = require('@faker-js/faker');
-
+  
   //phone number
   function generateRandomNumberSequence(length) {
       let result = '';
@@ -11,7 +11,21 @@ script:pre-request {
   }
   const randomNumbers = generateRandomNumberSequence(11);
   bru.setEnvVar("randomPhoneNumber", randomNumbers);
-
+  
+  function getRandomCountryCode() {
+      const length = Math.floor(Math.random() * 3) + 1; // Losowa długość: 1, 2 lub 3 cyfry
+      let code = "+";
+  
+      for (let i = 0; i < length; i++) {
+          code += Math.floor(Math.random() * 10); // Dodaje losową cyfrę (0-9)
+      }
+  
+      return code;
+  }
+  
+  bru.setEnvVar("randomCountryCode", getRandomCountryCode());
+  
+  
   //date
   function generateFormattedDate() {
       const today = new Date();
@@ -22,93 +36,93 @@ script:pre-request {
   }
   const formattedDate = generateFormattedDate();
   bru.setEnvVar("formattedDate", formattedDate);
-
+  
   function generateRandomBirthdate(minAge = 18, maxAge = 65) {
       return faker.date.birthdate({ min: minAge, max: maxAge, mode: 'age' }).toISOString().split('T')[0];
   }
   const birthDate = generateRandomBirthdate();
   bru.setEnvVar("randomBirthDate", birthDate);
-
+  
   function generatePassword() {
       const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
       const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const digits = '0123456789';
       const specialChars = '!@#$%^&*()_+{}[]|:;<>,.?/~`';
-
+  
       let password = '';
-
+  
       // Dodajemy co najmniej jedną wielką literę
       password += uppercaseChars.charAt(Math.floor(Math.random() * uppercaseChars.length));
-
+  
       // Dodajemy co najmniej jedną cyfrę
       password += digits.charAt(Math.floor(Math.random() * digits.length));
-
+  
       // Dodajemy co najmniej jeden znak specjalny
       password += specialChars.charAt(Math.floor(Math.random() * specialChars.length));
-
+  
       // Dodajemy co najmniej jedną małą literę
       password += lowercaseChars.charAt(Math.floor(Math.random() * lowercaseChars.length));
-
+  
       // Dodajemy pozostałe losowe znaki (litery małe, duże, cyfry lub znaki specjalne)
       const allChars = lowercaseChars + uppercaseChars + digits + specialChars;
       for (let i = password.length; i < 6; i++) {
           password += allChars.charAt(Math.floor(Math.random() * allChars.length));
       }
-
+  
       // Mieszamy znaki w haśle, aby mała litera, wielka litera, cyfra i znak specjalny były na losowych pozycjach
       password = password.split('').sort(() => 0.5 - Math.random()).join('');
-
+  
       return password;
   }
-
+  
   const randompassword = generatePassword();
   bru.setEnvVar("randomPassword", randompassword);
-
+  
   const randomFirstName = faker.name.firstName();
   const randomLastName = faker.name.firstName();
   const randomEmail = faker.internet.email();
   bru.setEnvVar("randomFirstName", randomFirstName);
   bru.setEnvVar("randomLastName", randomLastName);
   bru.setEnvVar("randomEmail", randomEmail);
-
+  
   const randomBoolean = faker.datatype.boolean();
   bru.setEnvVar("randomBoolean", randomBoolean);
-
+  
   // Ustawienie randomBoolean2 jako przeciwieństwa randomBoolean
   const randomBoolean2 = !randomBoolean;
   bru.setEnvVar("randomBoolean2", randomBoolean2);
-
+  
   function generateRandomLogin() {
       const digits = '0123456789';
-
+  
       // Losowe imię
       const randomName = bru.getEnvVar("randomFirstName");
-
+  
       // Generowanie losowego ciągu cyfr (np. 3 cyfry)
       let randomDigits = '';
       for (let i = 0; i < 3; i++) {
           randomDigits += digits.charAt(Math.floor(Math.random() * digits.length));
       }
-
+  
       // Tworzenie loginu poprzez połączenie imienia i cyfr
       const login = randomName + randomDigits;
-
+  
       return login;
   }
-
+  
   const randomLogin = generateRandomLogin();
   bru.setEnvVar("randomLogin", randomLogin);
-
-
+  
+  
   function generateNIP() {
       var weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
-
+  
       // Generate the first 9 digits of NIP
       var nip_base = [];
       for (var i = 0; i < 9; i++) {
           nip_base.push(Math.floor(Math.random() * 10));
       }
-
+  
       // Calculate the control digit
       var control_sum = 0;
       for (var i = 0; i < 9; i++) {
@@ -118,49 +132,49 @@ script:pre-request {
       if (control_digit == 10) {
           control_digit = 0;
       }
-
+  
       nip_base.push(control_digit);
       return nip_base.join('');
   }
-
+  
   // Generate NIP and set it as a variable
   var nip = generateNIP();
   bru.setEnvVar("randomNIP",nip)
-
+  
   //Random Restaurant Tag
   const choices = ["Asian", "Italian", "OnSite", "Tag1", "Tag2", "Takeaway"];
-
-
+  
+  
   function getRandomChoice(arr) {
       const randomIndex = Math.floor(Math.random() * arr.length);
       return arr[randomIndex];
   }
   const randomChoice = getRandomChoice(choices);
-
+  
   bru.setEnvVar("randomRestaurantTag", randomChoice);
-
+  
   //Random Restaurant type
   const choices2 = ["Restaurant", "Bar"];
-
+  
   const randomChoice2 = getRandomChoice(choices2);
-
+  
   bru.setEnvVar("randomRestaurantType", randomChoice2);
-
+  
   //Random Deposit
   function getRandomDeposit(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
+  
   // Losowy wybór dla ReservationDeposit
   const randomDeposit = getRandomDeposit(0, 500);
-
+  
   // Zapisanie wartości jako zmiennej w środowisku Postmana
   bru.setEnvVar("randomDeposit", randomDeposit);
-
+  
   const randomDuration = getRandomDeposit(30, 120);
-
+  
   bru.setEnvVar("randomDuration", randomDuration);
-
+  
   // RandomCity
   const cities = [
       "Warszawa",
@@ -179,24 +193,24 @@ script:pre-request {
       "Radom",
       "Sosnowiec"
   ];
-
-
+  
+  
   function getRandomCity(arr) {
       const randomIndex = Math.floor(Math.random() * arr.length);
       return arr[randomIndex];
   }
-
-
+  
+  
   const randomCity = getRandomCity(cities);
-
+  
   // Zapisanie miasta jako zmiennej w środowisku Postmana
   bru.setEnvVar("randomCity", randomCity);
-
+  
   //Random Postal code
   function getRandomDigit() {
       return Math.floor(Math.random() * 10);
   }
-
+  
   // Funkcja generująca polski kod pocztowy w formacie xx-xxx
   function generateRandomPostalCode() {
       let postalCode = '';
@@ -209,103 +223,103 @@ script:pre-request {
       }
       return postalCode;
   }
-
+  
   // Losowy kod pocztowy
   const randomPostalCode = generateRandomPostalCode();
-
+  
   // Zapisanie kodu pocztowego jako zmiennej w środowisku Postmana
   bru.setEnvVar("randomPostalCode", randomPostalCode);
-
+  
   const randomCompanyName = faker.company.buzzNoun();
   bru.setEnvVar("randomCompanyName",randomCompanyName)
-
+  
   // Random Street Address
   const randomStreetAddress = faker.address.streetAddress();
   bru.setEnvVar("randomStreetAddress", randomStreetAddress);
-
+  
   // Random Latitude
   const randomLatitude = faker.address.latitude();
   bru.setEnvVar("randomLatitude", randomLatitude);
-
+  
   // Random Longitude
   const randomLongitude = faker.address.longitude();
   bru.setEnvVar("randomLongitude", randomLongitude);
-
+  
   // Random Lorem Sentence
   const randomLoremSentence = faker.lorem.sentence();
   bru.setEnvVar("randomLoremSentence", randomLoremSentence);
-
+  
   function getRandomHourString(startHour, endHour) {
       // Ensure the start and end hours are within a 24-hour range
       const min = Math.max(0, startHour);
       const max = Math.min(23, endHour);
-
+  
       // Generate a random integer between min and max for the hour
       const randomHour = Math.floor(Math.random() * (max - min + 1)) + min;
-
+  
       // Format the hour as two digits and return in "HH:00" format
       return `${String(randomHour).padStart(2, '0')}:00`;
   }
-
+  
   // Example usage
   const randomHourStartString = getRandomHourString(8, 12);
   bru.setEnvVar("randomHourStartString", randomHourStartString);
-
+  
   const randomHourEndString = getRandomHourString(20, 24);
   bru.setEnvVar("randomHourEndString", randomHourEndString);
-
-
+  
+  
   function getRandomMenuItemName() {
       var menuNames = ["seafood", "burger", "sushi", "kebab","pasta","pizza"];
       var randomIndex = Math.floor(Math.random() * menuNames.length);
       return menuNames[randomIndex];
   }
-
+  
   var randomMenuName = getRandomMenuItemName();
   bru.setEnvVar("menuName", randomMenuName);
-
+  
   function getRandomIngredientName() {
       var ingredientNames = ["maka", "sol", "pieprz", "cynamon","woda","mleko"];
       var randomIndex = Math.floor(Math.random() * ingredientNames.length);
       return ingredientNames[randomIndex];
   }
-
+  
   var randomIngredientName = getRandomIngredientName();
   bru.setEnvVar("randomIngredientName", randomIngredientName);
-
+  
   // Funkcja do generowania losowej liczby całkowitej w zakresie od 0 do 500
   function getRandomInt(max) {
       return Math.floor(Math.random() * (max + 1)); // max + 1, aby uwzględnić max w zakresie
   }
-
+  
   // Ustawienie zmiennej środowiskowej na losową liczbę całkowitą od 0 do 500
   bru.setEnvVar("randomInt", getRandomInt(500));
   console.log("Generated random integer:", bru.getEnvVar("randomInt"));
-
+  
   // Funkcja do generowania losowej liczby zmiennoprzecinkowej w zakresie od min do max
   function getRandomDoubleInRange(min, max) {
       return Math.random() * (max - min) + min;
   }
-
+  
   // Ustawienie zmiennej środowiskowej na losową liczbę zmiennoprzecinkową od 0 do 3
   bru.setEnvVar("randomDouble0to3", getRandomDoubleInRange(0, 3).toFixed(2));  // Zaokrąglamy do 2 miejsc po przecinku
   console.log("Generated random double from 0 to 3:", bru.getEnvVar("randomDouble0to3"));
-
+  
   // Funkcja do losowego wyboru pomiędzy -1 a 101
   function getRandomOutOfRangeAlcoholPercentage() {
       // Losowanie wartości pomiędzy 0 a 1
       const randomValue = Math.random();
-
+  
       // Jeśli wartość jest mniejsza niż 0.5, zwróć -1, w przeciwnym razie zwróć 101
       return randomValue < 0.5 ? -1 : 101;
   }
-
+  
   // Ustawienie zmiennej środowiskowej z losową wartością
   const randomOutOfRangeAlcoholPercentage = getRandomOutOfRangeAlcoholPercentage();
   bru.setEnvVar("randomOutOfRangeAlcoholPercentage", randomOutOfRangeAlcoholPercentage);
   console.log("Generated random out-of-range alcohol percentage:", randomOutOfRangeAlcoholPercentage);
-
-
+  
+  
   // Funkcja generująca losowy tekst powyżej 86 znaków
   function generateRandomText() {
       // Lista fragmentów do generowania tekstu
@@ -323,27 +337,27 @@ script:pre-request {
           "excepteur sint occaecat cupidatat non proident",
           "sunt in culpa qui officia deserunt mollit anim id est laborum"
       ];
-
+  
       // Zmienna do przechowywania wygenerowanego tekstu
       let randomText = "";
-
+  
       // Generuj tekst, aż jego długość przekroczy 86 znaków
       while (randomText.length <= 86) {
           const randomIndex = Math.floor(Math.random() * textParts.length);
           randomText += textParts[randomIndex] + " ";
       }
-
+  
       // Usuń zbędne spacje i zwróć wynik
       return randomText.trim();
   }
-
+  
   // Zapisz wygenerowany tekst do zmiennej środowiskowej
   bru.setEnvVar("randomGeneratedText", generateRandomText());
-
+  
   // Potwierdzenie, że tekst został zapisany
   console.log("Losowy tekst został zapisany do zmiennej środowiskowej 'randomGeneratedText'.");
-
-
+  
+  
   // Funkcja generująca losowy tekst powyżej 200 znaków
   function generateRandomTextLong() {
       // Lista fragmentów do generowania tekstu
@@ -361,31 +375,31 @@ script:pre-request {
           "excepteur sint occaecat cupidatat non proident",
           "sunt in culpa qui officia deserunt mollit anim id est laborum"
       ];
-
+  
       // Zmienna do przechowywania wygenerowanego tekstu
       let randomText = "";
-
+  
       // Generuj tekst, aż jego długość przekroczy 86 znaków
       while (randomText.length <= 200) {
           const randomIndex = Math.floor(Math.random() * textParts.length);
           randomText += textParts[randomIndex] + " ";
       }
-
+  
       // Usuń zbędne spacje i zwróć wynik
       return randomText.trim();
   }
-
+  
   // Zapisz wygenerowany tekst do zmiennej środowiskowej
   bru.setEnvVar("randomGeneratedTextLong", generateRandomTextLong());
-
+  
   // Potwierdzenie, że tekst został zapisany
   console.log("Losowy tekst został zapisany do zmiennej środowiskowej 'randomGeneratedText200'.");
-
-
+  
+  
   function generateRandomNumber010() {
       return Math.floor(Math.random() * 11);
   }
   var randomNumber010 = generateRandomNumber010();
   bru.setEnvVar("randomNumber010", randomNumber010);
-
+  
 }
