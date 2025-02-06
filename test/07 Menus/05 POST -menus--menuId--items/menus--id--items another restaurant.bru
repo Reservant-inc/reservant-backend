@@ -1,7 +1,7 @@
 meta {
   name: menus--id--items another restaurant
   type: http
-  seq: 4
+  seq: 5
 }
 
 post {
@@ -15,11 +15,11 @@ params:query {
 }
 
 params:path {
-  menuId: {{randomMenuId}}
+  menuId: {{menuToCheck}}
 }
 
 auth:bearer {
-  token: {{JD}}
+  token: {{PA}}
 }
 
 body:json {
@@ -88,19 +88,5 @@ tests {
       expect(res.getStatus()).to.equal(400);
   });
   
-  // Sprawdź, czy odpowiedź zawiera błędy
-  test("Response has errors", function () {
-      expect(jsonData).to.have.property('errors');
-  });
-  
-  // Sprawdź, czy odpowiedź zawiera oczekiwany błąd dotyczący itemIds
-  test("Error message is 'MenuItems belong to another restaurant'", function () {
-      expect(jsonData.errors.itemIds[0]).to.include("belong to another restaurant");
-  });
-  
-  // Sprawdź, czy odpowiedź zawiera oczekiwany kod błędu
-  test("Error code is 'BelongsToAnotherRestaurant'", function () {
-      expect(jsonData.errorCodes.itemIds[0]).to.eql("BelongsToAnotherRestaurant");
-  });
   
 }

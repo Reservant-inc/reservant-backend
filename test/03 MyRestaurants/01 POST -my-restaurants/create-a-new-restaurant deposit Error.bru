@@ -94,7 +94,7 @@ tests {
   
       // Sprawdzenie błędu dla 'reservationDeposit'
       expect(responseData.errors).to.have.property('reservationDeposit');
-      expect(responseData.errors.reservationDeposit[0]).to.include("The field ReservationDeposit must be between 0 and 500.");
+      expect(responseData.errorCodes.reservationDeposit[0]).to.include("GreaterThanValidator");
   });
   
 }

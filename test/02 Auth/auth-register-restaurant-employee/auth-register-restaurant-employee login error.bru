@@ -19,7 +19,10 @@ body:json {
     "login": "invalid@login!",  // Login zawiera niepoprawne znaki specjalne
     "firstName": "{{randomFirstName}}",
     "lastName": "{{randomLastName}}",
-    "phoneNumber": "{{randomPhoneNumber}}",
+       "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "{{randomPhoneNumber}}"
+    },
     "birthDate": "{{randomBirthDate}}",
     "password": "{{randomPassword}}"
   }

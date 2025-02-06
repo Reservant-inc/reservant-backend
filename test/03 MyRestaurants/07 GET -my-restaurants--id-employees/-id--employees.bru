@@ -40,13 +40,16 @@ tests {
           expect(employee).to.have.property('firstName').that.is.a('string');
           expect(employee).to.have.property('lastName').that.is.a('string');
           expect(employee).to.have.property('birthDate').that.is.a('string');
-          expect(employee).to.have.property('phoneNumber').that.is.a('string');
+  
+          // Sprawdzenie nowego formatu numeru telefonu
+          expect(employee).to.have.property('phoneNumber').that.is.an('object');
+          expect(employee.phoneNumber).to.have.property('code').that.is.a('string').and.to.not.be.empty;
+          expect(employee.phoneNumber).to.have.property('number').that.is.a('string').and.to.not.be.empty;
+  
           expect(employee).to.have.property('isHallEmployee').that.is.a('boolean');
           expect(employee).to.have.property('isBackdoorEmployee').that.is.a('boolean');
           expect(employee).to.have.property('dateFrom').that.is.a('string');
-          expect(employee).to.have.property('dateUntil').that.satisfy(function(value) {
-              return value === null || typeof value === 'string';
-          });
+          expect(employee).to.have.property('dateUntil').that.satisfy(value => value === null || typeof value === 'string');
           expect(employee).to.have.property('employmentId').that.is.a('number');
       });
   });

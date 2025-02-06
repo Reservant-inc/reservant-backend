@@ -19,7 +19,10 @@ body:json {
     "login": "{{randomLogin}}",
     "firstName": "{{randomFirstName}}",
     "lastName": "{{randomLastName}}",
-    "phoneNumber": "{{randomPhoneNumber}}",
+    "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "{{randomPhoneNumber}}"
+    },
     "birthDate": "2030-01-01",  // Przyszła data
     "password": "{{randomPassword}}"
   }

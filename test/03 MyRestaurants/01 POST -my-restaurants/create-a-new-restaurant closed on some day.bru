@@ -186,8 +186,8 @@ tests {
       expect(responseData.address).to.eql(requestData.address);
       expect(responseData.postalIndex).to.eql(requestData.postalIndex);
       expect(responseData.city).to.eql(requestData.city);
-      expect(responseData.location.latitude).to.eql(requestData.location.longitude);
-      expect(responseData.location.longitude).to.eql(requestData.location.latitude);
+      expect(responseData.location.latitude).to.eql(requestData.location.latitude);
+      expect(responseData.location.longitude).to.eql(requestData.location.longitude);
       expect(responseData.provideDelivery).to.eql(requestData.provideDelivery);
       expect(responseData.description).to.eql(requestData.description);
       expect(responseData.reservationDeposit).to.eql(requestData.reservationDeposit);
@@ -200,31 +200,5 @@ tests {
       expect(responseData.logo).to.include(requestData.logo);
   });
   
-  
-  // Pobierz odpowiedź z serwera
-  var jsonData = res.getBody();
-  
-  // Sprawdź, czy restaurantId istnieje w odpowiedzi
-  if (jsonData.restaurantId) {
-      // Pobierz aktualną listę restaurantIds z środowiska (jeśli istnieje)
-      var restaurantIdsList = bru.getEnvVar("restaurantIds");
-      
-      // Jeśli restaurantIdsList istnieje, parsuj ją jako JSON, w przeciwnym razie zainicjuj jako pustą tablicę
-      if (restaurantIdsList) {
-          restaurantIdsList = JSON.parse(restaurantIdsList);
-      } else {
-          restaurantIdsList = [];
-      }
-      
-      // Dodaj nowy restaurantId do listy
-      restaurantIdsList.push(jsonData.restaurantId);
-      
-      // Zapisz zaktualizowaną listę z powrotem do środowiska
-      bru.setEnvVar("restaurantIds", JSON.stringify(restaurantIdsList));
-      
-      console.log("Dodano restaurantId: " + jsonData.restaurantId);
-  } else {
-      console.log("restaurantId nie znaleziono w odpowiedzi");
-  }
   
 }

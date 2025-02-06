@@ -16,7 +16,10 @@ body:json {
     "lastName": "{{randomLastName}}",
     "login": "{{randomLogin}}",
     "email": "{{randomEmail}}",
-    "phoneNumber": "12345abc",  // `phoneNumber` zawiera litery
+    "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "1234abc"
+    },
     "birthDate": "{{randomBirthDate}}",
     "password": "{{randomPassword}}"
   }

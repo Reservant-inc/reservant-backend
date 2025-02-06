@@ -87,12 +87,12 @@ tests {
       expect(jsonData).to.have.property('errors');
   });
   
-  // Testy dla błędu związanego z błędną godziną otwarcia restuaracji
-  test("Error for unknown invalid hour is present", function () {
+  test("Error for 'openingHours' missing day", function () {
       var responseData = res.getBody();
-  
-      // Sprawdzenie błędu dla niepoprawnego typu 'openingHours'
-      expect(responseData.errors).to.have.property('$.openingHours');
+      
+      // Sprawdzamy, czy błąd dotyczy niepoprawnej wartości pola 'reservationDeposit'
+      expect(responseData.errorCodes).to.have.property('openingHours');
+      expect(responseData.errorCodes.openingHours[0]).to.include( "MustBeValidOpeningHours");
   });
   
 }

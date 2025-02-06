@@ -1,7 +1,7 @@
 meta {
   name: -menu-items With ingredients
   type: http
-  seq: 14
+  seq: 15
 }
 
 post {
@@ -25,7 +25,6 @@ body:json {
       "ingredients": [
         {
           "ingredientId": {{newIngredient.ingredientId}},
-          "publicName": "{{newIngredient.publicName}}",
           "amountUsed": {{randomNumber01}}
         }
       ]

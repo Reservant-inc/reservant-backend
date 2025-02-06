@@ -19,7 +19,10 @@ body:json {
     "login": "{{randomLogin}}",
     "firstName": "{{randomFirstName}}",
     "lastName": "",  // Pole lastName jest puste
-    "phoneNumber": "{{randomPhoneNumber}}",
+    "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "{{randomPhoneNumber}}"
+    },
     "birthDate": "{{randomBirthDate}}",
     "password": "{{randomPassword}}"
   }

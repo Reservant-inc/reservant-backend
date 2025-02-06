@@ -28,6 +28,31 @@ body:json {
   ]
 }
 
+script:pre-request {
+  // Pobierz listę restaurantIds ze zmiennych środowiskowych Bruno
+  var restaurantIdsList = bru.getEnvVar("restaurantIds");
+  
+  if (restaurantIdsList) {
+      // Parsowanie listy z JSON-a
+      restaurantIdsList = JSON.parse(restaurantIdsList);
+  
+      if (Array.isArray(restaurantIdsList) && restaurantIdsList.length > 0) {
+          // Losuj jeden restaurantId
+          var firstRestaurantId = restaurantIdsList[Math.floor(Math.random() * restaurantIdsList.length)];
+  
+          // Zapisz do zmiennych środowiskowych Bruno
+          bru.setEnvVar("firstRestaurantId", firstRestaurantId);
+  
+          console.log("Losowy firstRestaurantId:", firstRestaurantId);
+      } else {
+          console.log("Lista restaurantIds jest pusta, nie można wybrać firstRestaurantId.");
+      }
+  } else {
+      console.log("Brak zapisanej listy restaurantIds w Bruno.");
+  }
+  
+}
+
 tests {
   // Test sprawdzający, czy status odpowiedzi to 204 No Content
   test("Status code is 204", function () {

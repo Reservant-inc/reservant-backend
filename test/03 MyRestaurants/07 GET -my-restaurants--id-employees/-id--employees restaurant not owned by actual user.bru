@@ -36,13 +36,6 @@ tests {
       expect(jsonData).to.have.property('errors');
   });
   
-  // Test sprawdzający, czy odpowiedź zawiera odpowiedni błąd dla nieautoryzowanego dostępu
-  test("Response contains error message for unauthorized access", function () {
-      var jsonData = res.getBody();
-      
-      // Sprawdzenie, czy pole 'errors' zawiera odpowiedni komunikat błędu
-      expect(jsonData.errors[""]).to.be.an('array').that.includes("Restaurant with ID 6 is not owned by the current user");
-  });
   
   // Test sprawdzający, czy odpowiedź zawiera odpowiedni kod błędu dla nieautoryzowanego dostępu
   test("Response contains error code 'AccessDenied'", function () {

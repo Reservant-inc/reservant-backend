@@ -19,7 +19,10 @@ body:json {
     "login": "{{randomLogin}}",
     "firstName": "{{randomFirstName}}",
     "lastName": "{{randomLastName}}",
-    "phoneNumber": "{{randomPhoneNumber}}",
+    "phoneNumber": {
+      "code": "{{randomCountryCode}}",
+      "number": "{{randomPhoneNumber}}"
+    },
     "birthDate": "32-13-2024",  // Niepoprawny format daty
     "password": "{{randomPassword}}"
   }

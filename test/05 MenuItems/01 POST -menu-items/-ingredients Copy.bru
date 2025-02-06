@@ -1,0 +1,81 @@
+meta {
+  name: -ingredients Copy
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{host}}/ingredients
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{JD}}
+}
+
+body:json {
+  {
+    "publicName": "{{randomIngredientName}}",
+    "unitOfMeasurement": "{{unitOfMeasurement}}",
+    "minimalAmount": {{minimalAmount}},
+    "amountToOrder": {{amountToOrder}},
+    "amount": {{amountToOrder}},
+    "restaurantId": {{firstRestaurantId}}
+  }
+  
+}
+
+tests {
+  // Test sprawdzający, czy odpowiedź ma status 200
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+  
+  // Parsowanie odpowiedzi JSON
+  var jsonData = res.getBody();
+  
+  // Test sprawdzający, czy odpowiedź zawiera pole 'ingredientId'
+  test("Response contains 'ingredientId'", function () {
+      expect(jsonData).to.have.property('ingredientId');
+  });
+  
+  
+  /////////////////////////////////
+  // Dodawanie ingredientIds do listy w środowisku
+  let ingredientIds = bru.getEnvVar("ingredientIdsList");
+  
+  // Jeśli lista jeszcze nie istnieje, inicjalizujemy ją jako pustą tablicę
+  if (!ingredientIds) {
+      ingredientIds = [];
+  } else {
+      // Jeśli lista już istnieje, parsujemy ją jako JSON
+      ingredientIds = JSON.parse(ingredientIds);
+  }
+  
+  // Dodanie nowego ingredientIds do listy
+  ingredientIds.push(jsonData.ingredientId);
+  
+  // Zapisywanie zaktualizowanej listy ingredientIds do zmiennej środowiskowej
+  bru.setEnvVar("ingredientIdsList", JSON.stringify(ingredientIds));
+  console.log("Updated ingredientIdsList:", ingredientIds);
+  ////////////////////////////////////////////
+  
+  // Testy weryfikujące poprawność danych odpowiedzi z danymi wysłanymi w żądaniu
+  test("Response data matches request data", function () {
+      expect(jsonData).to.have.property("ingredientId");
+      expect(jsonData).to.have.property("publicName");
+      expect(jsonData).to.have.property("unitOfMeasurement");
+      expect(jsonData).to.have.property("minimalAmount");
+      expect(jsonData).to.have.property("amountToOrder");
+      expect(jsonData).to.have.property("amount");
+  });
+  
+  var jsonData = res.getBody();
+  if (jsonData) {
+      var newIngredient = jsonData;
+      bru.setEnvVar("newIngredient", newIngredient);
+      console.log("New ingredient saved to environment:", newIngredient);
+  }
+  
+}
