@@ -124,7 +124,7 @@ public class MakeOrderService(ApiDbContext context, ValidationService validation
 
         context.Add(order);
 
-        if (visit.StartTime == null) {
+        if (visit.StartTime == null && !request.PaymentWithCard) {
             var transaction = await paymentService.PayForOrderAsync(user, order);
             if (transaction.IsError) {
                 return transaction.Errors;

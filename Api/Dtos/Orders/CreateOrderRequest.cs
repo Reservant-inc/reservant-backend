@@ -21,4 +21,9 @@ public class CreateOrderRequest
     /// Ordered MenuItems
     /// </summary>
     public required List<CreateOrderItemRequest> Items { get; init; }
+
+    /// <summary>
+    /// Whether the payment is made with card or not
+    /// </summary>
+    public bool PaymentWithCard { get; init; }
 }
