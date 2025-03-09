@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Reservant.Api.Options;
+namespace Reservant.Api.Configuration;
 
 /// <summary>
 /// JWT configuration.

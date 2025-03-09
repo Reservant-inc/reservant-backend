@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Reservant.Api.Data;
 using Reservant.Api.Models;
-using Reservant.Api.Options;
+using Reservant.Api.Configuration;
 
 namespace Reservant.Api.Identity;
 

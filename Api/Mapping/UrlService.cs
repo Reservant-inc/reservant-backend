@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Options;
-using Reservant.Api.Options;
+using Reservant.Api.Configuration;
 
 namespace Reservant.Api.Mapping;
 

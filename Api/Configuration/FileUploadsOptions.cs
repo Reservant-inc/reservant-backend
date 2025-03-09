@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Reservant.Api.Options;
+namespace Reservant.Api.Configuration;
 
 /// <summary>
 /// File upload configuration

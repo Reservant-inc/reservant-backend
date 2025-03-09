@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
 using Reservant.Api.Mapping;
 using Reservant.Api.Models;
-using Reservant.Api.Options;
+using Reservant.Api.Configuration;
 using SmartFormat;
 using Notification = Reservant.Api.Models.Notification;
 using FirebaseMessage = FirebaseAdmin.Messaging.Message;

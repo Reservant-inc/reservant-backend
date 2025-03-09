@@ -14,7 +14,7 @@ using Reservant.Api.Data.Seeding;
 using Reservant.Api.Documentation;
 using Reservant.Api.Identity;
 using Reservant.Api.Mapping;
-using Reservant.Api.Options;
+using Reservant.Api.Configuration;
 using Reservant.Api.Push;
 using Reservant.Api.Serialization;
 using Reservant.Api.Services;

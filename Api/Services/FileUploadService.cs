@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Reservant.Api.Data;
 using Reservant.Api.Dtos.FileUploads;
 using Reservant.Api.Models;
-using Reservant.Api.Options;
+using Reservant.Api.Configuration;
 using Reservant.Api.Validation;
 using Reservant.Api.Validators;
 using System.Diagnostics.CodeAnalysis;

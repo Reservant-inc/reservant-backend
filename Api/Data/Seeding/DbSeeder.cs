@@ -10,7 +10,7 @@ using Reservant.Api.Dtos.Visits;
 using Reservant.Api.Identity;
 using Reservant.Api.Models;
 using Reservant.Api.Models.Enums;
-using Reservant.Api.Options;
+using Reservant.Api.Configuration;
 using Reservant.Api.Services;
 using Reservant.Api.Services.OrderServices;
 using Reservant.Api.Services.VisitServices;

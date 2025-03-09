@@ -1,4 +1,4 @@
-namespace Reservant.Api.Options;
+namespace Reservant.Api.Configuration;
 
 /// <summary>
 /// Firebase configuration
