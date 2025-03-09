@@ -39,7 +39,7 @@ var logDbConnectionString = builder.Configuration.GetConnectionString("LogDb")
     ?? throw new InvalidOperationException("Connection string 'LogDb' not found");
 builder.Services.AddLogsViewer(o => o.UseSqlite(logDbConnectionString));
 
-builder.Services.AddSwaggerServices();
+builder.Services.AddSwaggerServices(builder.Environment);
 builder.Services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
 builder.Services.AddControllers()
     .AddJsonOptions(o =>

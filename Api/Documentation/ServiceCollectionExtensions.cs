@@ -3,6 +3,8 @@ using Reservant.ErrorCodeDocs.SwaggerGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Reservant.Api.Documentation;
 
@@ -14,7 +16,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Register and configure Swagger services
     /// </summary>
-    public static void AddSwaggerServices(this IServiceCollection services)
+    public static void AddSwaggerServices(this IServiceCollection services, IHostEnvironment environment)
     {
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
@@ -36,6 +38,11 @@ public static class ServiceCollectionExtensions
 
             var filePath = Path.Combine(AppContext.BaseDirectory, $"{assembly.GetName().Name}.xml");
             options.IncludeXmlComments(filePath, includeControllerXmlComments: true);
+
+            if (!environment.IsDevelopment())
+            {
+                options.DocInclusionPredicate((_, endpoint) => !IsDevelopmentOnly(endpoint));
+            }
 
             var jwtSecurityScheme = new OpenApiSecurityScheme
             {
@@ -62,5 +69,18 @@ public static class ServiceCollectionExtensions
             options.IncludeErrorCodes(Assembly.GetExecutingAssembly());
             options.DescribeAllParametersInCamelCase();
         });
+    }
+
+    private static bool IsDevelopmentOnly(ApiDescription endpoint)
+    {
+        if (!endpoint.TryGetMethodInfo(out var methodInfo))
+        {
+            return false;
+        }
+
+        return methodInfo.CustomAttributes
+                   .Any(attribute => attribute.AttributeType == typeof(DevelopmentOnlyAttribute))
+               || (methodInfo.DeclaringType?.CustomAttributes
+                   .Any(attribute => attribute.AttributeType == typeof(DevelopmentOnlyAttribute)) ?? false);
     }
 }

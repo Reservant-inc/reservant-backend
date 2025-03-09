@@ -16,6 +16,7 @@ namespace Reservant.Api.Controllers;
 /// Debugging functions
 /// </summary>
 [ApiController, Route("/debug")]
+[DevelopmentOnly]
 public class DebugController(
     DebugService debugService,
     DbSeeder dbSeeder
