@@ -52,6 +52,7 @@ file to `/api/appsettings.Production.json`. Example contents:
   },
   "Firebase": {
     "CredentialsPath": "{Path to the Firebase Service Account Credentials}"
-  }
+  },
+  "RecreateDatabaseOnStart": false
 }
 ```

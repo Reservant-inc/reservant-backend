@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Reservant.Api.Data.Seeding;
-using Reservant.Api.Options;
+using Reservant.Api.Configuration;
 using Reservant.Api.Services;
 
 namespace Reservant.Api.Data;
@@ -27,7 +27,7 @@ public static class StartupHelpers
             Directory.CreateDirectory(fileUploadsOptions.GetFullSavePath());
         }
 
-        if (app.Environment.IsProduction())
+        if (app.Configuration.GetValue<bool>(ConfigurationKeys.RecreateDatabaseOnStart))
         {
             await debugService.RecreateDatabase();
         }
