@@ -1,14 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using Microsoft.AspNetCore.Identity;
-using Reservant.Api.Data;
 
 namespace Reservant.Api.Models;
 
 /// <summary>
 /// One class for all user classes.
 /// </summary>
-public class User : IdentityUser<Guid>, ISoftDeletable
+public class User : IdentityUser<Guid>
 {
     /// <summary>
     /// Imię.
@@ -139,9 +138,6 @@ public class User : IdentityUser<Guid>, ISoftDeletable
     /// Visits that the user participated in
     /// </summary>
     public ICollection<Visit> VisitParticipations { get; set; } = null!;
-
-    /// <inheritdoc />
-    public bool IsDeleted { get; set; }
 
     /// <summary>
     /// Property that indicates if the user was deleted
