@@ -59,6 +59,11 @@ public class ApiDbContext(
 
     public DbSet<Report> Reports { get; init; } = null!;
 
+    static ApiDbContext()
+    {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    }
+
     /// <summary>
     /// Drop all tables in the database
     /// </summary>
@@ -66,20 +71,36 @@ public class ApiDbContext(
     {
         await Database.ExecuteSqlRawAsync(
             """
-            -- Drop all foreign key constraints
-        
-            DECLARE @sql NVARCHAR(MAX) = N'';
-        
-            SELECT @sql += N'
-            ALTER TABLE ' + QUOTENAME(TABLE_NAME) + ' DROP CONSTRAINT ' + QUOTENAME(CONSTRAINT_NAME) + ';'
-            FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
-            WHERE CONSTRAINT_TYPE = 'FOREIGN KEY';
-        
-            EXEC sp_sqlexec @sql;
-        
-            -- Drop every table
-        
-            EXEC sp_msforeachtable 'DROP TABLE ?';
+            DO $$
+            DECLARE
+                sql TEXT;
+            BEGIN
+                SELECT STRING_AGG(command, E'\n')
+                INTO sql
+                FROM (
+                    -- Drop all foreign key constraints
+                    SELECT FORMAT('ALTER TABLE %I DROP CONSTRAINT %I;', tab.relname, con.conname) AS command
+                    FROM pg_catalog.pg_constraint con
+                    JOIN pg_catalog.pg_class tab ON con.conrelid = tab.oid
+                    WHERE con.contype = 'f'
+                      AND tab.relname NOT LIKE 'pg_%'
+                      AND tab.relname NOT LIKE 'sql_%'
+                      AND tab.relname != 'spatial_ref_sys'
+                    UNION ALL
+                    -- Drop every table
+                    SELECT FORMAT('DROP TABLE %I;', tab.relname) AS command
+                    FROM pg_catalog.pg_class tab
+                    WHERE tab.relkind = 'r'
+                      AND tab.relname NOT LIKE 'pg_%'
+                      AND tab.relname NOT LIKE 'sql_%'
+                      AND tab.relname != 'spatial_ref_sys'
+                ) commands;
+
+                IF sql IS NOT NULL THEN
+                    EXECUTE sql;
+                END IF;
+            END
+            $$;
             """);
     }
 
@@ -87,15 +108,20 @@ public class ApiDbContext(
     {
         var connString = configuration.GetConnectionString("Default");
 
-        optionsBuilder.UseSqlServer(
+        optionsBuilder.UseNpgsql(
             connString ?? throw new InvalidOperationException("Connection string 'Default' not found"),
             x => x.UseNetTopologySuite());
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTime>().HaveColumnType("timestamp without time zone");
+        configurationBuilder.Properties<DateTime?>().HaveColumnType("timestamp without time zone");
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-
 
         builder.ApplyConfigurationsFromAssembly(typeof(ApiDbContext).Assembly);
 
