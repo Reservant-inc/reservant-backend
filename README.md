@@ -51,7 +51,7 @@ file to `/api/appsettings.Production.json`. Example contents:
     "ServeUrlBase": "{https://example.com/uploads}"
   },
   "Firebase": {
-    "CredentialsPath": "{Path to the Firebase Service Account Credentials}"
+    "CredentialsPath": "{Path to the Firebase Service Account Credentials (optional)}"
   },
   "RecreateDatabaseOnStart": false
 }
