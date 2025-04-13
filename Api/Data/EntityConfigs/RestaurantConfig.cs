@@ -12,9 +12,6 @@ public class RestaurantConfig : IEntityTypeConfiguration<Restaurant>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Restaurant> builder)
     {
-        builder.Property(r => r.Location)
-            .HasColumnType("geography");
-
         builder.OwnsMany(restaurant => restaurant.Tables);
         builder.OwnsMany(restaurant => restaurant.OpeningHours);
     }
