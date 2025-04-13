@@ -123,6 +123,8 @@ public class ApiDbContext(
     {
         base.OnModelCreating(builder);
 
+        builder.HasPostgresExtension("postgis");
+
         builder.ApplyConfigurationsFromAssembly(typeof(ApiDbContext).Assembly);
 
         builder.Entity<Notification>()
